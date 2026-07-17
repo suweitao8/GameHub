@@ -6,6 +6,7 @@ import { QueryTypes } from 'sequelize'
 import { logger } from '../helpers/logger.js'
 import { LAST_MIGRATION_VERSION } from './constants.js'
 import { sequelizeTypescript } from './database.js'
+import { getMigrationModuleUrl } from './migration-utils.js'
 
 async function migrate () {
   const tables = await sequelizeTypescript.getQueryInterface().showAllTables()
@@ -94,7 +95,7 @@ async function executeMigration (actualVersion: number, entity: { version: strin
   const migrationScriptName = entity.script
   logger.info('Executing %s migration script.', migrationScriptName)
 
-  const migrationScript = await import(join(currentDir(import.meta.url), 'migrations', migrationScriptName))
+  const migrationScript = await import(getMigrationModuleUrl(currentDir(import.meta.url), migrationScriptName))
 
   return sequelizeTypescript.transaction(async t => {
     const options = {

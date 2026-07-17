@@ -88,8 +88,9 @@ export async function readStoredGameHtml (root: string, runtimePath: string) {
   return readFile(absolutePath)
 }
 
-export function getGameRuntimeHeaders (parentOrigin: string): Record<string, string> {
-  const origin = new URL(parentOrigin).origin
+export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<string, string> {
+  const origins = (Array.isArray(parentOrigin) ? parentOrigin : [ parentOrigin ])
+    .map(origin => new URL(origin).origin)
 
   return {
     'Content-Type': 'text/html; charset=utf-8',
@@ -107,7 +108,7 @@ export function getGameRuntimeHeaders (parentOrigin: string): Record<string, str
       "object-src 'none'",
       "base-uri 'none'",
       "form-action 'none'",
-      `frame-ancestors ${origin}`,
+      `frame-ancestors ${origins.join(' ')}`,
       "navigate-to 'none'"
     ].join('; ')
   }

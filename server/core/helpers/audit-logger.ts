@@ -290,11 +290,34 @@ class VideoChannelSyncAuditView extends EntityAuditView {
   }
 }
 
+const gameKeysToKeep = new Set([
+  'uuid',
+  'title',
+  'category',
+  'tags',
+  'status',
+  'fileSizeBytes',
+  'playCount',
+  'publishedAt',
+  'ownerAccountId',
+  'moderatedByAccountId',
+  'moderationReason',
+  'createdAt',
+  'updatedAt'
+])
+
+class GameAuditView extends EntityAuditView {
+  constructor (game: object) {
+    super(gameKeysToKeep, 'game', game)
+  }
+}
+
 export {
   AbuseAuditView,
   auditLoggerFactory,
   CommentAuditView,
   CustomConfigAuditView,
+  GameAuditView,
   getAuditIdFromRes,
   getAuditIdFromUser,
   UserAuditView,

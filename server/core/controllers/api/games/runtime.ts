@@ -12,9 +12,14 @@ runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
 
   const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
   const parentOrigin = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
+  const developmentOrigins = CONFIG.WEBSERVER.HOSTNAME === 'localhost'
+    ? [ parentOrigin, `${CONFIG.WEBSERVER.SCHEME}://127.0.0.1:${CONFIG.WEBSERVER.PORT}` ]
+    : [ parentOrigin ]
+
+  res.removeHeader('X-Frame-Options')
 
   return res
-    .set(getGameRuntimeHeaders(parentOrigin))
+    .set(getGameRuntimeHeaders(developmentOrigins))
     .send(content)
 }))
 

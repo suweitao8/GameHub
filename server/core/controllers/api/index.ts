@@ -11,6 +11,7 @@ import { clientConfigRouter } from './client-config.js'
 import { configRouter } from './config.js'
 import { customPageRouter } from './custom-page.js'
 import { jobsRouter } from './jobs.js'
+import { gamesRouter } from './games/index.js'
 import { metricsRouter } from './metrics.js'
 import { oauthClientsRouter } from './oauth-clients.js'
 import { overviewsRouter } from './overviews.js'
@@ -46,6 +47,7 @@ apiRouter.use('/video-channel-syncs', videoChannelSyncRouter)
 apiRouter.use('/video-playlists', videoPlaylistRouter)
 apiRouter.use('/videos', videosRouter)
 apiRouter.use('/jobs', jobsRouter)
+apiRouter.use('/games', gamesRouter)
 apiRouter.use('/metrics', metricsRouter)
 apiRouter.use('/search', searchRouter)
 apiRouter.use('/overviews', overviewsRouter)

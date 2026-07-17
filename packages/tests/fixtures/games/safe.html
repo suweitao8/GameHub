@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Safe test game</title>
+    <style>body { font-family: sans-serif; background: #101827; color: white; }</style>
+  </head>
+  <body>
+    <button id="play">Play</button>
+    <p id="status">Ready</p>
+    <script>
+      document.getElementById('play').addEventListener('click', function () {
+        document.getElementById('status').textContent = 'Playing'
+      })
+    </script>
+  </body>
+</html>
