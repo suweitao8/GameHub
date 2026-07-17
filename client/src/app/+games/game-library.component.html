@@ -1,0 +1,18 @@
+<main class="library-page margin-content">
+  <a routerLink="/games" class="back-link">← 返回游戏社区</a>
+  <p class="eyebrow">YOUR LIBRARY</p>
+  <h1>我的游戏</h1>
+  <nav class="library-tabs" aria-label="我的游戏分类">
+    <button type="button" [class.active]="tab() === 'recent'" (click)="selectTab('recent')">最近游玩</button>
+    <button type="button" [class.active]="tab() === 'favorites'" (click)="selectTab('favorites')">我的收藏</button>
+    <button type="button" [class.active]="tab() === 'owned'" (click)="selectTab('owned')">我的创作</button>
+  </nav>
+  @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+  <div class="library-grid">
+    @for (game of games(); track game.uuid) {
+      <a class="library-card" [routerLink]="['/games', game.uuid]"><span>{{ game.category }}</span><h2>{{ game.title }}</h2><p>{{ game.description }}</p></a>
+    } @empty {
+      @if (!error()) { <p>这里还没有内容。</p> }
+    }
+  </div>
+</main>

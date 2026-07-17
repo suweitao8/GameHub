@@ -1,0 +1,81 @@
+<main class="games-home margin-content" aria-labelledby="games-title">
+  <section class="games-hero">
+    <div>
+      <p class="eyebrow">HTML GAME COMMUNITY</p>
+      <h1 id="games-title">今天玩点不一样的</h1>
+      <p class="hero-copy">打开即玩，发现独立创作者制作的轻量小游戏。</p>
+    </div>
+
+    <form class="game-search" (submit)="onSearch($event)">
+      <label class="visually-hidden" for="game-search-input">搜索小游戏</label>
+      <input
+        id="game-search-input"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+        placeholder="搜索游戏或创作者"
+        type="search">
+      <button type="submit">搜索</button>
+    </form>
+  </section>
+
+  <div class="creator-links">
+    <a routerLink="/games/upload">上传 HTML 游戏</a>
+    <a routerLink="/games/manage">审核工作台</a>
+    <a routerLink="/games/library">最近游玩 / 我的收藏</a>
+  </div>
+
+  <nav class="game-tabs" aria-label="游戏内容分类">
+    <a class="active" routerLink="/games">推荐</a>
+    <a routerLink="/games" [queryParams]="{ category: 'arcade' }">动作</a>
+    <a routerLink="/games" [queryParams]="{ category: 'puzzle' }">解谜</a>
+    <a routerLink="/games" [queryParams]="{ category: 'casual' }">休闲</a>
+    <a routerLink="/games" [queryParams]="{ category: 'strategy' }">策略</a>
+  </nav>
+
+  @if (loading()) {
+    <div class="game-state" role="status">正在加载游戏...</div>
+  } @else if (error()) {
+    <div class="game-state game-state-error" role="alert">
+      <p>游戏列表加载失败，请重试。</p>
+      <button type="button" (click)="loadGames()">重新加载</button>
+    </div>
+  } @else if (games().length === 0) {
+    <div class="game-state">
+      <h2>还没有公开游戏</h2>
+      <p>第一个上传 HTML 游戏，成为这里的创作者。</p>
+    </div>
+  } @else {
+    <section aria-labelledby="latest-games-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DISCOVER</p>
+          <h2 id="latest-games-title">最新发布</h2>
+        </div>
+        <span>{{ games().length }} 个游戏</span>
+      </div>
+
+      <div class="game-grid">
+        @for (game of games(); track game.uuid) {
+          <a class="game-card" [routerLink]="['/games', game.uuid]">
+            <div class="game-cover" [class.game-cover-placeholder]="!game.coverPath">
+              @if (game.coverPath) {
+                <img [src]="game.coverPath" [alt]="game.title + ' 封面'" loading="lazy">
+              } @else {
+                <span aria-hidden="true">✦</span>
+              }
+              <span class="play-badge">立即试玩</span>
+            </div>
+            <div class="game-card-copy">
+              <div class="game-card-meta">
+                <span>{{ game.category }}</span>
+                <span>{{ game.playCount }} 次游玩</span>
+              </div>
+              <h3>{{ game.title }}</h3>
+              <p>{{ game.description || '一个等待你打开的小游戏。' }}</p>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+</main>

@@ -102,6 +102,11 @@ const routes: Routes = [
     loadChildren: () => import('./+search/routes'),
     canActivateChild: [ MetaGuard ]
   },
+  {
+    path: 'games',
+    loadChildren: () => import('./+games/routes'),
+    canActivateChild: [ MetaGuard ]
+  },
 
   // ---------------------------------------------------------------------------
 

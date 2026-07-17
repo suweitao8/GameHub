@@ -1,0 +1,11 @@
+import { expect } from 'chai'
+import { buildGameRuntimeUrl, buildGamesListUrl } from '../../../../client/src/app/+games/games-api.js'
+
+describe('Games client API contract', function () {
+  it('builds encoded list and runtime URLs without string-concatenating ids', function () {
+    expect(buildGamesListUrl('http://localhost:9000', { search: 'space game', category: 'arcade', count: 12 }))
+      .to.equal('http://localhost:9000/api/v1/games?search=space+game&category=arcade&count=12')
+    expect(buildGameRuntimeUrl('http://games.localhost:9000', 'game-uuid'))
+      .to.equal('http://games.localhost:9000/api/v1/games/game-uuid/runtime')
+  })
+})

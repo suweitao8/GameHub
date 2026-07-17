@@ -1,0 +1,148 @@
+.game-play,
+.game-play-state { max-width: 1280px;
+  padding-top: 24px;
+  padding-bottom: 64px; }
+.game-play-header,
+.game-details { display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px; }
+.back-link { color: var(--ptx-primary-500, #ff734c);
+  text-decoration: none; }
+.game-actions { display: flex;
+  gap: 10px; }
+.game-actions button { padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer; }
+.game-actions button:last-child { border-color: #ff734c;
+  background: #ff734c;
+  color: #191513;
+  font-weight: 700; }
+.game-stage { position: relative;
+  min-height: min(72vh, 760px);
+  margin-top: 18px;
+  border-radius: 18px;
+  background: #080a0e;
+  overflow: hidden; }
+.game-stage iframe { display: block;
+  width: 100%;
+  min-height: min(72vh, 760px);
+  border: 0; }
+.frame-loading { position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.68);
+  pointer-events: none; }
+.game-details { align-items: end;
+  padding: 28px 0 12px; }
+.game-details h1 { margin: 0 0 10px;
+  font-size: clamp(30px, 4vw, 52px);
+  letter-spacing: -0.05em; }
+.eyebrow { margin: 0 0 8px;
+  color: #ff734c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase; }
+.description { max-width: 680px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.66); }
+.game-stats { display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: right;
+  font-size: 13px; }
+.game-instructions { margin-top: 24px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03); }
+.game-instructions h2 { margin: 0 0 8px;
+  font-size: 18px; }
+.game-instructions p { margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  white-space: pre-wrap; }
+.game-play-state { text-align: center; }
+.game-play-state a { color: #ff734c; }
+.game-community,
+.game-comments { margin-top: 24px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03); }
+.community-actions { display: flex;
+  flex-wrap: wrap;
+  gap: 10px; }
+.community-actions button,
+.comment-form button { padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer; }
+.community-actions button.active { border-color: #ff734c;
+  background: rgba(255, 115, 76, 0.16);
+  color: #ffb095; }
+.author-line { margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.62); }
+.report-form { display: flex;
+  gap: 10px;
+  margin-top: 14px; }
+.report-form input { flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  color: inherit; }
+.report-form button { padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer; }
+.section-heading { display: flex;
+  align-items: baseline;
+  justify-content: space-between; }
+.section-heading h2 { margin: 0;
+  font-size: 18px; }
+.section-heading span { color: rgba(255, 255, 255, 0.55); }
+.comment-form { display: flex;
+  gap: 10px;
+  margin: 18px 0; }
+.comment-form input { flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit; }
+.comment-form button { border-color: #ff734c;
+  background: #ff734c;
+  color: #191513;
+  font-weight: 700; }
+.comment { padding: 14px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08); }
+.comment p { margin: 6px 0 0;
+  color: rgba(255, 255, 255, 0.72); }
+.empty-comments { color: rgba(255, 255, 255, 0.55); }
+
+@media (max-width: 700px) {
+  .game-play-header,
+  .game-details { align-items: start;
+    flex-direction: column; }
+  .game-actions { width: 100%; }
+  .game-actions button { flex: 1; }
+  .game-stage,
+  .game-stage iframe { min-height: 62vh; }
+  .game-stats { flex-direction: row;
+    text-align: left; }
+  .comment-form { flex-direction: column; }
+  .report-form { flex-direction: column; }
+}

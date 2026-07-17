@@ -21,6 +21,12 @@ export default defineConfig(() => {
         name: 'PeerTubePlayer',
         fileName: 'peertube-player',
         cssFileName: 'peertube-player'
+      },
+      rollupOptions: {
+        output: {
+          entryFileNames: 'peertube-player.js',
+          chunkFileNames: '[name]-[hash].js'
+        }
       }
     },
 

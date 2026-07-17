@@ -23,6 +23,12 @@ type StoredGameHtml = ValidatedGameHtml & {
   relativePath: string
 }
 
+export type StoredGameCover = {
+  absolutePath: string
+  relativePath: string
+  mimeType: string
+}
+
 export function validateSingleHtmlGame (input: GameHtmlInput): ValidatedGameHtml {
   const maxFileSizeBytes = input.maxFileSizeBytes ?? DEFAULT_GAME_MAX_FILE_SIZE_BYTES
 
@@ -77,6 +83,30 @@ export async function storeSingleHtmlGame (input: GameHtmlInput & { root: string
   return { ...validated, absolutePath, relativePath }
 }
 
+export async function storeGameCover (input: { root: string; filename: string; mimeType: string; content: Buffer }): Promise<StoredGameCover> {
+  const extension = extname(basename(input.filename)).toLowerCase()
+  const mimeType = input.mimeType.toLowerCase()
+  const supported = new Map([ [ '.png', 'image/png' ], [ '.jpg', 'image/jpeg' ], [ '.jpeg', 'image/jpeg' ], [ '.webp', 'image/webp' ] ])
+  if (supported.get(extension) !== mimeType || input.content.length === 0 || input.content.length > 2 * 1024 * 1024) {
+    throw new Error('Cover must be a non-empty PNG, JPEG, or WebP image smaller than 2 MB')
+  }
+
+  const rootPath = resolve(input.root)
+  const coverDirectory = join(rootPath, 'covers', randomUUID())
+  const absolutePath = join(coverDirectory, `cover${extension}`)
+  if (!isPathInside(rootPath, absolutePath)) throw new Error('Game cover path escapes storage root')
+
+  await mkdir(coverDirectory, { recursive: true })
+  try {
+    await writeFile(absolutePath, input.content, { flag: 'wx', mode: 0o600 })
+  } catch (err) {
+    await rm(coverDirectory, { recursive: true, force: true })
+    throw err
+  }
+
+  return { absolutePath, relativePath: relative(rootPath, absolutePath).split(sep).join('/'), mimeType }
+}
+
 export async function readStoredGameHtml (root: string, runtimePath: string) {
   const rootPath = resolve(root)
   const absolutePath = resolve(rootPath, runtimePath)
@@ -85,6 +115,13 @@ export async function readStoredGameHtml (root: string, runtimePath: string) {
     throw new Error('Invalid game runtime path')
   }
 
+  return readFile(absolutePath)
+}
+
+export async function readStoredGameCover (root: string, coverPath: string) {
+  const rootPath = resolve(root)
+  const absolutePath = resolve(rootPath, coverPath)
+  if (!isPathInside(rootPath, absolutePath) || !coverPath.startsWith('covers/')) throw new Error('Invalid game cover path')
   return readFile(absolutePath)
 }
 

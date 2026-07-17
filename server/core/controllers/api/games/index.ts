@@ -1,28 +1,40 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
-import { storeSingleHtmlGame, validateSingleHtmlGame } from '@server/lib/games/game-runtime.js'
+import { storeGameCover, storeSingleHtmlGame, validateSingleHtmlGame } from '@server/lib/games/game-runtime.js'
+import { ensureGameVideo } from '@server/lib/games/game-video-bridge.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
+import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
+import { GameRecentModel } from '@server/models/game/game-recent.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
 import { runtimeRouter } from './runtime.js'
+import { gameCommunityRouter } from './community.js'
 
-const gameFile = createReqFiles([ 'gamefile' ], {
+const gameFile = createReqFiles([ 'gamefile', 'coverfile' ], {
   'text/html': '.html',
-  'application/xhtml+xml': '.html'
+  'application/xhtml+xml': '.html',
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp'
 })
 
 const gamesRouter = express.Router()
 const auditLogger = auditLoggerFactory('games')
 gamesRouter.use(apiRateLimiter)
 gamesRouter.use('/', runtimeRouter)
+gamesRouter.use('/', gameCommunityRouter)
 
 gamesRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, asyncMiddleware(listGames))
+gamesRouter.get('/admin', authenticate, asyncMiddleware(listGamesForModerators))
+gamesRouter.get('/me/favorites', authenticate, asyncMiddleware(listFavoriteGames))
+gamesRouter.get('/me/recent', authenticate, asyncMiddleware(listRecentGames))
+gamesRouter.get('/me/owned', authenticate, asyncMiddleware(listOwnedGames))
 gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
 gamesRouter.post('/', authenticate, gameFile, gameCreateValidator, asyncMiddleware(createGame))
 gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
@@ -46,7 +58,7 @@ function formatGame (game: MGame) {
     instructions: game.instructions,
     category: game.category,
     tags: game.tags,
-    coverPath: game.coverPath,
+    coverPath: game.coverPath ? new URL(`/api/v1/games/${game.uuid}/cover`, CONFIG.GAMES.RUNTIME_ORIGIN).toString() : null,
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
@@ -75,6 +87,55 @@ async function listGames (req: express.Request, res: express.Response) {
   return res.json({ total: result.total, data: result.data.map(formatGame) })
 }
 
+async function listGamesForModerators (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  if (!user || !isGameModerator(user)) return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
+
+  const data = await GameModel.findAll<MGame>({ order: [ [ 'createdAt', 'DESC' ] ], limit: 100 })
+  return res.json({ total: data.length, data: data.map(formatGame) })
+}
+
+async function listFavoriteGames (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+  const rows = await GameFavoriteModel.findAll<any>({
+    where: { accountId: user.Account.id },
+    include: [ { model: GameModel, where: { status: 'published' }, required: true } ],
+    order: [ [ 'createdAt', 'DESC' ] ],
+    limit: 100
+  })
+
+  return res.json({ total: rows.length, data: rows.map(row => formatGame(row.Game)) })
+}
+
+async function listRecentGames (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+  const rows = await GameRecentModel.findAll<any>({
+    where: { accountId: user.Account.id },
+    include: [ { model: GameModel, where: { status: 'published' }, required: true } ],
+    order: [ [ 'lastPlayedAt', 'DESC' ] ],
+    limit: 100
+  })
+
+  return res.json({ total: rows.length, data: rows.map(row => formatGame(row.Game)) })
+}
+
+async function listOwnedGames (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+  const data = await GameModel.findAll<MGame>({
+    where: { ownerAccountId: user.Account.id },
+    order: [ [ 'createdAt', 'DESC' ] ],
+    limit: 100
+  })
+
+  return res.json({ total: data.length, data: data.map(formatGame) })
+}
+
 async function getGame (req: express.Request, res: express.Response) {
   const game = await GameModel.loadByUUID(req.params.uuid)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
@@ -92,6 +153,7 @@ async function createGame (req: express.Request, res: express.Response) {
   if (!user || !file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'gamefile is required' })
 
   let stored: Awaited<ReturnType<typeof storeSingleHtmlGame>> | undefined
+  let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
   try {
     const content = await readFile(file.path)
     validateSingleHtmlGame({ filename: file.originalname, mimeType: file.mimetype, content, maxFileSizeBytes: CONFIG.GAMES.MAX_FILE_SIZE_BYTES })
@@ -102,6 +164,16 @@ async function createGame (req: express.Request, res: express.Response) {
       content,
       maxFileSizeBytes: CONFIG.GAMES.MAX_FILE_SIZE_BYTES
     })
+
+    const coverFile = req.files?.['coverfile']?.[0]
+    if (coverFile) {
+      storedCover = await storeGameCover({
+        root: CONFIG.STORAGE.GAMES_DIR,
+        filename: coverFile.originalname,
+        mimeType: coverFile.mimetype,
+        content: await readFile(coverFile.path)
+      })
+    }
 
     const status = isGameModerator(user) || CONFIG.GAMES.REQUIRE_MODERATION !== true ? 'published' : 'pending'
     const game = await GameModel.create({
@@ -114,15 +186,19 @@ async function createGame (req: express.Request, res: express.Response) {
       runtimePath: stored.relativePath,
       runtimeSha256: stored.runtimeSha256,
       fileSizeBytes: stored.fileSizeBytes,
+      coverPath: storedCover?.relativePath || null,
       status,
       publishedAt: status === 'published' ? new Date() : null
     })
+
+    if (status === 'published') await ensureGameVideo(game)
 
     auditLogger.create(getAuditIdFromRes(res), new GameAuditView(formatGame(game)))
 
     return res.status(HttpStatusCode.CREATED_201).json(formatGame(game))
   } catch (err) {
     if (stored) await rm(stored.absolutePath, { force: true }).catch(() => undefined)
+    if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
     throw err
   } finally {
     cleanUpReqFiles(req)
@@ -138,6 +214,7 @@ async function updateGame (req: express.Request, res: express.Response) {
   const oldGame = formatGame(game)
   const file = req.files?.['gamefile']?.[0]
   let stored: Awaited<ReturnType<typeof storeSingleHtmlGame>> | undefined
+  let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
   try {
     if (file) {
       const content = await readFile(file.path)
@@ -151,6 +228,17 @@ async function updateGame (req: express.Request, res: express.Response) {
       game.runtimePath = stored.relativePath
       game.runtimeSha256 = stored.runtimeSha256
       game.fileSizeBytes = stored.fileSizeBytes
+    }
+
+    const coverFile = req.files?.['coverfile']?.[0]
+    if (coverFile) {
+      storedCover = await storeGameCover({
+        root: CONFIG.STORAGE.GAMES_DIR,
+        filename: coverFile.originalname,
+        mimeType: coverFile.mimetype,
+        content: await readFile(coverFile.path)
+      })
+      game.coverPath = storedCover.relativePath
     }
 
     game.title = req.body.title
@@ -169,6 +257,7 @@ async function updateGame (req: express.Request, res: express.Response) {
     return res.json(formatGame(game))
   } catch (err) {
     if (stored) await rm(stored.absolutePath, { force: true }).catch(() => undefined)
+    if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
     throw err
   } finally {
     cleanUpReqFiles(req)
@@ -194,6 +283,16 @@ async function recordPlay (req: express.Request, res: express.Response) {
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
   await GameModel.increment('playCount', { by: 1, where: { id: game.id } })
+
+  const user = getUser(res)
+  if (user) {
+    await GameRecentModel.upsert({
+      gameId: game.id,
+      accountId: user.Account.id,
+      lastPlayedAt: new Date()
+    })
+  }
+
   return res.json({ runtimeUrl: getRuntimeUrl(game.uuid) })
 }
 
@@ -214,6 +313,7 @@ async function moderateGame (req: express.Request, res: express.Response) {
   game.moderatedAt = new Date()
   game.publishedAt = status === 'published' ? new Date() : null
   await game.save()
+  if (status === 'published') await ensureGameVideo(game)
 
   auditLogger.update(getAuditIdFromRes(res), new GameAuditView(formatGame(game)), new GameAuditView(oldGame))
 

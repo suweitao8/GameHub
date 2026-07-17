@@ -1,0 +1,44 @@
+.manage-page { max-width: 980px;
+  padding-top: 42px;
+  padding-bottom: 80px; }
+.back-link { color: #ff734c;
+  text-decoration: none; }
+.eyebrow { margin: 50px 0 8px;
+  color: #ff734c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em; }
+h1 { margin: 0 0 28px;
+  font-size: clamp(36px, 6vw, 64px);
+  letter-spacing: -0.06em; }
+.manage-list { display: grid;
+  gap: 12px; }
+.manage-card { display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04); }
+.manage-card h2 { margin: 8px 0 4px; }
+.manage-card p { margin: 0;
+  color: rgba(255, 255, 255, 0.6); }
+.status { color: #ffb095;
+  font-size: 12px;
+  text-transform: uppercase; }
+.manage-actions { display: flex;
+  flex-wrap: wrap;
+  gap: 8px; }
+.manage-actions button { padding: 9px 14px;
+  border: 1px solid #ff734c;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer; }
+.form-error { color: #ff9b8a; }
+
+@media (max-width: 700px) {
+  .manage-card { align-items: start;
+    flex-direction: column; }
+}

@@ -1,7 +1,7 @@
 import { asyncMiddleware } from '@server/middlewares/async.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
-import { getGameRuntimeHeaders, readStoredGameHtml } from '@server/lib/games/game-runtime.js'
+import { getGameRuntimeHeaders, readStoredGameCover, readStoredGameHtml } from '@server/lib/games/game-runtime.js'
 import express from 'express'
 
 const runtimeRouter = express.Router()
@@ -20,6 +20,21 @@ runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
 
   return res
     .set(getGameRuntimeHeaders(developmentOrigins))
+    .send(content)
+}))
+
+runtimeRouter.get('/:uuid/cover', asyncMiddleware(async (req, res) => {
+  const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+  if (!game?.coverPath) return res.sendStatus(404)
+
+  const content = await readStoredGameCover(CONFIG.STORAGE.GAMES_DIR, game.coverPath)
+  return res
+    .set({
+      'Cache-Control': 'public, max-age=3600',
+      'X-Content-Type-Options': 'nosniff',
+      'Referrer-Policy': 'no-referrer'
+    })
+    .type(game.coverPath.endsWith('.png') ? 'png' : game.coverPath.endsWith('.webp') ? 'webp' : 'jpeg')
     .send(content)
 }))
 

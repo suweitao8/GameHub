@@ -1,0 +1,20 @@
+<main class="game-form-page margin-content">
+  <a routerLink="/games/manage" class="back-link">← 返回管理</a>
+  <p class="eyebrow">CREATOR STUDIO</p>
+  <h1>编辑游戏</h1>
+  @if (loading()) { <p>正在加载...</p> }
+  @if (!loading()) {
+    <form (submit)="$event.preventDefault(); submit()" class="game-form">
+      <label>替换 HTML 文件（可选）<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)" /></label>
+      <label>替换封面（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)" /></label>
+      <label>标题<input name="title" [(ngModel)]="title" maxlength="120" required /></label>
+      <label>分类<input name="category" [(ngModel)]="category" maxlength="64" required /></label>
+      <label>标签<input name="tags" [(ngModel)]="tags" /></label>
+      <label>简介<textarea name="description" [(ngModel)]="description" rows="4"></textarea></label>
+      <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4"></textarea></label>
+      @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+      @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
+      <button type="submit" [disabled]="submitting()">{{ submitting() ? '正在保存...' : '保存修改' }}</button>
+    </form>
+  }
+</main>

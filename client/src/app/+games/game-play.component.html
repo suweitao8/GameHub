@@ -1,0 +1,93 @@
+@if (loading()) {
+  <main class="game-play-state margin-content" role="status">正在打开游戏...</main>
+} @else if (loadingError() || !game()) {
+  <main class="game-play-state margin-content" role="alert">
+    <h1>游戏暂时无法打开</h1>
+    <p>请返回列表重试，或稍后再来。</p>
+    <a routerLink="/games">返回游戏列表</a>
+  </main>
+} @else {
+  <main class="game-play margin-content">
+    <div class="game-play-header">
+      <a routerLink="/games" class="back-link">← 返回发现</a>
+      <div class="game-actions">
+        <button type="button" (click)="reloadGame()">重新开始</button>
+        <button type="button" (click)="enterFullscreen()">全屏试玩</button>
+      </div>
+    </div>
+
+    <section class="game-stage" aria-label="游戏运行区域">
+      @if (frameLoading()) {
+        <div class="frame-loading" role="status">正在载入安全运行环境...</div>
+      }
+      <iframe
+        #gameFrame
+        [src]="runtimeUrl()"
+        title="{{ game()!.title }} 游戏运行区"
+        sandbox="allow-scripts"
+        allow="fullscreen"
+        referrerpolicy="no-referrer"
+        (load)="onFrameLoaded()"
+        (error)="onFrameError()"></iframe>
+    </section>
+
+    <section class="game-details">
+      <div>
+        <p class="eyebrow">{{ game()!.category }}</p>
+        <h1>{{ game()!.title }}</h1>
+        <p class="description">{{ game()!.description }}</p>
+      </div>
+      <div class="game-stats">
+        <span>{{ game()!.playCount }} 次游玩</span>
+        <span>{{ game()!.tags.join(' · ') }}</span>
+      </div>
+    </section>
+
+    @if (community(); as state) {
+      <section class="game-community" aria-label="游戏社区操作">
+        <div class="community-actions">
+          <button type="button" [class.active]="state.rating === 'like'" (click)="toggleRate('like')">👍 {{ state.likes }}</button>
+          <button type="button" [class.active]="state.rating === 'dislike'" (click)="toggleRate('dislike')">👎 {{ state.dislikes }}</button>
+          <button type="button" [class.active]="state.favorite" (click)="toggleFavorite()">★ {{ state.favorite ? '已收藏' : '收藏' }}</button>
+          <button type="button" [class.active]="state.following" (click)="toggleFollow()">{{ state.following ? '已关注作者' : '关注作者' }}</button>
+        </div>
+        <form class="report-form" (submit)="$event.preventDefault(); reportGame()">
+          <input aria-label="举报原因" [value]="reportReason()" (input)="reportReason.set($any($event.target).value)" placeholder="如需举报，请填写原因" maxlength="500" />
+          <button type="submit">举报</button>
+        </form>
+        @if (state.author) {
+          <p class="author-line">作者：{{ state.author.displayName }} · {{ state.following ? '你正在关注' : '欢迎关注作者' }}</p>
+        }
+      </section>
+    }
+
+    <section class="game-instructions">
+      <h2>操作说明</h2>
+      <p>{{ game()!.instructions || '打开游戏后按照画面提示操作。' }}</p>
+    </section>
+
+    <section class="game-comments" aria-labelledby="comments-title">
+      <div class="section-heading">
+        <h2 id="comments-title">评论</h2>
+        <span>{{ comments().length }}</span>
+      </div>
+      <form (submit)="$event.preventDefault(); submitComment()" class="comment-form">
+        <input
+          aria-label="评论内容"
+          [value]="commentDraft()"
+          (input)="commentDraft.set($any($event.target).value)"
+          placeholder="分享你的试玩感受"
+          maxlength="5000" />
+        <button type="submit">发布</button>
+      </form>
+      @for (comment of comments(); track comment.id) {
+        <article class="comment">
+          <strong>{{ comment.account.displayName || comment.account.name }}</strong>
+          <p>{{ comment.text }}</p>
+        </article>
+      } @empty {
+        <p class="empty-comments">还没有评论，来留下第一条吧。</p>
+      }
+    </section>
+  </main>
+}
