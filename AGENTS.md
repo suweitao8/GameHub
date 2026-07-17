@@ -402,3 +402,72 @@ Export to Jaeger (tracing) or Prometheus (metrics) is configurable in
   — Library / business-logic documentation
 - [SECURITY.md](SECURITY.md) — Vulnerability disclosure policy
 - [FAQ.md](FAQ.md) — Frequently asked questions
+
+## 通用开发工作流
+
+### 规则作用域
+
+- 根目录 `AGENTS.md` 是项目级工作流和后端/仓库规则的权威入口。
+- `client/AGENTS.md` 是 Angular 客户端目录的补充规则；进入 `client/` 开发时，两份规则同时生效，冲突时以更具体的客户端规则为准。
+- 不维护重复的 `CLAUDE.md`；若以后出现，应把有效内容合并到对应的 `AGENTS.md` 后删除重复文件。
+
+### 核心约定
+
+1. 功能、修复、重构默认不得直接修改主工作区；使用独立 worktree 完成代码、验证和提交。规则/文档类变更可直接改主工作区，但仍需做质量审查。
+2. 对话、计划、提交信息和规则文档使用中文；代码标识符遵循现有英文命名。
+3. 没有实际验证证据，不得声称“已完成”“已修复”或“可以运行”。
+4. 设计方向已明确后直接执行；只有范围、风险或关键取舍发生变化且代码无法合理推断时才暂停提问。
+5. 只管理当前任务创建的 worktree，不修改或删除其他会话的 worktree、分支和本地运行数据。
+
+### 开发前与开发中
+
+先确认仓库状态和当前位置：
+
+```powershell
+git status --short --branch
+git branch --show-current
+git worktree list --porcelain
+```
+
+代码任务默认在仓库外的 `D:\Github\_worktrees\GameHub\<task-name>` 创建 worktree：
+
+```powershell
+git worktree add "D:\Github\_worktrees\GameHub\<task-name>" -b "codex/<task-name>" develop
+Set-Location "D:\Github\_worktrees\GameHub\<task-name>"
+pnpm install --frozen-lockfile
+```
+
+保持改动手术式、范围最小；不要把依赖安装产物、构建产物、日志、截图或本地数据库数据提交进仓库。安装/构建产生的真实 lockfile 或工作区配置变化如果影响复现，则必须保留并审查。
+
+### 提交前验证
+
+- 所有后端或共享代码改动：`pnpm run build:server`。
+- 需要完整仓库质量检查时：`pnpm run lint`。
+- API 改动：`pnpm run swagger-cli -- validate support/doc/api/openapi.yaml`。
+- 启动验证：确认 PostgreSQL、Redis、FFmpeg 可用，启动后检查 `http://127.0.0.1:9000/api/v1/ping` 返回成功响应，并检查服务日志没有启动级错误。
+- 提交前运行 `git diff --check`，再确认 `git status --short` 只包含预期文件。
+
+### 本地开发部署
+
+推荐用仓库提供的开发依赖编排启动 PostgreSQL 和 Redis：
+
+```powershell
+docker compose -f support/docker/development/docker-compose.yml up -d
+pnpm install --frozen-lockfile
+pnpm run build:server
+pnpm run build:client -- --light
+$env:NODE_ENV = 'dev'
+$env:NODE_CONFIG = '{"redis":{"port":6381}}'
+pnpm run start
+```
+
+服务默认监听 `http://127.0.0.1:9000`。停止开发依赖使用：
+
+```powershell
+docker compose -f support/docker/development/docker-compose.yml down
+```
+
+### 收尾与规则维护
+
+- 完成功能后先在 worktree 提交，再合并回开发基线、推送并删除当前 worktree，最后执行 `git worktree prune`；清理前必须再次确认分支已合并、工作区干净且没有未注册目录。
+- 修改本文件必须立即执行“修改 → 审查 → 优化 → 提交”流程：检查命令可执行性、架构准确性、非显而易见陷阱、简洁性、时效性和可操作性；发现重复、矛盾或过时内容时当场修正。
