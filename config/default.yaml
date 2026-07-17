@@ -160,6 +160,7 @@ storage:
   well_known: 'storage/well-known/'
   # Various admin/user uploads that are not suitable for the folders above
   uploads: 'storage/uploads/'
+  games: 'storage/games/'
   # Overridable client files in client/dist/assets/images:
   # - default-avatar-account-48x48.png
   # - default-avatar-account.png
@@ -170,6 +171,14 @@ storage:
   # If the file exists, peertube will serve it
   # If not, peertube will fallback to the default file
   client_overrides: 'storage/client-overrides/'
+
+games:
+  # The runtime origin must be different from the main site origin in production.
+  runtime_origin: 'http://games.localhost:9000'
+  max_file_size: '1MB'
+  max_storage_per_account: '100MB'
+  uploads_per_hour: 10
+  require_moderation: true
 
 static_files:
   # Require and check user authentication when accessing private files (internal/private video files)

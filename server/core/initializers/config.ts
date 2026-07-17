@@ -276,7 +276,15 @@ const CONFIG = {
     PLUGINS_DIR: buildPath(config.get<string>('storage.plugins')),
     CLIENT_OVERRIDES_DIR: buildPath(config.get<string>('storage.client_overrides')),
     WELL_KNOWN_DIR: buildPath(config.get<string>('storage.well_known')),
-    UPLOADS_DIR: buildPath(config.get<string>('storage.uploads'))
+    UPLOADS_DIR: buildPath(config.get<string>('storage.uploads')),
+    GAMES_DIR: buildPath(config.get<string>('storage.games'))
+  },
+  GAMES: {
+    RUNTIME_ORIGIN: config.get<string>('games.runtime_origin'),
+    MAX_FILE_SIZE_BYTES: parseBytes(config.get<string>('games.max_file_size')),
+    MAX_STORAGE_PER_ACCOUNT_BYTES: parseBytes(config.get<string>('games.max_storage_per_account')),
+    UPLOADS_PER_HOUR: config.get<number>('games.uploads_per_hour'),
+    REQUIRE_MODERATION: config.get<boolean>('games.require_moderation')
   },
   STATIC_FILES: {
     PRIVATE_FILES_REQUIRE_AUTH: config.get<boolean>('static_files.private_files_require_auth')
