@@ -175,7 +175,7 @@ storage:
 games:
   # The runtime origin must be different from the main site origin in production.
   runtime_origin: 'http://games.localhost:9000'
-  max_file_size: '1MB'
+  max_file_size: '20MB'
   max_storage_per_account: '100MB'
   uploads_per_hour: 10
   require_moderation: true

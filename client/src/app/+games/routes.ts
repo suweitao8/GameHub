@@ -6,12 +6,24 @@ import { GameUploadComponent } from './game-upload.component'
 import { GameManageComponent } from './game-manage.component'
 import { GameLibraryComponent } from './game-library.component'
 import { GameEditComponent } from './game-edit.component'
+import { GameAuthorComponent } from './game-author.component'
+import { GameCreatorComponent } from './game-creator.component'
 
 export default [
   {
     path: '',
     providers: [ GamesService ],
     children: [
+      {
+        path: 'author/:accountId',
+        component: GameAuthorComponent,
+        data: { meta: { title: $localize`Author space` } }
+      },
+      {
+        path: 'creator',
+        component: GameCreatorComponent,
+        data: { meta: { title: $localize`Creator center` } }
+      },
       {
         path: 'edit/:uuid',
         component: GameEditComponent,

@@ -80,6 +80,7 @@ import { VideoModel } from '../models/video/video.js'
 import { GameModel } from '../models/game/game.js'
 import { GameFavoriteModel } from '../models/game/game-favorite.js'
 import { GameRecentModel } from '../models/game/game-recent.js'
+import { GameCoinLedgerModel } from '../models/game/game-coin-ledger.js'
 import { CONFIG } from './config.js'
 
 pg.defaults.parseInt8 = true // Avoid BIGINT to be converted to string
@@ -169,6 +170,7 @@ export async function initDatabaseModels (silent: boolean) {
     GameModel,
     GameFavoriteModel,
     GameRecentModel,
+    GameCoinLedgerModel,
     ChangeOwnershipModel,
     VideoChannelModel,
     VideoShareModel,

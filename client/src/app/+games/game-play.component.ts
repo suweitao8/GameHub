@@ -23,7 +23,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly community = signal<GameCommunity | null>(null)
   readonly comments = signal<GameComment[]>([])
   readonly commentDraft = signal('')
+  readonly replyTo = signal<number | null>(null)
   readonly reportReason = signal('')
+  readonly coinAmount = signal<1 | 2>(1)
+  readonly coinMessage = signal('')
+  readonly coinLoading = signal(false)
+  readonly related = signal<Game[]>([])
+  readonly mutedHint = signal(false)
   private currentUuid = ''
 
   ngOnInit () {
@@ -50,6 +56,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gamesService.recordPlay(uuid).subscribe()
         this.gamesService.community(uuid).subscribe({ next: community => this.community.set(community) })
         this.gamesService.comments(uuid).subscribe({ next: result => this.comments.set(result.data) })
+        this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
+          next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
+        })
       },
       error: () => {
         this.loading.set(false)
@@ -94,9 +103,59 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
+  submitReply () {
+    const parentId = this.replyTo()
+    const text = this.commentDraft().trim()
+    if (!parentId || !text) return
+    this.gamesService.reply(this.currentUuid, parentId, text).subscribe({
+      next: result => {
+        this.comments.update(comments => comments.map(comment => comment.id === parentId
+          ? { ...comment, totalReplies: (comment.totalReplies || 0) + 1 }
+          : comment))
+        this.commentDraft.set('')
+        this.replyTo.set(null)
+        this.comments.update(comments => [ ...comments, result.comment ])
+      }
+    })
+  }
+
   reportGame () {
     const reason = this.reportReason().trim()
     if (reason) this.gamesService.report(this.currentUuid, reason).subscribe()
+  }
+
+  giveCoin () {
+    const state = this.community()
+    if (!state || this.coinLoading()) return
+    this.coinLoading.set(true)
+    this.coinMessage.set('')
+    this.gamesService.coin(this.currentUuid, this.coinAmount()).subscribe({
+      next: value => {
+        this.coinLoading.set(false)
+        this.coinMessage.set(`投币成功，已投入 ${value.coinsGiven} 枚，余额 ${value.coinBalance} 枚`)
+        this.community.update(current => current
+          ? { ...current, coins: current.coins + this.coinAmount(), coinBalance: value.coinBalance, coinsGiven: value.coinsGiven }
+          : current)
+      },
+      error: error => {
+        this.coinLoading.set(false)
+        this.coinMessage.set(error?.error?.error || '投币失败，请稍后重试')
+      }
+    })
+  }
+
+  async shareGame () {
+    const url = window.location.href
+    if (navigator.share) await navigator.share({ title: this.game()?.title, url })
+    else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url)
+      this.coinMessage.set('链接已复制')
+    }
+  }
+
+  focusGame () {
+    this.iframe()?.nativeElement.focus()
+    this.mutedHint.set(true)
   }
 
   reloadGame () {

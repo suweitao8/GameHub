@@ -1,0 +1,24 @@
+<main class="game-community-page author-page">
+  @if (loading()) {
+    <div class="game-community-content author-state">正在打开作者空间...</div>
+  } @else if (error() || !author()) {
+    <div class="game-community-content author-state"><h1>作者空间暂时不可用</h1><a routerLink="/games">返回发现</a></div>
+  } @else {
+    <section class="author-banner">
+      <div class="game-community-content author-banner-inner">
+        <div class="author-large-avatar">{{ author()!.account.displayName.charAt(0) }}</div>
+        <div class="author-profile">
+          <p class="game-eyebrow">CREATOR SPACE</p>
+          <h1>{{ author()!.account.displayName }}</h1>
+          <p>&#64;{{ author()!.account.handle }} · {{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
+          <div class="author-stats"><span>{{ author()!.account.followers }} 粉丝</span><span>{{ author()!.stats.plays }} 次游玩</span><span>{{ author()!.stats.coins }} 枚投币</span></div>
+        </div>
+        <button type="button" class="follow-button">关注作者</button>
+      </div>
+    </section>
+    <div class="game-community-content author-content">
+      <nav class="author-tabs"><a class="active" href="#games">游戏</a><a href="#about">主页</a><a href="#collections">合集</a></nav>
+      <section id="games"><div class="game-section-heading"><div><p class="game-eyebrow">PUBLISHED GAMES</p><h2>TA 的游戏</h2></div><span>{{ author()!.stats.games }} 个作品</span></div><div class="game-grid">@for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+    </div>
+  }
+</main>

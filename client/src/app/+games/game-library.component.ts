@@ -1,20 +1,26 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
-import { RouterLink } from '@angular/router'
+import { ActivatedRoute, RouterLink } from '@angular/router'
+import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
 
 @Component({
   templateUrl: './game-library.component.html',
   styleUrl: './game-library.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ RouterLink ]
+  imports: [ GameCardComponent, RouterLink ]
 })
 export class GameLibraryComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
+  private readonly route = inject(ActivatedRoute)
   readonly tab = signal<'recent' | 'favorites' | 'owned'>('recent')
   readonly games = signal<Game[]>([])
   readonly error = signal('')
 
-  ngOnInit () { this.load() }
+  ngOnInit () {
+    const tab = this.route.snapshot.queryParamMap.get('tab')
+    if (tab === 'favorites' || tab === 'owned' || tab === 'recent') this.tab.set(tab)
+    this.load()
+  }
 
   selectTab (tab: 'recent' | 'favorites' | 'owned') {
     this.tab.set(tab)

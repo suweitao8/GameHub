@@ -1,43 +1,31 @@
-.game-form-page { max-width: 820px;
-  padding-top: 42px;
-  padding-bottom: 80px; }
-.back-link { color: #ff734c;
-  text-decoration: none; }
-.eyebrow { margin: 50px 0 8px;
-  color: #ff734c;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em; }
-h1 { margin: 0;
-  font-size: clamp(36px, 6vw, 64px);
-  letter-spacing: -0.06em; }
-.lead { max-width: 620px;
-  color: rgba(255, 255, 255, 0.64); }
-.game-form { display: grid;
-  gap: 18px;
-  margin-top: 32px; }
-.game-form label { display: grid;
-  gap: 8px;
-  color: rgba(255, 255, 255, 0.72);
-  font-weight: 600; }
-.game-form input,
-.game-form textarea { width: 100%;
-  box-sizing: border-box;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  color: inherit;
-  font: inherit; }
-.game-form button { justify-self: start;
-  padding: 12px 22px;
-  border: 0;
-  border-radius: 999px;
-  background: #ff734c;
-  color: #191513;
-  font-weight: 800;
-  cursor: pointer; }
-.game-form button:disabled { cursor: wait;
-  opacity: 0.6; }
-.form-error { color: #ff9b8a; }
-.form-success { color: #9ee6bd; }
+@use './game-community.tokens';
+
+.upload-page { min-height: calc(100vh - 76px); padding: 2rem 0 4rem; }
+.back-link { color: var(--game-brand); text-decoration: none; }
+.upload-header { margin: 2rem 0 1.5rem; }
+.upload-header h1 { font-size: clamp(2rem, 5vw, 3.2rem); letter-spacing: -0.04em; margin: 0; }
+.upload-header p:not(.game-eyebrow) { color: var(--game-muted); }
+.upload-steps { align-items: start; display: grid; gap: 0.35rem; grid-template-columns: repeat(6, 1fr); list-style: none; margin: 0 0 1.5rem; padding: 0; }
+.upload-steps li { color: var(--game-muted); font-size: 0.76rem; text-align: center; }
+.upload-steps b { align-items: center; background: #fff; border: 1px solid var(--game-border); border-radius: 50%; display: flex; height: 2rem; justify-content: center; margin: 0 auto 0.35rem; width: 2rem; }
+.upload-steps li.current { color: var(--game-brand); font-weight: 700; }
+.upload-steps li.current b { background: var(--game-brand-soft); border-color: var(--game-brand); }
+.upload-layout { align-items: start; display: grid; gap: 1.5rem; grid-template-columns: 0.8fr 1.4fr; }
+.upload-guide, .game-form { background: #fff; border: 1px solid var(--game-border); border-radius: var(--game-radius); padding: 1.3rem; }
+.upload-guide h2 { font-size: 1rem; margin-top: 0; }
+.upload-guide ul { color: var(--game-muted); line-height: 1.9; padding-left: 1.2rem; }
+.upload-guide p { background: var(--game-brand-soft); color: #92501f; font-size: 0.82rem; line-height: 1.6; padding: 0.75rem; }
+.game-form { display: grid; gap: 1rem; }
+.game-form label { color: var(--game-text); display: grid; font-weight: 700; gap: 0.4rem; }
+.game-form input, .game-form textarea, .game-form select { background: #fff; border: 1px solid var(--game-border); border-radius: 7px; color: var(--game-text); padding: 0.7rem 0.75rem; width: 100%; }
+.game-form textarea { resize: vertical; }
+.field-grid { display: grid; gap: 0.8rem; grid-template-columns: 1fr 0.65fr; }
+.file-picker { background: #fff9f5; border: 1px dashed rgb(228 111 36 / 45%); padding: 1rem; }
+.file-picker input { display: none; }
+.file-picker span { color: var(--game-muted); font-weight: 400; }
+.game-form > button { background: var(--game-brand); border: 0; border-radius: 7px; color: #fff; font-weight: 700; justify-self: start; padding: 0.75rem 1.2rem; }
+.game-form > button:disabled { cursor: not-allowed; opacity: 0.55; }
+.form-error { color: var(--game-danger); margin: 0; }
+.form-success { color: var(--game-success); margin: 0; }
+@media (max-width: 760px) { .upload-layout { grid-template-columns: 1fr; } .upload-guide { order: 2; } .upload-steps { gap: 0.1rem; } .upload-steps li { font-size: 0.65rem; } }
+@media (max-width: 480px) { .upload-steps li:not(.current) { color: transparent; } .field-grid { grid-template-columns: 1fr; } }

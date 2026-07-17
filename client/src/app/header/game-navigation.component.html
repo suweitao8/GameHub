@@ -1,0 +1,21 @@
+<nav class="game-navigation" aria-label="游戏社区导航">
+  <div class="game-navigation-links">
+    <a routerLink="/games" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">首页</a>
+    <a routerLink="/games" [queryParams]="{ sort: 'popular' }" routerLinkActive="active">热门</a>
+    <a routerLink="/games" [queryParams]="{ sort: 'latest' }" routerLinkActive="active">最新</a>
+    <a routerLink="/games" [queryParams]="{ view: 'categories' }" routerLinkActive="active">分类</a>
+    <a routerLink="/games" [queryParams]="{ view: 'following' }" routerLinkActive="active">关注</a>
+  </div>
+
+  <form class="game-navigation-search" (submit)="submitSearch($event)">
+    <label class="visually-hidden" for="game-community-search">搜索游戏、作者或标签</label>
+    <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="搜索游戏、作者或标签" type="search">
+    <button type="submit" aria-label="搜索">⌕</button>
+  </form>
+
+  <div class="game-navigation-actions">
+    <a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" title="我的收藏">收藏</a>
+    <a routerLink="/games/library" [queryParams]="{ tab: 'recent' }" title="游玩历史">历史</a>
+    <a class="game-upload-link" routerLink="/games/upload">上传游戏</a>
+  </div>
+</nav>

@@ -1,19 +1,20 @@
-<main class="game-form-page margin-content">
-  <a routerLink="/games" class="back-link">← 返回游戏社区</a>
-  <p class="eyebrow">CREATOR STUDIO</p>
-  <h1>上传你的 HTML 游戏</h1>
-  <p class="lead">上传一个自包含的 .html 文件。游戏会在隔离 iframe 中运行，并按照实例规则进入审核流程。</p>
-
-  <form (submit)="$event.preventDefault(); submit()" class="game-form">
-    <label>游戏文件<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)" /></label>
-    <label>封面图（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)" /></label>
-    <label>标题<input name="title" [(ngModel)]="title" maxlength="120" required /></label>
-    <label>分类<input name="category" [(ngModel)]="category" maxlength="64" /></label>
-    <label>标签<input name="tags" [(ngModel)]="tags" placeholder="arcade, puzzle" /></label>
-    <label>简介<textarea name="description" [(ngModel)]="description" rows="4"></textarea></label>
-    <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4"></textarea></label>
-    @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
-    @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
-    <button type="submit" [disabled]="submitting()">{{ submitting() ? '正在上传...' : '提交审核' }}</button>
-  </form>
+<main class="game-community-page upload-page">
+  <div class="game-community-content">
+    <a routerLink="/games" class="back-link">← 返回游戏社区</a>
+    <header class="upload-header"><div><p class="game-eyebrow">CREATOR STUDIO</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
+    <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>
+    <div class="upload-layout">
+      <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>只支持单文件 HTML，最大 20MB</li><li>图片、音频、样式和脚本需要内联</li><li>不支持本地外部资源路径或联网请求</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>封面图可以手动上传；自动截图流程会在后续版本继续增强。</p></aside>
+      <form (submit)="$event.preventDefault(); submit()" class="game-form">
+        <label class="file-picker">游戏文件<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)"><span>{{ file ? file.name + ' · ' + formatBytes(fileSize()) : '选择一个自包含 HTML 文件' }}</span></label>
+        <div class="field-grid"><label>游戏名称<input name="title" [(ngModel)]="title" maxlength="120" required placeholder="例如：橘子星球"></label><label>分类<select name="category" [(ngModel)]="category"><option value="arcade">动作</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="strategy">策略</option><option value="horror">恐怖</option></select></label></div>
+        <label>标签<input name="tags" [(ngModel)]="tags" placeholder="arcade, puzzle"></label>
+        <label>封面图（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)"></label>
+        <label>简介<textarea name="description" [(ngModel)]="description" rows="4" placeholder="一句话介绍你的游戏"></textarea></label>
+        <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
+        @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
+        <button type="submit" [disabled]="submitting() || !file">{{ submitting() ? '正在检查并提交…' : '提交审核并发布' }}</button>
+      </form>
+    </div>
+  </div>
 </main>

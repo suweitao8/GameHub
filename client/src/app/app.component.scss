@@ -31,6 +31,47 @@
   width: 100%;
 }
 
+.game-experience {
+  --game-page-bg: #f6f7f9;
+  --game-card-bg: #fff;
+  --game-text: #18191c;
+  --game-muted: #737780;
+  --game-border: #e8e9ed;
+  --game-brand: #e46f24;
+  --game-brand-soft: #fff0e7;
+  --game-success: #22a06b;
+  --game-warning: #d98a16;
+  --game-danger: #d94b52;
+  --game-radius: 10px;
+  --game-shadow: 0 8px 28px rgb(25 30 40 / 7%);
+  --game-content-width: 1240px;
+  background: var(--game-page-bg);
+
+  #left-menu {
+    display: none;
+  }
+
+  .main-col {
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .sub-header-container,
+  .main-row {
+    background: var(--game-page-bg);
+  }
+
+  @media (max-width: 760px) {
+    .buttons-container .settings-button,
+    .buttons-container .create-account-button,
+    .buttons-container .login-label,
+    .buttons-container my-notification-dropdown,
+    .buttons-container .logged-in-container {
+      display: none !important;
+    }
+  }
+}
+
 .root-header {
   height: pvar(--header-height);
   position: fixed;

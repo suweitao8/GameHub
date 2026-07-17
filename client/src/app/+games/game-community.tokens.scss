@@ -1,0 +1,83 @@
+.game-experience {
+  --game-page-bg: #f6f7f9;
+  --game-card-bg: #fff;
+  --game-text: #18191c;
+  --game-muted: #737780;
+  --game-border: #e8e9ed;
+  --game-brand: #e46f24;
+  --game-brand-soft: #fff0e7;
+  --game-success: #22a06b;
+  --game-warning: #d98a16;
+  --game-danger: #d94b52;
+  --game-radius: 10px;
+  --game-shadow: 0 8px 28px rgb(25 30 40 / 7%);
+  --game-content-width: 1240px;
+}
+
+.game-community-page {
+  color: var(--game-text);
+  background: var(--game-page-bg);
+  min-height: calc(100vh - 76px);
+}
+
+.game-community-page button,
+.game-community-page input,
+.game-community-page textarea,
+.game-community-page select {
+  font: inherit;
+}
+
+.game-community-page button {
+  cursor: pointer;
+}
+
+.game-community-page a {
+  color: inherit;
+}
+
+.game-community-content {
+  width: min(100% - 2rem, var(--game-content-width));
+  margin: 0 auto;
+}
+
+.game-eyebrow {
+  color: var(--game-brand);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.game-section-heading {
+  align-items: end;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+
+.game-section-heading h2 {
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.game-section-heading p {
+  color: var(--game-muted);
+  margin: 0.3rem 0 0;
+}
+
+.game-section-heading a,
+.game-section-heading button {
+  background: transparent;
+  border: 0;
+  color: var(--game-brand);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .game-community-content {
+    width: min(100% - 1rem, var(--game-content-width));
+  }
+}

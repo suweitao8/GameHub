@@ -1,7 +1,16 @@
 import { getLocaleDirection, NgClass, PlatformLocation } from '@angular/common'
 import { AfterViewInit, Component, DOCUMENT, inject, LOCALE_ID, OnDestroy, OnInit, viewChild, ChangeDetectionStrategy } from '@angular/core'
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
-import { Event, GuardsCheckStart, NavigationStart, RouteConfigLoadEnd, RouteConfigLoadStart, Router, RouterOutlet } from '@angular/router'
+import {
+  Event,
+  GuardsCheckStart,
+  NavigationEnd,
+  NavigationStart,
+  RouteConfigLoadEnd,
+  RouteConfigLoadStart,
+  Router,
+  RouterOutlet
+} from '@angular/router'
 import {
   AuthService,
   Hotkey,
@@ -100,6 +109,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   customCSS: SafeHtml
   broadcastMessage: { message: string, dismissable: boolean, class: string } | null = null
   hotkeysModalOpened = false
+  gameExperience = false
   toastPosition: 'bottom-right' | 'bottom-left' = 'bottom-right'
 
   private serverConfig: HTMLServerConfig
@@ -260,6 +270,17 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.routerStatus.isNavigatingBack = current?.trigger === 'popstate' || current?.extras.state?.trigger === 'popstate'
     })
+
+    eventsObs.pipe(
+      filter((e: Event): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe(event => this.gameExperience = this.isGameExperienceUrl(event.urlAfterRedirects))
+
+    this.gameExperience = this.isGameExperienceUrl(this.router.url)
+  }
+
+  private isGameExperienceUrl (url: string) {
+    const path = url.split('?')[0]
+    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search')
   }
 
   private async injectBroadcastMessage () {

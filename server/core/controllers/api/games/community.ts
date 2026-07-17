@@ -10,6 +10,7 @@ import { Notifier } from '@server/lib/notifier/index.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
+import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { VideoCommentModel } from '@server/models/video/video-comment.js'
@@ -25,9 +26,11 @@ gameCommunityRouter.use(apiRateLimiter)
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
 gameCommunityRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
 gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, asyncMiddleware(addComment))
+gameCommunityRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, asyncMiddleware(replyToComment))
 gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, asyncMiddleware(rateGame))
 gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, asyncMiddleware(favoriteGame))
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
+gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, asyncMiddleware(coinGame))
 gameCommunityRouter.post('/:uuid/report', gameUUIDValidator, authenticate, asyncMiddleware(reportGame))
 
 export { gameCommunityRouter }
@@ -58,6 +61,8 @@ async function getCommunity (req: express.Request, res: express.Response) {
     ? !!await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
     : false
   const rating = user && video ? await userRating(user.Account.id, video.id) : null
+  const coinState = user ? await getCoinState(game.id, user.Account.id) : { balance: 0, given: 0 }
+  const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
 
   return res.json({
     videoUuid: video?.uuid || null,
@@ -67,6 +72,9 @@ async function getCommunity (req: express.Request, res: express.Response) {
     rating,
     favorite,
     following,
+    coins: Math.max(0, totalCoins),
+    coinBalance: coinState.balance,
+    coinsGiven: coinState.given,
     author: video?.VideoChannel
       ? {
           id: video.VideoChannel.id,
@@ -118,10 +126,29 @@ async function addComment (req: express.Request, res: express.Response) {
   return res.status(HttpStatusCode.CREATED_201).json({ comment: comment.toFormattedJSON() })
 }
 
+async function replyToComment (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const text = typeof req.body.text === 'string' ? req.body.text.trim() : ''
+  const commentId = Number(req.params.commentId)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (!text || text.length > 5000 || !Number.isInteger(commentId)) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'text and commentId are required' })
+  }
+  const video = await getVideoForGame(game)
+  const parent = await VideoCommentModel.loadByIdAndPopulateVideoAndAccountAndReply(commentId)
+  if (!video || !parent || parent.Video.id !== video.id) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const comment = await createLocalVideoComment({ text, inReplyToComment: parent, video, user })
+  Notifier.Instance.notifyOnNewComment(comment)
+  return res.status(HttpStatusCode.CREATED_201).json({ comment: comment.toFormattedJSON() })
+}
+
 async function rateGame (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot rate their own game' })
   if (!['like', 'dislike', 'none'].includes(req.body.rating)) {
     return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'rating must be like, dislike or none' })
   }
@@ -131,6 +158,50 @@ async function rateGame (req: express.Request, res: express.Response) {
 
   await userRateVideo({ account: user.Account, rateType: req.body.rating, video })
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
+}
+
+async function coinGame (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const amount = Number(req.body.amount)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot coin their own game' })
+  if (amount !== 1 && amount !== 2) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'amount must be 1 or 2' })
+
+  const result = await sequelizeTypescript.transaction(async transaction => {
+    const day = new Date().toISOString().slice(0, 10)
+    await GameCoinLedgerModel.findOrCreate({
+      where: { accountId: user.Account.id, day, kind: 'daily_grant' },
+      defaults: { accountId: user.Account.id, gameId: null, day, kind: 'daily_grant', amount: 2 },
+      transaction
+    })
+
+    const balance = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id }, transaction }) || 0)
+    const given = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id, gameId: game.id, kind: 'spend' }, transaction }) || 0) * -1
+    if (given + amount > 2) throw new Error('GAME_COIN_LIMIT')
+    if (balance < amount) throw new Error('GAME_COIN_BALANCE')
+
+    await GameCoinLedgerModel.create({
+      accountId: user.Account.id,
+      gameId: game.id,
+      amount: -amount,
+      day,
+      kind: 'spend'
+    }, { transaction })
+
+    return { coinBalance: balance - amount, coinsGiven: given + amount }
+  }).catch(error => {
+    if (error instanceof Error && error.message === 'GAME_COIN_LIMIT') return { error: 'GAME_COIN_LIMIT' as const }
+    if (error instanceof Error && error.message === 'GAME_COIN_BALANCE') return { error: 'GAME_COIN_BALANCE' as const }
+    throw error
+  })
+
+  if ('error' in result) {
+    const message = result.error === 'GAME_COIN_LIMIT' ? '同一游戏最多投币2枚' : '硬币余额不足'
+    return res.status(HttpStatusCode.CONFLICT_409).json({ error: message, code: result.error })
+  }
+
+  return res.json({ coins: result.coinsGiven, ...result })
 }
 
 async function favoriteGame (req: express.Request, res: express.Response) {
@@ -214,4 +285,17 @@ async function userRating (accountId: number, videoId: number) {
     return AccountVideoRateModel.load(accountId, videoId)
   })
   return rate?.type || 'none'
+}
+
+async function getCoinState (gameId: number, accountId: number) {
+  const day = new Date().toISOString().slice(0, 10)
+  await GameCoinLedgerModel.findOrCreate({
+    where: { accountId, day, kind: 'daily_grant' },
+    defaults: { accountId, gameId: null, day, kind: 'daily_grant', amount: 2 }
+  })
+  const [ balance, given ] = await Promise.all([
+    GameCoinLedgerModel.sum('amount', { where: { accountId } }),
+    GameCoinLedgerModel.sum('amount', { where: { accountId, gameId, kind: 'spend' } })
+  ])
+  return { balance: Math.max(0, Number(balance || 0)), given: Math.max(0, Number(given || 0) * -1) }
 }

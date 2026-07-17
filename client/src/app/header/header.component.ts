@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { HeaderService } from './header.service'
+import { GameNavigationComponent } from './game-navigation.component'
 import { SearchTypeaheadComponent } from './search-typeahead.component'
 
 @Component({
@@ -40,7 +41,8 @@ import { SearchTypeaheadComponent } from './search-typeahead.component'
     SearchTypeaheadComponent,
     RouterLink,
     GlobalIconComponent,
-    ButtonComponent
+    ButtonComponent,
+    GameNavigationComponent
   ]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
@@ -175,6 +177,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   getDefaultRouteQuery () {
     return this.redirectService.getDefaultRouteQuery()
+  }
+
+  isGameExperience () {
+    const path = this.router.url.split('?')[0]
+    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search')
   }
 
   // ---------------------------------------------------------------------------

@@ -3,6 +3,7 @@ export type GamesListParams = {
   category?: string
   count?: number
   start?: number
+  sort?: 'recommended' | 'latest' | 'popular' | 'likes' | 'coins' | 'favorites'
 }
 
 export function buildGamesListUrl (apiOrigin: string, params: GamesListParams = {}) {
@@ -11,6 +12,7 @@ export function buildGamesListUrl (apiOrigin: string, params: GamesListParams = 
   if (params.category) query.set('category', params.category)
   if (params.count !== undefined) query.set('count', params.count + '')
   if (params.start !== undefined) query.set('start', params.start + '')
+  if (params.sort) query.set('sort', params.sort)
 
   const baseUrl = `${apiOrigin.replace(/\/$/, '')}/api/v1/games`
   return query.toString() ? `${baseUrl}?${query.toString()}` : baseUrl

@@ -128,20 +128,31 @@ export class GameModel extends SequelizeModel<GameModel> {
     const where: any = { uuid }
     if (options.publishedOnly) where.status = 'published'
 
-    return GameModel.findOne<MGame>({ where })
+    return GameModel.findOne<MGame>({ where, include: [ { model: AccountModel, required: true } ] })
   }
 
-  static listPublished (options: { category?: string; search?: string; limit: number; offset: number }) {
+  static listPublished (options: { category?: string; search?: string; sort?: string; limit: number; offset: number }) {
     const where: any = { status: 'published' }
 
     if (options.category) where.category = options.category
-    if (options.search) where.title = { [Op.iLike]: `%${options.search}%` }
+    if (options.search) {
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${options.search}%` } },
+        { description: { [Op.iLike]: `%${options.search}%` } },
+        { tags: { [Op.contains]: [ options.search ] } }
+      ]
+    }
+
+    const order = options.sort === 'popular'
+      ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+      : [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
 
     return Promise.all([
       GameModel.count({ where }),
       GameModel.findAll<MGame>({
         where,
-        order: [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ],
+        include: [ { model: AccountModel, required: true } ],
+        order: order as any,
         limit: options.limit,
         offset: options.offset
       })

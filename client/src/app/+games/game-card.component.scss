@@ -1,0 +1,131 @@
+@use './game-community.tokens';
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.game-card {
+  background: var(--game-card-bg);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  border-color: rgb(228 111 36 / 38%);
+  box-shadow: var(--game-shadow);
+  outline: none;
+  transform: translateY(-3px);
+}
+
+.game-cover {
+  aspect-ratio: 16 / 9;
+  background: #eceff3;
+  overflow: hidden;
+  position: relative;
+}
+
+.game-cover img {
+  height: 100%;
+  object-fit: cover;
+  transition: transform 180ms ease;
+  width: 100%;
+}
+
+.game-card:hover .game-cover img {
+  transform: scale(1.035);
+}
+
+.game-cover.placeholder {
+  align-items: center;
+  background: linear-gradient(135deg, #ffe6d3, #f7b779);
+  display: flex;
+  justify-content: center;
+}
+
+.cover-letter {
+  color: #fff;
+  font-size: 3rem;
+  font-weight: 800;
+  text-shadow: 0 2px 12px rgb(100 50 20 / 25%);
+}
+
+.play-hint {
+  background: rgb(24 25 28 / 76%);
+  border-radius: 999px;
+  bottom: 0.65rem;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0;
+  padding: 0.35rem 0.7rem;
+  position: absolute;
+  right: 0.65rem;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.game-card:hover .play-hint,
+.game-card:focus-visible .play-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.game-card-body {
+  padding: 0.85rem 0.9rem 0.95rem;
+}
+
+.game-card h3 {
+  font-size: 1rem;
+  line-height: 1.35;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-card-author,
+.game-card-meta {
+  align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  font-size: 0.76rem;
+  gap: 0.45rem;
+}
+
+.game-card-author {
+  margin-top: 0.55rem;
+}
+
+.author-avatar {
+  align-items: center;
+  background: var(--game-brand-soft);
+  border-radius: 50%;
+  color: var(--game-brand);
+  display: inline-flex;
+  font-size: 0.7rem;
+  font-weight: 800;
+  height: 1.35rem;
+  justify-content: center;
+  width: 1.35rem;
+}
+
+.game-card p {
+  color: var(--game-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0.55rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-card-meta {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}

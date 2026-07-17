@@ -1,0 +1,19 @@
+<main class="game-community-page creator-page">
+  <div class="game-community-content">
+    <header class="creator-header"><div><p class="game-eyebrow">CREATOR CENTER</p><h1>创作中心</h1><p>上传、管理你的小游戏，查看作品互动数据。</p></div><a routerLink="/games/upload" class="upload-button">上传游戏</a></header>
+    @if (error()) { <section class="creator-state"><h2>{{ error() }}</h2><a routerLink="/login">去登录</a></section> }
+    @else if (!overview()) { <section class="creator-state">正在加载创作数据...</section> }
+    @else {
+      <section class="metric-grid">
+        <article><span>维护游戏</span><strong>{{ overview()!.gameCount }} / {{ overview()!.gameLimit }}</strong></article>
+        <article><span>存储用量</span><strong>{{ formatBytes(overview()!.storageBytes) }}</strong><small>总上限 {{ formatBytes(overview()!.storageLimitBytes) }}</small></article>
+        <article><span>总游玩</span><strong>{{ overview()!.plays }}</strong></article>
+        <article><span>总投币</span><strong>{{ overview()!.coins }}</strong></article>
+        <article><span>总收藏</span><strong>{{ overview()!.favorites }}</strong></article>
+        <article><span>审核记录</span><strong>查看管理</strong></article>
+      </section>
+      <section class="creator-shortcuts"><a routerLink="/games/manage">游戏管理 <span>查看审核状态 →</span></a><a routerLink="/games/library" [queryParams]="{ tab: 'owned' }">我的作品 <span>编辑信息 →</span></a><a routerLink="/games/upload">投稿指南 <span>了解单文件规范 →</span></a></section>
+      <section><div class="game-section-heading"><div><p class="game-eyebrow">YOUR WORKS</p><h2>最近维护的游戏</h2></div></div><div class="game-grid">@for (game of overview()!.games; track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+    }
+  </div>
+</main>

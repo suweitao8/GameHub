@@ -22,11 +22,35 @@ export type Game = {
   updatedAt: string
   runtimeUrl: string
   ownerAccountId: number
+  likes?: number
+  dislikes?: number
+  coins?: number
+  favorites?: number
+  author?: { id: number, name: string, displayName: string, handle: string }
 }
 
 export type GameList = {
   total: number
   data: Game[]
+}
+
+export type GameAuthor = {
+  account: { id: number, name: string, displayName: string, description: string, handle: string, followers: number }
+  stats: { games: number, plays: number, favorites: number, coins: number }
+  data: Game[]
+}
+
+export type GameCreatorOverview = {
+  gameCount: number
+  gameLimit: number
+  storageBytes: number
+  storageLimitBytes: number
+  plays: number
+  likes: number
+  coins: number
+  favorites: number
+  followers: number
+  games: Game[]
 }
 
 export type GameCommunity = {
@@ -37,6 +61,9 @@ export type GameCommunity = {
   rating: 'like' | 'dislike' | 'none'
   favorite: boolean
   following: boolean
+  coins: number
+  coinBalance: number
+  coinsGiven: number
   author: { id: number, name: string, displayName: string, handle: string } | null
 }
 
@@ -45,6 +72,7 @@ export type GameComment = {
   text: string
   createdAt: string
   account: { displayName: string, name: string }
+  totalReplies?: number
 }
 
 @Injectable()
@@ -96,8 +124,18 @@ export class GamesService {
     return this.http.post<{ comment: GameComment }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, { text })
   }
 
+  reply (uuid: string, commentId: number, text: string): Observable<{ comment: GameComment }> {
+    return this.http.post<{ comment: GameComment }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, { text })
+  }
+
   report (uuid: string, reason: string): Observable<{ abuse: { id: number } }> {
     return this.http.post<{ abuse: { id: number } }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/report`, { reason })
+  }
+
+  coin (uuid: string, amount: 1 | 2): Observable<{ coins: number, coinBalance: number, coinsGiven: number }> {
+    return this.http.post<{ coins: number, coinBalance: number, coinsGiven: number }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount })
   }
 
   create (file: File, metadata: {
@@ -137,6 +175,14 @@ export class GamesService {
 
   listOwned (): Observable<GameList> {
     return this.http.get<GameList>(`${GamesService.BASE_URL}/me/owned`)
+  }
+
+  author (accountId: string): Observable<GameAuthor> {
+    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}`)
+  }
+
+  creatorOverview (): Observable<GameCreatorOverview> {
+    return this.http.get<GameCreatorOverview>(`${GamesService.BASE_URL}/me/overview`)
   }
 
   listForModerators (): Observable<GameList> {

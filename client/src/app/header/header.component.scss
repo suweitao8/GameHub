@@ -56,6 +56,34 @@
   @include disable-default-a-behaviour;
 }
 
+.game-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 46px;
+  margin-right: 1rem;
+  color: #e46f24 !important;
+  text-decoration: none;
+  font-size: 1.35rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.game-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #fff;
+  background: #e46f24;
+  box-shadow: 0 5px 14px rgb(228 111 36 / 24%);
+}
+
+.game-brand-name {
+  letter-spacing: -0.02em;
+}
+
 .instance-name {
   @include ellipsis;
   @include margin-left(10px);
@@ -156,6 +184,18 @@ my-actor-avatar {
   color: pvar(--header-fg-200);
 }
 
+@media screen and (max-width: $mobile-view) {
+  :host-context(.game-experience) {
+    .buttons-container .settings-button,
+    .buttons-container .create-account-button,
+    .buttons-container .login-label,
+    .buttons-container my-notification-dropdown,
+    .buttons-container .logged-in-container {
+      display: none !important;
+    }
+  }
+}
+
 @media screen and (max-width: $menu-overlay-view) {
   .peertube-title {
     @include padding-left(0);
@@ -241,6 +281,20 @@ my-actor-avatar {
 
   .peertube-title {
     @include margin-right(5px);
+  }
+
+  .game-brand {
+    margin-right: 0.35rem;
+    font-size: 1rem;
+  }
+
+  .game-brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .game-brand-name {
+    display: none;
   }
 
   .instance-name {
