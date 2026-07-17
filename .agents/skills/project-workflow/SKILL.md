@@ -26,7 +26,7 @@ description: GameHub 通用开发工作流。用于功能、修复、重构、�
 docker compose -f support/docker/development/docker-compose.yml up -d
 pnpm install --frozen-lockfile
 pnpm run build:server
-pnpm run build:client -- --light
+pnpm run build:client
 $env:NODE_ENV = 'dev'
 $env:NODE_CONFIG = '{"redis":{"port":6381}}'
 pnpm run start

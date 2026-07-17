@@ -455,7 +455,7 @@ pnpm install --frozen-lockfile
 docker compose -f support/docker/development/docker-compose.yml up -d
 pnpm install --frozen-lockfile
 pnpm run build:server
-pnpm run build:client -- --light
+pnpm run build:client
 $env:NODE_ENV = 'dev'
 $env:NODE_CONFIG = '{"redis":{"port":6381}}'
 pnpm run start
