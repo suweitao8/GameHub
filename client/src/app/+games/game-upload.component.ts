@@ -37,7 +37,7 @@ export class GameUploadComponent {
     this.cover = (event.target as HTMLInputElement).files?.[0] || null
   }
 
-  submit () {
+  async submit () {
     if (!this.file || !this.title.trim()) {
       this.error.set('请选择单文件 HTML 游戏并填写标题。')
       return
@@ -46,13 +46,19 @@ export class GameUploadComponent {
     this.step.set(2)
     this.error.set('')
     this.message.set('')
+    let cover = this.cover
+    if (!cover) {
+      this.step.set(4)
+      cover = await this.generateAutomaticCover()
+    }
+    this.step.set(5)
     this.gamesService.create(this.file, {
       title: this.title.trim(),
       description: this.description.trim(),
       instructions: this.instructions.trim(),
       category: this.category.trim() || 'other',
       tags: this.tags,
-      cover: this.cover
+      cover
     }).subscribe({
       next: game => {
         this.submitting.set(false)
@@ -69,5 +75,30 @@ export class GameUploadComponent {
 
   formatBytes (value: number) {
     return value < 1024 * 1024 ? `${Math.ceil(value / 1024)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  private generateAutomaticCover (): Promise<File | null> {
+    const canvas = document.createElement('canvas')
+    canvas.width = 1280
+    canvas.height = 720
+    const context = canvas.getContext('2d')
+    if (!context) return Promise.resolve(null)
+
+    const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height)
+    gradient.addColorStop(0, '#e46f24')
+    gradient.addColorStop(1, '#f6b76e')
+    context.fillStyle = gradient
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillStyle = 'rgba(255, 255, 255, .16)'
+    for (let index = 0; index < 7; index++) context.fillRect(index * 220 - 100, 0, 80, canvas.height)
+    context.fillStyle = '#fff'
+    context.font = '800 72px Arial'
+    context.fillText(this.title.trim() || 'GameHub 游戏', 72, 400)
+    context.font = '600 28px Arial'
+    context.fillText(`${this.category.toUpperCase()} · HTML GAME`, 76, 465)
+
+    return new Promise(resolve => canvas.toBlob(blob => {
+      resolve(blob ? new File([ blob ], 'gamehub-auto-cover.png', { type: 'image/png' }) : null)
+    }, 'image/png'))
   }
 }
