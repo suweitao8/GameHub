@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameComment, GameCommunity } from './games.service'
@@ -16,6 +17,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router)
   private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
+  private readonly sanitizer = inject(DomSanitizer)
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private reloadKey = 0
@@ -24,7 +26,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly loading = signal(true)
   readonly loadingError = signal(false)
   readonly frameLoading = signal(true)
-  readonly runtimeUrl = signal('')
+  readonly runtimeUrl = signal<SafeResourceUrl | null>(null)
   readonly community = signal<GameCommunity | null>(null)
   readonly comments = signal<GameComment[]>([])
   readonly commentDraft = signal('')
@@ -71,7 +73,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       next: game => {
         this.game.set(game)
         this.gameStarted.set(false)
-        this.runtimeUrl.set(this.withReloadKey(game.runtimeUrl))
+        this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
         this.gamesService.recordPlay(uuid).subscribe()
         this.gamesService.community(uuid).subscribe({ next: community => this.community.set(community) })
@@ -279,7 +281,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.frameLoading.set(true)
     this.gameStarted.set(false)
     this.loadingError.set(false)
-    this.runtimeUrl.set(this.withReloadKey(currentGame.runtimeUrl))
+    this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
   }
 
   onFrameLoaded () {

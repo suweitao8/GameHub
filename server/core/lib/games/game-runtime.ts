@@ -1,26 +1,64 @@
 import { createHash, randomUUID } from 'crypto'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
-import { basename, extname, join, relative, resolve, sep } from 'path'
+import { basename, extname, join, relative, resolve, sep, posix } from 'path'
+import * as yauzl from 'yauzl'
 import { parse } from 'node-html-parser'
 
 export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 1024 * 1024
+export const DEFAULT_GAME_MAX_FILES = 200
 
-type GameHtmlInput = {
+const ALLOWED_RUNTIME_EXTENSIONS = new Set([
+  '.html', '.htm', '.css', '.js', '.mjs', '.json',
+  '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg',
+  '.mp3', '.wav', '.ogg', '.m4a', '.woff', '.woff2', '.ttf', '.otf'
+])
+
+const RUNTIME_MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.htm': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf'
+}
+
+type GameRuntimeInput = {
   filename: string
   mimeType?: string
   content: Buffer
   maxFileSizeBytes?: number
+  maxArchiveSizeBytes?: number
+  maxExpandedSizeBytes?: number
+  maxFiles?: number
 }
 
-type ValidatedGameHtml = {
+type ValidatedHtml = {
   content: Buffer
   runtimeSha256: string
   fileSizeBytes: number
 }
 
-type StoredGameHtml = ValidatedGameHtml & {
+export type StoredGameRuntimePackage = {
+  absoluteDirectory: string
   absolutePath: string
   relativePath: string
+  runtimeSha256: string
+  fileSizeBytes: number
+  fileCount: number
 }
 
 export type StoredGameCover = {
@@ -29,30 +67,29 @@ export type StoredGameCover = {
   mimeType: string
 }
 
-export function validateSingleHtmlGame (input: GameHtmlInput): ValidatedGameHtml {
+export class GameRuntimeValidationError extends Error {
+  constructor (message: string) {
+    super(message)
+    this.name = 'GameRuntimeValidationError'
+  }
+}
+
+export function validateSingleHtmlGame (input: GameRuntimeInput): ValidatedHtml {
   const maxFileSizeBytes = input.maxFileSizeBytes ?? DEFAULT_GAME_MAX_FILE_SIZE_BYTES
 
   if (!input.filename || basename(input.filename) !== input.filename || ![ '.html', '.htm' ].includes(extname(input.filename).toLowerCase())) {
-    throw new Error('Only a single HTML file is supported')
-  }
-
-  if (input.mimeType && ![ 'text/html', 'application/xhtml+xml' ].includes(input.mimeType.toLowerCase())) {
-    throw new Error('Only a single HTML file is supported')
+    throw new GameRuntimeValidationError('Only a single HTML file is supported')
   }
 
   if (!Buffer.isBuffer(input.content) || input.content.length === 0) {
-    throw new Error('Game file cannot be empty')
+    throw new GameRuntimeValidationError('Game file cannot be empty')
   }
 
   if (input.content.length > maxFileSizeBytes) {
-    throw new Error('Game file is too large')
+    throw new GameRuntimeValidationError('Game file is too large')
   }
 
-  const html = input.content.toString('utf8')
-  if (html.includes('\u0000')) throw new Error('Game file contains an invalid character')
-
-  validateMarkupResources(html)
-  validateInlineCode(html)
+  validateHtmlContent(input.content.toString('utf8'), 'index.html')
 
   return {
     content: input.content,
@@ -61,26 +98,78 @@ export function validateSingleHtmlGame (input: GameHtmlInput): ValidatedGameHtml
   }
 }
 
-export async function storeSingleHtmlGame (input: GameHtmlInput & { root: string }): Promise<StoredGameHtml> {
-  const validated = validateSingleHtmlGame(input)
+export async function storeSingleHtmlGame (input: GameRuntimeInput & { root: string }): Promise<StoredGameRuntimePackage> {
+  return storeGameRuntimePackage(input)
+}
+
+export async function storeGameRuntimePackage (input: GameRuntimeInput & { root: string; directoryName?: string }): Promise<StoredGameRuntimePackage> {
+  const extension = extname(basename(input.filename)).toLowerCase()
   const rootPath = resolve(input.root)
-  await mkdir(rootPath, { recursive: true })
+  const maxFileSizeBytes = input.maxFileSizeBytes ?? DEFAULT_GAME_MAX_FILE_SIZE_BYTES
+  const maxArchiveSizeBytes = input.maxArchiveSizeBytes ?? maxFileSizeBytes
+  const maxExpandedSizeBytes = input.maxExpandedSizeBytes ?? maxFileSizeBytes
+  const maxFiles = input.maxFiles ?? DEFAULT_GAME_MAX_FILES
+  const runtimeDirectory = join(rootPath, input.directoryName || cryptoRandomDirectoryName())
 
-  const runtimeDirectory = join(rootPath, randomUUID())
-  const absolutePath = join(runtimeDirectory, 'index.html')
-  const relativePath = relative(rootPath, absolutePath).split(sep).join('/')
-
-  if (!isPathInside(rootPath, absolutePath)) throw new Error('Game runtime path escapes storage root')
-
-  try {
-    await mkdir(runtimeDirectory)
-    await writeFile(absolutePath, validated.content, { flag: 'wx', mode: 0o600 })
-  } catch (err) {
-    await rm(runtimeDirectory, { recursive: true, force: true })
-    throw err
+  if (extension !== '.zip') {
+    const validated = validateSingleHtmlGame({ ...input, maxFileSizeBytes })
+    return writeRuntimeFiles({
+      rootPath,
+      runtimeDirectory,
+      files: new Map([ [ 'index.html', validated.content ] ]),
+      runtimeSha256: validated.runtimeSha256
+    })
   }
 
-  return { ...validated, absolutePath, relativePath }
+  if (!Buffer.isBuffer(input.content) || input.content.length === 0) {
+    throw new GameRuntimeValidationError('Game package cannot be empty')
+  }
+
+  if (input.content.length > maxArchiveSizeBytes) {
+    throw new GameRuntimeValidationError('Game package archive is too large')
+  }
+
+  let files: Map<string, Buffer>
+  try {
+    files = await readZipFiles(input.content, { maxExpandedSizeBytes, maxFiles })
+  } catch (err) {
+    if (err instanceof GameRuntimeValidationError) throw err
+    if (String((err as Error)?.message || '').toLowerCase().includes('relative path')) {
+      throw new GameRuntimeValidationError('Game package contains an unsafe path')
+    }
+    throw new GameRuntimeValidationError('Invalid game package archive')
+  }
+  if (!files.has('index.html')) throw new GameRuntimeValidationError('Game package must contain a root index.html')
+
+  for (const [ path, content ] of files) {
+    const extension = extname(path).toLowerCase()
+    if (extension === '.html' || extension === '.htm') validateHtmlContent(content.toString('utf8'), path, files)
+    if (extension === '.css') validateCssContent(content.toString('utf8'), path, files)
+  }
+
+  const runtimeSha256 = hashRuntimeFiles(files)
+  return writeRuntimeFiles({ rootPath, runtimeDirectory, files, runtimeSha256 })
+}
+
+export async function readStoredGameHtml (root: string, runtimePath: string) {
+  if (basename(runtimePath) !== 'index.html') throw new GameRuntimeValidationError('Invalid game runtime path')
+  return readStoredGameRuntimeFile(root, runtimePath)
+}
+
+export async function readStoredGameRuntimeFile (root: string, runtimePath: string) {
+  const rootPath = resolve(root)
+  const absolutePath = resolve(rootPath, runtimePath)
+  const extension = extname(absolutePath).toLowerCase()
+
+  if (!isPathInside(rootPath, absolutePath) || !ALLOWED_RUNTIME_EXTENSIONS.has(extension)) {
+    throw new GameRuntimeValidationError('Invalid game runtime path')
+  }
+
+  return readFile(absolutePath)
+}
+
+export function getGameRuntimeMimeType (runtimePath: string) {
+  return RUNTIME_MIME_TYPES[extname(runtimePath).toLowerCase()] || 'application/octet-stream'
 }
 
 export async function storeGameCover (input: { root: string; filename: string; mimeType: string; content: Buffer }): Promise<StoredGameCover> {
@@ -88,13 +177,13 @@ export async function storeGameCover (input: { root: string; filename: string; m
   const mimeType = input.mimeType.toLowerCase()
   const supported = new Map([ [ '.png', 'image/png' ], [ '.jpg', 'image/jpeg' ], [ '.jpeg', 'image/jpeg' ], [ '.webp', 'image/webp' ] ])
   if (supported.get(extension) !== mimeType || input.content.length === 0 || input.content.length > 2 * 1024 * 1024) {
-    throw new Error('Cover must be a non-empty PNG, JPEG, or WebP image smaller than 2 MB')
+    throw new GameRuntimeValidationError('Cover must be a non-empty PNG, JPEG, or WebP image smaller than 2 MB')
   }
 
   const rootPath = resolve(input.root)
-  const coverDirectory = join(rootPath, 'covers', randomUUID())
+  const coverDirectory = join(rootPath, 'covers', cryptoRandomDirectoryName())
   const absolutePath = join(coverDirectory, `cover${extension}`)
-  if (!isPathInside(rootPath, absolutePath)) throw new Error('Game cover path escapes storage root')
+  if (!isPathInside(rootPath, absolutePath)) throw new GameRuntimeValidationError('Game cover path escapes storage root')
 
   await mkdir(coverDirectory, { recursive: true })
   try {
@@ -107,21 +196,10 @@ export async function storeGameCover (input: { root: string; filename: string; m
   return { absolutePath, relativePath: relative(rootPath, absolutePath).split(sep).join('/'), mimeType }
 }
 
-export async function readStoredGameHtml (root: string, runtimePath: string) {
-  const rootPath = resolve(root)
-  const absolutePath = resolve(rootPath, runtimePath)
-
-  if (!isPathInside(rootPath, absolutePath) || basename(absolutePath) !== 'index.html') {
-    throw new Error('Invalid game runtime path')
-  }
-
-  return readFile(absolutePath)
-}
-
 export async function readStoredGameCover (root: string, coverPath: string) {
   const rootPath = resolve(root)
   const absolutePath = resolve(rootPath, coverPath)
-  if (!isPathInside(rootPath, absolutePath) || !coverPath.startsWith('covers/')) throw new Error('Invalid game cover path')
+  if (!isPathInside(rootPath, absolutePath) || !coverPath.startsWith('covers/')) throw new GameRuntimeValidationError('Invalid game cover path')
   return readFile(absolutePath)
 }
 
@@ -136,11 +214,11 @@ export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<
     'Referrer-Policy': 'no-referrer',
     'Content-Security-Policy': [
       "default-src 'none'",
-      "script-src 'unsafe-inline'",
-      "style-src 'unsafe-inline'",
-      'img-src data: blob:',
-      'media-src data: blob:',
-      'font-src data: blob:',
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "media-src 'self' data: blob:",
+      "font-src 'self' data: blob:",
       "connect-src 'none'",
       "object-src 'none'",
       "base-uri 'none'",
@@ -151,25 +229,171 @@ export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<
   }
 }
 
-function validateMarkupResources (html: string) {
+async function writeRuntimeFiles (input: {
+  rootPath: string
+  runtimeDirectory: string
+  files: Map<string, Buffer>
+  runtimeSha256: string
+}): Promise<StoredGameRuntimePackage> {
+  if (!isPathInside(input.rootPath, input.runtimeDirectory)) throw new GameRuntimeValidationError('Game runtime path escapes storage root')
+
+  const entryPath = join(input.runtimeDirectory, 'index.html')
+  try {
+    await mkdir(input.runtimeDirectory, { recursive: true })
+    for (const [ path, content ] of input.files) {
+      const absolutePath = resolve(input.runtimeDirectory, path)
+      if (!isPathInside(input.runtimeDirectory, absolutePath)) throw new GameRuntimeValidationError('Game runtime path escapes storage root')
+      await mkdir(resolve(absolutePath, '..'), { recursive: true })
+      await writeFile(absolutePath, content, { flag: 'wx', mode: 0o600 })
+    }
+  } catch (err) {
+    await rm(input.runtimeDirectory, { recursive: true, force: true }).catch(() => undefined)
+    throw err
+  }
+
+  const relativePath = relative(input.rootPath, entryPath).split(sep).join('/')
+  return {
+    absoluteDirectory: input.runtimeDirectory,
+    absolutePath: entryPath,
+    relativePath,
+    runtimeSha256: input.runtimeSha256,
+    fileSizeBytes: Array.from(input.files.values()).reduce((total, content) => total + content.length, 0),
+    fileCount: input.files.size
+  }
+}
+
+async function readZipFiles (content: Buffer, limits: { maxExpandedSizeBytes: number; maxFiles: number }) {
+  const files = new Map<string, Buffer>()
+  let zipFile: yauzl.ZipFile
+  try {
+    zipFile = await new Promise<yauzl.ZipFile>((resolveZip, rejectZip) => {
+      yauzl.fromBuffer(content, { lazyEntries: true }, (err, openedZip) => err || !openedZip ? rejectZip(err || new Error('Invalid game package archive')) : resolveZip(openedZip))
+    })
+  } catch (err) {
+    if (String((err as Error)?.message || '').toLowerCase().includes('relative path')) {
+      throw new GameRuntimeValidationError('Game package contains an unsafe path')
+    }
+    throw new GameRuntimeValidationError('Invalid game package archive')
+  }
+
+  return new Promise<Map<string, Buffer>>((resolveFiles, rejectFiles) => {
+    let expandedSize = 0
+    let fileCount = 0
+    let settled = false
+
+    const fail = (error: Error) => {
+      if (settled) return
+      settled = true
+      zipFile.close()
+      rejectFiles(error)
+    }
+
+    zipFile.on('error', fail)
+    zipFile.on('end', () => {
+      if (settled) return
+      settled = true
+      resolveFiles(files)
+    })
+    zipFile.on('entry', entry => {
+      if (settled) return
+      try {
+        const path = normalizeZipEntryPath(entry.fileName)
+        if (path.endsWith('/')) {
+          zipFile.readEntry()
+          return
+        }
+
+        if (isZipSymlink(entry)) throw new GameRuntimeValidationError('Game package contains an unsafe path')
+
+        fileCount++
+        if (fileCount > limits.maxFiles) throw new GameRuntimeValidationError('Game package contains too many files')
+        if (!ALLOWED_RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) throw new GameRuntimeValidationError('Game package contains an unsupported file type')
+        if (files.has(path)) throw new GameRuntimeValidationError('Game package contains duplicate paths')
+
+        expandedSize += entry.uncompressedSize
+        if (expandedSize > limits.maxExpandedSizeBytes) throw new GameRuntimeValidationError('Game package is too large after extraction')
+
+        zipFile.openReadStream(entry, (err, stream) => {
+          if (err || !stream) return fail(err || new Error('Unable to read game package entry'))
+          const chunks: Buffer[] = []
+          stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
+          stream.on('error', fail)
+          stream.on('end', () => {
+            if (settled) return
+            files.set(path, Buffer.concat(chunks))
+            zipFile.readEntry()
+          })
+        })
+      } catch (err) {
+        fail(err as Error)
+      }
+    })
+    zipFile.readEntry()
+  })
+}
+
+function normalizeZipEntryPath (entryPath: string) {
+  if (!entryPath || entryPath.includes('\u0000') || entryPath.includes('\\') || entryPath.startsWith('/') || /^[a-z]:/i.test(entryPath)) {
+    throw new GameRuntimeValidationError('Game package contains an unsafe path')
+  }
+
+  const normalized = posix.normalize(entryPath)
+  if (normalized !== entryPath || normalized === '.' || normalized.startsWith('../') || normalized === '..') {
+    throw new GameRuntimeValidationError('Game package contains an unsafe path')
+  }
+
+  return normalized
+}
+
+function isZipSymlink (entry: yauzl.Entry) {
+  const unixMode = (entry.externalFileAttributes >>> 16) & 0xffff
+  return (unixMode & 0o170000) === 0o120000
+}
+
+function validateHtmlContent (html: string, currentPath: string, files?: Map<string, Buffer>) {
+  if (html.includes('\u0000')) throw new GameRuntimeValidationError('Game file contains an invalid character')
+  validateMarkupResources(html, currentPath, files)
+  validateInlineCode(html)
+}
+
+function validateMarkupResources (html: string, currentPath: string, files?: Map<string, Buffer>) {
   const document = parse(html, { lowerCaseTagName: true })
+  const allowRelative = !!files
 
   for (const element of document.querySelectorAll('script,link,img,audio,video,source,iframe,object')) {
     const tagName = element.tagName.toLowerCase()
     const attribute = tagName === 'object' ? 'data' : tagName === 'link' ? 'href' : 'src'
     const value = element.getAttribute(attribute)
-
     if (!value) continue
-    if (tagName === 'script' || !isInlineResource(value)) {
-      throw new Error('External resources are not supported')
-    }
+    validateResourceReference(value, currentPath, files, allowRelative)
   }
 
   for (const element of document.querySelectorAll('a,form')) {
     const attribute = element.tagName.toLowerCase() === 'form' ? 'action' : 'href'
     const value = element.getAttribute(attribute)
+    if (value && value !== '#' && value !== '') throw new GameRuntimeValidationError('Navigation and forms are not supported')
+  }
 
-    if (value && value !== '#' && value !== '') throw new Error('Navigation and forms are not supported')
+  for (const element of document.querySelectorAll('style')) validateCssContent(element.textContent, currentPath, files)
+  for (const element of document.querySelectorAll('[style]')) validateCssContent(element.getAttribute('style') || '', currentPath, files)
+}
+
+function validateCssContent (css: string, currentPath: string, files: Map<string, Buffer>) {
+  const urlPattern = /url\(\s*(['"]?)(.*?)\1\s*\)/gi
+  for (const match of css.matchAll(urlPattern)) validateResourceReference(match[2], currentPath, files, true)
+}
+
+function validateResourceReference (value: string, currentPath: string, files: Map<string, Buffer> | undefined, allowRelative: boolean) {
+  const trimmed = value.trim()
+  if (!trimmed || /^(?:data:|blob:|#)/i.test(trimmed)) return
+  if (!allowRelative || trimmed.includes('\\') || /^(?:[a-z][a-z\d+.-]*:|\/\/|\/)/i.test(trimmed)) {
+    throw new GameRuntimeValidationError('External resources are not supported')
+  }
+
+  const path = trimmed.split(/[?#]/, 1)[0]
+  const resolved = posix.normalize(posix.join(posix.dirname(currentPath), path))
+  if (resolved.startsWith('../') || resolved === '..' || !files?.has(resolved)) {
+    throw new GameRuntimeValidationError('Game resource path is missing or unsafe')
   }
 }
 
@@ -178,18 +402,24 @@ function validateInlineCode (html: string) {
     /\bfetch\s*\(/i,
     /\bXMLHttpRequest\b/i,
     /\bWebSocket\b/i,
-    /\bnavigator\.sendBeacon\s*\(/i,
+    /navigator\.sendBeacon\s*\(/i,
     /\bwindow\.(?:open|top|parent)\b/i,
     /\b(?:window\.)?(?:top|parent)\.location\b/i
   ]
 
-  if (forbiddenPatterns.some(pattern => pattern.test(html))) {
-    throw new Error('Network and top-level navigation APIs are not supported')
-  }
+  if (forbiddenPatterns.some(pattern => pattern.test(html))) throw new GameRuntimeValidationError('Network and top-level navigation APIs are not supported')
 }
 
-function isInlineResource (value: string) {
-  return /^(?:data:|blob:|#)/i.test(value.trim())
+function hashRuntimeFiles (files: Map<string, Buffer>) {
+  const hash = createHash('sha256')
+  for (const [ path, content ] of Array.from(files.entries()).sort(([ left ], [ right ]) => left.localeCompare(right))) {
+    hash.update(path).update('\u0000').update(content)
+  }
+  return hash.digest('hex')
+}
+
+function cryptoRandomDirectoryName () {
+  return randomUUID()
 }
 
 function isPathInside (rootPath: string, childPath: string) {

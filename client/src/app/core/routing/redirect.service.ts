@@ -19,7 +19,7 @@ export class RedirectService {
   private static SESSION_STORAGE_LATEST_SESSION_URL_KEY = 'redirect-latest-session-url'
 
   // Default route could change according to the instance configuration
-  static INIT_DEFAULT_ROUTE = '/videos/browse'
+  static INIT_DEFAULT_ROUTE = '/games'
   static INIT_DEFAULT_TRENDING_ALGORITHM = 'most-viewed'
 
   private previousUrl: string

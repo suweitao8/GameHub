@@ -128,6 +128,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'videos/browse',
+    redirectTo: '/games',
+    pathMatch: 'full'
+  },
+  {
     path: 'videos/update/:uuid',
     pathMatch: 'full',
     redirectTo: '/videos/manage/:uuid'

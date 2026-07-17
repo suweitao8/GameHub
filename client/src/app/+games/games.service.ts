@@ -4,7 +4,7 @@ import { RestExtractor } from '@app/core'
 import { catchError } from 'rxjs/operators'
 import { Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
-import { buildGameRuntimeUrl, buildGamesListUrl, GamesListParams } from './games-api'
+import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
 
 export type Game = {
   uuid: string
@@ -181,14 +181,17 @@ export class GamesService {
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount })
   }
 
-  create (file: File, metadata: {
-    title: string, description: string, instructions: string, category: string, tags: string, cover?: File | null
-  }): Observable<Game> {
+  create (file: File, metadata: GameUploadMetadata): Observable<Game> {
+    const body = buildGameUploadFormData(file, metadata)
+    return this.http.post<Game>(GamesService.BASE_URL, body)
+  }
+
+  preview (file: File): Observable<{ token: string, runtimeUrl: string, fileSizeBytes: number, fileCount: number }> {
     const body = new FormData()
     body.append('gamefile', file, file.name)
-    if (metadata.cover) body.append('coverfile', metadata.cover, metadata.cover.name)
-    for (const [ key, value ] of Object.entries(metadata)) body.append(key, value)
-    return this.http.post<Game>(GamesService.BASE_URL, body)
+    return this.http.post<{ token: string, runtimeUrl: string, fileSizeBytes: number, fileCount: number }>(
+      `${GamesService.BASE_URL}/preview`, body
+    )
   }
 
   update (uuid: string, metadata: {

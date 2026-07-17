@@ -1,7 +1,8 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
-import { storeGameCover, storeSingleHtmlGame, validateSingleHtmlGame } from '@server/lib/games/game-runtime.js'
+import { GameRuntimeValidationError, storeGameCover, storeGameRuntimePackage } from '@server/lib/games/game-runtime.js'
+import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
 import { ensureGameVideo } from '@server/lib/games/game-video-bridge.js'
 import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
@@ -24,13 +25,33 @@ import { Op } from 'sequelize'
 import { runtimeRouter } from './runtime.js'
 import { gameCommunityRouter } from './community.js'
 
-const gameFile = createReqFiles([ 'gamefile', 'coverfile' ], {
+const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile' ], {
   'text/html': '.html',
   'application/xhtml+xml': '.html',
+  'application/zip': '.zip',
   'image/png': '.png',
   'image/jpeg': '.jpg',
   'image/webp': '.webp'
 })
+
+const gameFile: express.RequestHandler = (req, res, next) => {
+  gameFileUpload(req, res, err => {
+    if (!err) return next()
+
+    if (err.name === 'MulterError') {
+      const field = 'field' in err && typeof err.field === 'string' ? err.field : undefined
+      const error = field === 'cover'
+        ? '封面文件字段名应为 coverfile，请重新提交。'
+        : field
+          ? `不支持上传字段：${field}`
+          : '上传文件字段不符合要求，请检查提交的文件。'
+
+      return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error })
+    }
+
+    return next(err)
+  })
+}
 
 const gamesRouter = express.Router()
 const auditLogger = auditLoggerFactory('games')
@@ -48,6 +69,7 @@ gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotif
 gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
 gamesRouter.get('/author/:accountId', optionalAuthenticate, asyncMiddleware(getAuthor))
+gamesRouter.post('/preview', authenticate, gameFile, asyncMiddleware(previewGame))
 gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
 gamesRouter.post('/', authenticate, gameFile, gameCreateValidator, asyncMiddleware(createGame))
 gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
@@ -235,7 +257,35 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
 }
 
 function getRuntimeUrl (uuid: string) {
-  return new URL(`/api/v1/games/${uuid}/runtime`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+  return new URL(`/api/v1/games/${uuid}/runtime/`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+}
+
+function getPreviewRuntimeUrl (token: string) {
+  return new URL(`/api/v1/games/preview/${token}/runtime/`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+}
+
+function getGameRuntimeErrorMessage (error: GameRuntimeValidationError) {
+  const messages: Record<string, string> = {
+    'Only a single HTML file is supported': '请上传 .html、.htm 或 .zip 游戏文件。',
+    'Game file cannot be empty': '游戏文件不能为空。',
+    'Game file is too large': 'HTML 文件不能超过 20MB。',
+    'Game package cannot be empty': '游戏压缩包不能为空。',
+    'Game package archive is too large': '游戏压缩包不能超过 20MB。',
+    'Game package must contain a root index.html': '压缩包根目录必须包含 index.html。',
+    'Game package contains an unsafe path': '压缩包包含不安全的文件路径。',
+    'Game package contains too many files': '压缩包内文件数量超过限制。',
+    'Game package contains an unsupported file type': '压缩包包含不支持或危险的文件类型。',
+    'Game package contains duplicate paths': '压缩包包含重复的文件路径。',
+    'Game package is too large after extraction': '游戏解压后的资源总大小超过 20MB。',
+    'External resources are not supported': '游戏只能使用包内资源，不能引用外部网络资源。',
+    'Game resource path is missing or unsafe': '游戏引用了不存在或不安全的资源路径。',
+    'Network and top-level navigation APIs are not supported': '游戏不能联网或跳转到顶层页面。',
+    'Navigation and forms are not supported': '游戏不能包含页面跳转或表单提交。',
+    'Game file contains an invalid character': '游戏文件包含无效字符。',
+    'Invalid game package archive': '游戏压缩包损坏或格式无效。'
+  }
+
+  return messages[error.message] || '游戏文件未通过安全检查，请检查文件格式和资源引用。'
 }
 
 async function listGames (req: express.Request, res: express.Response) {
@@ -356,6 +406,34 @@ async function getGame (req: express.Request, res: express.Response) {
   return res.json(formatGame(game))
 }
 
+async function previewGame (req: express.Request, res: express.Response) {
+  const file = req.files?.['gamefile']?.[0]
+  if (!file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: '请上传 HTML 或 ZIP 游戏文件。' })
+
+  try {
+    const content = await readFile(file.path)
+    const preview = await createGameRuntimePreview({
+      root: CONFIG.STORAGE.GAMES_DIR,
+      filename: file.originalname,
+      mimeType: file.mimetype,
+      content,
+      maxFileSizeBytes: CONFIG.GAMES.MAX_FILE_SIZE_BYTES
+    })
+
+    return res.status(HttpStatusCode.CREATED_201).json({
+      token: preview.token,
+      runtimeUrl: getPreviewRuntimeUrl(preview.token),
+      fileSizeBytes: preview.stored.fileSizeBytes,
+      fileCount: preview.stored.fileCount
+    })
+  } catch (err) {
+    if (err instanceof GameRuntimeValidationError) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: getGameRuntimeErrorMessage(err) })
+    throw err
+  } finally {
+    cleanUpReqFiles(req)
+  }
+}
+
 async function createGame (req: express.Request, res: express.Response) {
   const user = getUser(res)
   const file = req.files?.['gamefile']?.[0]
@@ -368,12 +446,11 @@ async function createGame (req: express.Request, res: express.Response) {
   if (maintainedGames >= 5) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Each account can maintain at most 5 games' })
   if (recentUploads >= CONFIG.GAMES.UPLOADS_PER_HOUR) return res.status(HttpStatusCode.TOO_MANY_REQUESTS_429).json({ error: 'Upload rate limit reached' })
 
-  let stored: Awaited<ReturnType<typeof storeSingleHtmlGame>> | undefined
+  let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined
   let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
   try {
     const content = await readFile(file.path)
-    validateSingleHtmlGame({ filename: file.originalname, mimeType: file.mimetype, content, maxFileSizeBytes: CONFIG.GAMES.MAX_FILE_SIZE_BYTES })
-    stored = await storeSingleHtmlGame({
+    stored = await storeGameRuntimePackage({
       root: CONFIG.STORAGE.GAMES_DIR,
       filename: file.originalname,
       mimeType: file.mimetype,
@@ -395,7 +472,7 @@ async function createGame (req: express.Request, res: express.Response) {
       where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } }
     }) || 0)
     if (storageUsed + stored.fileSizeBytes > CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES) {
-      await rm(stored.absolutePath, { force: true })
+      await rm(stored.absoluteDirectory, { recursive: true, force: true })
       if (storedCover) await rm(storedCover.absolutePath, { force: true })
       return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Account game storage quota reached' })
     }
@@ -422,8 +499,9 @@ async function createGame (req: express.Request, res: express.Response) {
 
     return res.status(HttpStatusCode.CREATED_201).json(formatGame(game))
   } catch (err) {
-    if (stored) await rm(stored.absolutePath, { force: true }).catch(() => undefined)
+    if (stored) await rm(stored.absoluteDirectory, { recursive: true, force: true }).catch(() => undefined)
     if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
+    if (err instanceof GameRuntimeValidationError) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: getGameRuntimeErrorMessage(err) })
     throw err
   } finally {
     cleanUpReqFiles(req)
@@ -438,12 +516,12 @@ async function updateGame (req: express.Request, res: express.Response) {
 
   const oldGame = formatGame(game)
   const file = req.files?.['gamefile']?.[0]
-  let stored: Awaited<ReturnType<typeof storeSingleHtmlGame>> | undefined
+  let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined
   let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
   try {
     if (file) {
       const content = await readFile(file.path)
-      stored = await storeSingleHtmlGame({
+      stored = await storeGameRuntimePackage({
         root: CONFIG.STORAGE.GAMES_DIR,
         filename: file.originalname,
         mimeType: file.mimetype,
@@ -481,8 +559,9 @@ async function updateGame (req: express.Request, res: express.Response) {
     auditLogger.update(getAuditIdFromRes(res), new GameAuditView(formatGame(game)), new GameAuditView(oldGame))
     return res.json(formatGame(game))
   } catch (err) {
-    if (stored) await rm(stored.absolutePath, { force: true }).catch(() => undefined)
+    if (stored) await rm(stored.absoluteDirectory, { recursive: true, force: true }).catch(() => undefined)
     if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
+    if (err instanceof GameRuntimeValidationError) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: getGameRuntimeErrorMessage(err) })
     throw err
   } finally {
     cleanUpReqFiles(req)

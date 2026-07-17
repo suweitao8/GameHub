@@ -50,7 +50,7 @@ export class GameUploadComponent implements OnDestroy {
     this.file = (event.target as HTMLInputElement).files?.[0] || null
     this.fileSize.set(this.file?.size || 0)
     if (this.file && this.file.size > 20 * 1024 * 1024) {
-      this.error.set('单文件 HTML 最大 20MB，请压缩后再试。')
+      this.error.set('HTML 或 ZIP 游戏文件最大 20MB，请压缩后再试。')
       this.file = null
       return
     }
@@ -71,7 +71,7 @@ export class GameUploadComponent implements OnDestroy {
 
   async submit () {
     if (!this.file || !this.title.trim()) {
-      this.error.set('请选择单文件 HTML 游戏并填写标题。')
+      this.error.set('请选择 HTML 或 ZIP 游戏并填写标题。')
       return
     }
     this.submitting.set(true)
@@ -104,11 +104,11 @@ export class GameUploadComponent implements OnDestroy {
         this.previewStatus.set('上传成功')
         this.message.set(game.status === 'published' ? '上传成功，游戏已发布。' : '上传成功，等待管理员审核。')
       },
-      error: () => {
+      error: error => {
         this.submitting.set(false)
         this.step.set(1)
         this.previewStatus.set('')
-        this.error.set('上传失败，请确认文件是自包含的 HTML 游戏。')
+        this.error.set(this.getUploadError(error) || '上传失败，请检查游戏文件和资源引用。')
       }
     })
   }
@@ -163,6 +163,11 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   private async preparePreview (file: File) {
+    if (this.isZipFile(file)) {
+      this.prepareZipPreview(file)
+      return
+    }
+
     this.step.set(2)
     this.previewStatus.set('正在检查文件…')
     const source = await file.text()
@@ -181,6 +186,29 @@ export class GameUploadComponent implements OnDestroy {
     this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.previewObjectUrl))
     this.step.set(3)
     this.previewStatus.set('正在启动游戏…')
+  }
+
+  private prepareZipPreview (file: File) {
+    if (this.previewObjectUrl) URL.revokeObjectURL(this.previewObjectUrl)
+    this.previewObjectUrl = ''
+    this.previewUrl.set(null)
+    this.previewToken = ''
+    this.previewHandled = false
+    this.runtimeScreenshot.set('')
+    this.previewStatus.set('正在解压并检查游戏资源…')
+    this.gamesService.preview(file).subscribe({
+      next: preview => {
+        this.previewToken = preview.token
+        this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(preview.runtimeUrl))
+        this.step.set(3)
+        this.previewStatus.set('正在启动游戏…')
+      },
+      error: error => {
+        this.previewError.set(this.getUploadError(error) || '游戏压缩包检查失败')
+        this.error.set(this.getUploadError(error) || '游戏压缩包检查失败，请检查 index.html 和资源路径。')
+        this.previewStatus.set('文件检查失败')
+      }
+    })
   }
 
   private async finishPreview (dataUrl?: string) {
@@ -269,5 +297,17 @@ export class GameUploadComponent implements OnDestroy {
     return new Promise(resolve => canvas.toBlob(blob => {
       resolve(blob ? new File([ blob ], 'gamehub-auto-cover.png', { type: 'image/png' }) : null)
     }, 'image/png'))
+  }
+
+  private isZipFile (file: File) {
+    return /\.zip$/i.test(file.name)
+  }
+
+  private getUploadError (error: unknown) {
+    if (!error || typeof error !== 'object') return ''
+    const candidate = error as { error?: { error?: string } | string, message?: string }
+    if (typeof candidate.error === 'object' && candidate.error?.error) return candidate.error.error
+    if (typeof candidate.error === 'string') return candidate.error
+    return candidate.message || ''
   }
 }
