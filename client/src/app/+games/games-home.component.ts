@@ -22,12 +22,16 @@ export class GamesHomeComponent implements OnInit {
   readonly error = signal(false)
   readonly search = signal('')
   readonly category = signal('')
+  readonly device = signal<GamesListParams['device']>(undefined)
+  readonly publishedAfter = signal('')
   readonly sort = signal<GamesListParams['sort']>('recommended')
 
   ngOnInit () {
     this.route.queryParamMap.subscribe(params => {
       this.category.set(params.get('category') || '')
       this.search.set(params.get('search') || '')
+      this.device.set(params.get('device') as GamesListParams['device'] || undefined)
+      this.publishedAfter.set(params.get('publishedAfter') || '')
       const requestedSort = params.get('sort') as GamesListParams['sort']
       const validSorts = [ 'recommended', 'latest', 'popular', 'likes', 'coins', 'favorites' ]
       this.sort.set(validSorts.includes(requestedSort || '') ? requestedSort : 'recommended')
@@ -38,7 +42,13 @@ export class GamesHomeComponent implements OnInit {
   loadGames () {
     this.loading.set(true)
     this.error.set(false)
-    const common = { search: this.search() || undefined, category: this.category() || undefined, count: 8 }
+    const common = {
+      search: this.search() || undefined,
+      category: this.category() || undefined,
+      publishedAfter: this.publishedAfter() || undefined,
+      device: this.device(),
+      count: 8
+    }
 
     if (this.sort() !== 'recommended') {
       this.gamesService.list({ ...common, sort: this.sort() }).subscribe({
@@ -82,6 +92,16 @@ export class GamesHomeComponent implements OnInit {
   onSortChange (event: Event) {
     const sort = (event.target as HTMLSelectElement).value as GamesListParams['sort']
     this.sort.set(sort || 'recommended')
+    this.loadGames()
+  }
+
+  onDeviceChange (event: Event) {
+    this.device.set((event.target as HTMLSelectElement).value as GamesListParams['device'] || undefined)
+    this.loadGames()
+  }
+
+  onPublishedAfterChange (event: Event) {
+    this.publishedAfter.set((event.target as HTMLInputElement).value)
     this.loadGames()
   }
 }

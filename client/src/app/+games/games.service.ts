@@ -36,7 +36,7 @@ export type GameList = {
 
 export type GameAuthor = {
   account: { id: number, name: string, displayName: string, description: string, handle: string, followers: number }
-  stats: { games: number, plays: number, favorites: number, coins: number }
+  stats: { games: number, plays: number, likes: number, favorites: number, coins: number }
   data: Game[]
 }
 

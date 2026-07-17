@@ -10,6 +10,7 @@ import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { AccountModel } from '@server/models/account/account.js'
+import { VideoModel } from '@server/models/video/video.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
@@ -57,6 +58,7 @@ function getUser (res: express.Response) {
 
 function formatGame (game: MGame) {
   const owner = (game as any).Owner
+  const video = (game as any).Video
   return {
     uuid: game.uuid,
     title: game.title,
@@ -68,6 +70,9 @@ function formatGame (game: MGame) {
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
+    likes: Number(video?.likes || game.get?.('gameLikes') || 0),
+    favorites: Number(game.get?.('favoriteCount') || 0),
+    coins: Number(game.get?.('coinCount') || 0),
     publishedAt: game.publishedAt,
     createdAt: game.createdAt,
     updatedAt: game.updatedAt,
@@ -94,7 +99,11 @@ async function getAuthor (req: express.Request, res: express.Response) {
   if (!account?.Actor) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: accountId, status: 'published' },
-    include: [ { model: AccountModel, required: true } ],
+    attributes: { include: GameModel.getPublicStatsAttributes() },
+    include: [
+      { model: AccountModel, required: true },
+      { model: VideoModel, required: false, attributes: [ 'likes' ] }
+    ],
     order: [ [ 'publishedAt', 'DESC' ] ],
     limit: 100
   })
@@ -114,6 +123,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
     stats: {
       games: games.length,
       plays: games.reduce((sum, game) => sum + game.playCount, 0),
+      likes: games.reduce((sum, game) => sum + Number((game as any).Video?.likes || 0), 0),
       favorites,
       coins: Math.max(0, Number(coins || 0) * -1)
     },
@@ -123,7 +133,11 @@ async function getAuthor (req: express.Request, res: express.Response) {
 
 async function getCreatorOverview (_req: express.Request, res: express.Response) {
   const user = getUser(res)
-  const games = await GameModel.findAll<MGame>({ where: { ownerAccountId: user.Account.id }, order: [ [ 'createdAt', 'DESC' ] ] })
+  const games = await GameModel.findAll<MGame>({
+    where: { ownerAccountId: user.Account.id },
+    include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ],
+    order: [ [ 'createdAt', 'DESC' ] ]
+  })
   const gameIds = games.map(game => game.id)
   const [ favorites, coins ] = await Promise.all([
     GameFavoriteModel.count({ where: { gameId: gameIds } }),
@@ -135,7 +149,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
     storageBytes: games.reduce((sum, game) => sum + game.fileSizeBytes, 0),
     storageLimitBytes: CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES,
     plays: games.reduce((sum, game) => sum + game.playCount, 0),
-    likes: 0,
+    likes: games.reduce((sum, game) => sum + Number((game as any).Video?.likes || 0), 0),
     coins: Math.max(0, Number(coins || 0) * -1),
     favorites,
     followers: 0,
@@ -153,6 +167,8 @@ async function listGames (req: express.Request, res: express.Response) {
   const result = await GameModel.listPublished({
     category: req.query.category as string,
     search: req.query.search as string,
+    publishedAfter: req.query.publishedAfter as string,
+    device: req.query.device as string,
     sort: req.query.sort as string,
     limit: count,
     offset: start

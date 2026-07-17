@@ -25,6 +25,7 @@
     <a routerLink="/games" [queryParams]="{ category: 'horror' }" [class.active]="category() === 'horror'">恐怖</a>
     <a routerLink="/games" [queryParams]="{ category: 'mobile' }" [class.active]="category() === 'mobile'">手机可玩</a>
   </nav>
+  <div class="game-community-content search-filters" aria-label="搜索筛选"><label>设备<select [value]="device() || ''" (change)="onDeviceChange($event)"><option value="">全部设备</option><option value="mobile">手机可玩</option><option value="keyboard">键盘</option><option value="mouse">鼠标</option><option value="touch">触屏</option></select></label><label>发布于<input type="date" [value]="publishedAfter()" (change)="onPublishedAfterChange($event)"></label></div>
 
   @if (loading()) {
     <div class="game-community-content game-state" role="status">正在为你准备游戏...</div>

@@ -132,10 +132,20 @@ export class GameModel extends SequelizeModel<GameModel> {
     return GameModel.findOne<MGame>({ where, include: [ { model: AccountModel, required: true } ] })
   }
 
-  static async listPublished (options: { category?: string; search?: string; sort?: string; limit: number; offset: number }) {
+  static async listPublished (options: {
+    category?: string
+    search?: string
+    publishedAfter?: string
+    device?: string
+    sort?: string
+    limit: number
+    offset: number
+  }) {
     const where: any = { status: 'published' }
 
     if (options.category) where.category = options.category
+    if (options.publishedAfter) where.publishedAt = { [Op.gte]: new Date(options.publishedAfter) }
+    if (options.device) where.tags = { [Op.contains]: [ options.device ] }
     if (options.search) {
       const ownerIds = await AccountModel.findAll({
         attributes: [ 'id' ],
@@ -167,11 +177,22 @@ export class GameModel extends SequelizeModel<GameModel> {
       GameModel.count({ where }),
       GameModel.findAll<MGame>({
         where,
-        include: [ { model: AccountModel, required: true } ],
+        attributes: { include: GameModel.getPublicStatsAttributes() },
+        include: [
+          { model: AccountModel, required: true },
+          { model: VideoModel, required: false, attributes: [ 'likes' ] }
+        ],
         order: order as any,
         limit: options.limit,
         offset: options.offset
       })
     ]).then(([ total, data ]) => ({ total, data }))
+  }
+
+  static getPublicStatsAttributes () {
+    return [
+      [ literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")'), 'favoriteCount' ],
+      [ literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'), 'coinCount' ]
+    ] as any
   }
 }

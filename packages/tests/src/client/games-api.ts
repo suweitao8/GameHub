@@ -8,4 +8,10 @@ describe('Games client API contract', function () {
     expect(buildGameRuntimeUrl('http://games.localhost:9000', 'game-uuid'))
       .to.equal('http://games.localhost:9000/api/v1/games/game-uuid/runtime')
   })
+
+  it('serializes device and publication-date filters for community search', function () {
+    expect(buildGamesListUrl('http://localhost:9000', {
+      search: 'space', device: 'mobile', publishedAfter: '2026-01-01', sort: 'latest'
+    })).to.equal('http://localhost:9000/api/v1/games?search=space&publishedAfter=2026-01-01&device=mobile&sort=latest')
+  })
 })

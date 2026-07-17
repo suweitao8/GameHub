@@ -15,6 +15,8 @@ export const gameUUIDValidator = [
 export const gameListValidator = [
   query('category').optional().isLength({ min: 1, max: 64 }),
   query('search').optional().isLength({ min: 1, max: 120 }),
+  query('publishedAfter').optional().isISO8601(),
+  query('device').optional().isIn([ 'mobile', 'keyboard', 'mouse', 'touch' ]),
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
     next()
