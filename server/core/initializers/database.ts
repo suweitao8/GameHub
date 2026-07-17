@@ -77,6 +77,7 @@ import { VideoShareModel } from '../models/video/video-share.js'
 import { VideoStreamingPlaylistModel } from '../models/video/video-streaming-playlist.js'
 import { VideoTagModel } from '../models/video/video-tag.js'
 import { VideoModel } from '../models/video/video.js'
+import { GameModel } from '../models/game/game.js'
 import { CONFIG } from './config.js'
 
 pg.defaults.parseInt8 = true // Avoid BIGINT to be converted to string
@@ -163,6 +164,7 @@ export async function initDatabaseModels (silent: boolean) {
     VideoCommentAbuseModel,
     VideoAbuseModel,
     VideoModel,
+    GameModel,
     ChangeOwnershipModel,
     VideoChannelModel,
     VideoShareModel,
