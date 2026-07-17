@@ -14,4 +14,9 @@ describe('Games client API contract', function () {
       search: 'space', device: 'mobile', publishedAfter: '2026-01-01', sort: 'latest'
     })).to.equal('http://localhost:9000/api/v1/games?search=space&publishedAfter=2026-01-01&device=mobile&sort=latest')
   })
+
+  it('serializes the following feed view', function () {
+    expect(buildGamesListUrl('http://localhost:9000', { view: 'following', sort: 'latest', count: 8 }))
+      .to.equal('http://localhost:9000/api/v1/games?view=following&count=8&sort=latest')
+  })
 })

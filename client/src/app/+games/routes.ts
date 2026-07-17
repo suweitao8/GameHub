@@ -9,6 +9,7 @@ import { GameEditComponent } from './game-edit.component'
 import { GameAuthorComponent } from './game-author.component'
 import { GameCreatorComponent } from './game-creator.component'
 import { GameNotificationsComponent } from './game-notifications.component'
+import { GameLoginGuard } from './game-login.guard'
 
 export default [
   {
@@ -23,32 +24,43 @@ export default [
       {
         path: 'creator',
         component: GameCreatorComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Creator center` } }
       },
       {
         path: 'notifications',
         component: GameNotificationsComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`GameHub notifications` } }
       },
       {
         path: 'edit/:uuid',
         component: GameEditComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Edit game` } }
       },
       {
         path: 'library',
         component: GameLibraryComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My games` } }
       },
       {
         path: 'upload',
         component: GameUploadComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Upload game` } }
       },
       {
         path: 'manage',
         component: GameManageComponent,
+        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Moderate games` } }
+      },
+      {
+        path: 'search',
+        component: GamesHomeComponent,
+        data: { meta: { title: $localize`Search games` } }
       },
       {
         path: '',

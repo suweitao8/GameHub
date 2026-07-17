@@ -1,15 +1,20 @@
-import { ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
-import { ActivatedRoute, RouterLink } from '@angular/router'
+import { DatePipe } from '@angular/common'
+import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { AuthService } from '@app/core/auth/auth.service'
+import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameComment, GameCommunity } from './games.service'
+import { GameCardComponent } from './game-card.component'
 
 @Component({
   templateUrl: './game-play.component.html',
   styleUrl: './game-play.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ RouterLink ]
+  imports: [ DatePipe, GameCardComponent, RouterLink ]
 })
 export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)
+  private readonly router = inject(Router)
+  private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
   private readonly subscriptions: { unsubscribe: () => void }[] = []
@@ -29,12 +34,21 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly coinMessage = signal('')
   readonly coinLoading = signal(false)
   readonly related = signal<Game[]>([])
+  readonly authorGames = signal<Game[]>([])
   readonly replies = signal<Record<number, GameComment[]>>({})
   readonly commentFeedback = signal('')
   readonly deleteTarget = signal<GameComment | null>(null)
   readonly reportTarget = signal<GameComment | null>(null)
   readonly reportDraft = signal('')
   readonly mutedHint = signal(false)
+  readonly gameStarted = signal(false)
+  readonly actionFeedback = signal('')
+  readonly commentSort = signal<'latest' | 'hot'>('latest')
+  readonly sortedComments = computed(() => {
+    const comments = [ ...this.comments() ]
+    if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
+    return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  })
   private currentUuid = ''
 
   ngOnInit () {
@@ -56,6 +70,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gamesService.get(uuid).subscribe({
       next: game => {
         this.game.set(game)
+        this.gameStarted.set(false)
         this.runtimeUrl.set(this.withReloadKey(game.runtimeUrl))
         this.loading.set(false)
         this.gamesService.recordPlay(uuid).subscribe()
@@ -64,6 +79,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
           next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
         })
+        if (game.author?.name) {
+          this.gamesService.list({ search: game.author.name, count: 5, sort: 'latest' }).subscribe({
+            next: result => this.authorGames.set(result.data.filter(item =>
+              item.ownerAccountId === game.ownerAccountId && item.uuid !== game.uuid
+            ))
+          })
+        }
       },
       error: () => {
         this.loading.set(false)
@@ -73,31 +95,51 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   toggleRate (rating: 'like' | 'dislike') {
+    if (!this.requireLogin()) return
     const current = this.community()
     if (!current) return
     const next = current.rating === rating ? 'none' : rating
     this.gamesService.rate(this.currentUuid, next).subscribe({
-      next: () => this.gamesService.community(this.currentUuid).subscribe({ next: value => this.community.set(value) })
+      next: () => this.gamesService.community(this.currentUuid).subscribe({
+        next: value => {
+          this.community.set(value)
+          this.actionFeedback.set(next === 'like' ? '点赞成功' : next === 'none' ? '已取消点赞' : '已记录你的反馈')
+        }
+      })
     })
   }
 
   toggleFavorite () {
+    if (!this.requireLogin()) return
     const current = this.community()
     if (!current) return
     this.gamesService.favorite(this.currentUuid, !current.favorite).subscribe({
-      next: value => this.community.update(state => state ? { ...state, favorite: value.favorite } : state)
+      next: value => {
+        this.community.update(state => state ? { ...state, favorite: value.favorite } : state)
+        this.actionFeedback.set(value.favorite ? '已加入收藏' : '已取消收藏')
+      }
     })
   }
 
   toggleFollow () {
+    if (!this.requireLogin()) return
     const current = this.community()
     if (!current) return
     this.gamesService.follow(this.currentUuid, !current.following).subscribe({
-      next: value => this.community.update(state => state ? { ...state, following: value.following } : state)
+      next: value => {
+        this.community.update(state => state ? { ...state, following: value.following } : state)
+        this.actionFeedback.set(value.following ? '已关注作者' : '已取消关注')
+      }
     })
   }
 
+  startGame () {
+    this.gameStarted.set(true)
+    this.focusGame()
+  }
+
   submitComment () {
+    if (!this.requireLogin()) return
     const text = this.commentDraft().trim()
     if (!text) return
     this.gamesService.comment(this.currentUuid, text).subscribe({
@@ -109,6 +151,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   submitReply () {
+    if (!this.requireLogin()) return
     const parentId = this.replyTo()
     const text = this.commentDraft().trim()
     if (!parentId || !text) return
@@ -128,6 +171,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   toggleCommentLike (comment: GameComment) {
+    if (!this.requireLogin()) return
     this.gamesService.likeComment(this.currentUuid, comment.id, !comment.liked).subscribe({
       next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes })
     })
@@ -153,6 +197,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   confirmDeleteComment () {
+    if (!this.requireLogin()) return
     const comment = this.deleteTarget()
     if (!comment) return
     this.gamesService.deleteComment(this.currentUuid, comment.id).subscribe({
@@ -173,6 +218,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   submitReportComment () {
+    if (!this.requireLogin()) return
     const comment = this.reportTarget()
     const reason = this.reportDraft().trim()
     if (!comment || !reason) return
@@ -185,11 +231,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   reportGame () {
+    if (!this.requireLogin()) return
     const reason = this.reportReason().trim()
     if (reason) this.gamesService.report(this.currentUuid, reason).subscribe()
   }
 
   giveCoin () {
+    if (!this.requireLogin()) return
     const state = this.community()
     if (!state || this.coinLoading()) return
     this.coinLoading.set(true)
@@ -229,6 +277,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
     this.reloadKey++
     this.frameLoading.set(true)
+    this.gameStarted.set(false)
     this.loadingError.set(false)
     this.runtimeUrl.set(this.withReloadKey(currentGame.runtimeUrl))
   }
@@ -251,6 +300,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private withReloadKey (url: string) {
     return `${url}${url.includes('?') ? '&' : '?'}reload=${this.reloadKey}`
+  }
+
+  private requireLogin () {
+    if (this.authService.isLoggedIn()) return true
+    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    return false
   }
 
   private updateComment (commentId: number, patch: Partial<GameComment>) {

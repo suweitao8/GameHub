@@ -3,14 +3,16 @@
     <a routerLink="/games" class="back-link">← 返回游戏社区</a>
     <header class="upload-header"><div><p class="game-eyebrow">CREATOR STUDIO</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
     <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>
+    @if (previewStatus()) { <p class="upload-status" [class.error]="previewError()" role="status">{{ previewStatus() }}</p> }
     <div class="upload-layout">
       <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>只支持单文件 HTML，最大 20MB</li><li>图片、音频、样式和脚本需要内联</li><li>不支持本地外部资源路径或联网请求</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>不上传封面时，系统会根据标题和分类自动生成 GameHub 封面。</p></aside>
       <form (submit)="$event.preventDefault(); submit()" class="game-form">
         <label class="file-picker">游戏文件<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)"><span>{{ file ? file.name + ' · ' + formatBytes(fileSize()) : '选择一个自包含 HTML 文件' }}</span></label>
+        @if (previewUrl()) { <iframe class="upload-preview-frame" [src]="previewUrl()" title="游戏运行预览" sandbox="allow-scripts" (load)="onPreviewLoaded()"></iframe> }
         <div class="field-grid"><label>游戏名称<input name="title" [(ngModel)]="title" maxlength="120" required placeholder="例如：橘子星球"></label><label>分类<select name="category" [(ngModel)]="category"><option value="arcade">动作</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="strategy">策略</option><option value="horror">恐怖</option></select></label></div>
         <label>标签<input name="tags" [(ngModel)]="tags" placeholder="arcade, puzzle"></label>
         <label>封面图（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)"></label>
-        <div class="cover-preview-area">@if (coverPreview()) { <img [src]="coverPreview()" alt="游戏封面预览"><div><span>当前封面预览</span><button type="button" (click)="regenerateCover()">重新生成 GameHub 封面</button></div> } @else { <button type="button" class="cover-generate-button" (click)="regenerateCover()" [disabled]="!title.trim()">生成封面预览</button> }</div>
+        <div class="cover-preview-area">@if (coverPreview()) { <img [src]="coverPreview()" alt="游戏封面预览"><div><span>{{ coverSource() === 'runtime' ? '系统运行截图封面' : coverSource() === 'manual' ? '自定义封面' : 'GameHub 自动封面' }}</span><button type="button" (click)="regenerateCover()">重新生成封面</button></div> } @else { <button type="button" class="cover-generate-button" (click)="regenerateCover()" [disabled]="!title.trim()">生成封面预览</button> }</div>
         <label>简介<textarea name="description" [(ngModel)]="description" rows="4" placeholder="一句话介绍你的游戏"></textarea></label>
         <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
         @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }

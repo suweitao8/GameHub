@@ -137,6 +137,7 @@ export class GameModel extends SequelizeModel<GameModel> {
     search?: string
     publishedAfter?: string
     device?: string
+    ownerAccountIds?: number[]
     sort?: string
     limit: number
     offset: number
@@ -146,6 +147,7 @@ export class GameModel extends SequelizeModel<GameModel> {
     if (options.category) where.category = options.category
     if (options.publishedAfter) where.publishedAt = { [Op.gte]: new Date(options.publishedAfter) }
     if (options.device) where.tags = { [Op.contains]: [ options.device ] }
+    if (options.ownerAccountIds) where.ownerAccountId = { [Op.in]: options.ownerAccountIds }
     if (options.search) {
       const ownerIds = await AccountModel.findAll({
         attributes: [ 'id' ],

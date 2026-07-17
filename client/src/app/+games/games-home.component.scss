@@ -140,6 +140,14 @@
 .game-state p { color: var(--game-muted); margin: 0.6rem 0 1.2rem; }
 .game-state.error { color: var(--game-danger); }
 
+.category-directory { padding-bottom: 4rem; }
+.category-directory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.category-directory-card { background: #fff; border: 1px solid var(--game-border); border-radius: var(--game-radius); display: grid; gap: 0.45rem; padding: 1.25rem; text-decoration: none; transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.category-directory-card:hover { border-color: var(--game-brand); box-shadow: var(--game-shadow); transform: translateY(-2px); }
+.category-directory-card strong { color: var(--game-text); font-size: 1.1rem; }
+.category-directory-card span { color: var(--game-muted); font-size: 0.86rem; }
+.category-directory-card em { color: var(--game-brand-deep); font-size: 0.8rem; font-style: normal; font-weight: 700; }
+
 @media (max-width: 1050px) {
   .game-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
@@ -148,8 +156,10 @@
   .games-hero { align-items: stretch; flex-direction: column; padding: 2rem 1.2rem; }
   .home-search { max-width: none; }
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .category-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 450px) {
   .game-grid { gap: 0.65rem; }
+  .category-directory-grid { grid-template-columns: 1fr; }
 }

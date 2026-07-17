@@ -37,6 +37,7 @@ gameCommunityRouter.post('/:uuid/comments/:commentId/report', gameUUIDValidator,
 gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, asyncMiddleware(rateGame))
 gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, asyncMiddleware(favoriteGame))
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
+gameCommunityRouter.put('/author/:accountId/follow', authenticate, asyncMiddleware(followAccount))
 gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, asyncMiddleware(coinGame))
 gameCommunityRouter.post('/:uuid/report', gameUUIDValidator, authenticate, asyncMiddleware(reportGame))
 
@@ -380,6 +381,44 @@ async function followAuthor (req: express.Request, res: express.Response) {
       recipientAccountId: game.ownerAccountId,
       actorAccountId: user.Account.id,
       gameId: game.id,
+      kind: 'follow',
+      message: `${user.username} 关注了你`
+    })
+  }
+
+  return res.json({ following: req.body.following })
+}
+
+async function followAccount (req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  const accountId = Number(req.params.accountId)
+  const account = Number.isInteger(accountId) && accountId > 0 ? await AccountModel.load(accountId) : undefined
+  if (!account?.Actor) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'following must be boolean' })
+  if (account.id === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Cannot follow yourself' })
+
+  const existing = await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, account.Actor.id)
+  if (req.body.following && !existing) {
+    JobQueue.Instance.createJobAsync({
+      type: 'activitypub-follow',
+      payload: {
+        name: account.Actor.preferredUsername,
+        host: null,
+        assertIsChannel: false,
+        followerActorId: user.Account.Actor.id
+      }
+    })
+  } else if (!req.body.following && existing) {
+    await sequelizeTypescript.transaction(async transaction => {
+      if (existing.state === 'accepted') sendUndoFollow(existing, transaction)
+      await existing.destroy({ transaction })
+    })
+  }
+
+  if (req.body.following) {
+    await createGameNotification({
+      recipientAccountId: account.id,
+      actorAccountId: user.Account.id,
       kind: 'follow',
       message: `${user.username} 关注了你`
     })

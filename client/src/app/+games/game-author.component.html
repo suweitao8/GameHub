@@ -13,7 +13,7 @@
           <p>&#64;{{ author()!.account.handle }} · {{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
           <div class="author-stats"><span>{{ author()!.account.followers }} 粉丝</span><span>{{ author()!.stats.plays }} 次游玩</span><span>{{ author()!.stats.likes }} 获赞</span><span>{{ author()!.stats.coins }} 枚投币</span></div>
         </div>
-        <button type="button" class="follow-button">关注作者</button>
+        <button type="button" class="follow-button" [class.following]="author()!.following" [disabled]="followLoading()" (click)="toggleFollow()">{{ author()!.following ? '已关注作者' : '关注作者' }}</button>
       </div>
     </section>
     <div class="game-community-content author-content">

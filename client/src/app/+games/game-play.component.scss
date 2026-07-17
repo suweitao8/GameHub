@@ -10,6 +10,8 @@
 .game-stage iframe { border: 0; display: block; height: min(70vh, 760px); min-height: 520px; width: 100%; }
 .game-stage iframe:focus { outline: 3px solid var(--game-brand); outline-offset: -3px; }
 .frame-loading { align-items: center; color: #d6d9df; display: grid; inset: 0; place-items: center; pointer-events: none; position: absolute; z-index: 1; }
+.start-game-overlay { background: var(--game-brand); border: 0; border-radius: 999px; color: #fff; font-size: 1rem; font-weight: 800; left: 50%; padding: 0.85rem 1.35rem; position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 2; }
+.start-game-overlay:hover { filter: brightness(1.06); transform: translate(-50%, -50%) scale(1.03); }
 .stage-tools { align-items: center; background: rgb(20 22 27 / 88%); bottom: 0; color: #c9ccd2; display: flex; font-size: 0.78rem; justify-content: space-between; left: 0; padding: 0.55rem 0.8rem; position: absolute; right: 0; }
 .stage-tools button { background: transparent; border: 0; color: #fff; }
 .game-details { align-items: end; padding: 1.6rem 0 0.8rem; }
@@ -32,6 +34,11 @@
 .game-info-card p { line-height: 1.7; margin-bottom: 0; white-space: pre-wrap; }
 .section-heading { align-items: end; display: flex; justify-content: space-between; }
 .section-heading h2 { margin: 0; }
+.comment-heading-actions { align-items: center; color: var(--game-muted); display: flex; gap: 0.8rem; }
+.comment-heading-actions label { align-items: center; display: inline-flex; font-size: 0.8rem; gap: 0.35rem; }
+.comment-heading-actions select { background: #fff; border: 1px solid var(--game-border); border-radius: 6px; color: var(--game-text); padding: 0.3rem 0.4rem; }
+.action-feedback { animation: game-action-pop 180ms ease-out; }
+@keyframes game-action-pop { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 .comment { border-top: 1px solid var(--game-border); padding: 0.9rem 0; }
 .comment p { margin: 0.35rem 0 0; }
 .comment-author { align-items: center; display: flex; gap: 0.45rem; }

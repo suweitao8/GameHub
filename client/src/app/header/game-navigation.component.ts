@@ -16,6 +16,6 @@ export class GameNavigationComponent {
   submitSearch (event: Event) {
     event.preventDefault()
     const search = this.query().trim()
-    void this.router.navigate([ '/games' ], { queryParams: search ? { search } : {} })
+    void this.router.navigate([ '/games/search' ], { queryParams: search ? { search } : {} })
   }
 }

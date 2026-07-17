@@ -27,7 +27,12 @@
   </nav>
   <div class="game-community-content search-filters" aria-label="搜索筛选"><label>设备<select [value]="device() || ''" (change)="onDeviceChange($event)"><option value="">全部设备</option><option value="mobile">手机可玩</option><option value="keyboard">键盘</option><option value="mouse">鼠标</option><option value="touch">触屏</option></select></label><label>发布于<input type="date" [value]="publishedAfter()" (change)="onPublishedAfterChange($event)"></label></div>
 
-  @if (loading()) {
+  @if (view() === 'categories') {
+    <section class="game-community-content category-directory">
+      <div class="game-section-heading"><div><p class="game-eyebrow">BROWSE BY MOOD</p><h2>按分类发现游戏</h2><p>从熟悉的类型开始，找到下一款想试玩的作品。</p></div></div>
+      <div class="category-directory-grid">@for (item of categories; track item.id) { <a class="category-directory-card" routerLink="/games" [queryParams]="{ category: item.id }"><strong>{{ item.title }}</strong><span>{{ item.description }}</span><em>浏览分类 →</em></a> }</div>
+    </section>
+  } @else if (loading()) {
     <div class="game-community-content game-state" role="status">正在为你准备游戏...</div>
   } @else if (error()) {
     <div class="game-community-content game-state error" role="alert">
@@ -38,22 +43,21 @@
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {
     <div class="game-community-content game-state">
       <h2>还没有找到相关游戏</h2>
-      <p>换一个关键词，或成为第一个上传游戏的创作者。</p>
-      <a routerLink="/games/upload">上传 HTML 游戏</a>
+      @if (view() === 'following') { <p>关注作者后，这里会显示他们最新发布的游戏。</p><a routerLink="/games">去发现作者</a> } @else { <p>换一个关键词，或成为第一个上传游戏的创作者。</p><a routerLink="/games/upload">上传 HTML 游戏</a> }
     </div>
   } @else {
     <div class="game-community-content">
       <section class="game-section">
         <div class="game-section-heading">
-          <div><p class="game-eyebrow">{{ sort() === 'recommended' ? 'FOR YOU' : 'SEARCH RESULTS' }}</p><h2>{{ sort() === 'recommended' ? '为你推荐' : '搜索结果' }}</h2><p>{{ sort() === 'recommended' ? '从轻量试玩开始，发现下一款喜欢的游戏。' : '按你的关键词和排序条件浏览游戏。' }}</p></div>
-          <div class="section-controls">@if (sort() === 'recommended') { <button type="button" (click)="loadGames()">换一换 ↻</button> } @else { <label>排序<select [value]="sort()" (change)="onSortChange($event)"><option value="latest">最新发布</option><option value="popular">最多游玩</option><option value="likes">最多点赞</option><option value="coins">最多投币</option><option value="favorites">最多收藏</option></select></label> }</div>
+          <div><p class="game-eyebrow">{{ view() === 'following' ? 'FOLLOWING' : sort() === 'recommended' && !searchMode() ? 'FOR YOU' : 'SEARCH RESULTS' }}</p><h2>{{ view() === 'following' ? '关注动态' : sort() === 'recommended' && !searchMode() ? '为你推荐' : '搜索结果' }}</h2><p>{{ view() === 'following' ? '你关注的作者最近发布了这些游戏。' : sort() === 'recommended' && !searchMode() ? '从轻量试玩开始，发现下一款喜欢的游戏。' : '按你的关键词和排序条件浏览游戏。' }}</p></div>
+          <div class="section-controls">@if (sort() === 'recommended' && !searchMode() && view() !== 'following') { <button type="button" (click)="shuffleRecommendations()">换一换 ↻</button> } @else if (view() !== 'following') { <label>排序<select [value]="sort()" (change)="onSortChange($event)"><option value="recommended">综合排序</option><option value="latest">最新发布</option><option value="popular">最多游玩</option><option value="likes">最多点赞</option><option value="coins">最多投币</option><option value="favorites">最多收藏</option></select></label> }</div>
         </div>
         <div class="game-grid">
           @for (game of recommended(); track game.uuid) { <my-game-card [game]="game" /> }
         </div>
       </section>
 
-      @if (sort() === 'recommended') { <section class="game-section">
+      @if (sort() === 'recommended' && !searchMode()) { <section class="game-section">
         <div class="game-section-heading"><div><p class="game-eyebrow">TRENDING</p><h2>正在热门</h2></div><a routerLink="/games" [queryParams]="{ sort: 'popular' }">查看更多 →</a></div>
         <div class="game-grid">
           @for (game of popular(); track game.uuid) { <my-game-card [game]="game" /> }

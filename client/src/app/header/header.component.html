@@ -90,9 +90,18 @@
           <a ngbDropdownItem class="dropdown-item" routerLink="/games/library">
             <my-global-icon iconName="play" aria-hidden="true"></my-global-icon> <ng-container>我的游戏</ng-container>
           </a>
+          <a ngbDropdownItem class="dropdown-item" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }">
+            <ng-container>我的收藏</ng-container>
+          </a>
+          <a ngbDropdownItem class="dropdown-item" routerLink="/games/library" [queryParams]="{ tab: 'recent' }">
+            <ng-container>游玩历史</ng-container>
+          </a>
 
           <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator">
             <my-global-icon iconName="upload" aria-hidden="true"></my-global-icon> <ng-container>创作中心</ng-container>
+          </a>
+          <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator" fragment="coin-balance">
+            <ng-container>硬币余额</ng-container>
           </a>
 
           <div class="dropdown-divider"></div>

@@ -9,6 +9,8 @@
 .author-profile > p:not(.game-eyebrow) { color: var(--game-muted); margin: 0.5rem 0; }
 .author-stats { color: var(--game-muted); display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; }
 .follow-button { background: var(--game-brand); border: 0; border-radius: 7px; color: #fff; font-weight: 700; margin-left: auto; padding: 0.7rem 1.2rem; }
+.follow-button.following { background: #fff; border: 1px solid var(--game-brand); color: var(--game-brand-deep); }
+.follow-button:disabled { cursor: wait; opacity: 0.7; }
 .author-tabs { border-bottom: 1px solid var(--game-border); display: flex; gap: 1.5rem; margin-top: 1.5rem; }
 .author-tabs a { color: var(--game-muted); padding: 0.8rem 0; text-decoration: none; }
 .author-tabs a.active { border-bottom: 2px solid var(--game-brand); color: var(--game-brand); font-weight: 700; }

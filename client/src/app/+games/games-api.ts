@@ -1,4 +1,5 @@
 export type GamesListParams = {
+  view?: 'following' | 'categories'
   search?: string
   category?: string
   publishedAfter?: string
@@ -10,6 +11,7 @@ export type GamesListParams = {
 
 export function buildGamesListUrl (apiOrigin: string, params: GamesListParams = {}) {
   const query = new URLSearchParams()
+  if (params.view) query.set('view', params.view)
   if (params.search) query.set('search', params.search)
   if (params.publishedAfter) query.set('publishedAfter', params.publishedAfter)
   if (params.device) query.set('device', params.device)

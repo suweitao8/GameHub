@@ -37,6 +37,7 @@ export type GameList = {
 export type GameAuthor = {
   account: { id: number, name: string, displayName: string, description: string, handle: string, followers: number }
   stats: { games: number, plays: number, likes: number, favorites: number, coins: number }
+  following: boolean
   data: Game[]
 }
 
@@ -48,6 +49,7 @@ export type GameCreatorOverview = {
   plays: number
   likes: number
   coins: number
+  coinBalance: number
   favorites: number
   followers: number
   games: Game[]
@@ -139,6 +141,10 @@ export class GamesService {
 
   follow (uuid: string, following: boolean): Observable<{ following: boolean }> {
     return this.http.put<{ following: boolean }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/follow`, { following })
+  }
+
+  followAuthor (accountId: number, following: boolean): Observable<{ following: boolean }> {
+    return this.http.put<{ following: boolean }>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}/follow`, { following })
   }
 
   comment (uuid: string, text: string): Observable<{ comment: GameComment }> {

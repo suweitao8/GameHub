@@ -10,6 +10,8 @@
 .upload-steps b { align-items: center; background: #fff; border: 1px solid var(--game-border); border-radius: 50%; display: flex; height: 2rem; justify-content: center; margin: 0 auto 0.35rem; width: 2rem; }
 .upload-steps li.current { color: var(--game-brand); font-weight: 700; }
 .upload-steps li.current b { background: var(--game-brand-soft); border-color: var(--game-brand); }
+.upload-status { background: var(--game-brand-soft); border-radius: 7px; color: var(--game-brand-deep); margin: 0 0 1rem; padding: 0.7rem 0.9rem; }
+.upload-status.error { background: #fff0f0; color: var(--game-danger); }
 .upload-layout { align-items: start; display: grid; gap: 1.5rem; grid-template-columns: 0.8fr 1.4fr; }
 .upload-guide, .game-form { background: #fff; border: 1px solid var(--game-border); border-radius: var(--game-radius); padding: 1.3rem; }
 .upload-guide h2 { font-size: 1rem; margin-top: 0; }
@@ -23,6 +25,7 @@
 .file-picker { background: #fff9f5; border: 1px dashed rgb(228 111 36 / 45%); padding: 1rem; }
 .file-picker input { display: none; }
 .file-picker span { color: var(--game-muted); font-weight: 400; }
+.upload-preview-frame { background: #111827; border: 1px solid var(--game-border); border-radius: 7px; height: 260px; width: 100%; }
 .game-form > button { background: var(--game-brand); border: 0; border-radius: 7px; color: #fff; font-weight: 700; justify-self: start; padding: 0.75rem 1.2rem; }
 .game-form > button:disabled { cursor: not-allowed; opacity: 0.55; }
 .cover-preview-area { align-items: center; background: var(--game-brand-soft); border-radius: 7px; display: flex; gap: 0.9rem; min-height: 78px; padding: 0.7rem; }

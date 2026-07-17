@@ -137,7 +137,7 @@ export class LoginComponent extends FormReactive implements OnInit, AfterViewIni
       return
     }
 
-    const previousUrl = this.redirectService.getPreviousUrl()
+    const previousUrl = snapshot.queryParams.returnUrl || this.redirectService.getPreviousUrl()
     if (previousUrl && previousUrl !== '/') {
       this.storage.setItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY, previousUrl)
     }
@@ -176,7 +176,15 @@ export class LoginComponent extends FormReactive implements OnInit, AfterViewIni
         switchMap(() => this.updateUserLanguageIfNeeded())
       )
       .subscribe({
-        next: () => this.redirectService.redirectToPreviousRoute({ reloadTab: this.shouldReloadTabOnLogin() }),
+        next: () => {
+          const redirectUrl = this.storage.getItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
+          if (redirectUrl) {
+            this.storage.removeItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
+            return this.router.navigateByUrl(redirectUrl)
+          }
+
+          return this.redirectService.redirectToPreviousRoute({ reloadTab: this.shouldReloadTabOnLogin() })
+        },
 
         error: err => {
           this.handleError(err)

@@ -12,6 +12,8 @@ import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import { AccountModel } from '@server/models/account/account.js'
+import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
+import { ActorModel } from '@server/models/actor/actor.js'
 import { VideoModel } from '@server/models/video/video.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
@@ -173,6 +175,10 @@ async function getAuthor (req: express.Request, res: express.Response) {
     GameFavoriteModel.count({ where: { gameId: games.map(game => game.id) } }),
     GameCoinLedgerModel.sum('amount', { where: { gameId: games.map(game => game.id), kind: 'spend' } })
   ])
+  const user = getUser(res)
+  const following = user?.Account?.Actor
+    ? !!await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, account.Actor.id)
+    : false
   return res.json({
     account: {
       id: account.id,
@@ -189,6 +195,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
       favorites,
       coins: Math.max(0, Number(coins || 0) * -1)
     },
+    following,
     data: games.map(formatGame)
   })
 }
@@ -197,6 +204,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   const user = getUser(res)
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
+    attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ],
     order: [ [ 'createdAt', 'DESC' ] ]
   })
@@ -205,6 +213,12 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
     GameFavoriteModel.count({ where: { gameId: gameIds } }),
     GameCoinLedgerModel.sum('amount', { where: { gameId: gameIds, kind: 'spend' } })
   ])
+  const day = new Date().toISOString().slice(0, 10)
+  await GameCoinLedgerModel.findOrCreate({
+    where: { accountId: user.Account.id, day, kind: 'daily_grant' },
+    defaults: { accountId: user.Account.id, gameId: null, day, kind: 'daily_grant', amount: 2 }
+  })
+  const coinBalance = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id } }) || 0)
   return res.json({
     gameCount: games.length,
     gameLimit: 5,
@@ -213,8 +227,9 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
     plays: games.reduce((sum, game) => sum + game.playCount, 0),
     likes: games.reduce((sum, game) => sum + Number((game as any).Video?.likes || 0), 0),
     coins: Math.max(0, Number(coins || 0) * -1),
+    coinBalance: Math.max(0, coinBalance),
     favorites,
-    followers: 0,
+    followers: Number((user.Account.Actor as any)?.followersCount || 0),
     games: games.map(formatGame)
   })
 }
@@ -226,17 +241,45 @@ function getRuntimeUrl (uuid: string) {
 async function listGames (req: express.Request, res: express.Response) {
   const start = Math.max(0, Number(req.query.start) || 0)
   const count = Math.min(50, Math.max(1, Number(req.query.count) || 15))
+  const following = req.query.view === 'following'
+  const user = getUser(res)
+  const ownerAccountIds = following
+    ? await getFollowedAccountIds(user?.Account?.Actor?.id)
+    : undefined
+
+  if (following && !user) return res.json({ total: 0, data: [] })
+
   const result = await GameModel.listPublished({
     category: req.query.category as string,
     search: req.query.search as string,
     publishedAfter: req.query.publishedAfter as string,
     device: req.query.device as string,
+    ownerAccountIds,
     sort: req.query.sort as string,
     limit: count,
     offset: start
   })
 
   return res.json({ total: result.total, data: result.data.map(formatGame) })
+}
+
+async function getFollowedAccountIds (actorId: number | undefined) {
+  if (!actorId) return []
+
+  const follows = await ActorFollowModel.findAll({
+    where: { actorId, state: 'accepted' },
+    attributes: [ 'targetActorId' ],
+    raw: true
+  })
+  const targetActorIds = follows.map(follow => follow.targetActorId)
+  if (targetActorIds.length === 0) return []
+
+  const accounts = await ActorModel.findAll({
+    where: { id: targetActorIds },
+    attributes: [ 'accountId' ],
+    raw: true
+  })
+  return [ ...new Set(accounts.map(account => account.accountId)) ]
 }
 
 async function listGamesForModerators (_req: express.Request, res: express.Response) {
@@ -253,7 +296,13 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
 
   const rows = await GameFavoriteModel.findAll<any>({
     where: { accountId: user.Account.id },
-    include: [ { model: GameModel, where: { status: 'published' }, required: true } ],
+    include: [ {
+      model: GameModel,
+      where: { status: 'published' },
+      required: true,
+      attributes: { include: GameModel.getPublicStatsAttributes() },
+      include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ]
+    } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
   })
@@ -267,7 +316,13 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
 
   const rows = await GameRecentModel.findAll<any>({
     where: { accountId: user.Account.id },
-    include: [ { model: GameModel, where: { status: 'published' }, required: true } ],
+    include: [ {
+      model: GameModel,
+      where: { status: 'published' },
+      required: true,
+      attributes: { include: GameModel.getPublicStatsAttributes() },
+      include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ]
+    } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
     limit: 100
   })
@@ -281,6 +336,8 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
 
   const data = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
+    attributes: { include: GameModel.getPublicStatsAttributes() },
+    include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
   })
