@@ -1,9 +1,9 @@
 import { AbuseState, HttpStatusCode, UserRight } from '@peertube/peertube-models'
 import { abusePredefinedReasonsMap } from '@peertube/peertube-core-utils'
 import { sequelizeTypescript } from '@server/initializers/database.js'
-import { createVideoAbuse } from '@server/lib/moderation.js'
+import { createVideoAbuse, createVideoCommentAbuse } from '@server/lib/moderation.js'
 import { JobQueue } from '@server/lib/job-queue/index.js'
-import { createLocalVideoComment } from '@server/lib/video-comment.js'
+import { createLocalVideoComment, removeComment } from '@server/lib/video-comment.js'
 import { sendUndoFollow } from '@server/lib/activitypub/send/index.js'
 import { userRateVideo } from '@server/lib/rate.js'
 import { Notifier } from '@server/lib/notifier/index.js'
@@ -11,6 +11,7 @@ import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
+import { GameCommentReactionModel } from '@server/models/game/game-comment-reaction.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { VideoCommentModel } from '@server/models/video/video-comment.js'
@@ -19,14 +20,19 @@ import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate } f
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
 import { ensureGameVideo } from '../../../lib/games/game-video-bridge.js'
+import { canDeleteGameComment, isGameCommentVisible } from '../../../lib/games/game-community-policy.js'
 
 const gameCommunityRouter = express.Router()
 gameCommunityRouter.use(apiRateLimiter)
 
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
 gameCommunityRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
+gameCommunityRouter.get('/:uuid/comments/:commentId/replies', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReplies))
 gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, asyncMiddleware(addComment))
 gameCommunityRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, asyncMiddleware(replyToComment))
+gameCommunityRouter.put('/:uuid/comments/:commentId/like', gameUUIDValidator, authenticate, asyncMiddleware(likeComment))
+gameCommunityRouter.delete('/:uuid/comments/:commentId', gameUUIDValidator, authenticate, asyncMiddleware(deleteComment))
+gameCommunityRouter.post('/:uuid/comments/:commentId/report', gameUUIDValidator, authenticate, asyncMiddleware(reportComment))
 gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, asyncMiddleware(rateGame))
 gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, asyncMiddleware(favoriteGame))
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
@@ -101,7 +107,24 @@ async function listComments (req: express.Request, res: express.Response) {
     user: getUser(res)
   })
 
-  return res.json({ total: result.total, data: result.data.map(comment => comment.toFormattedJSON()) })
+  const visibleComments = result.data.filter(comment => isGameCommentVisible(comment.toFormattedJSON()))
+  return res.json({ total: visibleComments.length, data: await formatComments(visibleComments, game, getUser(res)) })
+}
+
+async function listReplies (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const video = await getVideoForGame(game)
+  const commentId = Number(req.params.commentId)
+  if (!video || !Number.isInteger(commentId)) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const parent = await VideoCommentModel.loadByIdAndPopulateVideoAndAccountAndReply(commentId)
+  if (!parent || parent.Video.id !== video.id) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const result = await VideoCommentModel.listThreadCommentsForApi({ video, threadId: commentId, user: getUser(res) })
+  const visibleReplies = result.data.filter(comment => isGameCommentVisible(comment.toFormattedJSON()))
+  return res.json({ total: visibleReplies.length, data: await formatComments(visibleReplies, game, getUser(res)) })
 }
 
 async function addComment (req: express.Request, res: express.Response) {
@@ -142,6 +165,67 @@ async function replyToComment (req: express.Request, res: express.Response) {
   const comment = await createLocalVideoComment({ text, inReplyToComment: parent, video, user })
   Notifier.Instance.notifyOnNewComment(comment)
   return res.status(HttpStatusCode.CREATED_201).json({ comment: comment.toFormattedJSON() })
+}
+
+async function likeComment (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const comment = await getCommentForGame(game, Number(req.params.commentId))
+  if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (typeof req.body.liked !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'liked must be boolean' })
+
+  const existing = await GameCommentReactionModel.findOne({ where: { commentId: comment.id, accountId: user.Account.id } })
+  if (req.body.liked && !existing) await GameCommentReactionModel.create({ commentId: comment.id, accountId: user.Account.id })
+  if (!req.body.liked && existing) await existing.destroy()
+
+  const likes = await GameCommentReactionModel.count({ where: { commentId: comment.id } })
+  return res.json({ liked: req.body.liked, likes })
+}
+
+async function deleteComment (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const comment = await getCommentForGame(game, Number(req.params.commentId))
+  if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const canManageAny = user.hasRight(UserRight.MANAGE_ANY_VIDEO_COMMENT)
+  if (!canDeleteGameComment({
+    commentAccountId: comment.accountId,
+    userAccountId: user.Account.id,
+    gameOwnerAccountId: game.ownerAccountId,
+    canManageAny
+  })) return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
+
+  await removeComment(comment, req, res)
+  return res.status(HttpStatusCode.NO_CONTENT_204).end()
+}
+
+async function reportComment (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const comment = await getCommentForGame(game, Number(req.params.commentId))
+  if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (typeof req.body.reason !== 'string' || req.body.reason.trim().length === 0) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'reason is required' })
+  }
+
+  const result = await sequelizeTypescript.transaction(async transaction => {
+    const reporterAccount = await AccountModel.load(user.Account.id, transaction)
+    return createVideoCommentAbuse({
+      baseAbuse: {
+        reporterAccountId: reporterAccount.id,
+        reason: req.body.reason.trim(),
+        state: AbuseState.PENDING,
+        predefinedReasons: req.body.predefinedReasons?.map((reason: string) => abusePredefinedReasonsMap[reason])
+      },
+      commentInstance: comment,
+      reporterAccount,
+      transaction,
+      skipNotification: user.hasRight(UserRight.MANAGE_ABUSES)
+    })
+  })
+
+  return res.status(HttpStatusCode.CREATED_201).json({ abuse: { id: result.id } })
 }
 
 async function rateGame (req: express.Request, res: express.Response) {
@@ -298,4 +382,39 @@ async function getCoinState (gameId: number, accountId: number) {
     GameCoinLedgerModel.sum('amount', { where: { accountId, gameId, kind: 'spend' } })
   ])
   return { balance: Math.max(0, Number(balance || 0)), given: Math.max(0, Number(given || 0) * -1) }
+}
+
+async function getCommentForGame (game: MGame | null, commentId: number) {
+  if (!game || !Number.isInteger(commentId)) return null
+
+  const video = await getVideoForGame(game)
+  if (!video) return null
+
+  const comment = await VideoCommentModel.loadByIdAndPopulateVideoAndAccountAndReply(commentId)
+  if (!comment || comment.Video.id !== video.id || comment.isDeleted()) return null
+  return comment
+}
+
+async function formatComments (comments: any[], game: MGame, user: any) {
+  const commentIds = comments.map(comment => comment.id)
+  const reactions = commentIds.length
+    ? await GameCommentReactionModel.findAll({ where: { commentId: commentIds } })
+    : []
+
+  return comments.map(comment => {
+    const formatted = comment.toFormattedJSON()
+    const commentReactions = reactions.filter(reaction => reaction.commentId === comment.id)
+    return {
+      ...formatted,
+      likes: commentReactions.length,
+      liked: !!user && commentReactions.some(reaction => reaction.accountId === user.Account.id),
+      isAuthor: comment.accountId === game.ownerAccountId,
+      canDelete: !!user && canDeleteGameComment({
+        commentAccountId: comment.accountId,
+        userAccountId: user.Account.id,
+        gameOwnerAccountId: game.ownerAccountId,
+        canManageAny: user.hasRight(UserRight.MANAGE_ANY_VIDEO_COMMENT)
+      })
+    }
+  })
 }

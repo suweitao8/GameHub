@@ -73,6 +73,11 @@ export type GameComment = {
   createdAt: string
   account: { displayName: string, name: string }
   totalReplies?: number
+  inReplyToCommentId?: number | null
+  likes?: number
+  liked?: boolean
+  isAuthor?: boolean
+  canDelete?: boolean
 }
 
 @Injectable()
@@ -108,6 +113,12 @@ export class GamesService {
     return this.http.get<{ total: number, data: GameComment[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`)
   }
 
+  replies (uuid: string, commentId: number): Observable<{ total: number, data: GameComment[] }> {
+    return this.http.get<{ total: number, data: GameComment[] }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/replies`
+    )
+  }
+
   rate (uuid: string, rating: 'like' | 'dislike' | 'none'): Observable<unknown> {
     return this.http.put<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rate`, { rating })
   }
@@ -127,6 +138,22 @@ export class GamesService {
   reply (uuid: string, commentId: number, text: string): Observable<{ comment: GameComment }> {
     return this.http.post<{ comment: GameComment }>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, { text })
+  }
+
+  likeComment (uuid: string, commentId: number, liked: boolean): Observable<{ liked: boolean, likes: number }> {
+    return this.http.put<{ liked: boolean, likes: number }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/like`, { liked }
+    )
+  }
+
+  deleteComment (uuid: string, commentId: number): Observable<unknown> {
+    return this.http.delete(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}`)
+  }
+
+  reportComment (uuid: string, commentId: number, reason: string): Observable<{ abuse: { id: number } }> {
+    return this.http.post<{ abuse: { id: number } }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/report`, { reason }
+    )
   }
 
   report (uuid: string, reason: string): Observable<{ abuse: { id: number } }> {

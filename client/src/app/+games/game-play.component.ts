@@ -29,6 +29,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly coinMessage = signal('')
   readonly coinLoading = signal(false)
   readonly related = signal<Game[]>([])
+  readonly replies = signal<Record<number, GameComment[]>>({})
+  readonly commentFeedback = signal('')
+  readonly deleteTarget = signal<GameComment | null>(null)
+  readonly reportTarget = signal<GameComment | null>(null)
+  readonly reportDraft = signal('')
   readonly mutedHint = signal(false)
   private currentUuid = ''
 
@@ -114,7 +119,67 @@ export class GamePlayComponent implements OnInit, OnDestroy {
           : comment))
         this.commentDraft.set('')
         this.replyTo.set(null)
-        this.comments.update(comments => [ ...comments, result.comment ])
+        this.replies.update(replies => ({
+          ...replies,
+          [parentId]: [ ...(replies[parentId] || []), result.comment ]
+        }))
+      }
+    })
+  }
+
+  toggleCommentLike (comment: GameComment) {
+    this.gamesService.likeComment(this.currentUuid, comment.id, !comment.liked).subscribe({
+      next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes })
+    })
+  }
+
+  toggleReplies (comment: GameComment) {
+    if (this.replies()[comment.id]) {
+      this.replies.update(replies => {
+        const next = { ...replies }
+        delete next[comment.id]
+        return next
+      })
+      return
+    }
+
+    this.gamesService.replies(this.currentUuid, comment.id).subscribe({
+      next: result => this.replies.update(replies => ({ ...replies, [comment.id]: result.data }))
+    })
+  }
+
+  requestDeleteComment (comment: GameComment) {
+    if (comment.canDelete) this.deleteTarget.set(comment)
+  }
+
+  confirmDeleteComment () {
+    const comment = this.deleteTarget()
+    if (!comment) return
+    this.gamesService.deleteComment(this.currentUuid, comment.id).subscribe({
+      next: () => {
+        this.comments.update(comments => comments.filter(item => item.id !== comment.id))
+        this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
+          id, items.filter(item => item.id !== comment.id)
+        ])))
+        this.commentFeedback.set('评论已删除')
+        this.deleteTarget.set(null)
+      }
+    })
+  }
+
+  requestReportComment (comment: GameComment) {
+    this.reportTarget.set(comment)
+    this.reportDraft.set('')
+  }
+
+  submitReportComment () {
+    const comment = this.reportTarget()
+    const reason = this.reportDraft().trim()
+    if (!comment || !reason) return
+    this.gamesService.reportComment(this.currentUuid, comment.id, reason).subscribe({
+      next: () => {
+        this.commentFeedback.set('已提交评论举报')
+        this.reportTarget.set(null)
       }
     })
   }
@@ -186,5 +251,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private withReloadKey (url: string) {
     return `${url}${url.includes('?') ? '&' : '?'}reload=${this.reloadKey}`
+  }
+
+  private updateComment (commentId: number, patch: Partial<GameComment>) {
+    this.comments.update(comments => comments.map(comment => comment.id === commentId ? { ...comment, ...patch } : comment))
+    this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
+      id, items.map(item => item.id === commentId ? { ...item, ...patch } : item)
+    ])))
   }
 }

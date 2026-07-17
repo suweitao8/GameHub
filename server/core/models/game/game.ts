@@ -1,6 +1,6 @@
 import { isGameStatusValid } from '@server/helpers/custom-validators/games.js'
 import type { GameStatus, MGame } from '@server/types/models/game/game.js'
-import { Op } from 'sequelize'
+import { literal, Op } from 'sequelize'
 import {
   AllowNull,
   BelongsTo,
@@ -16,6 +16,7 @@ import {
 import { AccountModel } from '../account/account.js'
 import { SequelizeModel, throwIfNotValid } from '../shared/index.js'
 import { VideoModel } from '../video/video.js'
+import { getGameSortMetric } from '@server/lib/games/game-query.js'
 
 @Table({
   tableName: 'game',
@@ -131,21 +132,36 @@ export class GameModel extends SequelizeModel<GameModel> {
     return GameModel.findOne<MGame>({ where, include: [ { model: AccountModel, required: true } ] })
   }
 
-  static listPublished (options: { category?: string; search?: string; sort?: string; limit: number; offset: number }) {
+  static async listPublished (options: { category?: string; search?: string; sort?: string; limit: number; offset: number }) {
     const where: any = { status: 'published' }
 
     if (options.category) where.category = options.category
     if (options.search) {
+      const ownerIds = await AccountModel.findAll({
+        attributes: [ 'id' ],
+        where: { name: { [Op.iLike]: `%${options.search}%` } }
+      }).then(accounts => accounts.map(account => account.id))
+
       where[Op.or] = [
         { title: { [Op.iLike]: `%${options.search}%` } },
         { description: { [Op.iLike]: `%${options.search}%` } },
+        { category: { [Op.iLike]: `%${options.search}%` } },
         { tags: { [Op.contains]: [ options.search ] } }
       ]
+      if (ownerIds.length > 0) where[Op.or].push({ ownerAccountId: { [Op.in]: ownerIds } })
     }
 
-    const order = options.sort === 'popular'
+    const metric = getGameSortMetric(options.sort)
+    const aggregateOrder = {
+      likes: literal('(SELECT COALESCE("video"."likes", 0) FROM "video" WHERE "video"."id" = "GameModel"."videoId")'),
+      coins: literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'),
+      favorites: literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")')
+    }
+    const order = metric === 'plays'
       ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
-      : [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
+      : metric === 'latest' || metric === 'recommended'
+        ? [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
+        : [ [ aggregateOrder[metric], 'DESC' ], [ 'publishedAt', 'DESC' ] ]
 
     return Promise.all([
       GameModel.count({ where }),

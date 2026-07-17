@@ -10,6 +10,7 @@
         <div class="field-grid"><label>游戏名称<input name="title" [(ngModel)]="title" maxlength="120" required placeholder="例如：橘子星球"></label><label>分类<select name="category" [(ngModel)]="category"><option value="arcade">动作</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="strategy">策略</option><option value="horror">恐怖</option></select></label></div>
         <label>标签<input name="tags" [(ngModel)]="tags" placeholder="arcade, puzzle"></label>
         <label>封面图（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)"></label>
+        <div class="cover-preview-area">@if (coverPreview()) { <img [src]="coverPreview()" alt="游戏封面预览"><div><span>当前封面预览</span><button type="button" (click)="regenerateCover()">重新生成 GameHub 封面</button></div> } @else { <button type="button" class="cover-generate-button" (click)="regenerateCover()" [disabled]="!title.trim()">生成封面预览</button> }</div>
         <label>简介<textarea name="description" [(ngModel)]="description" rows="4" placeholder="一句话介绍你的游戏"></textarea></label>
         <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
         @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }

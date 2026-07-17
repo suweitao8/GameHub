@@ -23,6 +23,7 @@ export class GameUploadComponent {
   readonly error = signal('')
   readonly step = signal(1)
   readonly fileSize = signal(0)
+  readonly coverPreview = signal('')
 
   onFileChange (event: Event) {
     this.file = (event.target as HTMLInputElement).files?.[0] || null
@@ -35,6 +36,7 @@ export class GameUploadComponent {
 
   onCoverChange (event: Event) {
     this.cover = (event.target as HTMLInputElement).files?.[0] || null
+    this.setCoverPreview(this.cover)
   }
 
   async submit () {
@@ -50,6 +52,8 @@ export class GameUploadComponent {
     if (!cover) {
       this.step.set(4)
       cover = await this.generateAutomaticCover()
+      this.cover = cover
+      this.setCoverPreview(cover)
     }
     this.step.set(5)
     this.gamesService.create(this.file, {
@@ -75,6 +79,30 @@ export class GameUploadComponent {
 
   formatBytes (value: number) {
     return value < 1024 * 1024 ? `${Math.ceil(value / 1024)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  async regenerateCover () {
+    if (!this.title.trim()) {
+      this.error.set('请先填写游戏名称，再生成封面。')
+      return
+    }
+
+    this.error.set('')
+    this.step.set(4)
+    this.cover = await this.generateAutomaticCover()
+    this.setCoverPreview(this.cover)
+    this.step.set(5)
+  }
+
+  private setCoverPreview (file: File | null) {
+    if (!file) {
+      this.coverPreview.set('')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => this.coverPreview.set(String(reader.result || ''))
+    reader.readAsDataURL(file)
   }
 
   private generateAutomaticCover (): Promise<File | null> {

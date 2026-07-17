@@ -8,6 +8,7 @@ import { GameLibraryComponent } from './game-library.component'
 import { GameEditComponent } from './game-edit.component'
 import { GameAuthorComponent } from './game-author.component'
 import { GameCreatorComponent } from './game-creator.component'
+import { GameNotificationsComponent } from './game-notifications.component'
 
 export default [
   {
@@ -23,6 +24,11 @@ export default [
         path: 'creator',
         component: GameCreatorComponent,
         data: { meta: { title: $localize`Creator center` } }
+      },
+      {
+        path: 'notifications',
+        component: GameNotificationsComponent,
+        data: { meta: { title: $localize`GameHub notifications` } }
       },
       {
         path: 'edit/:uuid',

@@ -34,9 +34,19 @@
 .section-heading h2 { margin: 0; }
 .comment { border-top: 1px solid var(--game-border); padding: 0.9rem 0; }
 .comment p { margin: 0.35rem 0 0; }
+.comment-author { align-items: center; display: flex; gap: 0.45rem; }
+.comment-author span { background: var(--game-brand-soft); border-radius: 999px; color: var(--game-brand-deep, var(--game-brand)); font-size: 0.72rem; padding: 0.15rem 0.45rem; }
 .comment-actions { align-items: center; display: flex; gap: 0.7rem; margin-top: 0.45rem; }
 .comment-actions button { background: transparent; border: 0; color: var(--game-brand); padding: 0; }
+.comment-actions button.active { font-weight: 800; }
 .comment-actions span { color: var(--game-muted); font-size: 0.78rem; }
+.comment-replies { border-left: 2px solid var(--game-border); margin: 0.8rem 0 0 0.5rem; padding-left: 0.9rem; }
+.comment-reply { border-top: 1px solid var(--game-border); padding: 0.65rem 0; }
+.comment-dialog { align-items: center; background: var(--game-brand-soft); border: 1px solid var(--game-border); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; padding: 0.8rem; }
+.comment-dialog p { flex-basis: 100%; margin: 0; }
+.comment-dialog input { border: 1px solid var(--game-border); border-radius: 6px; flex: 1; min-width: 180px; padding: 0.55rem; }
+.comment-dialog button { border: 0; border-radius: 6px; padding: 0.5rem 0.75rem; }
+.comment-dialog .danger { background: var(--game-danger); color: #fff; }
 .related-grid { display: grid; gap: 0.7rem; grid-template-columns: repeat(2, 1fr); }
 .related-grid a { background: #fff; border: 1px solid var(--game-border); border-radius: 7px; padding: 0.8rem; text-decoration: none; }
 .related-grid span { color: var(--game-muted); float: right; font-size: 0.8rem; }

@@ -1,0 +1,8 @@
+<main class="game-community-page game-notifications-page">
+  <div class="game-community-content">
+    <a routerLink="/games" class="back-link">← 返回游戏社区</a>
+    <header class="notifications-header"><div><p class="game-eyebrow">GAMEHUB INBOX</p><h1>消息中心</h1><p>评论、回复、互动、关注和审核状态都在这里。</p></div><a routerLink="/my-account/settings" fragment="notifications">通知设置</a></header>
+    <nav class="notification-categories" aria-label="消息分类"><span class="active">全部</span><span>评论与回复</span><span>点赞</span><span>投币</span><span>收藏</span><span>新增关注</span><span>审核与系统</span></nav>
+    <section class="notification-stream"><my-user-notifications [inPopup]="false"></my-user-notifications></section>
+  </div>
+</main>

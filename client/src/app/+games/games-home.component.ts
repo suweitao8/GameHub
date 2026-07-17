@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
+import { GamesListParams } from './games-api'
 
 @Component({
   templateUrl: './games-home.component.html',
@@ -21,11 +22,15 @@ export class GamesHomeComponent implements OnInit {
   readonly error = signal(false)
   readonly search = signal('')
   readonly category = signal('')
+  readonly sort = signal<GamesListParams['sort']>('recommended')
 
   ngOnInit () {
     this.route.queryParamMap.subscribe(params => {
       this.category.set(params.get('category') || '')
       this.search.set(params.get('search') || '')
+      const requestedSort = params.get('sort') as GamesListParams['sort']
+      const validSorts = [ 'recommended', 'latest', 'popular', 'likes', 'coins', 'favorites' ]
+      this.sort.set(validSorts.includes(requestedSort || '') ? requestedSort : 'recommended')
       this.loadGames()
     })
   }
@@ -34,6 +39,22 @@ export class GamesHomeComponent implements OnInit {
     this.loading.set(true)
     this.error.set(false)
     const common = { search: this.search() || undefined, category: this.category() || undefined, count: 8 }
+
+    if (this.sort() !== 'recommended') {
+      this.gamesService.list({ ...common, sort: this.sort() }).subscribe({
+        next: result => {
+          this.recommended.set(result.data)
+          this.popular.set([])
+          this.latest.set([])
+          this.loading.set(false)
+        },
+        error: () => {
+          this.error.set(true)
+          this.loading.set(false)
+        }
+      })
+      return
+    }
 
     forkJoin({
       latest: this.gamesService.list({ ...common, sort: 'latest' }),
@@ -55,6 +76,12 @@ export class GamesHomeComponent implements OnInit {
 
   onSearch (event: Event) {
     event.preventDefault()
+    this.loadGames()
+  }
+
+  onSortChange (event: Event) {
+    const sort = (event.target as HTMLSelectElement).value as GamesListParams['sort']
+    this.sort.set(sort || 'recommended')
     this.loadGames()
   }
 }
