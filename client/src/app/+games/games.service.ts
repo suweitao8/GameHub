@@ -53,6 +53,16 @@ export type GameCreatorOverview = {
   games: Game[]
 }
 
+export type GameNotification = {
+  id: number
+  kind: 'comment' | 'reply' | 'like' | 'coin' | 'favorite' | 'follow' | 'moderation' | 'system'
+  message: string
+  read: boolean
+  createdAt: string
+  actor: { id: number, name: string, displayName: string } | null
+  game: { uuid: string, title: string } | null
+}
+
 export type GameCommunity = {
   videoUuid: string | null
   likes: number
@@ -210,6 +220,18 @@ export class GamesService {
 
   creatorOverview (): Observable<GameCreatorOverview> {
     return this.http.get<GameCreatorOverview>(`${GamesService.BASE_URL}/me/overview`)
+  }
+
+  notifications (): Observable<{ total: number, unread: number, data: GameNotification[] }> {
+    return this.http.get<{ total: number, unread: number, data: GameNotification[] }>(`${GamesService.BASE_URL}/me/notifications`)
+  }
+
+  markNotificationRead (id: number): Observable<unknown> {
+    return this.http.put(`${GamesService.BASE_URL}/me/notifications/${id}/read`, {})
+  }
+
+  markAllNotificationsRead (): Observable<unknown> {
+    return this.http.post(`${GamesService.BASE_URL}/me/notifications/read-all`, {})
   }
 
   listForModerators (): Observable<GameList> {

@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { canDeleteGameComment, isGameCommentVisible, updateCommentLikeCount } from '../../../../../server/core/lib/games/game-community-policy.js'
 import { getGameSortMetric } from '../../../../../server/core/lib/games/game-query.js'
+import { isGameNotificationKind } from '../../../../../server/core/lib/games/game-notifications.js'
 
 describe('Game community comment policy', function () {
   it('allows the comment author, game author, or moderator to delete a comment', function () {
@@ -28,5 +29,12 @@ describe('Game community comment policy', function () {
   it('hides deleted comment tombstones from the public game community', function () {
     expect(isGameCommentVisible({ isDeleted: false })).to.equal(true)
     expect(isGameCommentVisible({ isDeleted: true })).to.equal(false)
+  })
+
+  it('accepts only supported GameHub notification categories', function () {
+    expect(isGameNotificationKind('comment')).to.equal(true)
+    expect(isGameNotificationKind('coin')).to.equal(true)
+    expect(isGameNotificationKind('moderation')).to.equal(true)
+    expect(isGameNotificationKind('video-view')).to.equal(false)
   })
 })

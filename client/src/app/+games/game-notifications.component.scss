@@ -13,7 +13,7 @@
   margin: 28px 0 24px;
 }
 
-.notifications-header h1 { margin: 0 0 8px; color: var(--game-ink); }
+.notifications-header h1 { margin: 0 0 8px; color: var(--game-text); }
 .notifications-header p:not(.game-eyebrow) { margin: 0; color: var(--game-muted); }
 .notifications-header a { color: var(--game-brand-deep); font-weight: 700; }
 
@@ -25,26 +25,45 @@
   border-block: 1px solid var(--game-border);
 }
 
-.notification-categories span {
+.notification-categories button {
+  border: 0;
+  cursor: pointer;
   padding: 8px 14px;
   border-radius: 999px;
   color: var(--game-muted);
-  background: var(--game-surface);
+  background: var(--game-card-bg);
 }
 
 .notification-categories .active { color: #fff; background: var(--game-brand); }
+.notification-categories .mark-all { margin-left: auto; color: var(--game-brand-deep); }
+.notification-categories .mark-all:disabled { cursor: default; opacity: 0.55; }
 
 .notification-stream {
   margin-top: 20px;
   padding: 24px;
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
-  background: var(--game-surface);
+  background: var(--game-card-bg);
   box-shadow: var(--game-shadow);
 }
+
+.notification-state { color: var(--game-muted); padding: 32px 0; text-align: center; }
+.notification-state h2 { color: var(--game-text); font-size: 1.1rem; }
+.notification-state a { color: var(--game-brand); font-weight: 700; }
+.notification-item { align-items: center; border-bottom: 1px solid var(--game-border); cursor: pointer; display: flex; gap: 0.9rem; padding: 0.9rem 0; }
+.notification-item:last-child { border-bottom: 0; }
+.notification-item.unread { background: var(--game-brand-soft); margin-inline: -0.6rem; padding-inline: 0.6rem; }
+.notification-icon { background: var(--game-brand-soft); border-radius: 8px; color: var(--game-brand-deep); flex: 0 0 3.4rem; font-size: 0.75rem; font-weight: 800; padding: 0.55rem 0.25rem; text-align: center; }
+.notification-body { display: grid; gap: 0.25rem; min-width: 0; }
+.notification-body strong { color: var(--game-text); font-weight: 600; }
+.notification-body small { color: var(--game-muted); }
+.notification-body a { color: var(--game-brand); font-size: 0.85rem; font-weight: 700; }
+.notification-dot { background: var(--game-brand); border-radius: 50%; height: 7px; margin-left: auto; opacity: 0; width: 7px; }
+.notification-item.unread .notification-dot { opacity: 1; }
 
 @media (max-width: 640px) {
   .game-notifications-page { padding-top: 20px; }
   .notifications-header { align-items: start; flex-direction: column; }
   .notification-stream { padding: 14px; }
+  .notification-categories .mark-all { margin-left: 0; }
 }

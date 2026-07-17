@@ -21,6 +21,7 @@ import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
 import { ensureGameVideo } from '../../../lib/games/game-video-bridge.js'
 import { canDeleteGameComment, isGameCommentVisible } from '../../../lib/games/game-community-policy.js'
+import { createGameNotification } from '../../../lib/games/game-notifications.js'
 
 const gameCommunityRouter = express.Router()
 gameCommunityRouter.use(apiRateLimiter)
@@ -145,6 +146,15 @@ async function addComment (req: express.Request, res: express.Response) {
     user
   })
   Notifier.Instance.notifyOnNewComment(comment)
+  if (game.ownerAccountId !== user.Account.id) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'comment',
+      message: `${user.username} 评论了你的游戏`
+    })
+  }
 
   return res.status(HttpStatusCode.CREATED_201).json({ comment: comment.toFormattedJSON() })
 }
@@ -164,6 +174,15 @@ async function replyToComment (req: express.Request, res: express.Response) {
 
   const comment = await createLocalVideoComment({ text, inReplyToComment: parent, video, user })
   Notifier.Instance.notifyOnNewComment(comment)
+  if (game.ownerAccountId !== user.Account.id) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'reply',
+      message: `${user.username} 回复了你的游戏评论`
+    })
+  }
   return res.status(HttpStatusCode.CREATED_201).json({ comment: comment.toFormattedJSON() })
 }
 
@@ -241,6 +260,15 @@ async function rateGame (req: express.Request, res: express.Response) {
   if (!video) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Game author has no video channel' })
 
   await userRateVideo({ account: user.Account, rateType: req.body.rating, video })
+  if (req.body.rating === 'like') {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'like',
+      message: `${user.username} 赞了你的游戏`
+    })
+  }
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
@@ -285,6 +313,14 @@ async function coinGame (req: express.Request, res: express.Response) {
     return res.status(HttpStatusCode.CONFLICT_409).json({ error: message, code: result.error })
   }
 
+  await createGameNotification({
+    recipientAccountId: game.ownerAccountId,
+    actorAccountId: user.Account.id,
+    gameId: game.id,
+    kind: 'coin',
+    message: `${user.username} 给你的游戏投了 ${result.coinsGiven} 枚硬币`
+  })
+
   return res.json({ coins: result.coinsGiven, ...result })
 }
 
@@ -297,6 +333,16 @@ async function favoriteGame (req: express.Request, res: express.Response) {
   const existing = await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
   if (req.body.favorite && !existing) await GameFavoriteModel.create({ gameId: game.id, accountId: user.Account.id })
   if (!req.body.favorite && existing) await existing.destroy()
+
+  if (req.body.favorite && !existing && game.ownerAccountId !== user.Account.id) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'favorite',
+      message: `${user.username} 收藏了你的游戏`
+    })
+  }
 
   return res.json({ favorite: req.body.favorite })
 }
@@ -326,6 +372,16 @@ async function followAuthor (req: express.Request, res: express.Response) {
     await sequelizeTypescript.transaction(async transaction => {
       if (existing.state === 'accepted') sendUndoFollow(existing, transaction)
       await existing.destroy({ transaction })
+    })
+  }
+
+  if (req.body.following && game.ownerAccountId !== user.Account.id) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'follow',
+      message: `${user.username} 关注了你`
     })
   }
 

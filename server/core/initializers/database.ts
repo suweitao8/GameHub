@@ -82,6 +82,7 @@ import { GameFavoriteModel } from '../models/game/game-favorite.js'
 import { GameRecentModel } from '../models/game/game-recent.js'
 import { GameCoinLedgerModel } from '../models/game/game-coin-ledger.js'
 import { GameCommentReactionModel } from '../models/game/game-comment-reaction.js'
+import { GameNotificationModel } from '../models/game/game-notification.js'
 import { CONFIG } from './config.js'
 
 pg.defaults.parseInt8 = true // Avoid BIGINT to be converted to string
@@ -173,6 +174,7 @@ export async function initDatabaseModels (silent: boolean) {
     GameRecentModel,
     GameCoinLedgerModel,
     GameCommentReactionModel,
+    GameNotificationModel,
     ChangeOwnershipModel,
     VideoChannelModel,
     VideoShareModel,

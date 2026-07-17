@@ -3,12 +3,14 @@ import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/he
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
 import { storeGameCover, storeSingleHtmlGame, validateSingleHtmlGame } from '@server/lib/games/game-runtime.js'
 import { ensureGameVideo } from '@server/lib/games/game-video-bridge.js'
+import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
+import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { VideoModel } from '@server/models/video/video.js'
 import type { MGame } from '@server/types/models/game/game.js'
@@ -40,6 +42,9 @@ gamesRouter.get('/me/favorites', authenticate, asyncMiddleware(listFavoriteGames
 gamesRouter.get('/me/recent', authenticate, asyncMiddleware(listRecentGames))
 gamesRouter.get('/me/owned', authenticate, asyncMiddleware(listOwnedGames))
 gamesRouter.get('/me/overview', authenticate, asyncMiddleware(getCreatorOverview))
+gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotifications))
+gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
+gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
 gamesRouter.get('/author/:accountId', optionalAuthenticate, asyncMiddleware(getAuthor))
 gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
 gamesRouter.post('/', authenticate, gameFile, gameCreateValidator, asyncMiddleware(createGame))
@@ -90,6 +95,63 @@ function formatGame (game: MGame) {
 function formatGameTags (tags: unknown) {
   if (!Array.isArray(tags)) return []
   return tags.filter(tag => typeof tag === 'string' && tag.trim() !== '[' && tag.trim() !== ']')
+}
+
+function formatGameNotification (notification: GameNotificationModel) {
+  return {
+    id: notification.id,
+    kind: notification.kind,
+    message: notification.message,
+    read: !!notification.readAt,
+    createdAt: notification.createdAt,
+    actor: notification.Actor
+      ? { id: notification.Actor.id, name: notification.Actor.name, displayName: notification.Actor.getDisplayName() }
+      : null,
+    game: notification.Game
+      ? { uuid: notification.Game.uuid, title: notification.Game.title }
+      : null
+  }
+}
+
+async function listGameNotifications (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  const where = { recipientAccountId: user.Account.id }
+  const [ total, unread, data ] = await Promise.all([
+    GameNotificationModel.count({ where }),
+    GameNotificationModel.count({ where: { ...where, readAt: null } }),
+    GameNotificationModel.findAll({
+      where,
+      include: [
+        { model: AccountModel, as: 'Actor', required: false },
+        { model: GameModel, required: false }
+      ],
+      order: [ [ 'createdAt', 'DESC' ] ],
+      limit: 100
+    })
+  ])
+
+  return res.json({ total, unread, data: data.map(formatGameNotification) })
+}
+
+async function markGameNotificationRead (req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  const notification = await GameNotificationModel.findOne({
+    where: { id: Number(req.params.notificationId), recipientAccountId: user.Account.id }
+  })
+  if (!notification) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  notification.readAt = notification.readAt || new Date()
+  await notification.save()
+  return res.status(HttpStatusCode.NO_CONTENT_204).end()
+}
+
+async function markAllGameNotificationsRead (_req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  await GameNotificationModel.update(
+    { readAt: new Date() },
+    { where: { recipientAccountId: user.Account.id, readAt: null } }
+  )
+  return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
 async function getAuthor (req: express.Request, res: express.Response) {
@@ -420,6 +482,15 @@ async function moderateGame (req: express.Request, res: express.Response) {
   game.publishedAt = status === 'published' ? new Date() : null
   await game.save()
   if (status === 'published') await ensureGameVideo(game)
+  if (game.ownerAccountId !== user.Account.id) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'moderation',
+      message: `你的游戏审核状态已更新为：${status}`
+    })
+  }
 
   auditLogger.update(getAuditIdFromRes(res), new GameAuditView(formatGame(game)), new GameAuditView(oldGame))
 
