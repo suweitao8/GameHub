@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData } from '../../../../client/src/app/+games/games-api.js'
+import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, isSupportedGameRuntimeFilename } from '../../../../client/src/app/+games/games-api.js'
 import { getGameActionErrorMessage } from '../../../../client/src/app/+games/game-action-feedback.js'
 
 describe('Games client API contract', function () {
@@ -37,5 +37,13 @@ describe('Games client API contract', function () {
       .to.equal('作者不能对自己的游戏进行这项操作。')
     expect(getGameActionErrorMessage({ status: 409, error: { error: '硬币余额不足', code: 'GAME_COIN_BALANCE' } }))
       .to.equal('硬币余额不足。')
+  })
+
+  it('accepts both single HTML files and ZIP game packages for editing', function () {
+    expect(isSupportedGameRuntimeFilename('index.html')).to.equal(true)
+    expect(isSupportedGameRuntimeFilename('game.HTM')).to.equal(true)
+    expect(isSupportedGameRuntimeFilename('assets/game.zip')).to.equal(true)
+    expect(isSupportedGameRuntimeFilename('game.zip.exe')).to.equal(false)
+    expect(isSupportedGameRuntimeFilename('readme.md')).to.equal(false)
   })
 })

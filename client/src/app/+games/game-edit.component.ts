@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
+import { getGameActionErrorMessage } from './game-action-feedback'
+import { isSupportedGameRuntimeFilename } from './games-api'
 import { GamesService } from './games.service'
 
 @Component({
@@ -39,7 +41,17 @@ export class GameEditComponent implements OnInit {
     })
   }
 
-  onFileChange (event: Event) { this.file = (event.target as HTMLInputElement).files?.[0] || null }
+  onFileChange (event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0] || null
+    if (file && !isSupportedGameRuntimeFilename(file.name)) {
+      this.file = null
+      this.error.set('只支持 .html、.htm 或 .zip 游戏包。')
+      return
+    }
+
+    this.error.set('')
+    this.file = file
+  }
   onCoverChange (event: Event) { this.cover = (event.target as HTMLInputElement).files?.[0] || null }
 
   submit () {
@@ -50,7 +62,7 @@ export class GameEditComponent implements OnInit {
       category: this.category.trim(), tags: this.tags, file: this.file, cover: this.cover
     }).subscribe({
       next: game => { this.submitting.set(false); this.message.set(game.status === 'pending' ? '修改已提交，等待重新审核。' : '修改已保存。') },
-      error: () => { this.submitting.set(false); this.error.set('保存失败，请检查内容和文件格式。') }
+      error: error => { this.submitting.set(false); this.error.set(getGameActionErrorMessage(error)) }
     })
   }
 }

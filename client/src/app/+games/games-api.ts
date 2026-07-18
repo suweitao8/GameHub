@@ -48,3 +48,7 @@ export function buildGamesListUrl (apiOrigin: string, params: GamesListParams = 
 export function buildGameRuntimeUrl (runtimeOrigin: string, uuid: string) {
   return new URL(`/api/v1/games/${encodeURIComponent(uuid)}/runtime/`, `${runtimeOrigin.replace(/\/$/, '')}/`).toString()
 }
+
+export function isSupportedGameRuntimeFilename (filename: string) {
+  return /\.(?:html?|zip)$/i.test(filename.trim())
+}

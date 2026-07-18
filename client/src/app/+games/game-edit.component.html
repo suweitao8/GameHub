@@ -5,16 +5,16 @@
   @if (loading()) { <p>正在加载...</p> }
   @if (!loading()) {
     <form (submit)="$event.preventDefault(); submit()" class="game-form">
-      <label>替换 HTML 文件（可选）<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)" /></label>
+      <label>替换游戏文件（可选）<input type="file" accept=".html,.htm,.zip,text/html,application/xhtml+xml,application/zip" (change)="onFileChange($event)" /></label>
       <label>替换封面（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)" /></label>
       <label>标题<input name="title" [(ngModel)]="title" maxlength="120" required /></label>
-      <label>分类<input name="category" [(ngModel)]="category" maxlength="64" required /></label>
+      <label>分类<select name="category" [(ngModel)]="category" required><option value="arcade">动作</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="strategy">策略</option><option value="horror">恐怖</option><option value="other">其他</option></select></label>
       <label>标签<input name="tags" [(ngModel)]="tags" /></label>
       <label>简介<textarea name="description" [(ngModel)]="description" rows="4"></textarea></label>
       <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4"></textarea></label>
       @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
       @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
-      <button type="submit" [disabled]="submitting()">{{ submitting() ? '正在保存...' : '保存修改' }}</button>
+      <button type="submit" [disabled]="submitting() || !title.trim() || !category.trim()">{{ submitting() ? '正在保存...' : '保存修改' }}</button>
     </form>
   }
 </main>
