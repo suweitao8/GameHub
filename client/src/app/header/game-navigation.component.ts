@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
-import { Router, RouterLink, RouterLinkActive } from '@angular/router'
+import { Router } from '@angular/router'
 
 @Component({
   selector: 'my-game-navigation',
   templateUrl: './game-navigation.component.html',
   styleUrl: './game-navigation.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ FormsModule, RouterLink, RouterLinkActive ]
+  imports: [ FormsModule ]
 })
 export class GameNavigationComponent {
   private readonly router = inject(Router)
