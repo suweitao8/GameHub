@@ -3,6 +3,7 @@ import { AVAILABLE_LOCALES } from '@peertube/peertube-core-utils'
 import { MetaGuard } from './core'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
 import { GameNotFoundComponent } from './game-not-found.component'
+import { GameAccountHomeComponent } from './game-account-home.component'
 import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 
@@ -17,19 +18,27 @@ const legacyVideoMatcher: UrlMatcher = url => {
   return isLegacyVideoPath ? { consumed: url } : null
 }
 
+const legacyAdminMatcher: UrlMatcher = url => {
+  if (!url.length || url[0].path !== 'admin') return null
+
+  return { consumed: url }
+}
+
 const routes: Routes = [
   {
-    path: 'admin',
-    loadChildren: () => import('./+admin/routes'),
-    canActivateChild: [ MetaGuard ]
+    matcher: legacyAdminMatcher,
+    component: LegacyFeaturePlaceholderComponent
   },
 
   // ---------------------------------------------------------------------------
 
   {
+    path: 'my-account/settings',
+    component: GameAccountHomeComponent
+  },
+  {
     path: 'my-account',
-    loadChildren: () => import('./+my-account/routes'),
-    canActivateChild: [ MetaGuard ]
+    component: GameAccountHomeComponent
   },
   {
     path: 'my-library',
@@ -144,8 +153,7 @@ const routes: Routes = [
 
   {
     path: 'remote-interaction',
-    loadChildren: () => import('./+remote-interaction/routes'),
-    canActivateChild: [ MetaGuard ]
+    component: LegacyFeaturePlaceholderComponent
   },
 
   // ---------------------------------------------------------------------------

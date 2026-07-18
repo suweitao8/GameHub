@@ -7,7 +7,7 @@ import { Component, signal } from '@angular/core'
         <span class="placeholder-mark" aria-hidden="true">—</span>
         <span>
           <strong id="legacy-feature-title">功能暂未实现</strong>
-          <small id="legacy-feature-description">该旧视频页面已被 GameHub 屏蔽</small>
+        <small id="legacy-feature-description">该旧版页面已被 GameHub 屏蔽</small>
         </span>
       </button>
     </main>
@@ -28,7 +28,7 @@ import { Component, signal } from '@angular/core'
           (keydown)="$event.stopPropagation()"
         >
           <strong id="not-implemented-title">功能暂未实现</strong>
-          <p>当前版本已切换为 GameHub 游戏社区，旧视频功能暂不提供。</p>
+          <p>当前版本已切换为 GameHub 游戏社区，该旧版页面暂不提供。</p>
           <button type="button" (click)="closeNotImplemented()">知道了</button>
         </div>
       </div>

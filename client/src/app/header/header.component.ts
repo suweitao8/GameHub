@@ -1,17 +1,15 @@
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
-import { getDevLocale, isOnDevLocale } from '@app/helpers'
 import { QuickSettingsModalComponent } from '@app/menu/quick-settings-modal.component'
 import { ActorAvatarComponent } from '@app/shared/shared-actor-image/actor-avatar.component'
 import { PeertubeModalService } from '@app/shared/shared-main/peertube-modal/peertube-modal.service'
-import { PluginSelectorDirective } from '@app/shared/shared-main/plugins/plugin-selector.directive'
 import { LoginLinkComponent } from '@app/shared/shared-main/users/login-link.component'
 import { SignupLabelComponent } from '@app/shared/shared-main/users/signup-label.component'
 import { NgbDropdown, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
-import { findAppropriateImage, getCompleteLocale, I18N_LOCALES } from '@peertube/peertube-core-utils'
+import { findAppropriateImage } from '@peertube/peertube-core-utils'
 import { HTMLServerConfig, ServerConfig } from '@peertube/peertube-models'
 import { peertubeLocalStorage } from '@root-helpers/peertube-web-storage'
 import { isAndroid, isIOS, isIphone } from '@root-helpers/web-browser'
@@ -21,6 +19,7 @@ import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
+import { GameNotificationBadgeService } from './game-notification-badge.service'
 import { SearchTypeaheadComponent } from './search-typeahead.component'
 
 @Component({
@@ -32,7 +31,6 @@ import { SearchTypeaheadComponent } from './search-typeahead.component'
     CommonModule,
     NotificationDropdownComponent,
     ActorAvatarComponent,
-    PluginSelectorDirective,
     SignupLabelComponent,
     LoginLinkComponent,
     QuickSettingsModalComponent,
@@ -57,7 +55,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private router = inject(Router)
   private menu = inject(MenuService)
   private headerService = inject(HeaderService)
-  private localeId = inject(LOCALE_ID)
+  readonly gameNotificationBadge = inject(GameNotificationBadgeService)
 
   private static LS_HIDE_MOBILE_MSG = 'hide-mobile-msg'
 
@@ -84,17 +82,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private hotkeysSub: Subscription
   private authSub: Subscription
   private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
-
-  get currentInterfaceLanguage () {
-    const english = 'English'
-    const locale = isOnDevLocale()
-      ? getDevLocale()
-      : getCompleteLocale(this.localeId)
-
-    if (locale) return I18N_LOCALES[locale as keyof typeof I18N_LOCALES] || english
-
-    return english
-  }
 
   get requiresApproval () {
     return this.config.signup.requiresApproval
@@ -200,7 +187,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isGameExperience () {
     const path = this.router.url.split('?')[0]
-    const isInternalPeerTubePage = path.startsWith('/admin') || path.startsWith('/my-account') || path.startsWith('/p')
+    const isInternalPeerTubePage = path.startsWith('/p')
 
     return !isInternalPeerTubePage
   }

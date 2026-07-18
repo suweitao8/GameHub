@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { RouterLink } from '@angular/router'
+import { GameNotificationBadgeService } from '../header/game-notification-badge.service'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { markAllGameNotificationsRead, markGameNotificationRead } from './game-notification-state'
 import { GameNotification, GamesService } from './games.service'
@@ -17,6 +18,7 @@ type NotificationFilter = 'all' | 'comment' | 'like' | 'coin' | 'favorite' | 'fo
 export class GameNotificationsComponent implements OnInit {
   private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
+  private readonly notificationBadge = inject(GameNotificationBadgeService)
   readonly notifications = signal<GameNotification[]>([])
   readonly selectedFilter = signal<NotificationFilter>('all')
   readonly unread = signal(0)
@@ -51,6 +53,7 @@ export class GameNotificationsComponent implements OnInit {
       next: result => {
         this.notifications.set(result.data)
         this.unread.set(result.unread)
+        this.notificationBadge.setUnread(result.unread)
         this.loading.set(false)
       },
       error: error => {
@@ -67,7 +70,10 @@ export class GameNotificationsComponent implements OnInit {
       next: () => {
         const result = markGameNotificationRead(this.notifications(), notification.id)
         this.notifications.set(result.notifications)
-        if (result.changed) this.unread.update(value => Math.max(0, value - 1))
+        if (result.changed) {
+          this.unread.update(value => Math.max(0, value - 1))
+          this.notificationBadge.decrement()
+        }
         this.notificationLoading.set(null)
       },
       error: error => {
@@ -85,6 +91,7 @@ export class GameNotificationsComponent implements OnInit {
       next: () => {
         this.notifications.set(markAllGameNotificationsRead(this.notifications()))
         this.unread.set(0)
+        this.notificationBadge.clear()
         this.markAllLoading.set(false)
       },
       error: error => {

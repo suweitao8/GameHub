@@ -74,10 +74,7 @@
 
         <div ngbDropdownMenu>
           @if (user.account) {
-            <a
-              ngbDropdownItem class="dropdown-item" [routerLink]="[ '/a', user.account.nameWithHost ]"
-              #profile
-              >
+            <a ngbDropdownItem class="dropdown-item" [routerLink]="[ '/games/author', user.account.id ]">
               <my-global-icon iconName="user" aria-hidden="true"></my-global-icon> <ng-container i18n>Public profile</ng-container>
             </a>
           }
@@ -109,15 +106,6 @@
 
           <div class="dropdown-divider"></div>
 
-          <a
-            myPluginSelector pluginSelectorId="menu-user-dropdown-language-item"
-            ngbDropdownItem class="dropdown-item" routerLink="/my-account/settings" fragment="interface-settings"
-            >
-            <my-global-icon iconName="language" aria-hidden="true"></my-global-icon>
-            <span i18n>Interface:</span>
-            <span class="ms-auto ps-2 muted">{{ currentInterfaceLanguage }}</span>
-          </a>
-
           @if (!isInMobileView) {
             <button ngbDropdownItem class="dropdown-item" (click)="openHotkeysCheatSheet()">
               <my-global-icon iconName="keyboard" aria-hidden="true"></my-global-icon>
@@ -146,9 +134,10 @@
 
     @if (isGameExperience()) {
       <div class="game-header-actions" aria-label="游戏快捷入口">
-        <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态">
+        <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态" [attr.aria-label]="gameNotificationBadge.unread() ? '动态，' + gameNotificationBadge.unread() + ' 条未读' : '动态'">
           <my-global-icon iconName="bell"></my-global-icon>
-          <span>动态</span>
+          <span class="game-header-action-label">动态</span>
+          @if (gameNotificationBadge.unread()) { <span class="game-header-unread" aria-hidden="true">{{ gameNotificationBadge.unread() > 99 ? '99+' : gameNotificationBadge.unread() }}</span> }
         </a>
         <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
           <my-global-icon iconName="like"></my-global-icon>

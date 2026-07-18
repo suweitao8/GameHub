@@ -1,0 +1,76 @@
+@use './+games/game-community.tokens';
+
+.game-account-page { min-height: calc(100vh - 76px);
+  padding: 2.5rem 0 5rem; }
+.game-account-header { align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem; }
+.game-account-header h1 { color: var(--game-text);
+  margin: 0; }
+.game-account-header p:not(.game-eyebrow) { color: var(--game-muted);
+  margin: 0.5rem 0 0; }
+.game-account-avatar { background: var(--game-brand-soft);
+  border: 4px solid #fff;
+  border-radius: 50%;
+  box-shadow: var(--game-shadow);
+  height: 5rem;
+  image-rendering: pixelated;
+  object-fit: cover;
+  width: 5rem; }
+.game-account-profile { align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem; }
+.game-account-profile div { display: grid;
+  gap: 0.2rem; }
+.game-account-profile strong { color: var(--game-text);
+  font-size: 1.05rem; }
+.game-account-profile span { color: var(--game-muted);
+  font-size: 0.82rem; }
+.game-account-profile a,
+.game-account-empty a { color: var(--game-brand-deep);
+  font-weight: 700;
+  text-decoration: none; }
+.game-account-links { display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem; }
+.game-account-links a { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.game-account-links a:hover { border-color: var(--game-brand);
+  box-shadow: var(--game-shadow);
+  transform: translateY(-2px); }
+.game-account-links strong { color: var(--game-text); }
+.game-account-links span,
+.game-account-note { color: var(--game-muted);
+  font-size: 0.85rem; }
+.game-account-note { margin: 1.25rem 0 0; }
+.game-account-empty { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  padding: 3rem 1.5rem;
+  text-align: center; }
+.game-account-empty h2 { color: var(--game-text);
+  margin: 0; }
+.game-account-empty p { color: var(--game-muted);
+  margin: 0.6rem 0 1.2rem; }
+
+@media (max-width: 640px) {
+  .game-account-header { align-items: flex-start;
+    flex-direction: column-reverse; }
+  .game-account-links { grid-template-columns: 1fr; }
+  .game-account-profile { align-items: flex-start;
+    flex-direction: column; }
+}
