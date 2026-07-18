@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit, viewChild } from '@angular/core'
-import { NavigationEnd, Router, RouterLink } from '@angular/router'
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
 import { getDevLocale, isOnDevLocale } from '@app/helpers'
@@ -40,6 +40,7 @@ import { SearchTypeaheadComponent } from './search-typeahead.component'
     NgbDropdownModule,
     SearchTypeaheadComponent,
     RouterLink,
+    RouterLinkActive,
     GlobalIconComponent,
     ButtonComponent,
     GameNavigationComponent

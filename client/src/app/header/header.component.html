@@ -11,10 +11,16 @@
 
 <div class="root" [ngClass]="{ 'search-hidden': searchHidden }">
   @if (isGameExperience()) {
-    <a class="game-brand" routerLink="/games" title="GameHub 首页">
-      <span class="game-brand-mark" aria-hidden="true">G</span>
-      <span class="game-brand-name">GameHub</span>
-    </a>
+    <div class="game-header-left">
+      <a class="game-brand" routerLink="/games" title="GameHub 首页">
+        <span class="game-brand-mark" aria-hidden="true">G</span>
+        <span class="game-brand-name">GameHub</span>
+      </a>
+      <a class="game-home-link" routerLink="/games" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" title="首页">
+        <my-global-icon iconName="home"></my-global-icon>
+        <span>首页</span>
+      </a>
+    </div>
   } @else {
     <a class="peertube-title" [routerLink]="getDefaultRoute()" [queryParams]="getDefaultRouteQuery()" title="Go to homepage" i18n-title>
       <img [src]="getLogoUrl()" alt="" [title]="instanceName" class="logo" />
@@ -34,10 +40,12 @@
   <div class="game-header-right">
     <div class="d-flex align-items-center buttons-container" [hidden]="!isLoaded()">
     @if (!loggedIn) {
-      <my-button
-        i18n-title title="Open settings modal"
-        theme="tertiary" rounded="true" class="margin-button settings-button" icon="cog" (click)="openQuickSettings()"
-      ></my-button>
+      @if (!isGameExperience()) {
+        <my-button
+          i18n-title title="Open settings modal"
+          theme="tertiary" rounded="true" class="margin-button settings-button" icon="cog" (click)="openQuickSettings()"
+        ></my-button>
+      }
 
       @if (isRegistrationAllowed()) {
         <a routerLink="/signup" class="peertube-button-link secondary-button w-100 ellipsis margin-button create-account-button">
@@ -70,7 +78,7 @@
 
           @if (user.account) {
             <a ngbDropdownItem class="dropdown-item" routerLink="/my-account">
-              <my-global-icon iconName="cog" aria-hidden="true"></my-global-icon> <ng-container i18n>Manage my account</ng-container>
+              <my-global-icon iconName="user" aria-hidden="true"></my-global-icon> <ng-container>个人中心</ng-container>
             </a>
           }
 
@@ -116,15 +124,34 @@
         </div>
       </div>
 
-      <my-notification-dropdown class="margin-button"></my-notification-dropdown>
+      @if (!isGameExperience()) {
+        <my-notification-dropdown class="margin-button"></my-notification-dropdown>
 
-      <my-button
-        i18n-title title="Go to the page where you can manage your account"
-        theme="tertiary" rounded="true" class="margin-button settings-button" icon="cog" ptRouterLink="/my-account"
-        inheritColor="true"
-      ></my-button>
+        <my-button
+          i18n-title title="Go to the page where you can manage your account"
+          theme="tertiary" rounded="true" class="margin-button settings-button" icon="cog" ptRouterLink="/my-account"
+          inheritColor="true"
+        ></my-button>
+      }
     }
     </div>
+
+    @if (isGameExperience()) {
+      <div class="game-header-actions" aria-label="游戏快捷入口">
+        <a routerLink="/games/library" [queryParams]="{ tab: 'recent' }" title="游玩历史">
+          <my-global-icon iconName="history"></my-global-icon>
+          <span>历史</span>
+        </a>
+        <a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
+          <my-global-icon iconName="like"></my-global-icon>
+          <span>收藏</span>
+        </a>
+        <a routerLink="/games/notifications" title="动态">
+          <my-global-icon iconName="bell"></my-global-icon>
+          <span>动态</span>
+        </a>
+      </div>
+    }
 
     <my-button title="Open menu" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
 
