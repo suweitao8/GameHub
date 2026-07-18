@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
-import { forkJoin } from 'rxjs'
+import { forkJoin, of } from 'rxjs'
+import { catchError } from 'rxjs/operators'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
@@ -13,10 +15,12 @@ import { GamesListParams } from './games-api'
 })
 export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)
+  private readonly authService = inject(AuthService)
   private readonly route = inject(ActivatedRoute)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
+  readonly recent = signal<Game[]>([])
   readonly recommended = signal<Game[]>([])
   readonly loading = signal(true)
   readonly error = signal(false)
@@ -65,6 +69,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     if (this.view() === 'categories') {
       this.latest.set([])
       this.popular.set([])
+      this.recent.set([])
       this.recommended.set([])
       this.carouselIndex.set(0)
       this.loading.set(false)
@@ -90,6 +95,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
+          this.recent.set([])
           this.loading.set(false)
         },
         error: () => {
@@ -108,6 +114,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
+          this.recent.set([])
           this.loading.set(false)
         },
         error: () => {
@@ -126,6 +133,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
+          this.recent.set([])
           this.loading.set(false)
         },
         error: () => {
@@ -137,13 +145,17 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     }
 
     forkJoin({
-      latest: this.gamesService.list({ ...common, sort: 'latest' }),
-      popular: this.gamesService.list({ ...common, sort: 'popular' }),
+      latest: this.gamesService.list({ ...common, count: 5, sort: 'latest' }),
+      popular: this.gamesService.list({ ...common, count: 10, sort: 'popular' }),
+      recent: this.authService.isLoggedIn()
+        ? this.gamesService.listRecent().pipe(catchError(() => of({ total: 0, data: [] as Game[] })))
+        : of({ total: 0, data: [] as Game[] }),
       recommended: this.gamesService.list({ ...common, sort: 'recommended', start: this.recommendedOffset() })
     }).subscribe({
       next: result => {
         this.latest.set(result.latest.data)
         this.popular.set(result.popular.data)
+        this.recent.set(result.recent.data)
         this.recommended.set(result.recommended.data)
         this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
@@ -163,6 +175,14 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       : this.recommendedOffset() + 8
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
+  }
+
+  shufflePopular () {
+    this.popular.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
+  }
+
+  shuffleLatest () {
+    this.latest.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
   }
 
   carouselGames () {

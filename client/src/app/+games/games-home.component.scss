@@ -46,6 +46,67 @@
   text-decoration: none;
 }
 
+.compact-section-heading {
+  align-items: center;
+  margin-bottom: 0.75rem;
+  margin-top: 2rem;
+}
+
+.compact-section-heading h2 {
+  font-size: 1.25rem;
+}
+
+.section-with-side-action {
+  min-width: 0;
+  padding-right: 2.65rem;
+  position: relative;
+}
+
+.section-side-action {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--game-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
+  min-height: 5.4rem;
+  padding: 0.65rem 0.45rem;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+  writing-mode: vertical-rl;
+}
+
+.section-side-action:hover {
+  background: #f4f7f9;
+  color: var(--game-brand);
+  transform: translateY(calc(-50% - 2px));
+}
+
+.section-side-action:focus-visible {
+  background: #f4f7f9;
+  color: var(--game-brand);
+  outline: 2px solid rgb(0 174 236 / 28%);
+  outline-offset: 2px;
+}
+
+.section-side-action span:first-child {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.section-side-action span:last-child {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
 .home-discovery-nav {
   align-items: flex-start;
   display: flex;

@@ -20,6 +20,7 @@
   border: 1px solid #e5e6e8;
   border-radius: 0.55rem;
   padding: 0.15rem 0.2rem 0.15rem 0.85rem;
+  position: relative;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
@@ -39,7 +40,7 @@
   background: transparent;
   color: var(--game-text-primary, #4e5969);
   font-size: 0.88rem;
-  padding: 0.45rem 0.55rem;
+  padding: 0.45rem 2.55rem 0.45rem 0.55rem;
 }
 
 .game-navigation-search input::placeholder {
@@ -53,10 +54,13 @@
   border-radius: 0;
   color: #61666d;
   display: inline-flex;
-  flex: 0 0 2rem;
   height: 2rem;
   justify-content: center;
   padding: 0;
+  position: absolute;
+  right: 0.2rem;
+  top: 50%;
+  transform: translateY(-50%);
   cursor: pointer;
   transition: color 160ms ease;
   width: 2.55rem;
@@ -70,6 +74,7 @@
 }
 
 .game-navigation-search my-global-icon {
+  display: block;
   height: 1rem;
   width: 1rem;
 }
