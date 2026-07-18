@@ -8,6 +8,12 @@
     <a routerLink="/games" [queryParams]="{ category: 'horror' }" [class.active]="category() === 'horror'">恐怖</a>
     <a routerLink="/games" [queryParams]="{ category: 'mobile' }" [class.active]="category() === 'mobile'">手机可玩</a>
   </nav>
+  <nav class="game-quick-nav game-community-content" aria-label="游戏快捷入口">
+    <a routerLink="/games" [class.active]="sort() === 'recommended' && !searchMode()"><my-global-icon iconName="play"></my-global-icon><span>推荐</span></a>
+    <a routerLink="/games" [queryParams]="{ sort: 'popular' }"><my-global-icon iconName="trending"></my-global-icon><span>热门</span></a>
+    <a routerLink="/games" [queryParams]="{ sort: 'latest' }"><my-global-icon iconName="clock"></my-global-icon><span>最新</span></a>
+    <a routerLink="/games/upload"><my-global-icon iconName="upload"></my-global-icon><span>投稿</span></a>
+  </nav>
   @if (view() === 'categories') {
     <section class="game-community-content category-directory">
       <div class="game-section-heading"><div><p class="game-eyebrow">BROWSE BY MOOD</p><h2>按分类发现游戏</h2><p>从熟悉的类型开始，找到下一款想试玩的作品。</p></div></div>

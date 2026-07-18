@@ -4,12 +4,13 @@ import { forkJoin } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   templateUrl: './games-home.component.html',
   styleUrl: './games-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink ]
+  imports: [ GameCardComponent, GlobalIconComponent, RouterLink ]
 })
 export class GamesHomeComponent implements OnInit {
   private readonly gamesService = inject(GamesService)

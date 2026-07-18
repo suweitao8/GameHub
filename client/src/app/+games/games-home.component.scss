@@ -44,6 +44,52 @@
   color: var(--game-brand);
 }
 
+.game-quick-nav {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(4, minmax(0, 5.5rem));
+  padding-bottom: 0.85rem;
+  padding-top: 0.2rem;
+}
+
+.game-quick-nav a {
+  align-items: center;
+  color: var(--game-muted);
+  display: inline-flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+  font-weight: 700;
+  gap: 0.3rem;
+  justify-content: center;
+  min-height: 3.75rem;
+  text-decoration: none;
+}
+
+.game-quick-nav a:hover,
+.game-quick-nav a.active {
+  color: var(--game-brand);
+}
+
+.game-quick-nav my-global-icon {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 50%;
+  display: inline-flex;
+  height: 2.2rem;
+  justify-content: center;
+  padding: 0.5rem;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+  width: 2.2rem;
+}
+
+.game-quick-nav a:hover my-global-icon,
+.game-quick-nav a.active my-global-icon {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  transform: translateY(-1px);
+}
+
 .game-grid {
   display: grid;
   gap: 1rem;
