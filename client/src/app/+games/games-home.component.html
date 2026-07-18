@@ -1,12 +1,4 @@
-<main class="game-community-page games-home" aria-labelledby="games-title">
-  <section class="game-community-content games-hero">
-    <div class="hero-copy">
-      <p class="game-eyebrow">GAMEHUB DISCOVER</p>
-      <h1 id="games-title">今天玩点不一样的</h1>
-      <p>打开即玩，发现独立创作者制作的 HTML 小游戏。</p>
-    </div>
-  </section>
-
+<main class="game-community-page games-home" aria-label="游戏发现">
   <nav class="category-bar game-community-content" aria-label="游戏分类">
     <a routerLink="/games" [class.active]="!category()">全部</a>
     <a routerLink="/games" [queryParams]="{ category: 'arcade' }" [class.active]="category() === 'arcade'">动作</a>

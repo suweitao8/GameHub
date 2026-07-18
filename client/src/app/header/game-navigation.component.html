@@ -1,7 +1,30 @@
 <nav class="game-navigation" aria-label="游戏社区导航">
+  <div class="game-navigation-links">
+    <a routerLink="/games" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" title="首页">
+      <my-global-icon iconName="home"></my-global-icon>
+      <span>首页</span>
+    </a>
+    <a routerLink="/games" [queryParams]="{ sort: 'popular' }" routerLinkActive="active" title="热门">
+      <my-global-icon iconName="trending"></my-global-icon>
+      <span>热门</span>
+    </a>
+    <a routerLink="/games" [queryParams]="{ sort: 'latest' }" routerLinkActive="active" title="最新">
+      <my-global-icon iconName="clock"></my-global-icon>
+      <span>最新</span>
+    </a>
+    <a routerLink="/games" [queryParams]="{ view: 'categories' }" routerLinkActive="active" title="分类">
+      <my-global-icon iconName="columns"></my-global-icon>
+      <span>分类</span>
+    </a>
+    <a routerLink="/games" [queryParams]="{ view: 'following' }" routerLinkActive="active" title="关注">
+      <my-global-icon iconName="users"></my-global-icon>
+      <span>关注</span>
+    </a>
+  </div>
+
   <form class="game-navigation-search" (submit)="submitSearch($event)">
     <label class="visually-hidden" for="game-community-search">搜索游戏、作者或标签</label>
     <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="搜索游戏、作者或标签" type="search">
-    <button type="submit" aria-label="搜索">⌕</button>
+    <button type="submit" aria-label="搜索"><my-global-icon iconName="search"></my-global-icon></button>
   </form>
 </nav>

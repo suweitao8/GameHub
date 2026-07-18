@@ -40,6 +40,13 @@
   align-items: center;
 }
 
+:host-context(.game-experience) .root {
+  background: #fff;
+  box-shadow: 0 2px 14px rgb(25 30 40 / 10%);
+  color: #30343b;
+  z-index: 10;
+}
+
 .peertube-title {
   flex-shrink: 1;
   min-width: var(--co-logo-size);
@@ -101,40 +108,11 @@ my-game-navigation {
 
 @media screen and (min-width: 769px) {
   my-game-navigation {
-    flex: 0 1 310px;
+    flex: 0 1 700px;
     left: 50%;
     position: absolute;
     transform: translateX(-50%);
-    width: min(310px, 32vw);
-  }
-}
-
-.game-navigation-actions {
-  align-items: center;
-  display: flex;
-  gap: 0.15rem;
-  white-space: nowrap;
-}
-
-.game-navigation-actions a {
-  border-radius: 0.5rem;
-  color: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.5rem 0.55rem;
-  text-decoration: none;
-}
-
-.game-navigation-actions a:hover,
-.game-navigation-actions a:focus-visible {
-  background: var(--game-brand-soft, #e5f7ff);
-  color: var(--game-brand, #00aeec);
-  opacity: 1;
-}
-
-@media screen and (max-width: 1180px) {
-  .game-navigation-actions {
-    display: none;
+    width: min(700px, 54vw);
   }
 }
 
@@ -226,17 +204,6 @@ my-search-typeahead {
   max-width: 250px;
   height: 100%;
 
-  .display-name {
-    font-weight: $font-bold;
-    color: pvar(--header-fg-500);
-    line-height: 1;
-    padding-top: 3px;
-  }
-
-  .username {
-    color: pvar(--header-fg-300);
-  }
-
   > .dropdown-toggle {
     display: flex;
     align-items: center;
@@ -267,8 +234,7 @@ my-actor-avatar {
     .buttons-container .settings-button,
     .buttons-container .create-account-button,
     .buttons-container .login-label,
-    .buttons-container my-notification-dropdown,
-    .buttons-container .logged-in-container {
+    .buttons-container my-notification-dropdown {
       display: none !important;
     }
 
@@ -312,10 +278,6 @@ my-actor-avatar {
     }
   }
 
-  .logged-in-info {
-    display: none;
-  }
-
   .login-icon {
     display: inline-block;
   }
@@ -346,10 +308,6 @@ my-actor-avatar {
 
   .game-header-right {
     gap: 0.15rem;
-  }
-
-  .game-navigation-actions {
-    display: none;
   }
 
   .menu-button {

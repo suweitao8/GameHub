@@ -4,25 +4,6 @@
   padding-bottom: 4rem;
 }
 
-.games-hero {
-  background: linear-gradient(115deg, #eaf9ff 0%, #fff 62%, #fff0f5 100%);
-  border-bottom: 1px solid var(--game-border);
-  margin-bottom: 1rem;
-  padding: 2.6rem 2.4rem;
-}
-
-.hero-copy { max-width: 680px; }
-.hero-copy h1 {
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  letter-spacing: -0.04em;
-  margin: 0;
-}
-
-.hero-copy > p:not(.game-eyebrow) {
-  color: var(--game-muted);
-  margin: 0.75rem 0 1.2rem;
-}
-
 .game-state button,
 .game-state a {
   background: var(--game-brand);
@@ -40,6 +21,7 @@
   overflow-x: auto;
   padding-bottom: 0.55rem;
   padding-top: 0.4rem;
+  margin-top: 1.25rem;
   scrollbar-width: none;
 }
 
@@ -120,7 +102,6 @@
 }
 
 @media (max-width: 720px) {
-  .games-hero { padding: 2rem 1.2rem; }
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .category-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
