@@ -282,6 +282,8 @@ my-actor-avatar {
 }
 
 .game-user-avatar {
+  border: 1px solid rgb(25 30 40 / 10%);
+  border-radius: 50%;
   display: block;
   height: 34px;
   image-rendering: pixelated;
