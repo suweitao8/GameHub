@@ -84,6 +84,30 @@
   letter-spacing: -0.02em;
 }
 
+.game-submit-button {
+  align-items: center;
+  background: var(--game-accent, #fb7299);
+  border-radius: 6px;
+  color: #fff !important;
+  display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 1rem;
+  text-decoration: none;
+  transition: background-color 160ms ease, transform 160ms ease;
+  white-space: nowrap;
+}
+
+.game-submit-button:hover,
+.game-submit-button:focus-visible {
+  background: var(--game-accent-deep, #e95b86);
+  color: #fff !important;
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
 .instance-name {
   @include ellipsis;
   @include margin-left(10px);
@@ -193,6 +217,7 @@ my-actor-avatar {
     .buttons-container .logged-in-container {
       display: none !important;
     }
+
   }
 }
 
@@ -269,6 +294,11 @@ my-actor-avatar {
     display: block;
     position: relative;
     right: -10px;
+  }
+
+  .game-submit-button {
+    min-height: 32px;
+    padding: 0 0.75rem;
   }
 
   my-search-typeahead {

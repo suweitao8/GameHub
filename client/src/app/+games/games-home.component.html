@@ -4,16 +4,7 @@
       <p class="game-eyebrow">GAMEHUB DISCOVER</p>
       <h1 id="games-title">今天玩点不一样的</h1>
       <p>打开即玩，发现独立创作者制作的 HTML 小游戏。</p>
-      <div class="hero-links">
-        <a routerLink="/games/upload">上传游戏</a>
-        <a routerLink="/games/creator">进入创作中心</a>
-      </div>
     </div>
-    <form class="home-search" (submit)="onSearch($event)">
-      <label class="visually-hidden" for="home-game-search">搜索游戏、作者或标签</label>
-      <input id="home-game-search" type="search" [value]="search()" (input)="search.set($any($event.target).value)" placeholder="搜索游戏、作者或标签">
-      <button type="submit">搜索</button>
-    </form>
   </section>
 
   <nav class="category-bar game-community-content" aria-label="游戏分类">

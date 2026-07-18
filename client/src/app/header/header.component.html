@@ -131,7 +131,11 @@
     }
   </div>
 
-  <my-button title="Open menu" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
+      <my-button title="Open menu" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
+
+      @if (isGameExperience()) {
+        <a class="game-submit-button" routerLink="/games/upload">投稿</a>
+      }
 </div>
 
 <my-quick-settings #quickSettingsModal></my-quick-settings>

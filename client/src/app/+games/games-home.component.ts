@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
-import { ActivatedRoute, Router, RouterLink } from '@angular/router'
+import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
@@ -14,7 +14,6 @@ import { GamesListParams } from './games-api'
 export class GamesHomeComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
-  private readonly router = inject(Router)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
@@ -152,11 +151,6 @@ export class GamesHomeComponent implements OnInit {
       : this.recommendedOffset() + 8
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
-  }
-
-  onSearch (event: Event) {
-    event.preventDefault()
-    void this.router.navigate([ '/games/search' ], { queryParams: this.search().trim() ? { search: this.search().trim() } : {} })
   }
 
   onSortChange (event: Event) {

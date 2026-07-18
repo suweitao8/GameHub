@@ -401,7 +401,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private initHotkeys () {
     this.hotkeysService.add([
       new Hotkey([ 'Shift+/', 's' ], () => {
-        document.getElementById('home-game-search')?.focus()
+        document.getElementById('game-community-search')?.focus()
         return false
       }, $localize`Focus the game search bar`),
 
