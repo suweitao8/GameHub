@@ -1,7 +1,7 @@
 import { AllowNull, AutoIncrement, BelongsTo, Column, CreatedAt, DataType, ForeignKey, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript'
 import { AccountModel } from '../account/account.js'
 import { SequelizeModel } from '../shared/index.js'
-import { VideoCommentModel } from '../video/video-comment.js'
+import { GameCommentModel } from './game-comment.js'
 
 @Table({
   tableName: 'gameCommentReaction',
@@ -18,7 +18,7 @@ export class GameCommentReactionModel extends SequelizeModel<GameCommentReaction
   declare id: number
 
   @AllowNull(false)
-  @ForeignKey(() => VideoCommentModel)
+  @ForeignKey(() => GameCommentModel)
   @Column
   declare commentId: number
 
@@ -27,8 +27,8 @@ export class GameCommentReactionModel extends SequelizeModel<GameCommentReaction
   @Column
   declare accountId: number
 
-  @BelongsTo(() => VideoCommentModel, { foreignKey: 'commentId', onDelete: 'CASCADE' })
-  declare Comment: Awaited<VideoCommentModel>
+  @BelongsTo(() => GameCommentModel, { foreignKey: 'commentId', onDelete: 'CASCADE' })
+  declare Comment: Awaited<GameCommentModel>
 
   @BelongsTo(() => AccountModel, { foreignKey: 'accountId', onDelete: 'CASCADE' })
   declare Account: Awaited<AccountModel>
