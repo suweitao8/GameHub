@@ -67,7 +67,6 @@ export type GameNotification = {
 }
 
 export type GameCommunity = {
-  videoUuid: string | null
   likes: number
   dislikes: number
   comments: number

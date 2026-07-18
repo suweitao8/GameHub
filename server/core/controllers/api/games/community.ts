@@ -93,7 +93,6 @@ async function getCommunity (req: express.Request, res: express.Response) {
   const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
 
   return res.json({
-    videoUuid: null,
     likes,
     dislikes,
     comments: await GameCommentModel.count({ where: { gameId: game.id, deletedAt: null } }),
