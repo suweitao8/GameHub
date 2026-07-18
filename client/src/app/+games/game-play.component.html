@@ -5,7 +5,7 @@
     <div class="game-community-content game-play-state" role="alert"><h1>游戏暂时无法打开</h1><p>请返回列表重试，或稍后再来。</p><a routerLink="/games">返回游戏列表</a></div>
   } @else {
     <div class="game-community-content">
-      <div class="game-play-header"><a routerLink="/games" class="back-link">← 返回发现</a><div class="game-actions"><button type="button" (click)="startGame()">开始游戏</button><button type="button" (click)="reloadGame()">重新开始</button><button type="button" (click)="focusGame()">键盘操作</button><button type="button" (click)="enterFullscreen()">全屏试玩</button></div></div>
+      <div class="game-play-header"><a routerLink="/games" class="back-link">← 返回发现</a><div class="game-actions"><button type="button" (click)="startGame()">开始游戏</button><button type="button" (click)="reloadGame()">重新开始</button><button type="button" (click)="focusGame()">键盘操作</button><button type="button" (click)="enterFullscreen()">全屏试玩</button><button type="button" (click)="downloadGame()">下载游戏包</button></div></div>
       <section class="game-stage" aria-label="游戏运行区域">
         @if (frameLoading()) { <div class="frame-loading" role="status">正在载入安全运行环境...</div> }
         <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区" sandbox="allow-scripts" allow="fullscreen" referrerpolicy="no-referrer" tabindex="0" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>

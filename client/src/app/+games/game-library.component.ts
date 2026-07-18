@@ -27,6 +27,10 @@ export class GameLibraryComponent implements OnInit {
     this.load()
   }
 
+  getDownloadUrl (uuid: string) {
+    return this.gamesService.buildDownloadUrl(uuid)
+  }
+
   private load () {
     const request = this.tab() === 'favorites'
       ? this.gamesService.listFavorites()

@@ -284,6 +284,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
   }
 
+  downloadGame () {
+    window.location.assign(this.gamesService.buildDownloadUrl(this.currentUuid))
+  }
+
   onFrameLoaded () {
     this.frameLoading.set(false)
   }

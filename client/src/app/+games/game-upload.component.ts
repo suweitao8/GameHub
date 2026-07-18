@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
-import { GamesService } from './games.service'
+import { Game, GamesService } from './games.service'
 
 @Component({
   templateUrl: './game-upload.component.html',
@@ -34,6 +34,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly previewStatus = signal('')
   readonly previewError = signal('')
   readonly coverSource = signal<'runtime' | 'generated' | 'manual'>('generated')
+  readonly createdGame = signal<Game | null>(null)
   private readonly runtimeScreenshot = signal('')
 
   constructor () {
@@ -56,6 +57,7 @@ export class GameUploadComponent implements OnDestroy {
     }
 
     this.error.set('')
+    this.createdGame.set(null)
     this.cover = null
     this.coverPreview.set('')
     this.coverSource.set('generated')
@@ -102,6 +104,7 @@ export class GameUploadComponent implements OnDestroy {
         this.submitting.set(false)
         this.step.set(6)
         this.previewStatus.set('上传成功')
+        this.createdGame.set(game)
         this.message.set(game.status === 'published' ? '上传成功，游戏已发布。' : '上传成功，等待管理员审核。')
       },
       error: error => {
@@ -115,6 +118,10 @@ export class GameUploadComponent implements OnDestroy {
 
   formatBytes (value: number) {
     return value < 1024 * 1024 ? `${Math.ceil(value / 1024)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  getDownloadUrl (uuid: string) {
+    return this.gamesService.buildDownloadUrl(uuid)
   }
 
   async regenerateCover () {

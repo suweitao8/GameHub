@@ -44,32 +44,6 @@
   color: var(--game-brand);
 }
 
-.search-filters {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  justify-content: flex-end;
-  padding-bottom: 0.6rem;
-}
-
-.search-filters label {
-  align-items: center;
-  color: var(--game-muted);
-  display: inline-flex;
-  font-size: 0.82rem;
-  gap: 0.45rem;
-}
-
-.search-filters select,
-.search-filters input {
-  background: #fff;
-  border: 1px solid var(--game-border);
-  border-radius: 6px;
-  color: var(--game-text);
-  padding: 0.45rem 0.55rem;
-}
-
 .game-grid {
   display: grid;
   gap: 1rem;

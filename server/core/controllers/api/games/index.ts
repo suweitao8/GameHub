@@ -22,6 +22,7 @@ import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUU
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
 import { Op } from 'sequelize'
+import { dirname, relative, resolve, sep } from 'path'
 import { runtimeRouter } from './runtime.js'
 import { gameCommunityRouter } from './community.js'
 
@@ -70,6 +71,7 @@ gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMid
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
 gamesRouter.get('/author/:accountId', optionalAuthenticate, asyncMiddleware(getAuthor))
 gamesRouter.post('/preview', authenticate, gameFile, asyncMiddleware(previewGame))
+gamesRouter.get('/:uuid/download', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(downloadGame))
 gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
 gamesRouter.post('/', authenticate, gameFile, gameCreateValidator, asyncMiddleware(createGame))
 gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
@@ -404,6 +406,38 @@ async function getGame (req: express.Request, res: express.Response) {
   if (!visible) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
   return res.json(formatGame(game))
+}
+
+async function downloadGame (req: express.Request, res: express.Response) {
+  const game = await GameModel.loadByUUID(req.params.uuid)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const user = getUser(res)
+  const visible = game.status === 'published' || (user && (canManageGame(game, user) || isGameModerator(user)))
+  if (!visible) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const rootPath = resolve(CONFIG.STORAGE.GAMES_DIR)
+  const runtimeDirectory = resolve(rootPath, dirname(game.runtimePath))
+  const directoryRelativePath = relative(rootPath, runtimeDirectory)
+  if (!directoryRelativePath || directoryRelativePath.startsWith(`..${sep}`) || directoryRelativePath === '..') {
+    return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  }
+
+  const archiverModule = await import('archiver')
+  const archive = new archiverModule.ZipArchive({ zlib: { level: 9 } })
+  const filename = `gamehub-${game.uuid}.zip`
+
+  res.statusCode = HttpStatusCode.OK_200
+  res.setHeader('Content-Type', 'application/zip')
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  res.setHeader('Cache-Control', 'private, no-store')
+  archive.on('error', error => {
+    if (!res.headersSent) res.status(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
+    res.destroy(error)
+  })
+  archive.pipe(res)
+  archive.directory(runtimeDirectory, false)
+  await archive.finalize()
 }
 
 async function previewGame (req: express.Request, res: express.Response) {

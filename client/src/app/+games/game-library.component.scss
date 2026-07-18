@@ -10,3 +10,5 @@
 .library-tabs button.active { border-bottom: 2px solid var(--game-brand); color: var(--game-brand); font-weight: 700; }
 .library-empty { background: #fff; border: 1px solid var(--game-border); color: var(--game-muted); padding: 3rem; text-align: center; }
 .library-error { color: var(--game-danger); }
+.library-game-item { min-width: 0; }
+.library-download { color: var(--game-brand); display: inline-block; font-size: 0.82rem; font-weight: 700; margin-top: 0.55rem; text-decoration: none; }

@@ -29,4 +29,8 @@ export class GameManageComponent implements OnInit {
       next: updated => this.games.update(items => items.map(item => item.uuid === updated.uuid ? updated : item))
     })
   }
+
+  getDownloadUrl (uuid: string) {
+    return this.gamesService.buildDownloadUrl(uuid)
+  }
 }

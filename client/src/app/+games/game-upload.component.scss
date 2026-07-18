@@ -36,5 +36,7 @@
 .cover-generate-button:disabled { cursor: not-allowed; opacity: 0.55; }
 .form-error { color: var(--game-danger); margin: 0; }
 .form-success { color: var(--game-success); margin: 0; }
+.upload-success-links { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+.upload-success-links a { color: var(--game-brand); font-weight: 700; text-decoration: none; }
 @media (max-width: 760px) { .upload-layout { grid-template-columns: 1fr; } .upload-guide { order: 2; } .upload-steps { gap: 0.1rem; } .upload-steps li { font-size: 0.65rem; } }
 @media (max-width: 480px) { .upload-steps li:not(.current) { color: transparent; } .field-grid { grid-template-columns: 1fr; } }

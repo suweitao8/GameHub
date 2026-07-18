@@ -254,4 +254,8 @@ export class GamesService {
   buildRuntimeUrl (runtimeOrigin: string, uuid: string) {
     return buildGameRuntimeUrl(runtimeOrigin, uuid)
   }
+
+  buildDownloadUrl (uuid: string) {
+    return `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/download`
+  }
 }
