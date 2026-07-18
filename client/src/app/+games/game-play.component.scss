@@ -301,17 +301,16 @@
   padding: 0.5rem 0.75rem; }
 .comment-dialog .danger { background: var(--game-danger);
   color: #fff; }
-.related-grid { display: grid;
-  gap: 0.7rem;
-  grid-template-columns: repeat(2, 1fr); }
-.related-grid a { background: #fff;
-  border: 1px solid var(--game-border);
-  border-radius: 7px;
-  padding: 0.8rem;
-  text-decoration: none; }
-.related-grid span { color: var(--game-muted);
-  float: right;
-  font-size: 0.8rem; }
+.game-play-page .creator-games { grid-column: 2;
+  grid-row: 6; }
+.game-play-page .related-section { grid-column: 2;
+  grid-row: 7; }
+.creator-games .game-grid,
+.related-section .game-grid { display: grid;
+  gap: 0.8rem;
+  grid-template-columns: 1fr; }
+.creator-games .game-section-heading,
+.related-section .game-section-heading { margin-top: 1rem; }
 .game-play-state { align-items: center;
   display: flex;
   flex-direction: column;
@@ -348,4 +347,5 @@
   .game-play-page .game-info-grid,
   .game-play-page .game-comments,
   .game-play-page .game-community-content > .game-section,
+  .game-play-page .game-community-content > .related-section,
   .game-play-page .game-community-content > section:last-child { margin-top: 1rem; } .game-play-page .game-comments { margin-top: 1rem; } }
