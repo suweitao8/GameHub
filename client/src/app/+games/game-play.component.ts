@@ -3,9 +3,10 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDes
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
-import { GamesService, Game, GameComment, GameCommunity } from './games.service'
+import { GamesService, Game, GameComment, GameCommunity, GameReview } from './games.service'
 import { GameCardComponent } from './game-card.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
+import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 
 @Component({
   templateUrl: './game-play.component.html',
@@ -34,8 +35,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly commentsLoading = signal(true)
   readonly commentsError = signal('')
   readonly commentDraft = signal('')
+  readonly reviews = signal<GameReview[]>([])
+  readonly reviewsLoading = signal(true)
+  readonly reviewsError = signal('')
+  readonly reviewDraft = signal('')
+  readonly reviewScore = signal(5)
+  readonly reviewScores = [ 1, 2, 3, 4, 5 ]
   readonly replyTo = signal<number | null>(null)
-  readonly reportReason = signal('')
   readonly coinAmount = signal<1 | 2>(1)
   readonly coinMessage = signal('')
   readonly coinLoading = signal(false)
@@ -44,8 +50,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly replies = signal<Record<number, GameComment[]>>({})
   readonly commentFeedback = signal('')
   readonly deleteTarget = signal<GameComment | null>(null)
-  readonly reportTarget = signal<GameComment | null>(null)
-  readonly reportDraft = signal('')
   readonly mutedHint = signal(false)
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
@@ -57,6 +61,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   })
   private currentUuid = ''
   private playRecordedFor = ''
+  private commentsRefreshTimer: ReturnType<typeof setInterval> | undefined
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -64,6 +69,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy () {
+    this.stopCommentsPolling()
     this.subscriptions.forEach(subscription => subscription.unsubscribe())
   }
 
@@ -71,6 +77,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!uuid) return
 
     this.currentUuid = uuid
+    this.stopCommentsPolling()
 
     this.loading.set(true)
     this.loadingError.set(false)
@@ -81,6 +88,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.comments.set([])
     this.commentsLoading.set(true)
     this.commentsError.set('')
+    this.reviews.set([])
+    this.reviewsLoading.set(true)
+    this.reviewsError.set('')
+    this.reviewDraft.set('')
+    this.reviewScore.set(5)
     this.related.set([])
     this.authorGames.set([])
     this.replies.set({})
@@ -108,6 +120,17 @@ export class GamePlayComponent implements OnInit, OnDestroy {
             this.commentsError.set('评论暂时无法加载，请稍后重试。')
           }
         })
+        this.gamesService.reviews(uuid).subscribe({
+          next: result => {
+            this.reviews.set(result.data)
+            this.reviewsLoading.set(false)
+          },
+          error: () => {
+            this.reviewsLoading.set(false)
+            this.reviewsError.set('评价暂时无法加载，请稍后重试。')
+          }
+        })
+        this.startCommentsPolling()
         this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
           next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
         })
@@ -190,6 +213,20 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
+  submitReview () {
+    if (!this.requireLogin()) return
+    const text = this.reviewDraft().trim()
+    if (!text) return
+    this.gamesService.review(this.currentUuid, this.reviewScore(), text).subscribe({
+      next: result => {
+        this.reviews.update(reviews => [ result.review, ...reviews.filter(review => review.id !== result.review.id) ])
+        this.reviewDraft.set('')
+        this.commentFeedback.set('评价已发布')
+      },
+      error: error => this.reviewsError.set(getGameActionErrorMessage(error))
+    })
+  }
+
   submitReply () {
     if (!this.requireLogin()) return
     const parentId = this.replyTo()
@@ -256,39 +293,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
-  requestReportComment (comment: GameComment) {
-    this.reportTarget.set(comment)
-    this.reportDraft.set('')
-  }
-
-  submitReportComment () {
-    if (!this.requireLogin()) return
-    const comment = this.reportTarget()
-    const reason = this.reportDraft().trim()
-    if (!comment || !reason) return
-    this.gamesService.reportComment(this.currentUuid, comment.id, reason).subscribe({
-      next: () => {
-        this.commentFeedback.set('已提交评论举报')
-        this.reportTarget.set(null)
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  reportGame () {
-    if (!this.requireLogin()) return
-    const reason = this.reportReason().trim()
-    if (!reason) return
-
-    this.gamesService.report(this.currentUuid, reason).subscribe({
-      next: () => {
-        this.reportReason.set('')
-        this.actionFeedback.set('举报已提交')
-      },
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
   giveCoin () {
     if (!this.requireLogin()) return
     const state = this.community()
@@ -349,6 +353,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     window.location.assign(this.gamesService.buildDownloadUrl(this.currentUuid))
   }
 
+  getDeveloperAvatar (label: string) {
+    return buildGameAvatarDataUrl(label)
+  }
+
   onFrameLoaded () {
     this.frameLoading.set(false)
   }
@@ -380,5 +388,25 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
       id, items.map(item => item.id === commentId ? { ...item, ...patch } : item)
     ])))
+  }
+
+  private startCommentsPolling () {
+    this.commentsRefreshTimer = setInterval(() => this.refreshComments(), 4000)
+  }
+
+  private stopCommentsPolling () {
+    if (!this.commentsRefreshTimer) return
+    clearInterval(this.commentsRefreshTimer)
+    this.commentsRefreshTimer = undefined
+  }
+
+  private refreshComments () {
+    if (!this.currentUuid) return
+    this.gamesService.comments(this.currentUuid).subscribe({
+      next: result => {
+        this.comments.set(result.data)
+        this.commentsError.set('')
+      }
+    })
   }
 }

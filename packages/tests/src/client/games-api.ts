@@ -40,10 +40,10 @@ describe('Games client API contract', function () {
       .to.equal('硬币余额不足。')
   })
 
-  it('accepts both single HTML files and ZIP game packages for editing', function () {
+  it('accepts only single HTML files for editing', function () {
     expect(isSupportedGameRuntimeFilename('index.html')).to.equal(true)
     expect(isSupportedGameRuntimeFilename('game.HTM')).to.equal(true)
-    expect(isSupportedGameRuntimeFilename('assets/game.zip')).to.equal(true)
+    expect(isSupportedGameRuntimeFilename('assets/game.zip')).to.equal(false)
     expect(isSupportedGameRuntimeFilename('game.zip.exe')).to.equal(false)
     expect(isSupportedGameRuntimeFilename('readme.md')).to.equal(false)
   })

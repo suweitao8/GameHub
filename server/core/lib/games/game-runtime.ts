@@ -1,11 +1,9 @@
 import { createHash, randomUUID } from 'crypto'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { basename, extname, join, relative, resolve, sep, posix } from 'path'
-import * as yauzl from 'yauzl'
 import { parse } from 'node-html-parser'
 
-export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 1024 * 1024
-export const DEFAULT_GAME_MAX_FILES = 200
+export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 
 const ALLOWED_RUNTIME_EXTENSIONS = new Set([
   '.html', '.htm', '.css', '.js', '.mjs', '.json',
@@ -41,9 +39,6 @@ type GameRuntimeInput = {
   mimeType?: string
   content: Buffer
   maxFileSizeBytes?: number
-  maxArchiveSizeBytes?: number
-  maxExpandedSizeBytes?: number
-  maxFiles?: number
 }
 
 type ValidatedHtml = {
@@ -103,52 +98,16 @@ export async function storeSingleHtmlGame (input: GameRuntimeInput & { root: str
 }
 
 export async function storeGameRuntimePackage (input: GameRuntimeInput & { root: string; directoryName?: string }): Promise<StoredGameRuntimePackage> {
-  const extension = extname(basename(input.filename)).toLowerCase()
   const rootPath = resolve(input.root)
   const maxFileSizeBytes = input.maxFileSizeBytes ?? DEFAULT_GAME_MAX_FILE_SIZE_BYTES
-  const maxArchiveSizeBytes = input.maxArchiveSizeBytes ?? maxFileSizeBytes
-  const maxExpandedSizeBytes = input.maxExpandedSizeBytes ?? maxFileSizeBytes
-  const maxFiles = input.maxFiles ?? DEFAULT_GAME_MAX_FILES
   const runtimeDirectory = join(rootPath, input.directoryName || cryptoRandomDirectoryName())
-
-  if (extension !== '.zip') {
-    const validated = validateSingleHtmlGame({ ...input, maxFileSizeBytes })
-    return writeRuntimeFiles({
-      rootPath,
-      runtimeDirectory,
-      files: new Map([ [ 'index.html', validated.content ] ]),
-      runtimeSha256: validated.runtimeSha256
-    })
-  }
-
-  if (!Buffer.isBuffer(input.content) || input.content.length === 0) {
-    throw new GameRuntimeValidationError('Game package cannot be empty')
-  }
-
-  if (input.content.length > maxArchiveSizeBytes) {
-    throw new GameRuntimeValidationError('Game package archive is too large')
-  }
-
-  let files: Map<string, Buffer>
-  try {
-    files = await readZipFiles(input.content, { maxExpandedSizeBytes, maxFiles })
-  } catch (err) {
-    if (err instanceof GameRuntimeValidationError) throw err
-    if (String((err as Error)?.message || '').toLowerCase().includes('relative path')) {
-      throw new GameRuntimeValidationError('Game package contains an unsafe path')
-    }
-    throw new GameRuntimeValidationError('Invalid game package archive')
-  }
-  if (!files.has('index.html')) throw new GameRuntimeValidationError('Game package must contain a root index.html')
-
-  for (const [ path, content ] of files) {
-    const extension = extname(path).toLowerCase()
-    if (extension === '.html' || extension === '.htm') validateHtmlContent(content.toString('utf8'), path, files)
-    if (extension === '.css') validateCssContent(content.toString('utf8'), path, files)
-  }
-
-  const runtimeSha256 = hashRuntimeFiles(files)
-  return writeRuntimeFiles({ rootPath, runtimeDirectory, files, runtimeSha256 })
+  const validated = validateSingleHtmlGame({ ...input, maxFileSizeBytes })
+  return writeRuntimeFiles({
+    rootPath,
+    runtimeDirectory,
+    files: new Map([ [ 'index.html', validated.content ] ]),
+    runtimeSha256: validated.runtimeSha256
+  })
 }
 
 export async function readStoredGameHtml (root: string, runtimePath: string) {
@@ -262,94 +221,6 @@ async function writeRuntimeFiles (input: {
   }
 }
 
-async function readZipFiles (content: Buffer, limits: { maxExpandedSizeBytes: number; maxFiles: number }) {
-  const files = new Map<string, Buffer>()
-  let zipFile: yauzl.ZipFile
-  try {
-    zipFile = await new Promise<yauzl.ZipFile>((resolveZip, rejectZip) => {
-      yauzl.fromBuffer(content, { lazyEntries: true }, (err, openedZip) => err || !openedZip ? rejectZip(err || new Error('Invalid game package archive')) : resolveZip(openedZip))
-    })
-  } catch (err) {
-    if (String((err as Error)?.message || '').toLowerCase().includes('relative path')) {
-      throw new GameRuntimeValidationError('Game package contains an unsafe path')
-    }
-    throw new GameRuntimeValidationError('Invalid game package archive')
-  }
-
-  return new Promise<Map<string, Buffer>>((resolveFiles, rejectFiles) => {
-    let expandedSize = 0
-    let fileCount = 0
-    let settled = false
-
-    const fail = (error: Error) => {
-      if (settled) return
-      settled = true
-      zipFile.close()
-      rejectFiles(error)
-    }
-
-    zipFile.on('error', fail)
-    zipFile.on('end', () => {
-      if (settled) return
-      settled = true
-      resolveFiles(files)
-    })
-    zipFile.on('entry', entry => {
-      if (settled) return
-      try {
-        const path = normalizeZipEntryPath(entry.fileName)
-        if (path.endsWith('/')) {
-          zipFile.readEntry()
-          return
-        }
-
-        if (isZipSymlink(entry)) throw new GameRuntimeValidationError('Game package contains an unsafe path')
-
-        fileCount++
-        if (fileCount > limits.maxFiles) throw new GameRuntimeValidationError('Game package contains too many files')
-        if (!ALLOWED_RUNTIME_EXTENSIONS.has(extname(path).toLowerCase())) throw new GameRuntimeValidationError('Game package contains an unsupported file type')
-        if (files.has(path)) throw new GameRuntimeValidationError('Game package contains duplicate paths')
-
-        expandedSize += entry.uncompressedSize
-        if (expandedSize > limits.maxExpandedSizeBytes) throw new GameRuntimeValidationError('Game package is too large after extraction')
-
-        zipFile.openReadStream(entry, (err, stream) => {
-          if (err || !stream) return fail(err || new Error('Unable to read game package entry'))
-          const chunks: Buffer[] = []
-          stream.on('data', chunk => chunks.push(Buffer.from(chunk)))
-          stream.on('error', fail)
-          stream.on('end', () => {
-            if (settled) return
-            files.set(path, Buffer.concat(chunks))
-            zipFile.readEntry()
-          })
-        })
-      } catch (err) {
-        fail(err as Error)
-      }
-    })
-    zipFile.readEntry()
-  })
-}
-
-function normalizeZipEntryPath (entryPath: string) {
-  if (!entryPath || entryPath.includes('\u0000') || entryPath.includes('\\') || entryPath.startsWith('/') || /^[a-z]:/i.test(entryPath)) {
-    throw new GameRuntimeValidationError('Game package contains an unsafe path')
-  }
-
-  const normalized = posix.normalize(entryPath)
-  if (normalized !== entryPath || normalized === '.' || normalized.startsWith('../') || normalized === '..') {
-    throw new GameRuntimeValidationError('Game package contains an unsafe path')
-  }
-
-  return normalized
-}
-
-function isZipSymlink (entry: yauzl.Entry) {
-  const unixMode = (entry.externalFileAttributes >>> 16) & 0xffff
-  return (unixMode & 0o170000) === 0o120000
-}
-
 function validateHtmlContent (html: string, currentPath: string, files?: Map<string, Buffer>) {
   if (html.includes('\u0000')) throw new GameRuntimeValidationError('Game file contains an invalid character')
   validateMarkupResources(html, currentPath, files)
@@ -378,7 +249,7 @@ function validateMarkupResources (html: string, currentPath: string, files?: Map
   for (const element of document.querySelectorAll('[style]')) validateCssContent(element.getAttribute('style') || '', currentPath, files)
 }
 
-function validateCssContent (css: string, currentPath: string, files: Map<string, Buffer>) {
+function validateCssContent (css: string, currentPath: string, files?: Map<string, Buffer>) {
   const urlPattern = /url\(\s*(['"]?)(.*?)\1\s*\)/gi
   for (const match of css.matchAll(urlPattern)) validateResourceReference(match[2], currentPath, files, true)
 }
@@ -408,14 +279,6 @@ function validateInlineCode (html: string) {
   ]
 
   if (forbiddenPatterns.some(pattern => pattern.test(html))) throw new GameRuntimeValidationError('Network and top-level navigation APIs are not supported')
-}
-
-function hashRuntimeFiles (files: Map<string, Buffer>) {
-  const hash = createHash('sha256')
-  for (const [ path, content ] of Array.from(files.entries()).sort(([ left ], [ right ]) => left.localeCompare(right))) {
-    hash.update(path).update('\u0000').update(content)
-  }
-  return hash.digest('hex')
 }
 
 function cryptoRandomDirectoryName () {

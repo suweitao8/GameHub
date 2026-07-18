@@ -50,5 +50,5 @@ export function buildGameRuntimeUrl (runtimeOrigin: string, uuid: string) {
 }
 
 export function isSupportedGameRuntimeFilename (filename: string) {
-  return /\.(?:html?|zip)$/i.test(filename.trim())
+  return /\.html?$/i.test(filename.trim())
 }

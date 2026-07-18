@@ -63,6 +63,11 @@ export default [
         data: { meta: { title: $localize`Search games` } }
       },
       {
+        path: 'community',
+        component: GamesHomeComponent,
+        data: { meta: { title: $localize`GameHub community` } }
+      },
+      {
         path: '',
         component: GamesHomeComponent,
         data: { meta: { title: $localize`Discover games` } }

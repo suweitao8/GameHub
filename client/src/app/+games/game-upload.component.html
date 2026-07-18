@@ -1,13 +1,13 @@
 <main class="game-community-page upload-page">
   <div class="game-community-content">
     <a routerLink="/games" class="back-link">← 返回游戏社区</a>
-    <header class="upload-header"><div><p class="game-eyebrow">CREATOR STUDIO</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
+    <header class="upload-header"><div><p class="game-eyebrow">创作中心</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
     <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>
     @if (previewStatus()) { <p class="upload-status" [class.error]="previewError()" role="status">{{ previewStatus() }}</p> }
     <div class="upload-layout">
-      <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>支持单文件 HTML 或 ZIP 游戏包，上传文件最大 20MB</li><li>ZIP 根目录必须包含 index.html，解压后资源总大小最大 20MB</li><li>ZIP 可包含相对路径图片、音频、CSS 和 JS</li><li>不支持外部网络请求、路径穿越或危险文件</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>不上传封面时，系统会根据实际运行画面或标题自动生成 GameHub 封面。</p></aside>
+      <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>只支持单个 HTML 文件，大小不能超过 20MB</li><li>HTML 内的样式和脚本需要写在同一个文件中</li><li>不支持外部网络请求、页面跳转或表单提交</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>不上传封面时，系统会根据实际运行画面或标题自动生成 GameHub 封面。</p></aside>
       <form (submit)="$event.preventDefault(); submit()" class="game-form">
-        <label class="file-picker">游戏文件<input type="file" accept=".html,.htm,.zip,text/html,application/xhtml+xml,application/zip" (change)="onFileChange($event)"><span>{{ file ? file.name + ' · ' + formatBytes(fileSize()) : '选择 HTML 文件或包含 index.html 的 ZIP 游戏包' }}</span></label>
+        <label class="file-picker">游戏文件<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)"><span>{{ file ? file.name + ' · ' + formatBytes(fileSize()) : '选择单个 HTML 文件（最大 20MB）' }}</span></label>
         @if (previewUrl()) { <iframe class="upload-preview-frame" [src]="previewUrl()" title="游戏运行预览" sandbox="allow-scripts" (load)="onPreviewLoaded()"></iframe> }
         <div class="field-grid"><label>游戏名称<input name="title" [(ngModel)]="title" maxlength="120" required placeholder="例如：橘子星球"></label><label>分类<select name="category" [(ngModel)]="category"><option value="arcade">动作</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="strategy">策略</option><option value="horror">恐怖</option></select></label></div>
         <label>标签<input name="tags" [(ngModel)]="tags" placeholder="arcade, puzzle"></label>

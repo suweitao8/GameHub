@@ -45,7 +45,7 @@ export class GameEditComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0] || null
     if (file && !isSupportedGameRuntimeFilename(file.name)) {
       this.file = null
-      this.error.set('只支持 .html、.htm 或 .zip 游戏包。')
+      this.error.set('只支持单个 .html 或 .htm 文件。')
       return
     }
 

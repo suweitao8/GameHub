@@ -5,7 +5,10 @@
     } @else {
       <span class="cover-letter" aria-hidden="true">{{ game.title.charAt(0) || 'G' }}</span>
     }
-    <span class="play-hint">立即试玩</span>
+    <div class="game-card-meta" aria-label="游戏数据">
+      <span class="game-card-stat"><span aria-hidden="true">▶</span>{{ formatCount(game.playCount) }}</span>
+      <span class="game-card-stat"><span aria-hidden="true">▤</span>{{ formatCount(game.comments) }}</span>
+    </div>
   </div>
   <div class="game-card-body">
     <h3>{{ game.title }}</h3>
@@ -13,10 +16,6 @@
       <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
       <span>{{ game.author?.displayName || '独立创作者' }}</span>
       <span class="game-card-time">· {{ formatDate(game.publishedAt || game.createdAt) }}</span>
-    </div>
-    <div class="game-card-meta" aria-label="游戏数据">
-      <span class="game-card-stat"><span aria-hidden="true">▶</span>{{ formatCount(game.playCount) }} 次游玩</span>
-      <span class="game-card-stat"><span aria-hidden="true">▤</span>{{ formatCount(game.comments) }} 条评论</span>
     </div>
   </div>
 </a>

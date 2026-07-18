@@ -1,7 +1,7 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
-import { GameRuntimeValidationError, storeGameCover, storeGameRuntimePackage } from '@server/lib/games/game-runtime.js'
+import { GameRuntimeValidationError, readStoredGameHtml, storeGameCover, storeGameRuntimePackage } from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
 import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
@@ -20,14 +20,12 @@ import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUU
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
 import { literal, Op } from 'sequelize'
-import { dirname, relative, resolve, sep } from 'path'
 import { runtimeRouter } from './runtime.js'
 import { gameCommunityRouter } from './community.js'
 
 const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile' ], {
   'text/html': '.html',
   'application/xhtml+xml': '.html',
-  'application/zip': '.zip',
   'image/png': '.png',
   'image/jpeg': '.jpg',
   'image/webp': '.webp'
@@ -100,7 +98,7 @@ function formatGame (game: MGame) {
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
-    comments: Number(game.get?.('gameComments') ?? 0),
+    comments: Number(game.get?.('gameReviews') ?? 0),
     likes: Number(game.get?.('gameLikes') ?? 0),
     favorites: Number(game.get?.('favoriteCount') || 0),
     coins: Number(game.get?.('coinCount') || 0),
@@ -271,23 +269,14 @@ function getPreviewRuntimeUrl (token: string) {
 
 function getGameRuntimeErrorMessage (error: GameRuntimeValidationError) {
   const messages: Record<string, string> = {
-    'Only a single HTML file is supported': '请上传 .html、.htm 或 .zip 游戏文件。',
+    'Only a single HTML file is supported': '请上传单个 .html 或 .htm 文件，大小不能超过 20MB。',
     'Game file cannot be empty': '游戏文件不能为空。',
     'Game file is too large': 'HTML 文件不能超过 20MB。',
-    'Game package cannot be empty': '游戏压缩包不能为空。',
-    'Game package archive is too large': '游戏压缩包不能超过 20MB。',
-    'Game package must contain a root index.html': '压缩包根目录必须包含 index.html。',
-    'Game package contains an unsafe path': '压缩包包含不安全的文件路径。',
-    'Game package contains too many files': '压缩包内文件数量超过限制。',
-    'Game package contains an unsupported file type': '压缩包包含不支持或危险的文件类型。',
-    'Game package contains duplicate paths': '压缩包包含重复的文件路径。',
-    'Game package is too large after extraction': '游戏解压后的资源总大小超过 20MB。',
     'External resources are not supported': '游戏只能使用包内资源，不能引用外部网络资源。',
     'Game resource path is missing or unsafe': '游戏引用了不存在或不安全的资源路径。',
     'Network and top-level navigation APIs are not supported': '游戏不能联网或跳转到顶层页面。',
     'Navigation and forms are not supported': '游戏不能包含页面跳转或表单提交。',
     'Game file contains an invalid character': '游戏文件包含无效字符。',
-    'Invalid game package archive': '游戏压缩包损坏或格式无效。'
   }
 
   return messages[error.message] || '游戏文件未通过安全检查，请检查文件格式和资源引用。'
@@ -419,33 +408,17 @@ async function downloadGame (req: express.Request, res: express.Response) {
   const visible = game.status === 'published' || (user && (canManageGame(game, user) || isGameModerator(user)))
   if (!visible) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
-  const rootPath = resolve(CONFIG.STORAGE.GAMES_DIR)
-  const runtimeDirectory = resolve(rootPath, dirname(game.runtimePath))
-  const directoryRelativePath = relative(rootPath, runtimeDirectory)
-  if (!directoryRelativePath || directoryRelativePath.startsWith(`..${sep}`) || directoryRelativePath === '..') {
-    return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  }
-
-  const archiverModule = await import('archiver')
-  const archive = new archiverModule.ZipArchive({ zlib: { level: 9 } })
-  const filename = `gamehub-${game.uuid}.zip`
-
-  res.statusCode = HttpStatusCode.OK_200
-  res.setHeader('Content-Type', 'application/zip')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
-  res.setHeader('Cache-Control', 'private, no-store')
-  archive.on('error', error => {
-    if (!res.headersSent) res.status(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-    res.destroy(error)
-  })
-  archive.pipe(res)
-  archive.directory(runtimeDirectory, false)
-  await archive.finalize()
+  const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
+  res.status(HttpStatusCode.OK_200)
+    .setHeader('Content-Type', 'text/html; charset=utf-8')
+    .setHeader('Content-Disposition', `attachment; filename="gamehub-${game.uuid}.html"`)
+    .setHeader('Cache-Control', 'private, no-store')
+    .send(content)
 }
 
 async function previewGame (req: express.Request, res: express.Response) {
   const file = req.files?.['gamefile']?.[0]
-  if (!file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: '请上传 HTML 或 ZIP 游戏文件。' })
+  if (!file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: '请上传单个 HTML 游戏文件。' })
 
   try {
     const content = await readFile(file.path)

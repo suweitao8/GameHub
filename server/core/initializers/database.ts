@@ -84,6 +84,7 @@ import { GameCoinLedgerModel } from '../models/game/game-coin-ledger.js'
 import { GameCommentReactionModel } from '../models/game/game-comment-reaction.js'
 import { GameRatingModel } from '../models/game/game-rating.js'
 import { GameCommentModel } from '../models/game/game-comment.js'
+import { GameReviewModel } from '../models/game/game-review.js'
 import { GameReportModel } from '../models/game/game-report.js'
 import { GameNotificationModel } from '../models/game/game-notification.js'
 import { CONFIG } from './config.js'
@@ -179,6 +180,7 @@ export async function initDatabaseModels (silent: boolean) {
     GameCommentReactionModel,
     GameRatingModel,
     GameCommentModel,
+    GameReviewModel,
     GameReportModel,
     GameNotificationModel,
     ChangeOwnershipModel,

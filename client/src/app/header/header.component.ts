@@ -311,7 +311,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.isGameExperience() || !this.loggedIn) return
 
     this.cancelGameAvatarHover(false)
-    this.gameAvatarHoverTimer = setTimeout(() => this.gameAvatarHoverVisible.set(true), 1000)
+    this.gameAvatarHoverTimer = setTimeout(() => this.gameAvatarHoverVisible.set(true), 500)
   }
 
   cancelGameAvatarHover (close = true) {

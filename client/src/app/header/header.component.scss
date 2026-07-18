@@ -76,23 +76,53 @@
 .game-brand {
   display: flex;
   align-items: center;
-  height: 34px;
+  height: 36px;
   margin-right: 1rem;
   color: #00aeec !important;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.game-brand-logo {
-  display: block;
-  height: 34px;
-  width: 34px;
+.game-brand-wordmark {
+  color: #00aeec;
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  font-size: 1.35rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgb(0 126 178 / 14%);
+  transform: skew(-6deg);
 }
 
 .game-header-left {
   align-items: center;
   display: flex;
   min-width: 0;
+}
+
+.game-header-left-nav {
+  align-items: center;
+  display: flex;
+  gap: 0.15rem;
+}
+
+.game-header-left-nav a {
+  border-radius: 0.45rem;
+  color: var(--game-text-secondary) !important;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 0.42rem 0.65rem;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.game-header-left-nav a:hover,
+.game-header-left-nav a:focus-visible,
+.game-header-left-nav a.active {
+  background: #f2f3f5;
+  color: var(--game-text-secondary) !important;
+  outline: 0;
 }
 
 .game-header-right {
@@ -145,19 +175,29 @@
 
 .game-header-actions a:hover,
 .game-header-actions a:focus-visible {
-  background: #f2f3f5;
+  background: transparent;
   color: var(--game-text-secondary) !important;
 }
 
 .game-header-actions a.game-header-action-active {
-  background: #f2f3f5;
+  background: transparent;
   color: var(--game-text-secondary) !important;
 }
 
 .game-header-actions a.game-header-action-active my-global-icon,
 .game-header-actions a:hover my-global-icon,
 .game-header-actions a:focus-visible my-global-icon {
-  transform: none !important;
+  transform: none;
+}
+
+.game-header-actions a.game-header-action-active my-global-icon {
+  animation: game-header-icon-bounce 360ms ease-out;
+}
+
+@keyframes game-header-icon-bounce {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
 }
 
 .game-header-actions my-global-icon {
@@ -296,13 +336,29 @@ my-actor-avatar {
 }
 
 .game-user-avatar {
+  aspect-ratio: 1;
+  background: #e5f7ff;
   border: 1px solid rgb(25 30 40 / 10%);
   border-radius: 50%;
   display: block;
-  height: 34px;
+  height: 38px;
   image-rendering: pixelated;
   object-fit: cover;
-  width: 34px;
+  width: 38px;
+}
+
+:host-context(.game-experience) .logged-in-container > .tertiary-button,
+:host-context(.game-experience) .logged-in-container > .tertiary-button:hover,
+:host-context(.game-experience) .logged-in-container > .tertiary-button:focus,
+:host-context(.game-experience) .logged-in-container > .tertiary-button:active {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--game-text-secondary) !important;
+}
+
+:host-context(.game-experience) .logged-in-container > .tertiary-button:focus-visible {
+  outline: 2px solid rgb(0 174 236 / 32%);
+  outline-offset: 3px;
 }
 
 .game-avatar-hover-card {
@@ -311,57 +367,34 @@ my-actor-avatar {
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(25 30 40 / 13%);
   color: #4e5969;
-  padding: 0.85rem;
+  display: grid;
+  gap: 0.15rem;
+  left: 50%;
+  padding: 0.45rem;
   position: absolute;
-  right: 0;
   top: calc(100% + 0.55rem);
+  transform: translateX(-50%);
   width: 238px;
   z-index: 30;
 }
 
-.game-avatar-hover-heading {
-  align-items: center;
-  display: flex;
-  gap: 0.6rem;
-}
-
-.game-avatar-hover-image {
-  border: 1px solid rgb(0 0 0 / 8%);
-  border-radius: 50%;
-  height: 2.4rem;
-  image-rendering: pixelated;
-  object-fit: cover;
-  width: 2.4rem;
-}
-
-.game-avatar-hover-heading div {
-  display: grid;
-  gap: 0.18rem;
-  min-width: 0;
-}
-
-.game-avatar-hover-heading strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.game-avatar-hover-heading span,
-.game-avatar-hover-card p {
-  color: #61666d;
-  font-size: 0.76rem;
-}
-
-.game-avatar-hover-card p {
-  line-height: 1.45;
-  margin: 0.75rem 0;
+:host-context(.game-experience) .root-header {
+  background: #fff;
+  height: var(--header-height);
 }
 
 .game-avatar-hover-card a {
-  color: #008acb !important;
-  font-size: 0.8rem;
   font-weight: 700;
+  padding: 0.58rem 0.75rem;
+  text-align: center;
   text-decoration: none;
+}
+
+.game-avatar-hover-card a:hover,
+.game-avatar-hover-card a:focus-visible {
+  background: #f2f3f5;
+  color: #00aeec !important;
+  outline: 0;
 }
 
 @media screen and (max-width: $mobile-view) {

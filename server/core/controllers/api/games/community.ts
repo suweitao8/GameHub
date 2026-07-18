@@ -1,5 +1,4 @@
 import { HttpStatusCode, UserRight } from '@peertube/peertube-models'
-import { abusePredefinedReasonsMap } from '@peertube/peertube-core-utils'
 import { sequelizeTypescript } from '@server/initializers/database.js'
 import { JobQueue } from '@server/lib/job-queue/index.js'
 import { sendUndoFollow } from '@server/lib/activitypub/send/index.js'
@@ -10,8 +9,8 @@ import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameCommentReactionModel } from '@server/models/game/game-comment-reaction.js'
 import { GameCommentModel } from '@server/models/game/game-comment.js'
+import { GameReviewModel } from '@server/models/game/game-review.js'
 import { GameRatingModel, type GameRatingType } from '@server/models/game/game-rating.js'
-import { GameReportModel } from '@server/models/game/game-report.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
@@ -24,19 +23,19 @@ const gameCommunityRouter = express.Router()
 gameCommunityRouter.use(apiRateLimiter)
 
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
+gameCommunityRouter.get('/:uuid/reviews', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReviews))
+gameCommunityRouter.put('/:uuid/review', gameUUIDValidator, authenticate, asyncMiddleware(upsertReview))
 gameCommunityRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
 gameCommunityRouter.get('/:uuid/comments/:commentId/replies', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReplies))
 gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, asyncMiddleware(addComment))
 gameCommunityRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, asyncMiddleware(replyToComment))
 gameCommunityRouter.put('/:uuid/comments/:commentId/like', gameUUIDValidator, authenticate, asyncMiddleware(likeComment))
 gameCommunityRouter.delete('/:uuid/comments/:commentId', gameUUIDValidator, authenticate, asyncMiddleware(deleteComment))
-gameCommunityRouter.post('/:uuid/comments/:commentId/report', gameUUIDValidator, authenticate, asyncMiddleware(reportComment))
 gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, asyncMiddleware(rateGame))
 gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, asyncMiddleware(favoriteGame))
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
 gameCommunityRouter.put('/author/:accountId/follow', authenticate, asyncMiddleware(followAccount))
 gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, asyncMiddleware(coinGame))
-gameCommunityRouter.post('/:uuid/report', gameUUIDValidator, authenticate, asyncMiddleware(reportGame))
 
 export { gameCommunityRouter }
 
@@ -88,11 +87,22 @@ async function getCommunity (req: express.Request, res: express.Response) {
   const likes = await GameRatingModel.count({ where: { gameId: game.id, type: 'like' } })
   const coinState = user ? await getCoinState(game.id, user.Account.id) : { balance: 0, given: 0 }
   const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
+  const [ reviewCount, reviewAverage, chatMessageCount ] = await Promise.all([
+    GameReviewModel.count({ where: { gameId: game.id } }),
+    GameReviewModel.findOne({
+      where: { gameId: game.id },
+      attributes: [ [ sequelizeTypescript.fn('AVG', sequelizeTypescript.col('score')), 'average' ] ],
+      raw: true
+    }),
+    GameCommentModel.count({ where: { gameId: game.id, deletedAt: null } })
+  ])
 
   return res.json({
     isOwner: !!user && user.Account.id === game.ownerAccountId,
     likes,
-    comments: await GameCommentModel.count({ where: { gameId: game.id, deletedAt: null } }),
+    reviews: reviewCount,
+    averageReviewScore: Number(Number((reviewAverage as any)?.average || 0).toFixed(1)),
+    chatMessages: chatMessageCount,
     rating,
     favorite,
     following,
@@ -108,6 +118,59 @@ async function getCommunity (req: express.Request, res: express.Response) {
         }
       : null
   })
+}
+
+async function listReviews (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const reviews = await GameReviewModel.findAll({
+    where: { gameId: game.id },
+    include: [ commentAccountInclude ],
+    order: [ [ 'createdAt', 'DESC' ] ],
+    limit: 50
+  })
+
+  return res.json({ total: reviews.length, data: formatReviews(reviews, game) })
+}
+
+async function upsertReview (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  const score = Number(req.body.score)
+  const text = typeof req.body.text === 'string' ? req.body.text.trim() : ''
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot review their own game' })
+  if (!Number.isInteger(score) || score < 1 || score > 5 || !text || text.length > 5000) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'score must be 1-5 and text must contain 1-5000 characters' })
+  }
+
+  const [ review, created ] = await GameReviewModel.findOrCreate({
+    where: { gameId: game.id, accountId: user.Account.id },
+    defaults: { gameId: game.id, accountId: user.Account.id, score, text }
+  })
+  if (!created) {
+    review.score = score
+    review.text = text
+    await review.save()
+  }
+
+  if (created) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'comment',
+      message: `${user.username} 评价了你的游戏`
+    })
+  }
+
+  const hydratedReview = await GameReviewModel.findOne({
+    where: { id: review.id },
+    include: [ commentAccountInclude ]
+  })
+  if (!hydratedReview) return res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
+  return res.json({ review: formatReviews([ hydratedReview ], game)[0] })
 }
 
 async function listComments (req: express.Request, res: express.Response) {
@@ -244,27 +307,6 @@ async function deleteComment (req: express.Request, res: express.Response) {
   comment.deletedAt = new Date()
   await comment.save()
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
-}
-
-async function reportComment (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  const user = getUser(res)
-  const comment = await getCommentForGame(game, Number(req.params.commentId))
-  if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (typeof req.body.reason !== 'string' || req.body.reason.trim().length === 0) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'reason is required' })
-  }
-
-  const result = await GameReportModel.create({
-    reporterAccountId: user.Account.id,
-    gameId: game.id,
-    commentId: comment.id,
-    reason: req.body.reason.trim(),
-    state: 'pending',
-    predefinedReasons: req.body.predefinedReasons?.map((reason: string) => abusePredefinedReasonsMap[reason]).filter(Boolean) || null
-  })
-
-  return res.status(HttpStatusCode.CREATED_201).json({ abuse: { id: result.id } })
 }
 
 async function rateGame (req: express.Request, res: express.Response) {
@@ -463,26 +505,6 @@ async function followAccount (req: express.Request, res: express.Response) {
   return res.json({ following: req.body.following })
 }
 
-async function reportGame (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  const user = getUser(res)
-  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (typeof req.body.reason !== 'string' || req.body.reason.trim().length === 0) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'reason is required' })
-  }
-
-  const result = await GameReportModel.create({
-    reporterAccountId: user.Account.id,
-    gameId: game.id,
-    commentId: null,
-    reason: req.body.reason.trim(),
-    state: 'pending',
-    predefinedReasons: req.body.predefinedReasons?.map((reason: string) => abusePredefinedReasonsMap[reason]).filter(Boolean) || null
-  })
-
-  return res.status(HttpStatusCode.CREATED_201).json({ abuse: { id: result.id } })
-}
-
 async function userRating (accountId: number, gameId: number) {
   const rate = await GameRatingModel.load(accountId, gameId)
   return normalizeGameRating(rate?.type)
@@ -499,6 +521,18 @@ async function getCoinState (gameId: number, accountId: number) {
     GameCoinLedgerModel.sum('amount', { where: { accountId, gameId, kind: 'spend' } })
   ])
   return { balance: Math.max(0, Number(balance || 0)), given: Math.max(0, Number(given || 0) * -1) }
+}
+
+function formatReviews (reviews: GameReviewModel[], game: MGame) {
+  return reviews.map(review => ({
+    id: review.id,
+    score: review.score,
+    text: review.text,
+    createdAt: review.createdAt,
+    updatedAt: review.updatedAt,
+    isAuthor: review.accountId === game.ownerAccountId,
+    account: review.Account?.toFormattedJSON() || null
+  }))
 }
 
 async function formatComments (comments: GameCommentModel[], game: MGame, user: any) {

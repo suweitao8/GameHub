@@ -13,8 +13,12 @@
   @if (isGameExperience()) {
     <div class="game-header-left">
       <a class="game-brand" routerLink="/games" title="GameHub">
-        <img class="game-brand-logo" src="/client/assets/images/gamehub-logo.svg" alt="GameHub">
+        <span class="game-brand-wordmark" aria-label="GameHub">GameHub</span>
       </a>
+      <nav class="game-header-left-nav" aria-label="主要导航">
+        <a routerLink="/games" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">首页</a>
+        <a routerLink="/games/community" routerLinkActive="active">社区</a>
+      </nav>
     </div>
   } @else {
     <a class="peertube-title" [routerLink]="getDefaultRoute()" [queryParams]="getDefaultRouteQuery()" title="Go to homepage" i18n-title>
@@ -54,16 +58,19 @@
       <div
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
+        (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
+        (mouseenter)="scheduleGameAvatarMenu()" (mouseleave)="cancelGameAvatarHover()"
         >
         @if (isGameExperience()) {
-          <button class="tertiary-button" type="button" aria-label="打开个人主页" (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()" (click)="openGameProfile($event)">
+          <button class="tertiary-button" type="button" aria-label="打开个人主页" (click)="openGameProfile($event)">
             <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || '用户'" (error)="onGameAvatarError($event)">
           </button>
           @if (gameAvatarHoverVisible()) {
-            <div class="game-avatar-hover-card" role="dialog" aria-label="个人主页预览">
-              <div class="game-avatar-hover-heading"><img class="game-avatar-hover-image" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)"><div><strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong><span>&#64;{{ user?.account?.name || user?.username || 'player' }}</span></div></div>
-              <p>进入个人主页，查看发布的游戏和创作数据。</p>
-              <a [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()">进入个人主页</a>
+            <div class="game-avatar-hover-card" role="menu" aria-label="个人菜单">
+              <a role="menuitem" [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()">个人主页</a>
+              <a role="menuitem" routerLink="/my-account" (click)="cancelGameAvatarHover()">个人中心</a>
+              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()">我的收藏</a>
+              <a role="menuitem" routerLink="/games/creator" (click)="cancelGameAvatarHover()">创作中心</a>
             </div>
           }
         } @else {

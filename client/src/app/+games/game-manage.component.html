@@ -1,6 +1,6 @@
 <main class="manage-page margin-content">
   <a routerLink="/games" class="back-link">← 返回游戏社区</a>
-  <p class="eyebrow">MODERATION QUEUE</p>
+  <p class="eyebrow">审核队列</p>
   <h1>{{ ownerView() ? '我的游戏管理' : '游戏审核' }}</h1>
   @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
   @if (feedback()) { <p class="form-success" role="status">{{ feedback() }}</p> }

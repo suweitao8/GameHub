@@ -620,7 +620,7 @@
         },
         "max_file_size": {
           "type": "string",
-          "default": "1MB"
+          "default": "20MB"
         },
         "max_storage_per_account": {
           "type": "string",

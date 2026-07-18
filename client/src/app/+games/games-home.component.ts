@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
@@ -11,7 +11,7 @@ import { GamesListParams } from './games-api'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ GameCardComponent, RouterLink ]
 })
-export class GamesHomeComponent implements OnInit {
+export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
 
@@ -29,6 +29,8 @@ export class GamesHomeComponent implements OnInit {
   readonly sort = signal<GamesListParams['sort']>('recommended')
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
+  readonly carouselIndex = signal(0)
+  private carouselTimer: ReturnType<typeof setInterval> | undefined
   readonly categories = [
     { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。', query: { category: 'arcade' } },
     { id: 'puzzle', title: '解谜', description: '动动脑筋，找出下一步。', query: { category: 'puzzle' } },
@@ -52,6 +54,11 @@ export class GamesHomeComponent implements OnInit {
       this.recommendedOffset.set(0)
       this.loadGames()
     })
+    this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
+  }
+
+  ngOnDestroy () {
+    if (this.carouselTimer) clearInterval(this.carouselTimer)
   }
 
   loadGames () {
@@ -59,6 +66,7 @@ export class GamesHomeComponent implements OnInit {
       this.latest.set([])
       this.popular.set([])
       this.recommended.set([])
+      this.carouselIndex.set(0)
       this.loading.set(false)
       return
     }
@@ -78,6 +86,7 @@ export class GamesHomeComponent implements OnInit {
       this.gamesService.list({ ...common, sort: 'latest' }).subscribe({
         next: result => {
           this.recommended.set(result.data)
+          this.carouselIndex.set(0)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
@@ -95,6 +104,7 @@ export class GamesHomeComponent implements OnInit {
       this.gamesService.list({ ...common, sort: 'recommended' }).subscribe({
         next: result => {
           this.recommended.set(result.data)
+          this.carouselIndex.set(0)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
@@ -112,6 +122,7 @@ export class GamesHomeComponent implements OnInit {
       this.gamesService.list({ ...common, sort: this.sort() }).subscribe({
         next: result => {
           this.recommended.set(result.data)
+          this.carouselIndex.set(0)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
           this.latest.set([])
@@ -134,6 +145,7 @@ export class GamesHomeComponent implements OnInit {
         this.latest.set(result.latest.data)
         this.popular.set(result.popular.data)
         this.recommended.set(result.recommended.data)
+        this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)
       },
@@ -151,6 +163,21 @@ export class GamesHomeComponent implements OnInit {
       : this.recommendedOffset() + 8
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
+  }
+
+  carouselGames () {
+    return this.recommended().slice(0, 7)
+  }
+
+  carouselGame () {
+    const games = this.carouselGames()
+    return games.length ? games[this.carouselIndex() % games.length] : null
+  }
+
+  nextCarousel (step = 1) {
+    const total = this.carouselGames().length
+    if (!total) return
+    this.carouselIndex.set((this.carouselIndex() + step + total) % total)
   }
 
   onSortChange (event: Event) {

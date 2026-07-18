@@ -5,13 +5,19 @@ import { tmpdir } from 'os'
 import { join, resolve } from 'path'
 import {
   getGameRuntimeHeaders,
-  readStoredGameRuntimeFile,
   storeGameRuntimePackage,
   storeSingleHtmlGame,
   validateSingleHtmlGame
 } from '../../../../../server/core/lib/games/game-runtime.js'
 
 describe('Game runtime security', function () {
+  it('uses a 20 MB default limit for a single HTML file', function () {
+    expect(validateSingleHtmlGame({
+      filename: 'game.html',
+      content: Buffer.alloc(20 * 1024 * 1024, 1)
+    })).to.have.property('fileSizeBytes', 20 * 1024 * 1024)
+  })
+
   it('accepts a self-contained html document and returns its sha256', function () {
     const result = validateSingleHtmlGame({
       filename: 'game.html',
@@ -70,7 +76,7 @@ describe('Game runtime security', function () {
     }
   })
 
-  it('stores a zip package with relative resources and serves files below its runtime directory', async function () {
+  it('rejects zip packages even when they contain a valid index file', async function () {
     const root = await mkdtemp(join(tmpdir(), 'peertube-games-'))
     const zip = new JSZip()
     zip.file('index.html', '<!doctype html><html><head><link rel="stylesheet" href="assets/game.css"></head><body><img src="assets/icon.png"><script src="assets/game.js"></script></body></html>')
@@ -79,54 +85,22 @@ describe('Game runtime security', function () {
     zip.file('assets/icon.png', Buffer.from([ 137, 80, 78, 71 ]))
 
     try {
-      const stored = await storeGameRuntimePackage({
-        root,
-        filename: 'game.zip',
-        mimeType: 'application/zip',
-        content: await zip.generateAsync({ type: 'nodebuffer' })
-      })
+      let error: Error | undefined
+      try {
+        await storeGameRuntimePackage({
+          root,
+          filename: 'game.zip',
+          mimeType: 'application/zip',
+          content: await zip.generateAsync({ type: 'nodebuffer' })
+        })
+      } catch (err) {
+        error = err as Error
+      }
 
-      expect(stored.relativePath).to.match(/^[0-9a-f-]+\/index\.html$/)
-      expect(stored.fileCount).to.equal(4)
-      expect(stored.fileSizeBytes).to.be.greaterThan(0)
-      expect((await readStoredGameRuntimeFile(root, stored.relativePath.replace(/\/index\.html$/, '/assets/game.js'))).toString())
-        .to.contain('dataset.ready')
+      expect(error).to.be.instanceOf(Error)
+      expect(error?.message).to.equal('Only a single HTML file is supported')
     } finally {
       await rm(root, { recursive: true, force: true })
-    }
-  })
-
-  it('rejects zip packages without an entry, with external resources, unsafe paths, or dangerous files', async function () {
-    const cases = [
-      { name: 'missing entry', files: { 'assets/game.js': 'ok' }, message: 'root index.html' },
-      { name: 'external resource', files: { 'index.html': '<script src="https://evil.test/game.js"></script>' }, message: 'External resources' },
-      { name: 'unsafe path', files: { 'index.html': '<html></html>', '../secret.txt': 'nope' }, message: 'unsafe path' },
-      { name: 'dangerous file', files: { 'index.html': '<html></html>', 'run.exe': 'nope' }, message: 'unsupported file type' }
-    ]
-
-    for (const testCase of cases) {
-      const zip = new JSZip()
-      for (const [ name, content ] of Object.entries(testCase.files)) zip.file(name, content)
-      const root = await mkdtemp(join(tmpdir(), 'peertube-games-'))
-
-      try {
-        let error: Error | undefined
-        try {
-          await storeGameRuntimePackage({
-            root,
-            filename: `${testCase.name}.zip`,
-            mimeType: 'application/zip',
-            content: await zip.generateAsync({ type: 'nodebuffer' })
-          })
-        } catch (err) {
-          error = err as Error
-        }
-
-        expect(error, testCase.name).to.be.instanceOf(Error)
-        expect(error?.message, testCase.name).to.contain(testCase.message)
-      } finally {
-        await rm(root, { recursive: true, force: true })
-      }
     }
   })
 
