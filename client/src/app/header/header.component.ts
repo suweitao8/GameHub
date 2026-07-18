@@ -191,9 +191,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isGameExperience () {
     const path = this.router.url.split('?')[0]
-    const isGameAccountChannelsPage = /^\/a\/[^/]+\/video-channels$/.test(path)
+    const isInternalPeerTubePage = path.startsWith('/admin') || path.startsWith('/my-account') || path.startsWith('/p')
 
-    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search') || isGameAccountChannelsPage
+    return !isInternalPeerTubePage
   }
 
   // ---------------------------------------------------------------------------

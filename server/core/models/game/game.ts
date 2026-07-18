@@ -176,13 +176,15 @@ export class GameModel extends SequelizeModel<GameModel> {
     ]).then(([ total, data ]) => ({ total, data }))
   }
 
-  static getPublicStatsAttributes () {
+  static getPublicStatsAttributes (tableAlias = '"GameModel"') {
+    const gameId = `${tableAlias}."id"`
+
     return [
-      [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'like\')'), 'gameLikes' ],
-      [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'dislike\')'), 'gameDislikes' ],
-      [ literal('(SELECT COUNT(*) FROM "gameComment" WHERE "gameComment"."gameId" = "GameModel"."id" AND "gameComment"."deletedAt" IS NULL)'), 'gameComments' ],
-      [ literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")'), 'favoriteCount' ],
-      [ literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'), 'coinCount' ]
+      [ literal(`(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = ${gameId} AND "gameRating"."type" = 'like')`), 'gameLikes' ],
+      [ literal(`(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = ${gameId} AND "gameRating"."type" = 'dislike')`), 'gameDislikes' ],
+      [ literal(`(SELECT COUNT(*) FROM "gameComment" WHERE "gameComment"."gameId" = ${gameId} AND "gameComment"."deletedAt" IS NULL)`), 'gameComments' ],
+      [ literal(`(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = ${gameId})`), 'favoriteCount' ],
+      [ literal(`(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = ${gameId} AND "gameCoinLedger"."kind" = 'spend')`), 'coinCount' ]
     ] as any
   }
 }

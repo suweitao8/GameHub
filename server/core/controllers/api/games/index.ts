@@ -347,7 +347,7 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
       model: GameModel,
       where: { status: 'published' },
       required: true,
-      attributes: { include: GameModel.getPublicStatsAttributes() },
+      attributes: { include: GameModel.getPublicStatsAttributes('"Game"') },
       include: []
     } ],
     order: [ [ 'createdAt', 'DESC' ] ],
@@ -367,7 +367,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
       model: GameModel,
       where: { status: 'published' },
       required: true,
-      attributes: { include: GameModel.getPublicStatsAttributes() },
+      attributes: { include: GameModel.getPublicStatsAttributes('"Game"') },
       include: []
     } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
