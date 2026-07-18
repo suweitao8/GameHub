@@ -182,7 +182,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   isGameExperience () {
     const path = this.router.url.split('?')[0]
-    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search')
+    const isGameAccountChannelsPage = /^\/a\/[^/]+\/video-channels$/.test(path)
+
+    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search') || isGameAccountChannelsPage
   }
 
   // ---------------------------------------------------------------------------

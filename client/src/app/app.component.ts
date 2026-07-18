@@ -280,7 +280,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isGameExperienceUrl (url: string) {
     const path = url.split('?')[0]
-    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search')
+    const isGameAccountChannelsPage = /^\/a\/[^/]+\/video-channels$/.test(path)
+
+    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search') || isGameAccountChannelsPage
   }
 
   private async injectBroadcastMessage () {

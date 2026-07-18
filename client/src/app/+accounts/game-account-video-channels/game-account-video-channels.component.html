@@ -1,0 +1,100 @@
+<main class="game-community-page game-account-page" aria-labelledby="game-account-title">
+  @if (loading()) {
+    <div class="game-community-content game-account-state" role="status">正在打开创作者空间...</div>
+  } @else if (error() || !account()) {
+    <div class="game-community-content game-account-state" role="alert">
+      <h1>创作者空间暂时不可用</h1>
+      <p>请稍后重试，或返回 GameHub 继续发现游戏。</p>
+      <a routerLink="/games">返回游戏社区</a>
+    </div>
+  } @else {
+    <section class="game-community-content game-account-hero">
+      <div class="game-account-profile">
+        <my-actor-avatar [actor]="account()" actorType="account" [size]="112"></my-actor-avatar>
+        <div class="game-account-profile-copy">
+          <p class="game-eyebrow">CREATOR SPACE</p>
+          <h1 id="game-account-title">{{ account().displayName }}</h1>
+          <p class="game-account-handle">&#64;{{ account().nameWithHost }}</p>
+          @if (accountDescriptionHTML()) {
+            <div class="game-account-description" [innerHTML]="accountDescriptionHTML()"></div>
+          } @else {
+            <p class="game-account-description">这个创作者还没有写简介。</p>
+          }
+          <div class="game-account-stats" aria-label="创作者数据">
+            <span><strong>{{ videoChannels().length }}</strong> 个频道</span>
+            <span><strong>{{ formatCount(account().followersCount) }}</strong> 位关注者</span>
+            <span><strong>{{ formatCount(videoChannels().reduce((total, channel) => total + (channel.videosCount || 0), 0)) }}</strong> 个游戏</span>
+          </div>
+        </div>
+      </div>
+      <div class="game-account-actions">
+        @if (videoChannels().length) {
+          <my-subscribe-button [account]="account()" [videoChannels]="videoChannels()" size="small"></my-subscribe-button>
+        }
+        <a routerLink="/games" class="game-account-back-link"><my-global-icon iconName="arrow-left"></my-global-icon> 返回发现</a>
+      </div>
+    </section>
+
+    <section class="game-community-content game-account-content">
+      <header class="game-section-heading">
+        <div>
+          <p class="game-eyebrow">PUBLISHED CHANNELS</p>
+          <h2>频道与作品</h2>
+          <p>从这个创作者的频道里，找到下一款想试玩的游戏。</p>
+        </div>
+      </header>
+
+      @if (videoChannels().length === 0) {
+        <div class="game-account-empty">这个创作者还没有公开频道。</div>
+      } @else {
+        <div class="game-channel-grid">
+          @for (channel of videoChannels(); track channel.id) {
+            <article class="game-channel-card">
+              <div class="game-channel-header">
+                <a [routerLink]="getChannelLink(channel)" class="game-channel-avatar" [attr.aria-label]="'打开频道：' + channel.displayName">
+                  <my-actor-avatar [actor]="channel" actorType="channel" [size]="64"></my-actor-avatar>
+                </a>
+                <div class="game-channel-copy">
+                  <p class="game-eyebrow">CHANNEL</p>
+                  <h3><a [routerLink]="getChannelLink(channel)">{{ channel.displayName }}</a></h3>
+                  <p class="game-channel-handle">&#64;{{ channel.nameWithHost }}</p>
+                </div>
+                <a [routerLink]="getChannelLink(channel)" class="game-channel-open" title="打开频道"><my-global-icon iconName="move-right"></my-global-icon></a>
+              </div>
+
+              <div class="game-channel-meta">
+                <span><my-global-icon iconName="users"></my-global-icon>{{ formatCount(channel.followersCount) }} 关注</span>
+                <span><my-global-icon iconName="play"></my-global-icon>{{ formatCount(channel.videosCount) }} 个游戏</span>
+              </div>
+
+              @if (channel.description) {
+                <p class="game-channel-description">{{ channel.description }}</p>
+              }
+
+              @if (getVideos(channel).length) {
+                <div class="game-video-grid">
+                  @for (video of getVideos(channel); track video.uuid) {
+                    <a class="game-video-card" [routerLink]="getVideoLink(video)">
+                      <div class="game-video-cover" [class.placeholder]="!getThumbnail(video)">
+                        @if (getThumbnail(video)) {
+                          <img [src]="getThumbnail(video)" [alt]="video.name + ' 封面'" loading="lazy">
+                        } @else {
+                          <span aria-hidden="true">G</span>
+                        }
+                        <span class="game-video-duration">{{ video.durationLabel }}</span>
+                      </div>
+                      <strong>{{ video.name }}</strong>
+                      <span>{{ formatCount(video.views) }} 次游玩 · {{ video.publishedAt | date: 'yyyy-MM-dd' }}</span>
+                    </a>
+                  }
+                </div>
+              } @else {
+                <div class="game-channel-empty">这个频道还没有公开作品。</div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>
