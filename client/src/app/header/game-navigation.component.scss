@@ -4,27 +4,28 @@
   justify-content: center;
   min-width: 0;
   flex: 1;
-  color: #4e5969;
+  color: var(--game-text-primary, #4e5969);
 }
 
 .game-navigation-search {
   display: flex;
   align-items: center;
-  flex: 0 1 440px;
+  flex: 0 1 480px;
   min-width: 0;
-  width: min(100%, 440px);
-  max-width: 440px;
-  background: #f1f2f3;
-  border: 1px solid #f1f2f3;
-  border-radius: 999px;
-  padding: 0.2rem 0.24rem 0.2rem 0.95rem;
+  width: min(100%, 480px);
+  max-width: 480px;
+  background: #f6f7f8;
+  border: 1px solid #e3e5e7;
+  border-radius: 0.65rem;
+  min-height: 40px;
+  padding: 0.15rem 0.2rem 0.15rem 0.9rem;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .game-navigation-search:focus-within {
   background: #fff;
-  border-color: rgb(0 174 236 / 42%);
-  box-shadow: 0 0 0 3px rgb(0 174 236 / 9%), 0 4px 14px rgb(25 30 40 / 7%);
+  border-color: rgb(0 174 236 / 52%);
+  box-shadow: 0 0 0 3px rgb(0 174 236 / 9%);
 }
 
 .game-navigation-search input {
@@ -33,7 +34,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #4e5969;
+  color: var(--game-text-primary, #4e5969);
   font-size: 0.88rem;
   padding: 0.56rem 0.55rem;
 }
@@ -44,24 +45,24 @@
 
 .game-navigation-search button {
   align-items: center;
-  background: #00aeec;
+  background: transparent;
   border: 0;
-  border-radius: 50%;
-  color: #fff;
+  border-radius: 0.45rem;
+  color: #6b7280;
   display: inline-flex;
-  height: 2rem;
+  height: 2.15rem;
   justify-content: center;
   padding: 0;
   cursor: pointer;
   transition: background-color 160ms ease, transform 160ms ease;
-  width: 2rem;
+  width: 2.55rem;
 }
 
 .game-navigation-search button:hover,
 .game-navigation-search button:focus-visible {
-  background: #008fc5;
+  background: #e5f7ff;
+  color: #008fc5;
   outline: none;
-  transform: scale(1.04);
 }
 
 .game-navigation-search my-global-icon {

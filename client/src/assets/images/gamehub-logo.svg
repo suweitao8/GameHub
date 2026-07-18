@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 512 512"
+     role="img"
+     aria-labelledby="title desc"
+     style="color:#4e5969;">
+  <title id="title">GameHub Logo</title>
+  <desc id="desc">GameHub monochrome cat logo.</desc>
+
+  <g fill="none" stroke="currentColor" stroke-width="18"
+     stroke-linecap="round" stroke-linejoin="round">
+    <path d="M122 179
+             C94 137 91 87 117 57
+             C146 24 202 69 229 101
+             C246 96 266 96 283 101
+             C311 68 367 25 395 57
+             C421 88 418 138 390 180
+             C430 219 448 270 440 323
+             C427 414 351 462 256 462
+             C160 462 85 414 72 323
+             C64 270 82 219 122 179Z"/>
+    <ellipse cx="173" cy="224" rx="84" ry="92"/>
+    <ellipse cx="339" cy="224" rx="84" ry="92"/>
+    <circle cx="152" cy="196" r="47" fill="currentColor"/>
+    <circle cx="360" cy="196" r="47" fill="currentColor"/>
+    <path d="M225 284
+             C239 271 273 271 287 284
+             C293 291 290 301 282 308
+             L263 324
+             C259 327 253 327 249 324
+             L230 308
+             C222 301 219 291 225 284Z"
+          fill="currentColor"/>
+    <path d="M256 324 L256 344"/>
+    <path d="M218 344
+             C229 355 243 360 256 360
+             C269 360 283 355 294 344
+             C306 356 314 375 308 396
+             C301 420 280 436 256 436
+             C232 436 211 420 204 396
+             C198 375 206 356 218 344Z"/>
+  </g>
+</svg>

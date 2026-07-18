@@ -28,6 +28,8 @@
 .root {
   --co-logo-size: 34px;
   --co-root-padding: 1.5rem;
+  --game-text-primary: #4e5969;
+  --game-text-secondary: #61666d;
 
   position: relative;
   color: pvar(--header-fg-500);
@@ -41,10 +43,12 @@
 }
 
 :host-context(.game-experience) .root {
+  --co-root-padding: 0.7rem 1.5rem;
+
   background: #fff;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 1px 5px rgb(25 30 40 / 5%);
-  color: #30343b;
+  color: var(--game-text-primary);
   z-index: 10;
 }
 
@@ -68,20 +72,17 @@
 .game-brand {
   display: flex;
   align-items: center;
-  min-height: 46px;
-  margin-right: 1.25rem;
-  color: #394150 !important;
+  height: 42px;
+  margin-right: 1.5rem;
+  color: var(--game-text-primary) !important;
   text-decoration: none;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.55rem;
-  font-style: italic;
-  font-weight: 800;
-  letter-spacing: -0.06em;
   white-space: nowrap;
 }
 
-.game-brand-name {
-  letter-spacing: -0.02em;
+.game-brand-logo {
+  display: block;
+  height: 42px;
+  width: 42px;
 }
 
 .game-header-left {
@@ -107,7 +108,7 @@
 .game-header-actions a {
   align-items: center;
   border-radius: 0.55rem;
-  color: #61666d !important;
+  color: var(--game-text-secondary) !important;
   display: inline-flex;
   flex-direction: column;
   font-size: 0.76rem;
@@ -437,8 +438,12 @@ my-actor-avatar {
   }
 
   .game-brand {
-    margin-right: 0.35rem;
-    font-size: 1rem;
+    margin-right: 0.75rem;
+  }
+
+  .game-brand-logo {
+    height: 36px;
+    width: 36px;
   }
 
   .game-header-actions {
