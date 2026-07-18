@@ -4,6 +4,7 @@ import { MetaGuard } from './core'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
 import { GameNotFoundComponent } from './game-not-found.component'
 import { GameAccountHomeComponent } from './game-account-home.component'
+import { GameAccountSettingsComponent } from './game-account-settings.component'
 import { GameAboutComponent } from './game-about.component'
 import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
@@ -47,11 +48,13 @@ const routes: Routes = [
 
   {
     path: 'my-account/settings',
-    component: GameAccountHomeComponent
+    component: GameAccountSettingsComponent,
+    pathMatch: 'full'
   },
   {
     path: 'my-account',
-    component: GameAccountHomeComponent
+    component: GameAccountHomeComponent,
+    pathMatch: 'full'
   },
   {
     path: 'my-library',

@@ -1,0 +1,79 @@
+@use './+games/game-community.tokens';
+
+.game-settings-page {
+  min-height: calc(100vh - 76px);
+  padding: 2rem 0 5rem;
+}
+
+.game-back-link {
+  color: var(--game-muted);
+  display: inline-block;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+}
+
+.game-back-link:hover { color: var(--game-brand-deep); }
+
+.game-settings-header { margin-bottom: 1.5rem; }
+.game-settings-header h1 { color: var(--game-text);
+  margin: 0; }
+.game-settings-header p:last-child { color: var(--game-muted);
+  margin: 0.5rem 0 0; }
+
+.game-settings-card {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
+  margin-bottom: 1rem;
+  max-width: 760px;
+  padding: 1.5rem;
+}
+
+.game-settings-card-heading { align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between; }
+.game-settings-card h2 { color: var(--game-text);
+  font-size: 1.1rem;
+  margin: 0; }
+.game-settings-card p { color: var(--game-muted);
+  margin: 0.4rem 0 0; }
+.game-settings-badge { background: var(--game-brand-soft);
+  border-radius: 999px;
+  color: var(--game-brand-deep);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.7rem; }
+.game-password-form { display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem; }
+.game-settings-submit { background: var(--game-brand);
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+  justify-self: start;
+  padding: 0.65rem 1.2rem; }
+.game-settings-submit:hover:not(:disabled) { background: var(--game-brand-hover); }
+.game-settings-submit:disabled { cursor: not-allowed;
+  opacity: 0.5; }
+.game-settings-info h2 { margin-bottom: 1rem; }
+.game-settings-links { display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-settings-links a { border: 1px solid var(--game-border);
+  border-radius: 4px;
+  color: var(--game-text);
+  padding: 0.75rem;
+  text-decoration: none; }
+.game-settings-links a:hover { border-color: var(--game-brand);
+  color: var(--game-brand-deep); }
+.game-settings-links span { float: right; }
+
+@media (max-width: 640px) {
+  .game-settings-page { padding-top: 1rem; }
+  .game-settings-card { padding: 1rem; }
+  .game-settings-links { grid-template-columns: 1fr; }
+}

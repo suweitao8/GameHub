@@ -37,6 +37,11 @@
 .game-account-empty a { color: var(--game-brand-deep);
   font-weight: 700;
   text-decoration: none; }
+.game-account-profile-unavailable { color: var(--game-muted);
+  font-size: 0.85rem; }
+.game-account-profile-actions { display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; }
 .game-account-links { display: grid;
   gap: 0.9rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
