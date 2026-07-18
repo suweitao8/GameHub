@@ -49,6 +49,10 @@ export class GameAuthorComponent implements OnInit {
     })
   }
 
+  isOwnAuthor () {
+    return this.authService.getUser()?.account?.id === this.author()?.account.id
+  }
+
   getAvatarUrl () {
     const account = this.author()?.account
     return buildGameAvatarDataUrl(account?.displayName || account?.name || '创')

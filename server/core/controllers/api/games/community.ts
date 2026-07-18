@@ -389,6 +389,7 @@ async function followAuthor (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Cannot follow yourself' })
   if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'following must be boolean' })
 
   const author = await getGameAuthor(game)
