@@ -15,7 +15,6 @@ import {
 } from 'sequelize-typescript'
 import { AccountModel } from '../account/account.js'
 import { SequelizeModel, throwIfNotValid } from '../shared/index.js'
-import { VideoModel } from '../video/video.js'
 import { getGameSortMetric } from '@server/lib/games/game-query.js'
 
 @Table({
@@ -32,17 +31,6 @@ export class GameModel extends SequelizeModel<GameModel> {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   declare uuid: string
-
-  @AllowNull(true)
-  @ForeignKey(() => VideoModel)
-  @Column
-  declare videoId: number
-
-  @BelongsTo(() => VideoModel, {
-    foreignKey: { allowNull: true },
-    onDelete: 'SET NULL'
-  })
-  declare Video: Awaited<VideoModel>
 
   @AllowNull(false)
   @ForeignKey(() => AccountModel)

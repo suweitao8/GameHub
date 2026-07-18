@@ -3,7 +3,6 @@ import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/he
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
 import { GameRuntimeValidationError, storeGameCover, storeGameRuntimePackage } from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
-import { ensureGameVideo } from '@server/lib/games/game-video-bridge.js'
 import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
@@ -523,8 +522,6 @@ async function createGame (req: express.Request, res: express.Response) {
       publishedAt: status === 'published' ? new Date() : null
     })
 
-    if (status === 'published') await ensureGameVideo(game)
-
     auditLogger.create(getAuditIdFromRes(res), new GameAuditView(formatGame(game)))
 
     return res.status(HttpStatusCode.CREATED_201).json(formatGame(game))
@@ -647,7 +644,6 @@ async function moderateGame (req: express.Request, res: express.Response) {
   game.moderatedAt = new Date()
   game.publishedAt = status === 'published' ? new Date() : null
   await game.save()
-  if (status === 'published') await ensureGameVideo(game)
   if (game.ownerAccountId !== user.Account.id) {
     await createGameNotification({
       recipientAccountId: game.ownerAccountId,
