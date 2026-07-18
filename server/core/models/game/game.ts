@@ -180,10 +180,7 @@ export class GameModel extends SequelizeModel<GameModel> {
       GameModel.findAll<MGame>({
         where,
         attributes: { include: GameModel.getPublicStatsAttributes() },
-        include: [
-          { model: AccountModel, required: true },
-          { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] }
-        ],
+        include: [ { model: AccountModel, required: true } ],
         order: order as any,
         limit: options.limit,
         offset: options.offset
@@ -195,6 +192,7 @@ export class GameModel extends SequelizeModel<GameModel> {
     return [
       [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'like\')'), 'gameLikes' ],
       [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'dislike\')'), 'gameDislikes' ],
+      [ literal('(SELECT COUNT(*) FROM "gameComment" WHERE "gameComment"."gameId" = "GameModel"."id" AND "gameComment"."deletedAt" IS NULL)'), 'gameComments' ],
       [ literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")'), 'favoriteCount' ],
       [ literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'), 'coinCount' ]
     ] as any

@@ -15,7 +15,6 @@ import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
-import { VideoModel } from '@server/models/video/video.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
@@ -89,7 +88,6 @@ function getUser (res: express.Response) {
 
 function formatGame (game: MGame) {
   const owner = (game as any).Owner
-  const video = (game as any).Video
   return {
     uuid: game.uuid,
     title: game.title,
@@ -101,8 +99,8 @@ function formatGame (game: MGame) {
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
-    comments: Number(video?.comments || 0),
-    likes: Number(game.get?.('gameLikes') ?? video?.likes ?? 0),
+    comments: Number(game.get?.('gameComments') ?? 0),
+    likes: Number(game.get?.('gameLikes') ?? 0),
     favorites: Number(game.get?.('favoriteCount') || 0),
     coins: Number(game.get?.('coinCount') || 0),
     publishedAt: game.publishedAt,
@@ -189,10 +187,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: accountId, status: 'published' },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [
-      { model: AccountModel, required: true },
-      { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] }
-    ],
+    include: [ { model: AccountModel, required: true } ],
     order: [ [ 'publishedAt', 'DESC' ] ],
     limit: 100
   })
@@ -230,7 +225,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ],
+    include: [],
     order: [ [ 'createdAt', 'DESC' ] ]
   })
   const gameIds = games.map(game => game.id)
@@ -354,7 +349,7 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes() },
-      include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ]
+      include: []
     } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
@@ -374,7 +369,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes() },
-      include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ]
+      include: []
     } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
     limit: 100
@@ -390,7 +385,7 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
   const data = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ],
+    include: [],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
   })
