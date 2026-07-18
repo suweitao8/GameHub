@@ -126,7 +126,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
-  toggleRate (rating: 'like' | 'dislike') {
+  toggleRate (rating: 'like') {
     if (!this.requireLogin()) return
     const current = this.community()
     if (!current) return

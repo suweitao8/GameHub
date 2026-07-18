@@ -19,3 +19,13 @@ export function updateCommentLikeCount (options: { liked: boolean; likes: number
 export function isGameCommentVisible (comment: { isDeleted?: boolean; deletedAt?: Date | string | null }) {
   return comment.isDeleted !== true && !comment.deletedAt
 }
+
+export type SupportedGameRating = 'like' | 'none'
+
+export function isSupportedGameRating (rating: unknown): rating is SupportedGameRating {
+  return rating === 'like' || rating === 'none'
+}
+
+export function normalizeGameRating (rating: unknown): SupportedGameRating {
+  return rating === 'like' ? 'like' : 'none'
+}

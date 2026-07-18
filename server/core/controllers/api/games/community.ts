@@ -17,7 +17,7 @@ import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
-import { canDeleteGameComment } from '../../../lib/games/game-community-policy.js'
+import { canDeleteGameComment, isSupportedGameRating, normalizeGameRating } from '../../../lib/games/game-community-policy.js'
 import { createGameNotification } from '../../../lib/games/game-notifications.js'
 
 const gameCommunityRouter = express.Router()
@@ -85,17 +85,13 @@ async function getCommunity (req: express.Request, res: express.Response) {
     ? !!await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
     : false
   const rating = user ? await userRating(user.Account.id, game.id) : null
-  const [ likes, dislikes ] = await Promise.all([
-    GameRatingModel.count({ where: { gameId: game.id, type: 'like' } }),
-    GameRatingModel.count({ where: { gameId: game.id, type: 'dislike' } })
-  ])
+  const likes = await GameRatingModel.count({ where: { gameId: game.id, type: 'like' } })
   const coinState = user ? await getCoinState(game.id, user.Account.id) : { balance: 0, given: 0 }
   const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
 
   return res.json({
     isOwner: !!user && user.Account.id === game.ownerAccountId,
     likes,
-    dislikes,
     comments: await GameCommentModel.count({ where: { gameId: game.id, deletedAt: null } }),
     rating,
     favorite,
@@ -274,21 +270,22 @@ async function reportComment (req: express.Request, res: express.Response) {
 async function rateGame (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
+  const rating = req.body.rating
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot rate their own game' })
-  if (!['like', 'dislike', 'none'].includes(req.body.rating)) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'rating must be like, dislike or none' })
+  if (!isSupportedGameRating(rating)) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'rating must be like or none' })
   }
 
   await sequelizeTypescript.transaction(async transaction => {
     const previous = await GameRatingModel.load(user.Account.id, game.id, transaction)
-    if (req.body.rating === 'none') {
+    if (rating === 'none') {
       if (previous) await previous.destroy({ transaction })
       return
     }
 
     if (previous) {
-      previous.type = req.body.rating as GameRatingType
+      previous.type = rating as GameRatingType
       await previous.save({ transaction })
       return
     }
@@ -296,10 +293,10 @@ async function rateGame (req: express.Request, res: express.Response) {
     await GameRatingModel.create({
       accountId: user.Account.id,
       gameId: game.id,
-      type: req.body.rating as GameRatingType
+      type: rating as GameRatingType
     }, { transaction })
   })
-  if (req.body.rating === 'like') {
+  if (rating === 'like') {
     await createGameNotification({
       recipientAccountId: game.ownerAccountId,
       actorAccountId: user.Account.id,
@@ -488,7 +485,7 @@ async function reportGame (req: express.Request, res: express.Response) {
 
 async function userRating (accountId: number, gameId: number) {
   const rate = await GameRatingModel.load(accountId, gameId)
-  return rate?.type || 'none'
+  return normalizeGameRating(rate?.type)
 }
 
 async function getCoinState (gameId: number, accountId: number) {

@@ -1,5 +1,11 @@
 import { expect } from 'chai'
-import { canDeleteGameComment, isGameCommentVisible, updateCommentLikeCount } from '../../../../../server/core/lib/games/game-community-policy.js'
+import {
+  canDeleteGameComment,
+  isGameCommentVisible,
+  isSupportedGameRating,
+  normalizeGameRating,
+  updateCommentLikeCount
+} from '../../../../../server/core/lib/games/game-community-policy.js'
 import { getGameSortMetric } from '../../../../../server/core/lib/games/game-query.js'
 import { isGameNotificationKind } from '../../../../../server/core/lib/games/game-notifications.js'
 
@@ -36,5 +42,14 @@ describe('Game community comment policy', function () {
     expect(isGameNotificationKind('coin')).to.equal(true)
     expect(isGameNotificationKind('moderation')).to.equal(true)
     expect(isGameNotificationKind('video-view')).to.equal(false)
+  })
+
+  it('supports likes and clearing a like but never dislikes', function () {
+    expect(isSupportedGameRating('like')).to.equal(true)
+    expect(isSupportedGameRating('none')).to.equal(true)
+    expect(isSupportedGameRating('dislike')).to.equal(false)
+    expect(normalizeGameRating('like')).to.equal('like')
+    expect(normalizeGameRating('dislike')).to.equal('none')
+    expect(normalizeGameRating(null)).to.equal('none')
   })
 })

@@ -24,7 +24,6 @@ export type Game = {
   runtimeUrl: string
   ownerAccountId: number
   likes?: number
-  dislikes?: number
   coins?: number
   favorites?: number
   author?: { id: number, name: string, displayName: string, handle: string }
@@ -69,9 +68,8 @@ export type GameNotification = {
 export type GameCommunity = {
   isOwner: boolean
   likes: number
-  dislikes: number
   comments: number
-  rating: 'like' | 'dislike' | 'none'
+  rating: 'like' | 'none'
   favorite: boolean
   following: boolean
   coins: number
@@ -132,7 +130,7 @@ export class GamesService {
     )
   }
 
-  rate (uuid: string, rating: 'like' | 'dislike' | 'none'): Observable<unknown> {
+  rate (uuid: string, rating: 'like' | 'none'): Observable<unknown> {
     return this.http.put<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rate`, { rating })
   }
 
