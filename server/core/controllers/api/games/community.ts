@@ -5,13 +5,14 @@ import { createVideoAbuse, createVideoCommentAbuse } from '@server/lib/moderatio
 import { JobQueue } from '@server/lib/job-queue/index.js'
 import { createLocalVideoComment, removeComment } from '@server/lib/video-comment.js'
 import { sendUndoFollow } from '@server/lib/activitypub/send/index.js'
-import { userRateVideo } from '@server/lib/rate.js'
 import { Notifier } from '@server/lib/notifier/index.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
+import { ActorModel } from '@server/models/actor/actor.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameCommentReactionModel } from '@server/models/game/game-comment-reaction.js'
+import { GameRatingModel, type GameRatingType } from '@server/models/game/game-rating.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { VideoCommentModel } from '@server/models/video/video-comment.js'
@@ -56,26 +57,36 @@ async function getVideoForGame (game: MGame) {
   return video ? VideoModel.loadFull(video.id) : null
 }
 
+async function getGameAuthor (game: MGame) {
+  return AccountModel.findByPk(game.ownerAccountId, {
+    include: [ { model: ActorModel, required: true } ]
+  })
+}
+
 async function getCommunity (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
-  const video = await getVideoForGame(game)
+  const [ video, author ] = await Promise.all([ getVideoForGame(game), getGameAuthor(game) ])
   const user = getUser(res)
-  const following = video?.VideoChannel?.Actor && user
-    ? !!await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, video.VideoChannel.Actor.id)
+  const following = author?.Actor && user
+    ? !!await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, author.Actor.id)
     : false
   const favorite = user
     ? !!await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
     : false
-  const rating = user && video ? await userRating(user.Account.id, video.id) : null
+  const rating = user ? await userRating(user.Account.id, game.id) : null
+  const [ likes, dislikes ] = await Promise.all([
+    GameRatingModel.count({ where: { gameId: game.id, type: 'like' } }),
+    GameRatingModel.count({ where: { gameId: game.id, type: 'dislike' } })
+  ])
   const coinState = user ? await getCoinState(game.id, user.Account.id) : { balance: 0, given: 0 }
   const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
 
   return res.json({
     videoUuid: video?.uuid || null,
-    likes: video?.likes || 0,
-    dislikes: video?.dislikes || 0,
+    likes,
+    dislikes,
     comments: video?.comments || 0,
     rating,
     favorite,
@@ -83,12 +94,12 @@ async function getCommunity (req: express.Request, res: express.Response) {
     coins: Math.max(0, totalCoins),
     coinBalance: coinState.balance,
     coinsGiven: coinState.given,
-    author: video?.VideoChannel
+    author: author
       ? {
-          id: video.VideoChannel.id,
-          name: video.VideoChannel.name,
-          displayName: video.VideoChannel.name,
-          handle: video.VideoChannel.Actor?.getIdentifier()
+          id: author.id,
+          name: author.name,
+          displayName: author.getDisplayName(),
+          handle: author.Actor?.getIdentifier()
         }
       : null
   })
@@ -257,10 +268,25 @@ async function rateGame (req: express.Request, res: express.Response) {
     return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'rating must be like, dislike or none' })
   }
 
-  const video = await getVideoForGame(game)
-  if (!video) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Game author has no video channel' })
+  await sequelizeTypescript.transaction(async transaction => {
+    const previous = await GameRatingModel.load(user.Account.id, game.id, transaction)
+    if (req.body.rating === 'none') {
+      if (previous) await previous.destroy({ transaction })
+      return
+    }
 
-  await userRateVideo({ account: user.Account, rateType: req.body.rating, video })
+    if (previous) {
+      previous.type = req.body.rating as GameRatingType
+      await previous.save({ transaction })
+      return
+    }
+
+    await GameRatingModel.create({
+      accountId: user.Account.id,
+      gameId: game.id,
+      type: req.body.rating as GameRatingType
+    }, { transaction })
+  })
   if (req.body.rating === 'like') {
     await createGameNotification({
       recipientAccountId: game.ownerAccountId,
@@ -354,9 +380,9 @@ async function followAuthor (req: express.Request, res: express.Response) {
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'following must be boolean' })
 
-  const video = await getVideoForGame(game)
-  const target = video?.VideoChannel?.Actor
-  if (!target) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Game author has no video channel' })
+  const author = await getGameAuthor(game)
+  const target = author?.Actor
+  if (!target) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Game author account is unavailable' })
 
   const existing = await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, target.id)
   if (req.body.following && !existing) {
@@ -365,7 +391,7 @@ async function followAuthor (req: express.Request, res: express.Response) {
       payload: {
         name: target.preferredUsername,
         host: null,
-        assertIsChannel: true,
+        assertIsChannel: false,
         followerActorId: user.Account.Actor.id
       }
     })
@@ -459,10 +485,8 @@ async function reportGame (req: express.Request, res: express.Response) {
   return res.status(HttpStatusCode.CREATED_201).json({ abuse: { id: result.id } })
 }
 
-async function userRating (accountId: number, videoId: number) {
-  const rate = await import('@server/models/account/account-video-rate.js').then(({ AccountVideoRateModel }) => {
-    return AccountVideoRateModel.load(accountId, videoId)
-  })
+async function userRating (accountId: number, gameId: number) {
+  const rate = await GameRatingModel.load(accountId, gameId)
   return rate?.type || 'none'
 }
 

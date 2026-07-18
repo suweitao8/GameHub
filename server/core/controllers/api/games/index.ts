@@ -102,7 +102,7 @@ function formatGame (game: MGame) {
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
     comments: Number(video?.comments || 0),
-    likes: Number(video?.likes || game.get?.('gameLikes') || 0),
+    likes: Number(game.get?.('gameLikes') ?? video?.likes ?? 0),
     favorites: Number(game.get?.('favoriteCount') || 0),
     coins: Number(game.get?.('coinCount') || 0),
     publishedAt: game.publishedAt,
@@ -216,7 +216,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
     stats: {
       games: games.length,
       plays: games.reduce((sum, game) => sum + game.playCount, 0),
-      likes: games.reduce((sum, game) => sum + Number((game as any).Video?.likes || 0), 0),
+      likes: games.reduce((sum, game) => sum + Number(game.get?.('gameLikes') || 0), 0),
       favorites,
       coins: Math.max(0, Number(coins || 0) * -1)
     },
@@ -250,7 +250,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
     storageBytes: games.reduce((sum, game) => sum + game.fileSizeBytes, 0),
     storageLimitBytes: CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES,
     plays: games.reduce((sum, game) => sum + game.playCount, 0),
-    likes: games.reduce((sum, game) => sum + Number((game as any).Video?.likes || 0), 0),
+    likes: games.reduce((sum, game) => sum + Number(game.get?.('gameLikes') || 0), 0),
     coins: Math.max(0, Number(coins || 0) * -1),
     coinBalance: Math.max(0, coinBalance),
     favorites,

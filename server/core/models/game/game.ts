@@ -165,7 +165,7 @@ export class GameModel extends SequelizeModel<GameModel> {
 
     const metric = getGameSortMetric(options.sort)
     const aggregateOrder = {
-      likes: literal('(SELECT COALESCE("video"."likes", 0) FROM "video" WHERE "video"."id" = "GameModel"."videoId")'),
+      likes: literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'like\')'),
       coins: literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'),
       favorites: literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")')
     }
@@ -193,6 +193,8 @@ export class GameModel extends SequelizeModel<GameModel> {
 
   static getPublicStatsAttributes () {
     return [
+      [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'like\')'), 'gameLikes' ],
+      [ literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'dislike\')'), 'gameDislikes' ],
       [ literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")'), 'favoriteCount' ],
       [ literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'), 'coinCount' ]
     ] as any
