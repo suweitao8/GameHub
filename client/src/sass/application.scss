@@ -223,6 +223,14 @@ my-global-icon[iconName="external-link"] {
   }
 }
 
+// The compact GameHub header uses a second row on small screens. Keep the
+// routed content below that row instead of allowing it to overlap the nav.
+@media (max-width: 760px) {
+  .game-experience > .sub-header-container {
+    margin-top: 105px !important;
+  }
+}
+
 ngx-loading-bar {
   .ngx-bar {
     height: 3px !important;

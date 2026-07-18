@@ -26,12 +26,7 @@ export class MetaService {
   }
 
   setTitle (subTitle?: string) {
-    let title = ''
-    if (subTitle) title += `${subTitle} - `
-
-    title += this.config.instance.name
-
-    this.titleService.setTitle(title)
+    this.titleService.setTitle('GameHub')
   }
 
   setDescription (description?: string) {

@@ -1,7 +1,21 @@
 <nav class="game-navigation" aria-label="游戏社区导航">
   <form class="game-navigation-search" (submit)="submitSearch($event)">
     <label class="visually-hidden" for="game-community-search">搜索游戏、作者或标签</label>
-    <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="搜索游戏、作者或标签" type="search">
+    <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="query.set($event)" (focus)="onFocus()" (blur)="onBlur()" placeholder="搜索游戏、作者或标签" type="search" autocomplete="off">
     <button type="submit" aria-label="搜索"><my-global-icon iconName="search"></my-global-icon></button>
+    @if (focused()) {
+      <section class="game-search-panel" aria-label="搜索建议" (mousedown)="$event.preventDefault()">
+        @if (history().length) {
+          <div class="game-search-panel-heading"><strong>搜索历史</strong><button type="button" (click)="clearHistory()">清空</button></div>
+          <div class="game-search-history">
+            @for (term of history(); track term) { <button type="button" (click)="selectSearch(term)">{{ term }}</button> }
+          </div>
+        }
+        <div class="game-search-panel-heading"><strong>热门搜索</strong></div>
+        <ol class="game-search-hot-list">
+          @for (term of hotKeywords; track term; let index = $index) { <li><button type="button" (click)="selectSearch(term)"><span>{{ index + 1 }}</span>{{ term }}</button></li> }
+        </ol>
+      </section>
+    }
   </form>
 </nav>

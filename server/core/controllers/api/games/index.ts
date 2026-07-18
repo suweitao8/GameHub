@@ -31,6 +31,8 @@ const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile' ], {
   'image/webp': '.webp'
 })
 
+const MAX_GAMES_PER_ACCOUNT = 10
+
 const gameFile: express.RequestHandler = (req, res, next) => {
   gameFileUpload(req, res, err => {
     if (!err) return next()
@@ -246,7 +248,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   const coinBalance = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id } }) || 0)
   return res.json({
     gameCount: games.length,
-    gameLimit: 5,
+    gameLimit: MAX_GAMES_PER_ACCOUNT,
     storageBytes: games.reduce((sum, game) => sum + game.fileSizeBytes, 0),
     storageLimitBytes: CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES,
     plays: games.reduce((sum, game) => sum + game.playCount, 0),
@@ -453,7 +455,9 @@ async function createGame (req: express.Request, res: express.Response) {
     GameModel.count({ where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } } }),
     GameModel.count({ where: { ownerAccountId: user.Account.id, createdAt: { [Op.gte]: new Date(Date.now() - 60 * 60 * 1000) } } })
   ])
-  if (maintainedGames >= 5) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Each account can maintain at most 5 games' })
+  if (maintainedGames >= MAX_GAMES_PER_ACCOUNT) {
+    return res.status(HttpStatusCode.CONFLICT_409).json({ error: `Each account can maintain at most ${MAX_GAMES_PER_ACCOUNT} games` })
+  }
   if (recentUploads >= CONFIG.GAMES.UPLOADS_PER_HOUR) return res.status(HttpStatusCode.TOO_MANY_REQUESTS_429).json({ error: 'Upload rate limit reached' })
 
   let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined

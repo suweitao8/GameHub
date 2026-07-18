@@ -89,7 +89,8 @@
 
 .game-card-time {
   color: #9499a1;
-  margin-left: auto;
+  margin-left: 0;
+  white-space: nowrap;
 }
 
 .game-card-meta {
@@ -116,4 +117,47 @@
 .game-card-stat span {
   color: #fff;
   font-size: 0.7rem;
+}
+
+@media (max-width: 720px) {
+  .game-card-body {
+    padding: 0.35rem 0 0.55rem;
+  }
+
+  .game-card h3 {
+    font-size: 0.72rem;
+  }
+
+  .game-card-author {
+    gap: 0.18rem;
+    font-size: 0.62rem;
+    min-width: 0;
+  }
+
+  .game-card-author > span:not(.game-card-time) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .author-avatar {
+    flex: 0 0 0.9rem;
+    height: 0.9rem;
+    width: 0.9rem;
+  }
+
+  .game-card-time {
+    font-size: 0.58rem;
+  }
+
+  .game-card-meta {
+    gap: 0.25rem;
+    padding: 0.8rem 0.3rem 0.3rem;
+  }
+
+  .game-card-stat {
+    font-size: 0.58rem;
+    gap: 0.1rem;
+  }
 }

@@ -51,6 +51,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly commentFeedback = signal('')
   readonly deleteTarget = signal<GameComment | null>(null)
   readonly mutedHint = signal(false)
+  readonly soundEnabled = signal(true)
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
@@ -198,6 +199,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => this.playRecordedFor = '' })
     }
     this.focusGame()
+  }
+
+  toggleGameSound () {
+    const enabled = !this.soundEnabled()
+    this.soundEnabled.set(enabled)
+    this.iframe()?.nativeElement.contentWindow?.postMessage({ type: 'gamehub:set-volume', enabled, volume: enabled ? 1 : 0 }, '*')
   }
 
   submitComment () {

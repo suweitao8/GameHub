@@ -276,7 +276,7 @@ export class GameUploadComponent implements OnDestroy {
     context.font = '800 72px Arial'
     context.fillText(this.title.trim() || 'GameHub 游戏', 72, 400)
     context.font = '600 28px Arial'
-    context.fillText(`${this.category.toUpperCase()} · HTML GAME`, 76, 465)
+    context.fillText('GameHub 网页小游戏', 76, 465)
 
     return new Promise(resolve => canvas.toBlob(blob => {
       resolve(blob ? new File([ blob ], 'gamehub-auto-cover.png', { type: 'image/png' }) : null)
@@ -292,7 +292,7 @@ export class GameUploadComponent implements OnDestroy {
         ? candidate.error
         : candidate.message || ''
     return {
-      'Each account can maintain at most 5 games': '每个账号最多维护 5 个游戏，请先下架旧作品。',
+      'Each account can maintain at most 10 games': '每个账号最多维护 10 个游戏，请先下架旧作品。',
       'Upload rate limit reached': '上传操作过于频繁，请稍后再试。',
       'Account game storage quota reached': '游戏存储空间已用完，请先删除或下架旧作品。'
     }[message] || message

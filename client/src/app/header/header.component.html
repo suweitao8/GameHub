@@ -67,10 +67,19 @@
           </button>
           @if (gameAvatarHoverVisible()) {
             <div class="game-avatar-hover-card" role="menu" aria-label="个人菜单">
-              <a role="menuitem" [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()">个人主页</a>
-              <a role="menuitem" routerLink="/my-account" (click)="cancelGameAvatarHover()">个人中心</a>
-              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()">我的收藏</a>
-              <a role="menuitem" routerLink="/games/creator" (click)="cancelGameAvatarHover()">创作中心</a>
+              <div class="game-avatar-profile">
+                <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
+                <div class="game-avatar-profile-copy"><strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong><span>&#64;{{ user?.account?.name || user?.username || 'gamehub' }}</span></div>
+                <span class="game-avatar-badge">GameHub</span>
+              </div>
+              <div class="game-avatar-stats"><span><strong>0</strong>关注</span><span><strong>0</strong>粉丝</span><span><strong>0</strong>动态</span></div>
+              <div class="game-avatar-promo"><strong>开始创作你的 HTML 游戏</strong><span>上传作品，和玩家一起试玩</span></div>
+              <a role="menuitem" [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()"><my-global-icon iconName="user" aria-hidden="true"></my-global-icon>个人主页<span aria-hidden="true">›</span></a>
+              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="like" aria-hidden="true"></my-global-icon>我的收藏<span aria-hidden="true">›</span></a>
+              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'recent' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="history" aria-hidden="true"></my-global-icon>游戏历史<span aria-hidden="true">›</span></a>
+              <a role="menuitem" routerLink="/games/creator" (click)="cancelGameAvatarHover()"><my-global-icon iconName="upload" aria-hidden="true"></my-global-icon>创作中心<span aria-hidden="true">›</span></a>
+              <div class="game-avatar-menu-divider"></div>
+              <button type="button" role="menuitem" (click)="logout($event)"><my-global-icon iconName="sign-out" aria-hidden="true"></my-global-icon>退出登录</button>
             </div>
           }
         } @else {

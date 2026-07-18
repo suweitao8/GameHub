@@ -29,6 +29,10 @@
   margin-top: pvar(--header-height);
   background-color: pvar(--bg);
   width: 100%;
+
+  @media (max-width: 760px) {
+    margin-top: 105px !important;
+  }
 }
 
 .game-experience {

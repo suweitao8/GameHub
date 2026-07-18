@@ -50,8 +50,9 @@
 }
 
 .game-community-content {
-  width: min(100% - 2rem, var(--game-content-width));
+  max-width: var(--game-content-width);
   margin: 0 auto;
+  width: calc(100% - 100px);
 }
 
 .game-eyebrow {
@@ -92,6 +93,6 @@
 
 @media (max-width: 640px) {
   .game-community-content {
-    width: min(100% - 1rem, var(--game-content-width));
+    width: calc(100% - 32px);
   }
 }
