@@ -94,7 +94,9 @@ function formatGame (game: MGame) {
     instructions: game.instructions,
     category: game.category,
     tags: formatGameTags(game.tags),
-    coverPath: game.coverPath ? new URL(`/api/v1/games/${game.uuid}/cover`, CONFIG.GAMES.RUNTIME_ORIGIN).toString() : null,
+    coverPath: game.status === 'published' && game.coverPath
+      ? new URL(`/api/v1/games/${game.uuid}/cover`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+      : null,
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
