@@ -22,8 +22,8 @@ const routes: Routes = [
   },
   {
     path: 'my-library',
-    loadChildren: () => import('./+my-library/routes'),
-    canActivateChild: [ MetaGuard ]
+    redirectTo: '/games',
+    pathMatch: 'prefix'
   },
   {
     path: 'verify-account',
@@ -45,24 +45,25 @@ const routes: Routes = [
 
   {
     path: 'video-channels',
-    redirectTo: 'c'
+    redirectTo: '/games',
+    pathMatch: 'prefix'
   },
   {
     path: 'c',
-    loadChildren: () => import('./+video-channels/routes'),
-    canActivateChild: [ MetaGuard ]
+    redirectTo: '/games',
+    pathMatch: 'prefix'
   },
 
   {
     path: 'manage/create',
-    redirectTo: '/my-library/video-channels/create',
+    redirectTo: '/games/creator',
     pathMatch: 'full'
   },
 
   {
     path: 'manage/update/:channel',
     pathMatch: 'full',
-    redirectTo: '/my-library/video-channels/update/:channel'
+    redirectTo: '/games/creator'
   },
 
   // ---------------------------------------------------------------------------
