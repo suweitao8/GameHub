@@ -19,7 +19,7 @@ import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, pa
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
-import { Op } from 'sequelize'
+import { literal, Op } from 'sequelize'
 import { dirname, relative, resolve, sep } from 'path'
 import { runtimeRouter } from './runtime.js'
 import { gameCommunityRouter } from './community.js'
@@ -183,11 +183,17 @@ async function getAuthor (req: express.Request, res: express.Response) {
   if (!Number.isInteger(accountId) || accountId < 1) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   const account = await AccountModel.load(accountId)
   if (!account?.Actor) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  const sort = req.query.sort === 'plays' || req.query.sort === 'favorites' ? req.query.sort : 'latest'
+  const order = sort === 'plays'
+    ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+    : sort === 'favorites'
+      ? [ [ literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")'), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+      : [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: accountId, status: 'published' },
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [ { model: AccountModel, required: true } ],
-    order: [ [ 'publishedAt', 'DESC' ] ],
+    order: order as any,
     limit: 100
   })
   const [ favorites, coins ] = await Promise.all([

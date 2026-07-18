@@ -223,8 +223,8 @@ export class GamesService {
     return this.http.get<GameList>(`${GamesService.BASE_URL}/me/owned`)
   }
 
-  author (accountId: string): Observable<GameAuthor> {
-    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}`)
+  author (accountId: string, sort: 'latest' | 'plays' | 'favorites' = 'latest'): Observable<GameAuthor> {
+    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`)
   }
 
   creatorOverview (): Observable<GameCreatorOverview> {

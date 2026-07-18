@@ -18,11 +18,39 @@
       </div>
     </section>
     <div class="game-community-content author-content">
-      <nav class="author-tabs" aria-label="作者空间导航"><a class="active" href="#home">主页</a><a href="#activity">动态</a><a href="#games">投稿 <span>{{ author()!.stats.games }}</span></a><a href="#collections">合集</a></nav>
+      <nav class="author-tabs" aria-label="作者空间导航">
+        <button type="button" [class.active]="tab() === 'home'" (click)="selectTab('home')">主页</button>
+        <button type="button" [class.active]="tab() === 'activity'" (click)="selectTab('activity')">动态</button>
+        <button type="button" [class.active]="tab() === 'games'" (click)="selectTab('games')">投稿 <span>{{ author()!.stats.games }}</span></button>
+        <button type="button" [class.active]="tab() === 'collections'" (click)="selectTab('collections')">合集</button>
+      </nav>
+      @if (tab() === 'activity') {
+        <section class="author-tab-panel author-activity-panel">
+          <div class="author-section-heading"><div><h2>作品动态</h2><p>记录 {{ author()!.account.displayName }} 最近发布和维护的游戏。</p></div></div>
+          <div class="author-activity-list">
+            @for (game of author()!.data; track game.uuid) {
+              <a class="author-activity-item" [routerLink]="['/games', game.uuid]"><span class="author-activity-date">{{ (game.publishedAt || game.createdAt) | date:'yyyy-MM-dd' }}</span><strong>发布了《{{ game.title }}》</strong><span>{{ game.description || '查看这个网页小游戏。' }}</span></a>
+            } @empty { <p class="author-empty">暂时还没有作品动态。</p> }
+          </div>
+        </section>
+      } @else if (tab() === 'collections') {
+        <section class="author-tab-panel">
+          <div class="author-section-heading"><div><h2>作品合集</h2><p>按游戏类型整理 {{ author()!.account.displayName }} 的作品。</p></div></div>
+          <div class="author-collections">
+            @for (collection of collections(); track collection.category) {
+              <section class="author-collection"><header><h3>{{ categoryLabel(collection.category) }}</h3><span>{{ collection.games.length }} 个作品</span></header><div class="game-grid">@for (game of collection.games; track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+            } @empty { <p class="author-empty">作者还没有可展示的合集。</p> }
+          </div>
+        </section>
+      } @else {
       <div class="author-layout">
         <section class="author-main" id="home">
-          <div class="author-section-heading"><div><h2>发布的游戏</h2><p>探索 {{ author()!.account.displayName }} 的 HTML 小游戏作品</p></div><span>{{ author()!.stats.games }} 个作品</span></div>
-          <div class="author-filter-row"><button type="button" class="active">最新发布</button><button type="button">最多游玩</button><button type="button">最多收藏</button></div>
+          <div class="author-section-heading"><div><h2>{{ tab() === 'games' ? '发布的游戏' : '作者主页' }}</h2><p>{{ tab() === 'games' ? '探索作者发布的 HTML 小游戏作品' : '从作者主页开始，发现值得试玩的作品。' }}</p></div><span>{{ author()!.stats.games }} 个作品</span></div>
+          <div class="author-filter-row" role="group" aria-label="作品排序">
+            <button type="button" [class.active]="sort() === 'latest'" (click)="selectSort('latest')">最新发布</button>
+            <button type="button" [class.active]="sort() === 'plays'" (click)="selectSort('plays')">最多游玩</button>
+            <button type="button" [class.active]="sort() === 'favorites'" (click)="selectSort('favorites')">最多收藏</button>
+          </div>
           <div class="game-grid">@for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }</div>
         </section>
         <aside class="author-sidebar">
@@ -30,6 +58,7 @@
           <section class="author-side-card"><h2>创作数据</h2><dl><div><dt>总游玩</dt><dd>{{ author()!.stats.plays }}</dd></div><div><dt>获赞</dt><dd>{{ author()!.stats.likes }}</dd></div><div><dt>投币</dt><dd>{{ author()!.stats.coins }}</dd></div></dl></section>
         </aside>
       </div>
+      }
     </div>
   }
 </main>

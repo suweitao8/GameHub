@@ -1,15 +1,19 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { DatePipe } from '@angular/common'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
-import { GameAuthor, GamesService } from './games.service'
+import { Game, GameAuthor, GamesService } from './games.service'
+import { combineLatest } from 'rxjs'
+
+type AuthorTab = 'home' | 'activity' | 'games' | 'collections'
 
 @Component({
   templateUrl: './game-author.component.html',
   styleUrl: './game-author.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink ]
+  imports: [ GameCardComponent, RouterLink, DatePipe ]
 })
 export class GameAuthorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
@@ -20,15 +24,47 @@ export class GameAuthorComponent implements OnInit {
   readonly loading = signal(true)
   readonly error = signal(false)
   readonly followLoading = signal(false)
+  readonly sort = signal<'latest' | 'plays' | 'favorites'>('latest')
+  readonly tab = signal<AuthorTab>('home')
+  readonly collections = computed(() => {
+    const groups = new Map<string, Game[]>()
+    for (const game of this.author()?.data || []) {
+      const category = game.category || 'other'
+      groups.set(category, [ ...(groups.get(category) || []), game ])
+    }
+
+    return [ ...groups.entries() ].map(([ category, games ]) => ({ category, games }))
+  })
 
   ngOnInit () {
-    this.route.paramMap.subscribe(params => {
+    combineLatest([ this.route.paramMap, this.route.queryParamMap ]).subscribe(([ params, query ]) => {
       const accountId = params.get('accountId')
       if (!accountId) return
-      this.gamesService.author(accountId).subscribe({
-        next: value => { this.author.set(value); this.loading.set(false) },
-        error: () => { this.error.set(true); this.loading.set(false) }
-      })
+      const sort = query.get('sort')
+      this.sort.set(sort === 'plays' || sort === 'favorites' ? sort : 'latest')
+      const tab = query.get('tab')
+      this.tab.set(tab === 'activity' || tab === 'games' || tab === 'collections' ? tab : 'home')
+      this.loadAuthor(accountId)
+    })
+  }
+
+  selectTab (tab: AuthorTab) {
+    if (this.tab() === tab) return
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab === 'home' ? null : tab },
+      queryParamsHandling: 'merge'
+    })
+  }
+
+  selectSort (sort: 'latest' | 'plays' | 'favorites') {
+    if (this.sort() === sort) return
+
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { sort: sort === 'latest' ? null : sort },
+      queryParamsHandling: 'merge'
     })
   }
 
@@ -56,5 +92,25 @@ export class GameAuthorComponent implements OnInit {
   getAvatarUrl () {
     const account = this.author()?.account
     return buildGameAvatarDataUrl(account?.displayName || account?.name || '创')
+  }
+
+  categoryLabel (category: string) {
+    return {
+      arcade: '动作',
+      puzzle: '解谜',
+      casual: '休闲',
+      strategy: '策略',
+      horror: '恐怖',
+      other: '其他'
+    }[category] || category
+  }
+
+  private loadAuthor (accountId: string) {
+    this.loading.set(true)
+    this.error.set(false)
+    this.gamesService.author(accountId, this.sort()).subscribe({
+      next: value => { this.author.set(value); this.loading.set(false) },
+      error: () => { this.error.set(true); this.loading.set(false) }
+    })
   }
 }
