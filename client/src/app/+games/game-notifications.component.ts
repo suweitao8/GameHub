@@ -2,6 +2,8 @@ import { DatePipe } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { RouterLink } from '@angular/router'
+import { getGameActionErrorMessage } from './game-action-feedback'
+import { markAllGameNotificationsRead, markGameNotificationRead } from './game-notification-state'
 import { GameNotification, GamesService } from './games.service'
 
 type NotificationFilter = 'all' | 'comment' | 'like' | 'coin' | 'favorite' | 'follow' | 'moderation'
@@ -20,6 +22,9 @@ export class GameNotificationsComponent implements OnInit {
   readonly unread = signal(0)
   readonly loading = signal(true)
   readonly error = signal('')
+  readonly feedback = signal('')
+  readonly notificationLoading = signal<number | null>(null)
+  readonly markAllLoading = signal(false)
   readonly visibleNotifications = computed(() => {
     const filter = this.selectedFilter()
     return filter === 'all'
@@ -34,6 +39,7 @@ export class GameNotificationsComponent implements OnInit {
   }
 
   load () {
+    this.feedback.set('')
     if (!this.authService.isLoggedIn()) {
       this.error.set('请先登录后查看 GameHub 消息。')
       this.loading.set(false)
@@ -47,29 +53,43 @@ export class GameNotificationsComponent implements OnInit {
         this.unread.set(result.unread)
         this.loading.set(false)
       },
-      error: () => {
-        this.error.set('请先登录后查看 GameHub 消息。')
+      error: error => {
+        this.error.set(getGameActionErrorMessage(error))
         this.loading.set(false)
       }
     })
   }
 
   markRead (notification: GameNotification) {
-    if (notification.read) return
+    if (notification.read || this.notificationLoading() !== null || this.markAllLoading()) return
+    this.notificationLoading.set(notification.id)
     this.gamesService.markNotificationRead(notification.id).subscribe({
       next: () => {
-        notification.read = true
-        this.unread.update(value => Math.max(0, value - 1))
+        const result = markGameNotificationRead(this.notifications(), notification.id)
+        this.notifications.set(result.notifications)
+        if (result.changed) this.unread.update(value => Math.max(0, value - 1))
+        this.notificationLoading.set(null)
+      },
+      error: error => {
+        this.feedback.set(getGameActionErrorMessage(error))
+        this.notificationLoading.set(null)
       }
     })
   }
 
   markAllRead () {
     if (!this.unread()) return
+    if (this.markAllLoading()) return
+    this.markAllLoading.set(true)
     this.gamesService.markAllNotificationsRead().subscribe({
       next: () => {
-        this.notifications.update(items => items.map(item => ({ ...item, read: true })))
+        this.notifications.set(markAllGameNotificationsRead(this.notifications()))
         this.unread.set(0)
+        this.markAllLoading.set(false)
+      },
+      error: error => {
+        this.feedback.set(getGameActionErrorMessage(error))
+        this.markAllLoading.set(false)
       }
     })
   }

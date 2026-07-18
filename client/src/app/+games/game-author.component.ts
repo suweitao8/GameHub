@@ -4,6 +4,7 @@ import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
+import { getGameActionErrorMessage } from './game-action-feedback'
 import { Game, GameAuthor, GamesService } from './games.service'
 import { combineLatest } from 'rxjs'
 
@@ -24,6 +25,7 @@ export class GameAuthorComponent implements OnInit {
   readonly loading = signal(true)
   readonly error = signal(false)
   readonly followLoading = signal(false)
+  readonly actionFeedback = signal('')
   readonly sort = signal<'latest' | 'plays' | 'favorites'>('latest')
   readonly tab = signal<AuthorTab>('home')
   readonly collections = computed(() => {
@@ -75,13 +77,17 @@ export class GameAuthorComponent implements OnInit {
       void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
       return
     }
+    this.actionFeedback.set('')
     this.followLoading.set(true)
     this.gamesService.followAuthor(current.account.id, !current.following).subscribe({
       next: result => {
         this.author.update(value => value ? { ...value, following: result.following } : value)
         this.followLoading.set(false)
       },
-      error: () => this.followLoading.set(false)
+      error: error => {
+        this.actionFeedback.set(getGameActionErrorMessage(error))
+        this.followLoading.set(false)
+      }
     })
   }
 

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
+import { getGameActionErrorMessage } from './game-action-feedback'
 import { GamesService, Game } from './games.service'
 
 @Component({
@@ -12,6 +13,8 @@ export class GameManageComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   readonly games = signal<Game[]>([])
   readonly error = signal('')
+  readonly feedback = signal('')
+  readonly moderating = signal<string | null>(null)
   readonly ownerView = signal(false)
 
   ngOnInit () {
@@ -25,9 +28,26 @@ export class GameManageComponent implements OnInit {
   }
 
   moderate (game: Game, action: 'approve' | 'reject' | 'unlist' | 'block') {
+    const actionKey = `${game.uuid}:${action}`
+    if (this.moderating()) return
+    this.error.set('')
+    this.feedback.set('')
+    this.moderating.set(actionKey)
     this.gamesService.moderate(game.uuid, action).subscribe({
-      next: updated => this.games.update(items => items.map(item => item.uuid === updated.uuid ? updated : item))
+      next: updated => {
+        this.games.update(items => items.map(item => item.uuid === updated.uuid ? updated : item))
+        this.feedback.set({ approve: '游戏已发布。', reject: '游戏已退回。', unlist: '游戏已下架。', block: '游戏已封禁。' }[action])
+        this.moderating.set(null)
+      },
+      error: error => {
+        this.error.set(getGameActionErrorMessage(error))
+        this.moderating.set(null)
+      }
     })
+  }
+
+  isModerating (game: Game, action: 'approve' | 'reject' | 'unlist' | 'block') {
+    return this.moderating() === `${game.uuid}:${action}`
   }
 
   statusLabel (status: Game['status']) {

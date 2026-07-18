@@ -3,6 +3,7 @@
   <p class="eyebrow">MODERATION QUEUE</p>
   <h1>{{ ownerView() ? '我的游戏管理' : '游戏审核' }}</h1>
   @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+  @if (feedback()) { <p class="form-success" role="status">{{ feedback() }}</p> }
   <div class="manage-list">
     @for (game of games(); track game.uuid) {
       <article class="manage-card">
@@ -13,11 +14,11 @@
         </div>
         <div class="manage-actions">
           @if (game.status === 'pending') {
-            <button type="button" (click)="moderate(game, 'approve')">发布</button>
-            <button type="button" (click)="moderate(game, 'reject')">退回</button>
+            <button type="button" [disabled]="moderating() !== null" (click)="moderate(game, 'approve')">{{ isModerating(game, 'approve') ? '发布中…' : '发布' }}</button>
+            <button type="button" [disabled]="moderating() !== null" (click)="moderate(game, 'reject')">{{ isModerating(game, 'reject') ? '退回中…' : '退回' }}</button>
           }
           @if (game.status === 'published') {
-            @if (!ownerView()) { <button type="button" (click)="moderate(game, 'unlist')">下架</button><button type="button" (click)="moderate(game, 'block')">封禁</button> }
+            @if (!ownerView()) { <button type="button" [disabled]="moderating() !== null" (click)="moderate(game, 'unlist')">{{ isModerating(game, 'unlist') ? '下架中…' : '下架' }}</button><button type="button" [disabled]="moderating() !== null" (click)="moderate(game, 'block')">{{ isModerating(game, 'block') ? '封禁中…' : '封禁' }}</button> }
             <a [routerLink]="['/games/edit', game.uuid]">编辑</a>
           }
           @if (ownerView() && game.status !== 'unlisted') { <a [routerLink]="['/games/edit', game.uuid]">编辑</a> }

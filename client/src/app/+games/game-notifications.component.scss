@@ -43,6 +43,8 @@
   color: var(--game-brand-deep); }
 .notification-categories .mark-all:disabled { cursor: default;
   opacity: 0.55; }
+.notification-feedback { color: var(--game-danger);
+  margin: 16px 0 0; }
 
 .notification-stream {
   margin-top: 20px;

@@ -14,7 +14,7 @@
             <p>&#64;{{ author()!.account.handle }} · {{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
           </div>
         </div>
-        @if (!isOwnAuthor()) { <button type="button" class="follow-button" [class.following]="author()!.following" [disabled]="followLoading()" (click)="toggleFollow()">{{ author()!.following ? '已关注' : '+ 关注' }}</button> }
+        @if (!isOwnAuthor()) { <div class="follow-action"> <button type="button" class="follow-button" [class.following]="author()!.following" [disabled]="followLoading()" (click)="toggleFollow()">{{ followLoading() ? '处理中…' : author()!.following ? '已关注' : '+ 关注' }}</button> @if (actionFeedback()) { <p class="author-feedback" role="alert">{{ actionFeedback() }}</p> } </div> }
       </div>
     </section>
     <div class="game-community-content author-content">

@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, isSupportedGameRuntimeFilename } from '../../../../client/src/app/+games/games-api.js'
 import { getGameActionErrorMessage } from '../../../../client/src/app/+games/game-action-feedback.js'
+import { markAllGameNotificationsRead, markGameNotificationRead } from '../../../../client/src/app/+games/game-notification-state.js'
 
 describe('Games client API contract', function () {
   it('builds encoded list and runtime URLs without string-concatenating ids', function () {
@@ -45,5 +46,18 @@ describe('Games client API contract', function () {
     expect(isSupportedGameRuntimeFilename('assets/game.zip')).to.equal(true)
     expect(isSupportedGameRuntimeFilename('game.zip.exe')).to.equal(false)
     expect(isSupportedGameRuntimeFilename('readme.md')).to.equal(false)
+  })
+
+  it('updates notification read state without mutating the source list', function () {
+    const source = [
+      { id: 1, read: false },
+      { id: 2, read: true }
+    ] as any
+    const result = markGameNotificationRead(source, 1)
+
+    expect(result.changed).to.equal(true)
+    expect(result.notifications).to.deep.equal([ { id: 1, read: true }, { id: 2, read: true } ])
+    expect(source[0].read).to.equal(false)
+    expect(markAllGameNotificationsRead(source)).to.deep.equal([ { id: 1, read: true }, { id: 2, read: true } ])
   })
 })
