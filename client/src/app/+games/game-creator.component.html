@@ -12,7 +12,7 @@
         <article><span>总收藏</span><strong>{{ overview()!.favorites }}</strong></article>
         <article><span>总获赞</span><strong>{{ overview()!.likes }}</strong></article>
         <article><span>粉丝</span><strong>{{ overview()!.followers }}</strong><small>关注你的用户</small></article>
-        <article><span>审核记录</span><strong>查看管理</strong></article>
+        <a class="metric-card-link" routerLink="/games/manage"><span>审核记录</span><strong>查看管理</strong></a>
       </section>
       <section class="creator-shortcuts"><a routerLink="/games/manage">游戏管理 <span>查看审核状态 →</span></a><a routerLink="/games/library" [queryParams]="{ tab: 'owned' }">我的作品 <span>编辑信息 →</span></a><a routerLink="/games/upload">投稿指南 <span>了解单文件规范 →</span></a><a routerLink="/games/notifications">评论管理 <span>处理评论和回复 →</span></a><a routerLink="/games/creator">数据中心 <span>查看互动指标 →</span></a><a routerLink="/my-account/settings">账号额度 <span>调整账号设置 →</span></a></section>
       <section class="creator-activity"><div class="game-section-heading"><div><p class="game-eyebrow">RECENT COMMUNITY</p><h2>最近评论</h2></div><a routerLink="/games/notifications">查看全部 →</a></div>@if (recentNotifications().length) { @for (item of recentNotifications(); track item.id) { <a class="activity-item" [routerLink]="item.game ? ['/games', item.game.uuid] : ['/games/notifications']"><strong>{{ item.message }}</strong><span>{{ item.game?.title || 'GameHub 消息' }}</span></a> } } @else { <p class="creator-empty">暂时没有新的评论互动。</p> }</section>
