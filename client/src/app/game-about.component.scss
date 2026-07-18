@@ -1,0 +1,114 @@
+@use './+games/game-community.tokens';
+
+.game-about-page { padding-bottom: 4rem; }
+.game-about-hero { align-items: center;
+  background: linear-gradient(135deg, #e5f7ff, #fff 54%, #fff1f6);
+  border: 1px solid var(--game-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  margin: 2rem 0 1.2rem;
+  overflow: hidden;
+  padding: clamp(1.6rem, 4vw, 3.4rem); }
+.game-about-hero h1 { color: var(--game-text);
+  font-size: clamp(2rem, 4.5vw, 3.7rem);
+  line-height: 1.12;
+  margin: 0;
+  max-width: 760px; }
+.game-about-hero p:not(.game-eyebrow) { color: var(--game-muted);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin: 1rem 0 0;
+  max-width: 650px; }
+.game-about-actions { display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.5rem; }
+.game-about-actions a { border-radius: 6px;
+  display: inline-flex;
+  font-weight: 700;
+  padding: 0.75rem 1.2rem;
+  text-decoration: none; }
+.game-about-primary { background: var(--game-brand);
+  color: #fff; }
+.game-about-secondary { background: #fff;
+  border: 1px solid var(--game-border);
+  color: var(--game-text); }
+.game-about-orbit { aspect-ratio: 1;
+  background: radial-gradient(circle, rgb(255 255 255 / 90%) 0 22%, transparent 23%), conic-gradient(from 30deg, #00aeec, #83d9f5, #fb7299, #00aeec);
+  border: 14px solid rgb(255 255 255 / 65%);
+  border-radius: 50%;
+  box-shadow: 0 18px 42px rgb(0 80 120 / 15%);
+  display: grid;
+  margin: auto;
+  padding: 1.1rem;
+  place-content: center;
+  position: relative;
+  transform: rotate(-12deg);
+  width: min(100%, 220px); }
+.game-about-orbit::after { border: 1px dashed rgb(255 255 255 / 70%);
+  border-radius: 50%;
+  content: '';
+  inset: 18%;
+  position: absolute; }
+.game-about-orbit span { color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+  text-align: center; }
+.game-about-stats { display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-about-stats article,
+.game-about-card,
+.game-about-rules { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  padding: 1.2rem; }
+.game-about-stats strong { color: var(--game-text);
+  display: block;
+  font-size: 1.05rem; }
+.game-about-stats span { color: var(--game-muted);
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  margin-top: 0.45rem; }
+.game-about-columns { display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.8rem; }
+.game-about-card h2,
+.game-about-rules h2 { color: var(--game-text);
+  font-size: 1.25rem;
+  margin: 0.25rem 0 0.75rem; }
+.game-about-card ul { color: var(--game-muted);
+  display: grid;
+  gap: 0.55rem;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+  padding-left: 1.1rem; }
+.game-about-card a { color: var(--game-brand-deep);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none; }
+.game-about-rules { align-items: center;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.8fr);
+  margin-top: 0.8rem; }
+.game-about-rules p:not(.game-eyebrow) { color: var(--game-muted);
+  line-height: 1.7;
+  margin: 0; }
+.game-about-rule-list { display: grid;
+  gap: 0.55rem; }
+.game-about-rule-list span { background: var(--game-brand-soft);
+  border-radius: 6px;
+  color: var(--game-brand-deep);
+  font-size: 0.86rem;
+  padding: 0.65rem 0.8rem; }
+
+@media (max-width: 700px) { .game-about-hero { grid-template-columns: 1fr; } .game-about-orbit { width: 150px; } .game-about-stats,
+  .game-about-columns,
+  .game-about-rules { grid-template-columns: 1fr; } }

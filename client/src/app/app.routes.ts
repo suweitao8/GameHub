@@ -4,6 +4,7 @@ import { MetaGuard } from './core'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
 import { GameNotFoundComponent } from './game-not-found.component'
 import { GameAccountHomeComponent } from './game-account-home.component'
+import { GameAboutComponent } from './game-about.component'
 import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 
@@ -24,10 +25,22 @@ const legacyAdminMatcher: UrlMatcher = url => {
   return { consumed: url }
 }
 
+const gameAboutMatcher: UrlMatcher = url => {
+  if (!url.length || url[0].path !== 'about') return null
+
+  return { consumed: url }
+}
+
 const routes: Routes = [
   {
     matcher: legacyAdminMatcher,
     component: LegacyFeaturePlaceholderComponent
+  },
+
+  {
+    matcher: gameAboutMatcher,
+    component: GameAboutComponent,
+    data: { meta: { title: $localize`About GameHub` } }
   },
 
   // ---------------------------------------------------------------------------
@@ -96,11 +109,6 @@ const routes: Routes = [
     }
   },
 
-  {
-    path: 'about',
-    loadChildren: () => import('./+about/routes'),
-    canActivateChild: [ MetaGuard ]
-  },
   {
     path: 'signup',
     loadChildren: () => import('./+signup/+register/routes'),
