@@ -2,6 +2,7 @@ import { Routes, UrlMatchResult, UrlMatcher } from '@angular/router'
 import { AVAILABLE_LOCALES } from '@peertube/peertube-core-utils'
 import { MetaGuard } from './core'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
+import { GameNotFoundComponent } from './game-not-found.component'
 import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 
@@ -181,7 +182,7 @@ for (const locale of AVAILABLE_LOCALES) {
 
 routes.push({
   path: '**',
-  loadChildren: () => import('./+error-page/routes')
+  component: GameNotFoundComponent
 })
 
 export default routes

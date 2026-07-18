@@ -280,9 +280,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isGameExperienceUrl (url: string) {
     const path = url.split('?')[0]
-    const isGameAccountChannelsPage = /^\/a\/[^/]+\/video-channels$/.test(path)
+    const isInternalPeerTubePage = path.startsWith('/admin') || path.startsWith('/my-account') || path.startsWith('/p')
 
-    return path === '/' || path === '/home' || path.startsWith('/games') || path.startsWith('/search') || isGameAccountChannelsPage
+    return !isInternalPeerTubePage
   }
 
   private async injectBroadcastMessage () {

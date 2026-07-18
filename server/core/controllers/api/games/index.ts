@@ -230,7 +230,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
 async function getCreatorOverview (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   const games = await GameModel.findAll<MGame>({
-    where: { ownerAccountId: user.Account.id },
+    where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } },
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [],
     order: [ [ 'createdAt', 'DESC' ] ]

@@ -15,6 +15,8 @@ export class GameManageComponent implements OnInit {
   readonly error = signal('')
   readonly feedback = signal('')
   readonly moderating = signal<string | null>(null)
+  readonly removeTarget = signal<string | null>(null)
+  readonly removing = signal<string | null>(null)
   readonly ownerView = signal(false)
 
   ngOnInit () {
@@ -48,6 +50,34 @@ export class GameManageComponent implements OnInit {
 
   isModerating (game: Game, action: 'approve' | 'reject' | 'unlist' | 'block') {
     return this.moderating() === `${game.uuid}:${action}`
+  }
+
+  requestRemove (game: Game) {
+    if (!this.ownerView() || this.removing() || this.moderating()) return
+    if (this.removeTarget() !== game.uuid) {
+      this.removeTarget.set(game.uuid)
+      return
+    }
+
+    this.removeTarget.set(null)
+    this.removing.set(game.uuid)
+    this.error.set('')
+    this.feedback.set('')
+    this.gamesService.remove(game.uuid).subscribe({
+      next: () => {
+        this.games.update(items => items.filter(item => item.uuid !== game.uuid))
+        this.feedback.set('游戏已下架，可在管理员审核后重新发布。')
+        this.removing.set(null)
+      },
+      error: error => {
+        this.error.set(getGameActionErrorMessage(error))
+        this.removing.set(null)
+      }
+    })
+  }
+
+  isRemoving (game: Game) {
+    return this.removing() === game.uuid
   }
 
   statusLabel (status: Game['status']) {

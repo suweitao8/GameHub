@@ -313,8 +313,15 @@ export class GameUploadComponent implements OnDestroy {
   private getUploadError (error: unknown) {
     if (!error || typeof error !== 'object') return ''
     const candidate = error as { error?: { error?: string } | string, message?: string }
-    if (typeof candidate.error === 'object' && candidate.error?.error) return candidate.error.error
-    if (typeof candidate.error === 'string') return candidate.error
-    return candidate.message || ''
+    const message = typeof candidate.error === 'object' && candidate.error?.error
+      ? candidate.error.error
+      : typeof candidate.error === 'string'
+        ? candidate.error
+        : candidate.message || ''
+    return {
+      'Each account can maintain at most 5 games': '每个账号最多维护 5 个游戏，请先下架旧作品。',
+      'Upload rate limit reached': '上传操作过于频繁，请稍后再试。',
+      'Account game storage quota reached': '游戏存储空间已用完，请先删除或下架旧作品。'
+    }[message] || message
   }
 }

@@ -29,7 +29,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly frameLoading = signal(true)
   readonly runtimeUrl = signal<SafeResourceUrl | null>(null)
   readonly community = signal<GameCommunity | null>(null)
+  readonly communityError = signal('')
   readonly comments = signal<GameComment[]>([])
+  readonly commentsLoading = signal(true)
+  readonly commentsError = signal('')
   readonly commentDraft = signal('')
   readonly replyTo = signal<number | null>(null)
   readonly reportReason = signal('')
@@ -74,7 +77,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.frameLoading.set(true)
     this.runtimeUrl.set(null)
     this.community.set(null)
+    this.communityError.set('')
     this.comments.set([])
+    this.commentsLoading.set(true)
+    this.commentsError.set('')
     this.related.set([])
     this.authorGames.set([])
     this.replies.set({})
@@ -88,8 +94,20 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
-        this.gamesService.community(uuid).subscribe({ next: community => this.community.set(community) })
-        this.gamesService.comments(uuid).subscribe({ next: result => this.comments.set(result.data) })
+        this.gamesService.community(uuid).subscribe({
+          next: community => this.community.set(community),
+          error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
+        })
+        this.gamesService.comments(uuid).subscribe({
+          next: result => {
+            this.comments.set(result.data)
+            this.commentsLoading.set(false)
+          },
+          error: () => {
+            this.commentsLoading.set(false)
+            this.commentsError.set('评论暂时无法加载，请稍后重试。')
+          }
+        })
         this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
           next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
         })
@@ -212,7 +230,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     }
 
     this.gamesService.replies(this.currentUuid, comment.id).subscribe({
-      next: result => this.replies.update(replies => ({ ...replies, [comment.id]: result.data }))
+      next: result => this.replies.update(replies => ({ ...replies, [comment.id]: result.data })),
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -266,7 +285,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.reportReason.set('')
         this.actionFeedback.set('举报已提交')
       },
-      error: () => this.actionFeedback.set('举报提交失败，请稍后重试')
+      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -320,6 +339,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gameStarted.set(false)
     this.loadingError.set(false)
     this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
+  }
+
+  retryLoadGame () {
+    this.loadGame(this.currentUuid)
   }
 
   downloadGame () {

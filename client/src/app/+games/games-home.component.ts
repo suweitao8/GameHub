@@ -30,12 +30,12 @@ export class GamesHomeComponent implements OnInit {
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
   readonly categories = [
-    { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。' },
-    { id: 'puzzle', title: '解谜', description: '动动脑筋，找出下一步。' },
-    { id: 'casual', title: '休闲', description: '轻松打开，随时玩一会儿。' },
-    { id: 'strategy', title: '策略', description: '规划资源，赢下更大的局。' },
-    { id: 'horror', title: '恐怖', description: '戴上耳机，探索未知角落。' },
-    { id: 'mobile', title: '手机可玩', description: '触屏友好，移动设备也能玩。' }
+    { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。', query: { category: 'arcade' } },
+    { id: 'puzzle', title: '解谜', description: '动动脑筋，找出下一步。', query: { category: 'puzzle' } },
+    { id: 'casual', title: '休闲', description: '轻松打开，随时玩一会儿。', query: { category: 'casual' } },
+    { id: 'strategy', title: '策略', description: '规划资源，赢下更大的局。', query: { category: 'strategy' } },
+    { id: 'horror', title: '恐怖', description: '戴上耳机，探索未知角落。', query: { category: 'horror' } },
+    { id: 'mobile', title: '手机可玩', description: '触屏友好，移动设备也能玩。', query: { device: 'mobile' } }
   ]
 
   ngOnInit () {
@@ -167,5 +167,19 @@ export class GamesHomeComponent implements OnInit {
   onPublishedAfterChange (event: Event) {
     this.publishedAfter.set((event.target as HTMLInputElement).value)
     this.loadGames()
+  }
+
+  primaryHeading () {
+    if (this.view() === 'following') return '关注动态'
+    if (this.searchMode() || this.search() || this.category() || this.device() || this.publishedAfter()) return '搜索结果'
+
+    return {
+      recommended: '为你推荐',
+      popular: '正在热门',
+      latest: '最新发布',
+      likes: '最多点赞',
+      coins: '最多投币',
+      favorites: '最多收藏'
+    }[this.sort()]
   }
 }
