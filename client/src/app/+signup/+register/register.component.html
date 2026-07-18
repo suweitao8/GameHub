@@ -2,7 +2,7 @@
 
   @if (signupDisabled) {
     <div class="signup-disabled">
-      <my-alert type="warning" i18n>Signup is not enabled on this instance.</my-alert>
+    <my-alert type="warning" i18n>GameHub 当前暂未开放注册。</my-alert>
     </div>
   } @else {
     <div class="register-content">
@@ -12,7 +12,7 @@
             <strong>
               <my-signup-label [requiresApproval]="requiresApproval"></my-signup-label>
             </strong>
-            <div i18n>on {{ instanceName }}</div>
+            <div i18n>加入 GameHub</div>
           </my-signup-step-title>
 
           <my-register-step-about [serverStats]="serverStats" [requiresApproval]="requiresApproval" [videoUploadDisabled]="videoUploadDisabled"></my-register-step-about>
@@ -30,20 +30,13 @@
         <cdk-step [stepControl]="formStepTerms" i18n-label label="Terms" [editable]="!signupSuccess">
           <my-signup-step-title mascotImageName="terms" i18n>
             <strong>Terms</strong>
-            <div>of {{ instanceName }}</div>
+            <div>GameHub 社区规范</div>
           </my-signup-step-title>
 
-          <my-instance-about-accordion
-            #instanceAboutAccordion
-            [displayInstanceName]="false"
-            (init)="onInstanceAboutAccordionInit($event)" [panels]="instanceInformationPanels"
-            pluginScope="signup" pluginHook="filter:signup.instance-about-plugin-panels.create.result"
-          ></my-instance-about-accordion>
-
           <my-register-step-terms
-            [hasCodeOfConduct]="!!aboutHtml.codeOfConduct" [minimumAge]="minimumAge" [instanceName]="instanceName"
+            [hasCodeOfConduct]="false" [minimumAge]="minimumAge" [instanceName]="'GameHub'"
             [requiresApproval]="requiresApproval"
-            (formBuilt)="onTermsFormBuilt($event)" (termsClick)="onTermsClick()" (codeOfConductClick)="onCodeOfConductClick()"
+            (formBuilt)="onTermsFormBuilt($event)"
           ></my-register-step-terms>
 
           <div class="step-buttons">
@@ -70,10 +63,10 @@
         </cdk-step>
 
         @if (!videoUploadDisabled) {
-          <cdk-step [optional]="true" [stepControl]="formStepChannel" i18n-label label="My channel" [editable]="!signupSuccess">
+          <cdk-step [optional]="true" [stepControl]="formStepChannel" i18n-label label="Creator profile" [editable]="!signupSuccess">
             <my-signup-step-title mascotImageName="channel" i18n>
-              <div>Create</div>
-              <strong>your first channel</strong>
+              <div>设置</div>
+              <strong>创作者资料</strong>
             </my-signup-step-title>
 
             <my-register-step-channel
@@ -86,9 +79,9 @@
 
               <div class="skip-step">
                 <button class="link-primary button-unstyle" (click)="skipChannelCreation()">
-                  <strong i18n>I don't want to create a channel</strong>
+                  <strong i18n>暂时跳过创作者资料</strong>
                 </button>
-                <div class="skip-step-description" i18n>You will be able to create a channel later</div>
+                <div class="skip-step-description" i18n>之后可以在创作中心继续完善</div>
               </div>
 
               <button class="peertube-button-big primary-button" cdkStepperNext [disabled]="!formStepChannel || !formStepChannel.valid || hasSameChannelAndAccountNames()" (click)="signup()">
@@ -102,7 +95,7 @@
           @if (!requiresApproval && !signupSuccess && !signupError) {
             <div class="done-loader">
               <my-loader [loading]="true"></my-loader>
-              <div i18n>PeerTube is creating your account...</div>
+              <div i18n>GameHub 正在创建你的账户...</div>
             </div>
           }
 

@@ -1,9 +1,7 @@
-<my-instance-banner class="d-block mb-4" rounded="true"></my-instance-banner>
-
 @if (requiresApproval()) {
   <my-alert type="primary" class="text-center">
     <p>
-      <ng-container i18n>Moderators of {{ instanceName }} will have to approve your registration request once you have completed and submitted the form.</ng-container>
+      <ng-container i18n>GameHub 管理员会在你完成并提交表单后审核注册申请。</ng-container>
 
       @if (averageResponseTime) {
         <ng-container i18n>They usually respond within {{ averageResponseTime | myDaysDurationFormatter }}.</ng-container>
@@ -16,26 +14,26 @@
   <h3 i18n>Why create an account?</h3>
 
   <p i18n>
-    As you've probably noticed, creating an account is not necessary to watch videos on {{ instanceName }}.
+    你可以不注册就直接试玩 GameHub 上的小游戏。
     <br />
-    However, creating an account on {{ instanceName }} will allow you to:
+    创建 GameHub 账户后，你可以：
   </p>
 
   <ul>
-    <li i18n><strong>Comment</strong> on videos</li>
-    <li i18n><strong>Subscribe</strong> to channels and receive notifications of new videos</li>
-    <li i18n>Have access to your <strong>watch history</strong></li>
+    <li i18n>在游戏下方<strong>发表评论</strong>并回复其他玩家</li>
+    <li i18n><strong>收藏</strong>游戏并关注喜欢的创作者</li>
+    <li i18n>保存自己的<strong>游玩历史</strong>和动态消息</li>
 
     @if (!videoUploadDisabled()) {
-      <li i18n>Create a channel to <strong>publish videos</strong></li>
+      <li i18n>进入创作中心<strong>投稿 HTML 小游戏</strong></li>
     }
   </ul>
 </div>
 
 <div>
-  <h4 i18n>Do you use Mastodon, ActivityPub or an RSS feed aggregator?</h4>
+  <h4 i18n>准备好加入 GameHub 了吗？</h4>
 
-  <p i18n>You can already follow {{ instanceName }} using your favorite tool.</p>
+  <p i18n>选择下一步，填写账户信息并开始探索社区。</p>
 </div>
 
 <div class="callout callout-primary callout-light">
@@ -44,11 +42,10 @@
   </div>
 
   <div class="callout-content">
-    <h4 i18n>This website is a GAFAM alternative</h4>
+    <h4 i18n>为小游戏创作者准备的社区</h4>
 
     <p i18n>
-      {{ instanceName }} has been created using <a class="link-primary" target="_blank" rel="noopener noreferrer" href="https://joinpeertube.org">PeerTube</a>, a video creation platform developed by Framasoft.
-      <a class="link-primary" target="_blank" rel="noopener noreferrer" href="https://framasoft.org">Framasoft</a> is a French non-profit organization that offers alternatives to Big Tech's digital tools
+      GameHub 专注于轻量、可分享的 HTML 小游戏，让玩家可以快速发现作品，也让创作者能够持续迭代自己的想法。
     </p>
   </div>
 </div>

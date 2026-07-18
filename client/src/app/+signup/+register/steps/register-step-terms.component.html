@@ -2,7 +2,7 @@
 
   @if (requiresApproval()) {
     <div class="form-group">
-      <label i18n for="registrationReason">Why do you want to join {{ instanceName() }}?</label>
+      <label i18n for="registrationReason">你为什么想加入 GameHub？</label>
       <textarea
         id="registrationReason" formControlName="registrationReason" class="form-control" rows="4"
         [ngClass]="{ 'input-error': formErrors['registrationReason'] }"
@@ -18,12 +18,8 @@
     <my-peertube-checkbox inputName="terms" formControlName="terms">
       <ng-template ptTemplate="label">
         <ng-container i18n>
-          I am at least {{ minimumAge() }} years old and agree
-          to the <a class="link-primary" (click)="onTermsClick($event)" href='#'>Terms</a>
-          @if (hasCodeOfConduct()) {
- and to the <a class="link-primary" (click)="onCodeOfConductClick($event)" href='#'>Code of Conduct</a>
-}
-          of {{ instanceName() }}
+          我已年满 {{ minimumAge() }} 岁，并同意遵守
+          <a class="link-primary" href="/about" target="_blank">GameHub 社区规范</a>
         </ng-container>
       </ng-template>
     </my-peertube-checkbox>

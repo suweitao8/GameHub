@@ -9,15 +9,13 @@ import { USER_OTP_TOKEN_VALIDATOR } from '@app/shared/form-validators/user-valid
 import { FormReactive } from '@app/shared/shared-forms/form-reactive'
 import { FormReactiveService } from '@app/shared/shared-forms/form-reactive.service'
 import { InputTextComponent } from '@app/shared/shared-forms/input-text.component'
-import { InstanceAboutAccordionComponent } from '@app/shared/shared-instance/instance-about-accordion.component'
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
-import { NgbAccordionDirective, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
 import { getCompleteLocale, getExternalAuthHref } from '@peertube/peertube-core-utils'
 import { RegisteredExternalAuthConfig, ServerConfig, ServerErrorCode } from '@peertube/peertube-models'
 import { of, switchMap } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { InstanceBannerComponent } from '../shared/shared-instance/instance-banner.component'
 import { AutofocusDirective } from '../shared/shared-main/common/autofocus.directive'
 import { PluginSelectorDirective } from '../shared/shared-main/plugins/plugin-selector.directive'
 
@@ -34,8 +32,6 @@ import { PluginSelectorDirective } from '../shared/shared-main/plugins/plugin-se
     AutofocusDirective,
     NgClass,
     InputTextComponent,
-    InstanceBannerComponent,
-    InstanceAboutAccordionComponent,
     GlobalIconComponent,
     AlertComponent
   ]
@@ -57,10 +53,6 @@ export class LoginComponent extends FormReactive implements OnInit, AfterViewIni
 
   readonly forgotPasswordModal = viewChild<ElementRef>('forgotPasswordModal')
   readonly otpTokenInput = viewChild<InputTextComponent>('otpTokenInput')
-  readonly instanceAboutAccordion = viewChild<InstanceAboutAccordionComponent>('instanceAboutAccordion')
-
-  accordion: NgbAccordionDirective
-
   error: string = null
   emailNotVerifiedError = false
   passwordTooLongError = false
@@ -70,16 +62,6 @@ export class LoginComponent extends FormReactive implements OnInit, AfterViewIni
   isAuthenticatedWithExternalAuth = false
   externalAuthError = false
   externalLogins: string[] = []
-
-  instanceBannerUrl: string
-
-  instanceInformationPanels = {
-    terms: true,
-    administrators: false,
-    features: false,
-    moderation: false,
-    codeOfConduct: false
-  }
 
   otpStep = false
 
@@ -94,22 +76,8 @@ export class LoginComponent extends FormReactive implements OnInit, AfterViewIni
     return this.serverConfig.instance.name
   }
 
-  onTermsClick (event: Event, instanceInformation: HTMLElement) {
-    event.preventDefault()
-
-    const instanceAboutAccordion = this.instanceAboutAccordion()
-    if (instanceAboutAccordion) {
-      instanceAboutAccordion.expandTerms()
-      instanceInformation.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   isEmailDisabled () {
     return this.serverConfig.email.enabled === false
-  }
-
-  canUploadByDefault () {
-    return this.serverConfig.user.videoQuota !== 0 && this.serverConfig.user.videoQuotaDaily !== 0
   }
 
   ngOnInit () {
@@ -213,10 +181,6 @@ The link will expire within 1 hour.`
 
   hideForgotPasswordModal () {
     this.openedForgotPasswordModal.close()
-  }
-
-  onInstanceAboutAccordionInit (instanceAboutAccordion: InstanceAboutAccordionComponent) {
-    this.accordion = instanceAboutAccordion.accordion()
   }
 
   private loadExternalAuthToken (username: string, token: string) {

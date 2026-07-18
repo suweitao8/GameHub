@@ -4,7 +4,6 @@ import { FormGroup } from '@angular/forms'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { AuthService, ServerService } from '@app/core'
 import { HooksService } from '@app/core/plugins/hooks.service'
-import { InstanceAboutAccordionComponent } from '@app/shared/shared-instance/instance-about-accordion.component'
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
 import {
   UserRegistrationState,
@@ -38,7 +37,6 @@ import { RegisterStepUserComponent } from './steps/register-step-user.component'
     RegisterStepAboutComponent,
     RouterLink,
     CdkStepperNext,
-    InstanceAboutAccordionComponent,
     RegisterStepTermsComponent,
     CdkStepperPrevious,
     RegisterStepUserComponent,
@@ -56,8 +54,6 @@ export class RegisterComponent implements OnInit {
   private hooks = inject(HooksService)
 
   readonly lastStep = viewChild<CdkStep>('lastStep')
-  readonly instanceAboutAccordion = viewChild<InstanceAboutAccordionComponent>('instanceAboutAccordion')
-
   signupError: string
   signupSuccess = false
 
@@ -67,18 +63,6 @@ export class RegisterComponent implements OnInit {
   formStepTerms: FormGroup
   formStepUser: FormGroup
   formStepChannel: FormGroup
-
-  aboutHtml = {
-    codeOfConduct: ''
-  }
-
-  instanceInformationPanels = {
-    codeOfConduct: true,
-    terms: true,
-    administrators: false,
-    features: false,
-    moderation: false
-  }
 
   defaultPreviousStepButtonLabel = $localize`Go to the previous step`
   defaultNextStepButtonLabel = $localize`Go to the next step`
@@ -158,18 +142,6 @@ export class RegisterComponent implements OnInit {
 
   onChannelFormBuilt (form: FormGroup) {
     this.formStepChannel = form
-  }
-
-  onTermsClick () {
-    this.instanceAboutAccordion().expandTerms()
-  }
-
-  onCodeOfConductClick () {
-    this.instanceAboutAccordion().expandCodeOfConduct()
-  }
-
-  onInstanceAboutAccordionInit (instanceAboutAccordion: InstanceAboutAccordionComponent) {
-    this.aboutHtml = instanceAboutAccordion.aboutHtml
   }
 
   skipChannelCreation () {

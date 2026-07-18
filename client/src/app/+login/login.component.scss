@@ -1,6 +1,57 @@
 @use '_variables' as *;
 @use '_mixins' as *;
 @use '_form-mixins' as *;
+@use '../+games/game-community.tokens';
+
+.game-auth-page { background: var(--game-page-bg);
+  min-height: calc(100vh - 58px);
+  padding: 2.5rem 1rem 4rem; }
+.game-auth-shell { margin: 0 auto;
+  max-width: 1080px; }
+.game-auth-heading { margin: 0 auto 1.6rem;
+  max-width: 720px;
+  text-align: center; }
+.game-auth-heading h1 { color: var(--game-text);
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin: 0; }
+.game-auth-heading > p:last-child { color: var(--game-muted);
+  margin: 0.6rem 0 0; }
+.game-auth-page .wrapper { align-items: stretch;
+  background: transparent;
+  gap: 1rem;
+  margin: 0 auto;
+  max-width: 1000px; }
+.game-auth-page .login-form-and-externals,
+.game-auth-aside { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  box-shadow: 0 10px 30px rgb(25 30 40 / 5%);
+  margin: 0;
+  max-width: none;
+  padding: clamp(1.2rem, 3vw, 2rem); }
+.game-auth-page .login-form-and-externals { flex: 1 1 480px;
+  justify-content: flex-start; }
+.game-auth-page .instance-information { display: none; }
+.game-auth-aside { background: linear-gradient(145deg, #e5f7ff, #fff1f6);
+  flex: 1 1 340px; }
+.game-auth-aside h2 { color: var(--game-text);
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin: 0.35rem 0 0.8rem; }
+.game-auth-aside > p:not(.game-eyebrow) { color: var(--game-muted);
+  line-height: 1.75;
+  margin: 0; }
+.game-auth-aside ul { color: var(--game-muted);
+  display: grid;
+  gap: 0.65rem;
+  line-height: 1.5;
+  margin: 1.2rem 0;
+  padding-left: 1.1rem; }
+.game-auth-aside-link { color: var(--game-brand-deep);
+  font-weight: 700;
+  text-decoration: none; }
+.game-auth-page .peertube-button,
+.game-auth-page .primary-button { border-radius: 6px; }
 
 label {
   display: block;
