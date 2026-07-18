@@ -7,7 +7,7 @@
     @for (game of games(); track game.uuid) {
       <article class="manage-card">
         <div>
-          <span class="status">{{ game.status }}</span>
+          <span class="status">{{ statusLabel(game.status) }}</span>
           <h2>{{ game.title }}</h2>
           <p>{{ game.description }}</p>
         </div>
@@ -17,7 +17,7 @@
             <button type="button" (click)="moderate(game, 'reject')">退回</button>
           }
           @if (game.status === 'published') {
-            @if (!ownerView()) { <button type="button" (click)="moderate(game, 'block')">封禁</button> }
+            @if (!ownerView()) { <button type="button" (click)="moderate(game, 'unlist')">下架</button><button type="button" (click)="moderate(game, 'block')">封禁</button> }
             <a [routerLink]="['/games/edit', game.uuid]">编辑</a>
           }
           @if (ownerView() && game.status !== 'unlisted') { <a [routerLink]="['/games/edit', game.uuid]">编辑</a> }

@@ -24,10 +24,20 @@ export class GameManageComponent implements OnInit {
     })
   }
 
-  moderate (game: Game, action: 'approve' | 'reject' | 'block') {
+  moderate (game: Game, action: 'approve' | 'reject' | 'unlist' | 'block') {
     this.gamesService.moderate(game.uuid, action).subscribe({
       next: updated => this.games.update(items => items.map(item => item.uuid === updated.uuid ? updated : item))
     })
+  }
+
+  statusLabel (status: Game['status']) {
+    return {
+      pending: '待审核',
+      published: '已发布',
+      rejected: '已退回',
+      unlisted: '已下架',
+      blocked: '已封禁'
+    }[status]
   }
 
   getDownloadUrl (uuid: string) {
