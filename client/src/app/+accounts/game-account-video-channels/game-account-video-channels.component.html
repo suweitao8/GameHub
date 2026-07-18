@@ -51,15 +51,15 @@
           @for (channel of videoChannels(); track channel.id) {
             <article class="game-channel-card">
               <div class="game-channel-header">
-                <a [routerLink]="getChannelLink(channel)" class="game-channel-avatar" [attr.aria-label]="'打开频道：' + channel.displayName">
+                <a [routerLink]="getChannelLink()" class="game-channel-avatar" [attr.aria-label]="'打开创作者空间：' + channel.displayName">
                   <my-actor-avatar [actor]="channel" actorType="channel" [size]="64"></my-actor-avatar>
                 </a>
                 <div class="game-channel-copy">
                   <p class="game-eyebrow">CHANNEL</p>
-                  <h3><a [routerLink]="getChannelLink(channel)">{{ channel.displayName }}</a></h3>
+                  <h3><a [routerLink]="getChannelLink()">{{ channel.displayName }}</a></h3>
                   <p class="game-channel-handle">&#64;{{ channel.nameWithHost }}</p>
                 </div>
-                <a [routerLink]="getChannelLink(channel)" class="game-channel-open" title="打开频道"><my-global-icon iconName="move-right"></my-global-icon></a>
+                <a [routerLink]="getChannelLink()" class="game-channel-open" title="打开创作者空间"><my-global-icon iconName="move-right"></my-global-icon></a>
               </div>
 
               <div class="game-channel-meta">

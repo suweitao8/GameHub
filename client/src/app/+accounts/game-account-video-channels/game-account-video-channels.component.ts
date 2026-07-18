@@ -47,8 +47,8 @@ export class GameAccountVideoChannelsComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe()
   }
 
-  getChannelLink (channel: VideoChannel) {
-    return [ '/c', channel.nameWithHost ]
+  getChannelLink () {
+    return [ '/games/author', this.account()?.id ]
   }
 
   getVideoLink (video: Video) {
