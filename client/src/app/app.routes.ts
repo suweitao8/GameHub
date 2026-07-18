@@ -1,10 +1,8 @@
-import { Routes, UrlMatchResult, UrlSegment } from '@angular/router'
+import { Routes, UrlMatchResult } from '@angular/router'
 import { AVAILABLE_LOCALES } from '@peertube/peertube-core-utils'
 import { MetaGuard } from './core'
-import { EmptyComponent } from './empty.component'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
-import { ActorRedirectGuard } from './shared/shared-main/router/actor-redirect-guard.service'
 
 const routes: Routes = [
   {
@@ -33,12 +31,13 @@ const routes: Routes = [
 
   {
     path: 'accounts',
-    redirectTo: 'a'
+    redirectTo: '/games',
+    pathMatch: 'prefix'
   },
   {
     path: 'a',
-    loadChildren: () => import('./+accounts/routes'),
-    canActivateChild: [ MetaGuard ]
+    redirectTo: '/games',
+    pathMatch: 'prefix'
   },
 
   // ---------------------------------------------------------------------------
@@ -194,26 +193,19 @@ const routes: Routes = [
   },
 
   // ---------------------------------------------------------------------------
-  // /@:actorName
+  // Legacy PeerTube actor profiles are replaced by GameHub author pages.
   // ---------------------------------------------------------------------------
   {
     matcher: (url): UrlMatchResult => {
       const regex = new RegExp(`^@(${USER_USERNAME_REGEX_CHARACTERS}+)$`)
       if (url.length !== 1) return null
 
-      const matchResult = url[0].path.match(regex)
-      if (!matchResult) return null
+      if (!regex.test(url[0].path)) return null
 
-      return {
-        consumed: url,
-        posParams: {
-          actorName: new UrlSegment(matchResult[1], {})
-        }
-      }
+      return { consumed: url }
     },
     pathMatch: 'full',
-    canActivate: [ ActorRedirectGuard ],
-    component: EmptyComponent
+    redirectTo: '/games'
   },
 
   // ---------------------------------------------------------------------------
