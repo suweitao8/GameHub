@@ -1,8 +1,20 @@
-import { Routes, UrlMatchResult } from '@angular/router'
+import { Routes, UrlMatchResult, UrlMatcher } from '@angular/router'
 import { AVAILABLE_LOCALES } from '@peertube/peertube-core-utils'
 import { MetaGuard } from './core'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
+import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
+
+const legacyVideoPrefixes = [ 'videos', 'video-channels', 'c', 'w', 'video-playlists', 'studio/edit', 'stats/videos' ]
+
+const legacyVideoMatcher: UrlMatcher = url => {
+  if (!url.length) return null
+
+  const path = url.map(segment => segment.path).join('/')
+  const isLegacyVideoPath = legacyVideoPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`))
+
+  return isLegacyVideoPath ? { consumed: url } : null
+}
 
 const routes: Routes = [
   {
@@ -44,13 +56,11 @@ const routes: Routes = [
 
   {
     path: 'video-channels',
-    redirectTo: '/games',
-    pathMatch: 'prefix'
+    component: LegacyFeaturePlaceholderComponent
   },
   {
     path: 'c',
-    redirectTo: '/games',
-    pathMatch: 'prefix'
+    component: LegacyFeaturePlaceholderComponent
   },
 
   {
@@ -110,63 +120,8 @@ const routes: Routes = [
   // ---------------------------------------------------------------------------
 
   {
-    path: 'studio/edit/:videoId',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'stats/videos/:videoId',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'videos/upload',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-  {
-    path: 'videos/browse',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-  {
-    path: 'videos/update/:uuid',
-    pathMatch: 'full',
-    redirectTo: '/games'
-  },
-
-  {
-    path: 'videos/manage/:uuid',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'videos/publish',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-
-  // ---------------------------------------------------------------------------
-
-  {
-    path: 'video-playlists/watch',
-    redirectTo: '/games'
-  },
-
-  {
-    path: 'videos/watch/playlist',
-    redirectTo: '/games'
-  },
-  {
-    path: 'videos/watch',
-    redirectTo: '/games'
-  },
-  {
-    path: 'w',
-    redirectTo: '/games'
+    matcher: legacyVideoMatcher,
+    component: LegacyFeaturePlaceholderComponent
   },
 
   // ---------------------------------------------------------------------------

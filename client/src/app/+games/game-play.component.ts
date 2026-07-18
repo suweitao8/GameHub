@@ -52,6 +52,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   })
   private currentUuid = ''
+  private playRecordedFor = ''
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -69,20 +70,30 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
     this.loading.set(true)
     this.loadingError.set(false)
+    this.frameLoading.set(true)
+    this.runtimeUrl.set(null)
+    this.community.set(null)
+    this.comments.set([])
+    this.related.set([])
+    this.authorGames.set([])
+    this.replies.set({})
+    this.actionFeedback.set('')
+    this.commentFeedback.set('')
+    this.coinMessage.set('')
+    this.playRecordedFor = ''
     this.gamesService.get(uuid).subscribe({
       next: game => {
         this.game.set(game)
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
-        this.gamesService.recordPlay(uuid).subscribe()
         this.gamesService.community(uuid).subscribe({ next: community => this.community.set(community) })
         this.gamesService.comments(uuid).subscribe({ next: result => this.comments.set(result.data) })
         this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
           next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
         })
         if (game.author?.name) {
-          this.gamesService.list({ search: game.author.name, count: 5, sort: 'latest' }).subscribe({
+          this.gamesService.list({ search: game.author.name, count: 3, sort: 'latest' }).subscribe({
             next: result => this.authorGames.set(result.data.filter(item =>
               item.ownerAccountId === game.ownerAccountId && item.uuid !== game.uuid
             ))
@@ -137,6 +148,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   startGame () {
     this.gameStarted.set(true)
+    if (this.playRecordedFor !== this.currentUuid) {
+      this.playRecordedFor = this.currentUuid
+      this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => this.playRecordedFor = '' })
+    }
     this.focusGame()
   }
 
@@ -235,7 +250,15 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   reportGame () {
     if (!this.requireLogin()) return
     const reason = this.reportReason().trim()
-    if (reason) this.gamesService.report(this.currentUuid, reason).subscribe()
+    if (!reason) return
+
+    this.gamesService.report(this.currentUuid, reason).subscribe({
+      next: () => {
+        this.reportReason.set('')
+        this.actionFeedback.set('举报已提交')
+      },
+      error: () => this.actionFeedback.set('举报提交失败，请稍后重试')
+    })
   }
 
   giveCoin () {
@@ -261,10 +284,16 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   async shareGame () {
     const url = window.location.href
-    if (navigator.share) await navigator.share({ title: this.game()?.title, url })
-    else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(url)
-      this.coinMessage.set('链接已复制')
+    try {
+      if (navigator.share) await navigator.share({ title: this.game()?.title, url })
+      else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url)
+        this.actionFeedback.set('链接已复制')
+      } else {
+        this.actionFeedback.set('当前浏览器不支持分享')
+      }
+    } catch {
+      this.actionFeedback.set('分享未完成')
     }
   }
 

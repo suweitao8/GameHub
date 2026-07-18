@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
-import { NavigationEnd, Router, RouterLink } from '@angular/router'
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
 import { getDevLocale, isOnDevLocale } from '@app/helpers'
@@ -41,6 +41,7 @@ import { SearchTypeaheadComponent } from './search-typeahead.component'
     NgbDropdownModule,
     SearchTypeaheadComponent,
     RouterLink,
+    RouterLinkActive,
     GlobalIconComponent,
     ButtonComponent,
     GameNavigationComponent
@@ -133,6 +134,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const account = this.user?.account
     const avatar = account?.avatars?.length ? findAppropriateImage(account.avatars, 64)?.fileUrl : undefined
     return avatar || buildGameAvatarDataUrl(account?.displayName || account?.name || this.user?.username || '用户')
+  }
+
+  onGameAvatarError (event: Event) {
+    const image = event.target as HTMLImageElement
+    const label = this.user?.account?.displayName || this.user?.account?.name || this.user?.username || '用户'
+
+    if (image.src.startsWith('data:image/svg+xml')) return
+    image.src = buildGameAvatarDataUrl(label)
   }
 
   ngOnInit () {
