@@ -16,6 +16,8 @@ export function buildGameAvatarDataUrl (label: string) {
     const mirroredColumn = column < 2 ? column : 3 - column
     return `<rect x="${1 + mirroredColumn}" y="${1 + row}" width="1" height="1" fill="${index % 3 === 0 ? dark : primary}"/>`
   }).join('')
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 6" shape-rendering="crispEdges"><rect width="6" height="6" rx="1" fill="${soft}"/><rect x="1" y="1" width="4" height="4" fill="#fff"/>${cells}<rect x="2" y="4.25" width="1" height="0.5" fill="${dark}"/><rect x="3" y="4.25" width="1" height="0.5" fill="${dark}"/></svg>`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 6" shape-rendering="crispEdges">` +
+    `<rect width="6" height="6" rx="1" fill="${soft}"/><rect x="1" y="1" width="4" height="4" fill="#fff"/>${cells}` +
+    `<rect x="2" y="4.25" width="1" height="0.5" fill="${dark}"/><rect x="3" y="4.25" width="1" height="0.5" fill="${dark}"/></svg>`
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }

@@ -67,6 +67,7 @@ export type GameNotification = {
 }
 
 export type GameCommunity = {
+  isOwner: boolean
   likes: number
   dislikes: number
   comments: number
@@ -83,7 +84,7 @@ export type GameComment = {
   id: number
   text: string
   createdAt: string
-  account: { displayName: string, name: string }
+  account: { displayName: string, name: string } | null
   totalReplies?: number
   inReplyToCommentId?: number | null
   likes?: number

@@ -5,6 +5,7 @@ import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameComment, GameCommunity } from './games.service'
 import { GameCardComponent } from './game-card.component'
+import { getGameActionErrorMessage } from './game-action-feedback'
 
 @Component({
   templateUrl: './game-play.component.html',
@@ -118,7 +119,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
           this.community.set(value)
           this.actionFeedback.set(next === 'like' ? '点赞成功' : next === 'none' ? '已取消点赞' : '已记录你的反馈')
         }
-      })
+      }),
+      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -130,7 +132,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       next: value => {
         this.community.update(state => state ? { ...state, favorite: value.favorite } : state)
         this.actionFeedback.set(value.favorite ? '已加入收藏' : '已取消收藏')
-      }
+      },
+      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -142,7 +145,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       next: value => {
         this.community.update(state => state ? { ...state, following: value.following } : state)
         this.actionFeedback.set(value.following ? '已关注作者' : '已取消关注')
-      }
+      },
+      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -163,7 +167,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       next: result => {
         this.comments.update(comments => [ ...comments, result.comment ])
         this.commentDraft.set('')
-      }
+      },
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -183,14 +188,16 @@ export class GamePlayComponent implements OnInit, OnDestroy {
           ...replies,
           [parentId]: [ ...(replies[parentId] || []), result.comment ]
         }))
-      }
+      },
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
   toggleCommentLike (comment: GameComment) {
     if (!this.requireLogin()) return
     this.gamesService.likeComment(this.currentUuid, comment.id, !comment.liked).subscribe({
-      next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes })
+      next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes }),
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -225,7 +232,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         ])))
         this.commentFeedback.set('评论已删除')
         this.deleteTarget.set(null)
-      }
+      },
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -243,7 +251,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       next: () => {
         this.commentFeedback.set('已提交评论举报')
         this.reportTarget.set(null)
-      }
+      },
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -277,7 +286,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       },
       error: error => {
         this.coinLoading.set(false)
-        this.coinMessage.set(error?.error?.error || '投币失败，请稍后重试')
+        this.coinMessage.set(getGameActionErrorMessage(error))
       }
     })
   }

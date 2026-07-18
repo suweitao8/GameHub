@@ -15,7 +15,7 @@
   "scripts": {
     "lint": "npm run lint-ts && npm run lint-scss",
     "lint-ts": "eslint",
-    "lint-scss": "stylelint 'src/**/*.scss'",
+    "lint-scss": "stylelint src/**/*.scss",
     "eslint": "eslint",
     "ng": "ng",
     "stylelint": "stylelint"

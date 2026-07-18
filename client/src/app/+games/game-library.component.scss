@@ -1,14 +1,34 @@
 @use './game-community.tokens';
 
-.library-page { min-height: calc(100vh - 76px); padding: 2rem 0 4rem; }
-.back-link { color: var(--game-brand); text-decoration: none; }
+.library-page { min-height: calc(100vh - 76px);
+  padding: 2rem 0 4rem; }
+.back-link { color: var(--game-brand);
+  text-decoration: none; }
 .library-page header { margin: 2rem 0 1.5rem; }
-.library-page h1 { font-size: 2.4rem; margin: 0; }
+.library-page h1 { font-size: 2.4rem;
+  margin: 0; }
 .library-page header p:not(.game-eyebrow) { color: var(--game-muted); }
-.library-tabs { border-bottom: 1px solid var(--game-border); display: flex; gap: 1.4rem; margin-bottom: 1.5rem; }
-.library-tabs button { background: transparent; border: 0; color: var(--game-muted); padding: 0.8rem 0; }
-.library-tabs button.active { border-bottom: 2px solid var(--game-brand); color: var(--game-brand); font-weight: 700; }
-.library-empty { background: #fff; border: 1px solid var(--game-border); color: var(--game-muted); padding: 3rem; text-align: center; }
+.library-tabs { border-bottom: 1px solid var(--game-border);
+  display: flex;
+  gap: 1.4rem;
+  margin-bottom: 1.5rem; }
+.library-tabs button { background: transparent;
+  border: 0;
+  color: var(--game-muted);
+  padding: 0.8rem 0; }
+.library-tabs button.active { border-bottom: 2px solid var(--game-brand);
+  color: var(--game-brand);
+  font-weight: 700; }
+.library-empty { background: #fff;
+  border: 1px solid var(--game-border);
+  color: var(--game-muted);
+  padding: 3rem;
+  text-align: center; }
 .library-error { color: var(--game-danger); }
 .library-game-item { min-width: 0; }
-.library-download { color: var(--game-brand); display: inline-block; font-size: 0.82rem; font-weight: 700; margin-top: 0.55rem; text-decoration: none; }
+.library-download { color: var(--game-brand);
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 0.55rem;
+  text-decoration: none; }
