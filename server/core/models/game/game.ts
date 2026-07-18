@@ -182,7 +182,7 @@ export class GameModel extends SequelizeModel<GameModel> {
         attributes: { include: GameModel.getPublicStatsAttributes() },
         include: [
           { model: AccountModel, required: true },
-          { model: VideoModel, required: false, attributes: [ 'likes' ] }
+          { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] }
         ],
         order: order as any,
         limit: options.limit,

@@ -4,25 +4,27 @@
   justify-content: center;
   min-width: 0;
   flex: 1;
-  color: #27303b;
+  color: #4e5969;
 }
 
 .game-navigation-search {
   display: flex;
   align-items: center;
-  flex: 0 1 250px;
+  flex: 0 1 440px;
   min-width: 0;
-  width: min(100%, 250px);
-  max-width: 250px;
-  background: var(--game-card-bg, #fff);
-  border: 1px solid var(--game-border, #e3e5e7);
-  border-radius: 0.55rem;
-  overflow: hidden;
+  width: min(100%, 440px);
+  max-width: 440px;
+  background: #f1f2f3;
+  border: 1px solid #f1f2f3;
+  border-radius: 999px;
+  padding: 0.2rem 0.24rem 0.2rem 0.95rem;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .game-navigation-search:focus-within {
-  border-color: var(--game-brand, #00aeec);
-  box-shadow: 0 0 0 3px rgb(0 174 236 / 14%);
+  background: #fff;
+  border-color: rgb(0 174 236 / 42%);
+  box-shadow: 0 0 0 3px rgb(0 174 236 / 9%), 0 4px 14px rgb(25 30 40 / 7%);
 }
 
 .game-navigation-search input {
@@ -31,20 +33,35 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #27303b;
-  padding: 0.65rem 0.8rem;
+  color: #4e5969;
+  font-size: 0.88rem;
+  padding: 0.56rem 0.55rem;
+}
+
+.game-navigation-search input::placeholder {
+  color: #9499a1;
 }
 
 .game-navigation-search button {
-  border: 0;
-  background: transparent;
-  color: #65717e;
-  padding: 0.55rem 0.75rem;
-  cursor: pointer;
   align-items: center;
+  background: #00aeec;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
   display: inline-flex;
-  font-size: 1.1rem;
+  height: 2rem;
   justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 160ms ease, transform 160ms ease;
+  width: 2rem;
+}
+
+.game-navigation-search button:hover,
+.game-navigation-search button:focus-visible {
+  background: #008fc5;
+  outline: none;
+  transform: scale(1.04);
 }
 
 .game-navigation-search my-global-icon {

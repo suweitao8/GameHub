@@ -101,6 +101,7 @@ function formatGame (game: MGame) {
     status: game.status,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
+    comments: Number(video?.comments || 0),
     likes: Number(video?.likes || game.get?.('gameLikes') || 0),
     favorites: Number(game.get?.('favoriteCount') || 0),
     coins: Number(game.get?.('coinCount') || 0),
@@ -190,7 +191,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [
       { model: AccountModel, required: true },
-      { model: VideoModel, required: false, attributes: [ 'likes' ] }
+      { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] }
     ],
     order: [ [ 'publishedAt', 'DESC' ] ],
     limit: 100
@@ -229,7 +230,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ],
+    include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ],
     order: [ [ 'createdAt', 'DESC' ] ]
   })
   const gameIds = games.map(game => game.id)
@@ -353,7 +354,7 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes() },
-      include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ]
+      include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ]
     } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
@@ -373,7 +374,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes() },
-      include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ]
+      include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ]
     } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
     limit: 100
@@ -389,7 +390,7 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
   const data = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [ { model: VideoModel, required: false, attributes: [ 'likes' ] } ],
+    include: [ { model: VideoModel, required: false, attributes: [ 'likes', 'comments' ] } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
   })

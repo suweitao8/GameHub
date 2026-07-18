@@ -1,19 +1,4 @@
 <main class="game-community-page games-home" aria-label="游戏发现">
-  <nav class="category-bar game-community-content" aria-label="游戏分类">
-    <a routerLink="/games" [class.active]="!category()">全部</a>
-    <a routerLink="/games" [queryParams]="{ category: 'arcade' }" [class.active]="category() === 'arcade'">动作</a>
-    <a routerLink="/games" [queryParams]="{ category: 'puzzle' }" [class.active]="category() === 'puzzle'">解谜</a>
-    <a routerLink="/games" [queryParams]="{ category: 'casual' }" [class.active]="category() === 'casual'">休闲</a>
-    <a routerLink="/games" [queryParams]="{ category: 'strategy' }" [class.active]="category() === 'strategy'">策略</a>
-    <a routerLink="/games" [queryParams]="{ category: 'horror' }" [class.active]="category() === 'horror'">恐怖</a>
-    <a routerLink="/games" [queryParams]="{ category: 'mobile' }" [class.active]="category() === 'mobile'">手机可玩</a>
-  </nav>
-  <nav class="game-quick-nav game-community-content" aria-label="游戏快捷入口">
-    <a routerLink="/games" [class.active]="sort() === 'recommended' && !searchMode()"><my-global-icon iconName="play"></my-global-icon><span>推荐</span></a>
-    <a routerLink="/games" [queryParams]="{ sort: 'popular' }"><my-global-icon iconName="trending"></my-global-icon><span>热门</span></a>
-    <a routerLink="/games" [queryParams]="{ sort: 'latest' }"><my-global-icon iconName="clock"></my-global-icon><span>最新</span></a>
-    <a routerLink="/games/upload"><my-global-icon iconName="upload"></my-global-icon><span>投稿</span></a>
-  </nav>
   @if (view() === 'categories') {
     <section class="game-community-content category-directory">
       <div class="game-section-heading"><div><p class="game-eyebrow">BROWSE BY MOOD</p><h2>按分类发现游戏</h2><p>从熟悉的类型开始，找到下一款想试玩的作品。</p></div></div>
@@ -36,7 +21,7 @@
     <div class="game-community-content">
       <section class="game-section">
         <div class="game-section-heading">
-          <div><p class="game-eyebrow">{{ view() === 'following' ? 'FOLLOWING' : sort() === 'recommended' && !searchMode() ? 'FOR YOU' : 'SEARCH RESULTS' }}</p><h2>{{ view() === 'following' ? '关注动态' : sort() === 'recommended' && !searchMode() ? '为你推荐' : '搜索结果' }}</h2><p>{{ view() === 'following' ? '你关注的作者最近发布了这些游戏。' : sort() === 'recommended' && !searchMode() ? '从轻量试玩开始，发现下一款喜欢的游戏。' : '按你的关键词和排序条件浏览游戏。' }}</p></div>
+          <div><h2>{{ view() === 'following' ? '关注动态' : sort() === 'recommended' && !searchMode() ? '为你推荐' : '搜索结果' }}</h2></div>
           <div class="section-controls">@if (sort() === 'recommended' && !searchMode() && view() !== 'following') { <button type="button" (click)="shuffleRecommendations()">换一换 ↻</button> } @else if (view() !== 'following') { <label>排序<select [value]="sort()" (change)="onSortChange($event)"><option value="recommended">综合排序</option><option value="latest">最新发布</option><option value="popular">最多游玩</option><option value="likes">最多点赞</option><option value="coins">最多投币</option><option value="favorites">最多收藏</option></select></label> }</div>
         </div>
         <div class="game-grid">
@@ -45,14 +30,14 @@
       </section>
 
       @if (sort() === 'recommended' && !searchMode()) { <section class="game-section">
-        <div class="game-section-heading"><div><p class="game-eyebrow">TRENDING</p><h2>正在热门</h2></div><a routerLink="/games" [queryParams]="{ sort: 'popular' }">查看更多 →</a></div>
+        <div class="game-section-heading"><div><h2>正在热门</h2></div><a routerLink="/games" [queryParams]="{ sort: 'popular' }">查看更多 →</a></div>
         <div class="game-grid">
           @for (game of popular(); track game.uuid) { <my-game-card [game]="game" /> }
         </div>
       </section>
 
       <section class="game-section">
-        <div class="game-section-heading"><div><p class="game-eyebrow">FRESH ARRIVALS</p><h2>最新发布</h2></div><a routerLink="/games" [queryParams]="{ sort: 'latest' }">全部最新 →</a></div>
+        <div class="game-section-heading"><div><h2>最新发布</h2></div><a routerLink="/games" [queryParams]="{ sort: 'latest' }">全部最新 →</a></div>
         <div class="game-grid">
           @for (game of latest(); track game.uuid) { <my-game-card [game]="game" /> }
         </div>

@@ -17,6 +17,7 @@ export type Game = {
   status: 'pending' | 'published' | 'rejected' | 'unlisted' | 'blocked'
   fileSizeBytes: number
   playCount: number
+  comments?: number
   publishedAt: string | null
   createdAt: string
   updatedAt: string

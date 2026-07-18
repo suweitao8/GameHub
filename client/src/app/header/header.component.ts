@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit, viewChild } from '@angular/core'
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
+import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { NavigationEnd, Router, RouterLink } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
 import { getDevLocale, isOnDevLocale } from '@app/helpers'
@@ -18,6 +18,7 @@ import { isAndroid, isIOS, isIphone } from '@root-helpers/web-browser'
 import { Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
+import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { SearchTypeaheadComponent } from './search-typeahead.component'
@@ -40,7 +41,6 @@ import { SearchTypeaheadComponent } from './search-typeahead.component'
     NgbDropdownModule,
     SearchTypeaheadComponent,
     RouterLink,
-    RouterLinkActive,
     GlobalIconComponent,
     ButtonComponent,
     GameNavigationComponent
@@ -62,6 +62,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
   readonly dropdown = viewChild<NgbDropdown>('dropdown')
+  readonly gameAvatarHoverVisible = signal(false)
 
   user: AuthUser
   loggedIn: boolean
@@ -81,6 +82,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private getSearchHiddenSub: Subscription
   private hotkeysSub: Subscription
   private authSub: Subscription
+  private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
 
   get currentInterfaceLanguage () {
     const english = 'English'
@@ -127,6 +129,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return findAppropriateImage(logos.filter(l => l.type === 'header-wide'), 36)?.fileUrl
   }
 
+  getGameAvatarUrl () {
+    const account = this.user?.account
+    const avatar = account?.avatars?.length ? findAppropriateImage(account.avatars, 64)?.fileUrl : undefined
+    return avatar || buildGameAvatarDataUrl(account?.displayName || account?.name || this.user?.username || '用户')
+  }
+
   ngOnInit () {
     this.htmlConfig = this.serverService.getHTMLConfig()
 
@@ -164,6 +172,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy () {
+    this.cancelGameAvatarHover()
     if (this.quickSettingsModalSub) this.quickSettingsModalSub.unsubscribe()
     if (this.hotkeysSub) this.hotkeysSub.unsubscribe()
     if (this.authSub) this.authSub.unsubscribe()
@@ -300,6 +309,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleMenu () {
     this.menu.toggleMenu()
+  }
+
+  scheduleGameAvatarMenu () {
+    if (!this.isGameExperience() || !this.loggedIn) return
+
+    this.cancelGameAvatarHover(false)
+    this.gameAvatarHoverTimer = setTimeout(() => this.gameAvatarHoverVisible.set(true), 1000)
+  }
+
+  cancelGameAvatarHover (close = true) {
+    if (this.gameAvatarHoverTimer) {
+      clearTimeout(this.gameAvatarHoverTimer)
+      this.gameAvatarHoverTimer = undefined
+    }
+
+    if (close) this.gameAvatarHoverVisible.set(false)
+  }
+
+  openGameProfile (event: Event) {
+    event.preventDefault()
+    this.cancelGameAvatarHover()
+    const accountId = this.user?.account?.id
+    void this.router.navigate(accountId ? [ '/games/author', accountId ] : [ '/games' ])
   }
 
   private updateUserState () {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
+import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
 import { GameAuthor, GamesService } from './games.service'
 
@@ -46,5 +47,10 @@ export class GameAuthorComponent implements OnInit {
       },
       error: () => this.followLoading.set(false)
     })
+  }
+
+  getAvatarUrl () {
+    const account = this.author()?.account
+    return buildGameAvatarDataUrl(account?.displayName || account?.name || '创')
   }
 }

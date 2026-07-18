@@ -42,7 +42,8 @@
 
 :host-context(.game-experience) .root {
   background: #fff;
-  box-shadow: 0 2px 14px rgb(25 30 40 / 10%);
+  border-bottom: 1px solid #eceef0;
+  box-shadow: 0 1px 5px rgb(25 30 40 / 5%);
   color: #30343b;
   z-index: 10;
 }
@@ -67,25 +68,16 @@
 .game-brand {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
   min-height: 46px;
-  margin-right: 1rem;
-  color: var(--game-brand, #00aeec) !important;
+  margin-right: 1.25rem;
+  color: #394150 !important;
   text-decoration: none;
-  font-size: 1.35rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.55rem;
+  font-style: italic;
   font-weight: 800;
+  letter-spacing: -0.06em;
   white-space: nowrap;
-}
-
-.game-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  color: #fff;
-  background: var(--game-brand, #00aeec);
-  box-shadow: 0 5px 14px rgb(0 174 236 / 24%);
 }
 
 .game-brand-name {
@@ -96,34 +88,6 @@
   align-items: center;
   display: flex;
   min-width: 0;
-}
-
-.game-home-link {
-  align-items: center;
-  border-radius: 0.55rem;
-  color: #61666d !important;
-  display: inline-flex;
-  flex-direction: column;
-  font-size: 0.76rem;
-  font-weight: 600;
-  gap: 0.18rem;
-  justify-content: center;
-  min-width: 3.3rem;
-  padding: 0.28rem 0.35rem;
-  text-decoration: none;
-  transition: background-color 160ms ease, color 160ms ease;
-}
-
-.game-home-link:hover,
-.game-home-link:focus-visible,
-.game-home-link.active {
-  background: var(--game-brand-soft, #e5f7ff);
-  color: var(--game-brand, #00aeec) !important;
-}
-
-.game-home-link my-global-icon {
-  height: 1.1rem;
-  width: 1.1rem;
 }
 
 .game-header-right {
@@ -150,10 +114,14 @@
   font-weight: 600;
   gap: 0.18rem;
   justify-content: center;
-  min-width: 3.2rem;
+  min-width: 3.4rem;
   padding: 0.28rem 0.25rem;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease;
+}
+
+.game-header-actions a:last-child {
+  min-width: 4.5rem;
 }
 
 .game-header-actions a:hover,
@@ -270,6 +238,7 @@ my-search-typeahead {
   cursor: pointer;
   max-width: 250px;
   height: 100%;
+  position: relative;
 
   > .dropdown-toggle {
     display: flex;
@@ -294,6 +263,73 @@ my-actor-avatar {
 
 .tertiary-button {
   color: pvar(--header-fg-200);
+}
+
+.game-user-avatar {
+  display: block;
+  height: 34px;
+  image-rendering: pixelated;
+  object-fit: cover;
+  width: 34px;
+}
+
+.game-avatar-hover-card {
+  background: #fff;
+  border: 1px solid #e3e5e7;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(25 30 40 / 13%);
+  color: #4e5969;
+  padding: 0.85rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.55rem);
+  width: 238px;
+  z-index: 30;
+}
+
+.game-avatar-hover-heading {
+  align-items: center;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.game-avatar-hover-image {
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 50%;
+  height: 2.4rem;
+  image-rendering: pixelated;
+  object-fit: cover;
+  width: 2.4rem;
+}
+
+.game-avatar-hover-heading div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.game-avatar-hover-heading strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-avatar-hover-heading span,
+.game-avatar-hover-card p {
+  color: #61666d;
+  font-size: 0.76rem;
+}
+
+.game-avatar-hover-card p {
+  line-height: 1.45;
+  margin: 0.75rem 0;
+}
+
+.game-avatar-hover-card a {
+  color: #008acb !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 @media screen and (max-width: $mobile-view) {
@@ -403,15 +439,6 @@ my-actor-avatar {
   .game-brand {
     margin-right: 0.35rem;
     font-size: 1rem;
-  }
-
-  .game-brand-mark {
-    width: 32px;
-    height: 32px;
-  }
-
-  .game-brand-name {
-    display: none;
   }
 
   .game-header-actions {

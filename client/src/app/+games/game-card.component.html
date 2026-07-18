@@ -10,16 +10,13 @@
   <div class="game-card-body">
     <h3>{{ game.title }}</h3>
     <div class="game-card-author">
-      <span class="author-avatar" aria-hidden="true">{{ (game.author?.displayName || '创').charAt(0) }}</span>
+      <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
       <span>{{ game.author?.displayName || '独立创作者' }}</span>
+      <span class="game-card-time">· {{ formatDate(game.publishedAt || game.createdAt) }}</span>
     </div>
-    <p>{{ game.description || '一个等待你打开的小游戏。' }}</p>
-    <div class="game-card-meta">
-      <span>{{ formatCount(game.playCount) }} 次游玩</span>
-      <span>赞 {{ formatCount(game.likes) }}</span>
-      <span>币 {{ formatCount(game.coins) }}</span>
-      <span>藏 {{ formatCount(game.favorites) }}</span>
-      <span>{{ game.category }}</span>
+    <div class="game-card-meta" aria-label="游戏数据">
+      <span class="game-card-stat"><span aria-hidden="true">▶</span>{{ formatCount(game.playCount) }} 次游玩</span>
+      <span class="game-card-stat"><span aria-hidden="true">▤</span>{{ formatCount(game.comments) }} 条评论</span>
     </div>
   </div>
 </a>

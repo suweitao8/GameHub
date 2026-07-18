@@ -13,12 +13,7 @@
   @if (isGameExperience()) {
     <div class="game-header-left">
       <a class="game-brand" routerLink="/games" title="GameHub 首页">
-        <span class="game-brand-mark" aria-hidden="true">G</span>
         <span class="game-brand-name">GameHub</span>
-      </a>
-      <a class="game-home-link" routerLink="/games" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" title="首页">
-        <my-global-icon iconName="home"></my-global-icon>
-        <span>首页</span>
       </a>
     </div>
   } @else {
@@ -60,9 +55,22 @@
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
         >
-        <button class="tertiary-button" ngbDropdownToggle>
-          <my-actor-avatar [actor]="user.account" actorType="account" size="34" responseSize="true"></my-actor-avatar>
-        </button>
+        @if (isGameExperience()) {
+          <button class="tertiary-button" type="button" aria-label="打开个人主页" (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()" (click)="openGameProfile($event)">
+            <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || '用户'">
+          </button>
+          @if (gameAvatarHoverVisible()) {
+            <div class="game-avatar-hover-card" role="dialog" aria-label="个人主页预览">
+              <div class="game-avatar-hover-heading"><img class="game-avatar-hover-image" [src]="getGameAvatarUrl()" alt=""><div><strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong><span>&#64;{{ user?.account?.name || user?.username || 'player' }}</span></div></div>
+              <p>进入个人主页，查看发布的游戏和创作数据。</p>
+              <a [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()">进入个人主页</a>
+            </div>
+          }
+        } @else {
+          <button class="tertiary-button" ngbDropdownToggle>
+            <my-actor-avatar [actor]="user.account" actorType="account" size="34" responseSize="true"></my-actor-avatar>
+          </button>
+        }
 
         <div ngbDropdownMenu>
           @if (user.account) {
@@ -138,17 +146,21 @@
 
     @if (isGameExperience()) {
       <div class="game-header-actions" aria-label="游戏快捷入口">
-        <a routerLink="/games/library" [queryParams]="{ tab: 'recent' }" title="游玩历史">
-          <my-global-icon iconName="history"></my-global-icon>
-          <span>历史</span>
+        <a routerLink="/games/notifications" title="动态">
+          <my-global-icon iconName="bell"></my-global-icon>
+          <span>动态</span>
         </a>
         <a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
           <my-global-icon iconName="like"></my-global-icon>
           <span>收藏</span>
         </a>
-        <a routerLink="/games/notifications" title="动态">
-          <my-global-icon iconName="bell"></my-global-icon>
-          <span>动态</span>
+        <a routerLink="/games/library" [queryParams]="{ tab: 'recent' }" title="游玩历史">
+          <my-global-icon iconName="history"></my-global-icon>
+          <span>历史</span>
+        </a>
+        <a routerLink="/games/creator" title="创作中心">
+          <my-global-icon iconName="upload"></my-global-icon>
+          <span>创作中心</span>
         </a>
       </div>
     }
