@@ -1,9 +1,7 @@
 import { Component, ElementRef, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core'
 import { ActivatedRoute, RouterOutlet } from '@angular/router'
 import { AboutHTML } from '@app/shared/shared-main/instance/instance.service'
-import { ServerConfig, ServerStats } from '@peertube/peertube-models'
 import { ResolverData } from './about-instance.resolver'
-import { InstanceStatRulesComponent } from './instance-stat-rules.component'
 import { HorizontalMenuComponent, HorizontalMenuEntry } from '@app/shared/shared-main/menu/horizontal-menu.component'
 
 @Component({
@@ -12,7 +10,6 @@ import { HorizontalMenuComponent, HorizontalMenuEntry } from '@app/shared/shared
   styleUrls: [ './about-instance.component.scss' ],
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    InstanceStatRulesComponent,
     HorizontalMenuComponent,
     RouterOutlet
   ]
@@ -23,19 +20,12 @@ export class AboutInstanceComponent implements OnInit {
   readonly descriptionWrapper = viewChild<ElementRef<HTMLInputElement>>('descriptionWrapper')
 
   aboutHTML: AboutHTML
-  serverStats: ServerStats
-  serverConfig: ServerConfig
   menuEntries: HorizontalMenuEntry[] = []
 
   ngOnInit () {
     const {
-      aboutHTML,
-      serverStats,
-      serverConfig
+      aboutHTML
     }: ResolverData = this.route.snapshot.data.instanceData
-
-    this.serverStats = serverStats
-    this.serverConfig = serverConfig
 
     this.aboutHTML = aboutHTML
 

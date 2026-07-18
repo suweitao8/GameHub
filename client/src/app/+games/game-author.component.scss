@@ -1,7 +1,7 @@
 @use './game-community.tokens';
 
 .author-page { padding-bottom: 4rem; }
-.author-banner { background: linear-gradient(120deg, #fff0e6, #fff 68%); border-bottom: 1px solid var(--game-border); padding: 3rem 0 2.5rem; }
+.author-banner { background: linear-gradient(120deg, #eaf9ff, #fff 68%); border-bottom: 1px solid var(--game-border); padding: 3rem 0 2.5rem; }
 .author-banner-inner { align-items: center; display: flex; gap: 1.25rem; }
 .author-large-avatar { align-items: center; background: var(--game-brand); border: 5px solid #fff; border-radius: 50%; box-shadow: var(--game-shadow); color: #fff; display: flex; flex: 0 0 auto; font-size: 2.3rem; font-weight: 800; height: 7rem; justify-content: center; width: 7rem; }
 .author-profile { min-width: 0; }

@@ -32,18 +32,23 @@
 }
 
 .game-experience {
-  --game-page-bg: #f6f7f9;
+  --game-page-bg: #f6f6f6;
   --game-card-bg: #fff;
   --game-text: #18191c;
-  --game-muted: #737780;
-  --game-border: #e8e9ed;
-  --game-brand: #e46f24;
-  --game-brand-soft: #fff0e7;
-  --game-success: #22a06b;
-  --game-warning: #d98a16;
-  --game-danger: #d94b52;
-  --game-radius: 10px;
-  --game-shadow: 0 8px 28px rgb(25 30 40 / 7%);
+  --game-muted: #61666d;
+  --game-border: #e3e5e7;
+  --game-brand: #00aeec;
+  --game-brand-hover: #00a1d6;
+  --game-brand-deep: #008acb;
+  --game-brand-soft: #e5f7ff;
+  --game-accent: #fb7299;
+  --game-accent-deep: #e95b86;
+  --game-accent-soft: #fff0f5;
+  --game-success: #00c091;
+  --game-warning: #ffb400;
+  --game-danger: #f25d8e;
+  --game-radius: 6px;
+  --game-shadow: 0 2px 12px rgb(25 30 40 / 8%);
   --game-content-width: 1240px;
   background: var(--game-page-bg);
 

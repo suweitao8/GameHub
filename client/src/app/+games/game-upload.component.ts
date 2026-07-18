@@ -282,8 +282,8 @@ export class GameUploadComponent implements OnDestroy {
     if (!context) return Promise.resolve(null)
 
     const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height)
-    gradient.addColorStop(0, '#e46f24')
-    gradient.addColorStop(1, '#f6b76e')
+    gradient.addColorStop(0, '#00aeec')
+    gradient.addColorStop(1, '#fb7299')
     context.fillStyle = gradient
     context.fillRect(0, 0, canvas.width, canvas.height)
     context.fillStyle = 'rgba(255, 255, 255, .16)'

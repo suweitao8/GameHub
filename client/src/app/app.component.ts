@@ -401,9 +401,9 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private initHotkeys () {
     this.hotkeysService.add([
       new Hotkey([ 'Shift+/', 's' ], () => {
-        document.getElementById('search-video').focus()
+        document.getElementById('home-game-search')?.focus()
         return false
-      }, $localize`Focus the search bar`),
+      }, $localize`Focus the game search bar`),
 
       new Hotkey('b', () => {
         this.menu.toggleMenu()
@@ -411,19 +411,19 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       }, $localize`Toggle the left menu`),
 
       new Hotkey('g o', () => {
-        this.router.navigate([ '/videos/overview' ])
+        this.router.navigate([ '/games' ])
         return false
-      }, $localize`Go to the "Discover videos" page`),
+      }, $localize`Go to the GameHub home page`),
 
       new Hotkey('g v', () => {
-        this.router.navigate([ '/videos/browse' ])
+        this.router.navigate([ '/games' ], { queryParams: { sort: 'popular' } })
         return false
-      }, $localize`Go to the "Browse videos" page`),
+      }, $localize`Go to popular games`),
 
       new Hotkey('g p', () => {
-        this.router.navigate([ '/videos/publish' ])
+        this.router.navigate([ '/games/upload' ])
         return false
-      }, $localize`Go to the "Publish video" page`),
+      }, $localize`Open the game upload page`),
 
       new Hotkey('g l', () => {
         this.redirectService.redirectToLogin()

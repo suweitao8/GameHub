@@ -27,8 +27,8 @@
 .game-navigation a:hover,
 .game-navigation a:focus-visible,
 .game-navigation a.active {
-  color: #e46f24;
-  background: #fff1e8;
+  color: var(--game-brand, #00aeec);
+  background: var(--game-brand-soft, #e5f7ff);
   opacity: 1;
 }
 
@@ -38,15 +38,15 @@
   flex: 1;
   min-width: 140px;
   max-width: 360px;
-  background: #f1f3f5;
-  border: 1px solid #e2e6ea;
+  background: var(--game-card-bg, #fff);
+  border: 1px solid var(--game-border, #e3e5e7);
   border-radius: 0.55rem;
   overflow: hidden;
 }
 
 .game-navigation-search:focus-within {
-  border-color: #e46f24;
-  box-shadow: 0 0 0 3px rgb(228 111 36 / 14%);
+  border-color: var(--game-brand, #00aeec);
+  box-shadow: 0 0 0 3px rgb(0 174 236 / 14%);
 }
 
 .game-navigation-search input {
@@ -74,14 +74,14 @@
 
 .game-navigation .game-upload-link {
   color: #fff;
-  background: #e46f24;
+  background: var(--game-brand, #00aeec);
   padding-inline: 0.95rem;
 }
 
 .game-navigation .game-upload-link:hover,
 .game-navigation .game-upload-link:focus-visible {
   color: #fff;
-  background: #c95612;
+  background: var(--game-brand-deep, #008acb);
 }
 
 @media (max-width: 1180px) {

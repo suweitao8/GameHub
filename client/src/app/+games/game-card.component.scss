@@ -17,7 +17,7 @@
 
 .game-card:hover,
 .game-card:focus-visible {
-  border-color: rgb(228 111 36 / 38%);
+  border-color: rgb(0 174 236 / 42%);
   box-shadow: var(--game-shadow);
   outline: none;
   transform: translateY(-3px);
@@ -43,7 +43,7 @@
 
 .game-cover.placeholder {
   align-items: center;
-  background: linear-gradient(135deg, #ffe6d3, #f7b779);
+  background: linear-gradient(135deg, #c9f1ff, #9de4fa 52%, #f8c6d8);
   display: flex;
   justify-content: center;
 }
@@ -52,7 +52,7 @@
   color: #fff;
   font-size: 3rem;
   font-weight: 800;
-  text-shadow: 0 2px 12px rgb(100 50 20 / 25%);
+  text-shadow: 0 2px 12px rgb(0 92 126 / 28%);
 }
 
 .play-hint {

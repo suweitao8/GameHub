@@ -33,15 +33,15 @@ export class HomeMenuComponent implements OnInit, OnDestroy {
     this.menuEntries = []
 
     if (config.homepage.enabled) {
-      this.menuEntries.push({ label: $localize`Home`, routerLink: '/home' })
+      this.menuEntries.push({ label: $localize`Home`, routerLink: '/games' })
     }
 
-    this.menuEntries.push({ label: $localize`Discover`, routerLink: '/videos/overview' })
+    this.menuEntries.push({ label: $localize`Discover games`, routerLink: '/games' })
 
     if (this.authService.isLoggedIn()) {
-      this.menuEntries.push({ label: $localize`Subscriptions`, routerLink: '/videos/subscriptions' })
+      this.menuEntries.push({ label: $localize`Following`, routerLink: '/games', queryParams: { view: 'following' } })
     }
 
-    this.menuEntries.push({ label: $localize`Browse videos`, routerLink: '/videos/browse' })
+    this.menuEntries.push({ label: $localize`Browse games`, routerLink: '/games' })
   }
 }

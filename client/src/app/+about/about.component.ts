@@ -44,14 +44,14 @@ export class AboutComponent implements OnInit {
         pluginSelectorId: 'about-menu-instance'
       },
       {
-        label: $localize`PeerTube`,
+        label: $localize`About GameHub`,
         routerLink: '/about/peertube',
         pluginSelectorId: 'about-menu-peertube'
       },
       {
-        label: $localize`Network`,
-        routerLink: '/about/follows',
-        pluginSelectorId: 'about-menu-network'
+        label: $localize`Contact`,
+        routerLink: '/about/contact',
+        pluginSelectorId: 'about-menu-contact'
       }
     ]
   }

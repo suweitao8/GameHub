@@ -370,8 +370,8 @@ security:
   frameguard:
     enabled: true
 
-  # Set x-powered-by HTTP header to "PeerTube"
-  # Can help remote software to know this is a PeerTube instance
+  # Set x-powered-by HTTP header to "GameHub"
+  # Can help remote software to identify this GameHub instance
   powered_by_header:
     enabled: true
 
@@ -968,9 +968,9 @@ auto_blacklist:
 
 # Instance settings
 instance:
-  name: 'PeerTube'
-  short_description: 'PeerTube, an ActivityPub-federated video streaming platform using P2P directly in your web browser.'
-  description: 'Welcome to this PeerTube instance!' # Support markdown
+  name: 'GameHub'
+  short_description: 'GameHub, a community for discovering, playing, and sharing HTML games.'
+  description: 'Welcome to GameHub!' # Support markdown
   terms: 'No terms for now.' # Support markdown
   code_of_conduct: '' # Supports markdown
 

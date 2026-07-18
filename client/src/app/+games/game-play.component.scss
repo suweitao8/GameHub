@@ -20,7 +20,7 @@
 .description { margin: 0; max-width: 700px; }
 .game-stats { display: flex; flex-direction: column; font-size: 0.82rem; gap: 0.3rem; text-align: right; }
 .game-community-panel, .game-comments, .game-info-card { background: #fff; border: 1px solid var(--game-border); border-radius: var(--game-radius); margin-top: 1rem; padding: 1rem; }
-.interaction-row button.active, .coin-row button.active { background: var(--game-brand-soft); border-color: rgb(228 111 36 / 45%); color: var(--game-brand); }
+.interaction-row button.active, .coin-row button.active { background: var(--game-accent-soft); border-color: rgb(251 114 153 / 48%); color: var(--game-accent-deep); }
 .coin-row { align-items: center; border-top: 1px solid var(--game-border); margin-top: 1rem; padding-top: 1rem; }
 .coin-row span { color: var(--game-muted); font-size: 0.82rem; margin-right: auto; }
 .coin-row button:last-child { background: var(--game-brand); border-color: var(--game-brand); color: #fff; font-weight: 700; }

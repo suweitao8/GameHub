@@ -12,7 +12,7 @@ import { AccountsComponent } from './accounts.component'
 export default [
   {
     path: 'peertube',
-    redirectTo: '/videos/browse?scope=local'
+    redirectTo: '/games'
   },
   {
     path: ':accountId',

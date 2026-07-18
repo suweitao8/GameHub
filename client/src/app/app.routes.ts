@@ -5,7 +5,6 @@ import { EmptyComponent } from './empty.component'
 import { HomepageRedirectComponent } from './homepage-redirect.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 import { ActorRedirectGuard } from './shared/shared-main/router/actor-redirect-guard.service'
-import { VideosParentComponent } from './videos-parent.component'
 
 const routes: Routes = [
   {
@@ -99,8 +98,8 @@ const routes: Routes = [
   },
   {
     path: 'search',
-    loadChildren: () => import('./+search/routes'),
-    canActivateChild: [ MetaGuard ]
+    redirectTo: '/games',
+    pathMatch: 'full'
   },
   {
     path: 'games',
@@ -112,19 +111,19 @@ const routes: Routes = [
 
   {
     path: 'studio/edit/:videoId',
-    redirectTo: '/videos/manage/:videoId/studio',
+    redirectTo: '/games',
     pathMatch: 'full'
   },
 
   {
     path: 'stats/videos/:videoId',
-    redirectTo: '/videos/manage/:videoId/stats',
+    redirectTo: '/games',
     pathMatch: 'full'
   },
 
   {
     path: 'videos/upload',
-    redirectTo: '/videos/publish',
+    redirectTo: '/games',
     pathMatch: 'full'
   },
   {
@@ -135,56 +134,43 @@ const routes: Routes = [
   {
     path: 'videos/update/:uuid',
     pathMatch: 'full',
-    redirectTo: '/videos/manage/:uuid'
+    redirectTo: '/games'
   },
 
   {
     path: 'videos/manage/:uuid',
-    loadChildren: () => import('./+videos-publish-manage/+video-manage/routes'),
-    canActivateChild: [ MetaGuard ],
-    data: {
-      meta: {
-        title: $localize`Manage your video`
-      }
-    }
+    redirectTo: '/games',
+    pathMatch: 'full'
   },
 
   {
     path: 'videos/publish',
-    loadChildren: () => import('./+videos-publish-manage/+video-publish/routes'),
-    canActivateChild: [ MetaGuard ],
-    data: {
-      meta: {
-        title: $localize`Publish your video`
-      }
-    }
+    redirectTo: '/games',
+    pathMatch: 'full'
   },
 
   // ---------------------------------------------------------------------------
 
   {
     path: 'video-playlists/watch',
-    redirectTo: 'w/p'
+    redirectTo: '/games'
   },
 
   {
     path: 'videos/watch/playlist',
-    redirectTo: 'w/p'
+    redirectTo: '/games'
   },
   {
     path: 'videos/watch',
-    redirectTo: 'w'
+    redirectTo: '/games'
   },
   {
     path: 'w',
-    loadChildren: () => import('./+video-watch/routes'),
-    data: {
-      preload: 5000
-    }
+    redirectTo: '/games'
   },
 
   // ---------------------------------------------------------------------------
-  // /home and other /videos routes
+  // Legacy home and video routes are intentionally hidden in GameHub.
   // ---------------------------------------------------------------------------
   {
     matcher: (url): UrlMatchResult => {
@@ -193,22 +179,9 @@ const routes: Routes = [
       const matchResult = url[0].path === 'home' || url[0].path === 'videos'
       if (!matchResult) return null
 
-      // So the children can detect the appropriate route
-      return { consumed: [] }
+      return { consumed: url }
     },
-    component: VideosParentComponent,
-    children: [
-      {
-        path: 'home',
-        loadChildren: () => import('./+home/routes'),
-        canActivateChild: [ MetaGuard ]
-      },
-      {
-        path: 'videos',
-        loadChildren: () => import('./+video-list/routes'),
-        canActivateChild: [ MetaGuard ]
-      }
-    ]
+    redirectTo: '/games'
   },
 
   // ---------------------------------------------------------------------------

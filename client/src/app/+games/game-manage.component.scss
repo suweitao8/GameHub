@@ -1,10 +1,12 @@
+@use './game-community.tokens';
+
 .manage-page { max-width: 980px;
   padding-top: 42px;
   padding-bottom: 80px; }
-.back-link { color: #ff734c;
+.back-link { color: var(--game-brand);
   text-decoration: none; }
 .eyebrow { margin: 50px 0 8px;
-  color: #ff734c;
+  color: var(--game-brand);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em; }
@@ -18,25 +20,25 @@ h1 { margin: 0 0 28px;
   justify-content: space-between;
   gap: 24px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04); }
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  background: var(--game-card-bg); }
 .manage-card h2 { margin: 8px 0 4px; }
 .manage-card p { margin: 0;
-  color: rgba(255, 255, 255, 0.6); }
-.status { color: #ffb095;
+  color: var(--game-muted); }
+.status { color: var(--game-brand-deep);
   font-size: 12px;
   text-transform: uppercase; }
 .manage-actions { display: flex;
   flex-wrap: wrap;
   gap: 8px; }
 .manage-actions button { padding: 9px 14px;
-  border: 1px solid #ff734c;
+  border: 1px solid var(--game-brand);
   border-radius: 999px;
   background: transparent;
-  color: inherit;
+  color: var(--game-brand);
   cursor: pointer; }
-.form-error { color: #ff9b8a; }
+.form-error { color: var(--game-danger); }
 
 @media (max-width: 700px) {
   .manage-card { align-items: start;

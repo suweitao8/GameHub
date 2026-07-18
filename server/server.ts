@@ -80,7 +80,7 @@ app.use((_req, res, next) => {
   res.locals.requestStart = Date.now()
 
   if (CONFIG.SECURITY.POWERED_BY_HEADER.ENABLED === true) {
-    res.setHeader('x-powered-by', 'PeerTube')
+    res.setHeader('x-powered-by', 'GameHub')
   }
 
   return next()
