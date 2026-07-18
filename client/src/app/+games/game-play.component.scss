@@ -12,8 +12,8 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: 0.75rem; }
-.game-play-page .game-play-header { grid-column: 1 / -1;
-  grid-row: 1; }
+.game-play-page .game-play-header { grid-column: 1;
+  grid-row: 3; }
 .game-details { align-items: flex-start;
   display: flex;
   gap: 1.25rem;
@@ -43,7 +43,7 @@
   overflow: hidden;
   position: relative; }
 .game-play-page .game-stage { grid-column: 1;
-  grid-row: 2; }
+  grid-row: 1; }
 .game-stage iframe { border: 0;
   display: block;
   height: min(70vh, 760px);
@@ -89,7 +89,7 @@
   color: #fff; }
 .game-details { padding: 1.2rem 0 0.8rem; }
 .game-play-page .game-details { grid-column: 1;
-  grid-row: 3; }
+  grid-row: 2; }
 .game-details-copy { min-width: 0; }
 .game-details-tools { align-items: flex-end;
   display: flex;
@@ -192,7 +192,7 @@
   border-radius: 6px;
   box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
   grid-column: 2;
-  grid-row: 2 / span 4;
+  grid-row: 1 / span 5;
   margin-top: 0;
   padding: 1rem; }
 .section-heading h2 { margin: 0; }
