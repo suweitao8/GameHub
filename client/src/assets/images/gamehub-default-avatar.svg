@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges" role="img" aria-labelledby="title">
+  <title id="title">GameHub 默认像素头像</title>
+  <rect width="16" height="16" fill="#e5f7ff"/>
+  <rect x="3" y="2" width="10" height="10" fill="#00aeec"/>
+  <rect x="2" y="5" width="12" height="6" fill="#00aeec"/>
+  <rect x="5" y="5" width="2" height="2" fill="#fff"/>
+  <rect x="9" y="5" width="2" height="2" fill="#fff"/>
+  <rect x="6" y="9" width="4" height="1" fill="#4e5969"/>
+  <rect x="4" y="12" width="8" height="2" fill="#4e5969"/>
+</svg>
