@@ -3,7 +3,6 @@ export type GamesListParams = {
   search?: string
   category?: string
   publishedAfter?: string
-  device?: 'mobile' | 'keyboard' | 'mouse' | 'touch'
   count?: number
   start?: number
   sort?: 'recommended' | 'latest' | 'popular' | 'likes' | 'coins' | 'favorites'
@@ -35,7 +34,6 @@ export function buildGamesListUrl (apiOrigin: string, params: GamesListParams = 
   if (params.view) query.set('view', params.view)
   if (params.search) query.set('search', params.search)
   if (params.publishedAfter) query.set('publishedAfter', params.publishedAfter)
-  if (params.device) query.set('device', params.device)
   if (params.category) query.set('category', params.category)
   if (params.count !== undefined) query.set('count', params.count + '')
   if (params.start !== undefined) query.set('start', params.start + '')

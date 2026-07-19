@@ -117,9 +117,8 @@ export class GameAuthorComponent implements OnInit {
       music: '音乐',
       horror: '恐怖',
       board: '桌游',
-      multiplayer: '多人',
       other: '其他'
-    }[category] || category
+    }[category] || '其他'
   }
 
   private loadAuthor (accountId: string) {

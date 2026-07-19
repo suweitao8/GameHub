@@ -81,7 +81,7 @@
   flex-wrap: wrap;
   font-size: 0.78rem;
   gap: 0.8rem; }
-.game-runtime-note { color: #9499a1;
+.game-runtime-note { color: var(--game-text-button);
   font-size: 0.72rem;
   margin-left: auto; }
 .game-details { align-items: flex-start;
@@ -428,7 +428,7 @@
 .chat-message:first-child { border-top: 0; }
 .chat-message .comment-author { font-size: 0.78rem; }
 .chat-message .comment-author time,
-.comment-reply .comment-author time { color: #9499a1;
+.comment-reply .comment-author time { color: var(--game-text-button);
   font-size: 0.7rem;
   margin-left: auto; }
 .chat-message > p { color: var(--game-text);
@@ -505,17 +505,17 @@
     transform: translateY(0); } }
 .comment { border-top: 1px solid #f0f1f2;
   padding: 1rem 0; }
-.comment p { color: rgb(48 49 51);
+.comment p { color: var(--game-text);
   font-size: 0.88rem;
   line-height: 1.6;
   margin: 0.45rem 0 0;
   overflow-wrap: anywhere; }
 .comment-author { align-items: center;
-  color: #61666d;
+  color: var(--game-text-button);
   display: flex;
   font-size: 0.82rem;
   gap: 0.45rem; }
-.comment-author::before { background: var(--game-brand-soft) url('/client/assets/images/gamehub-default-avatar.svg') center / cover no-repeat;
+.comment-author::before { background: var(--game-brand-soft) url('../../assets/images/gamehub-default-avatar.svg') center / cover no-repeat;
   border: 1px solid rgb(0 174 236 / 22%);
   border-radius: 50%;
   content: '';
@@ -536,7 +536,7 @@
   margin-top: 0.55rem; }
 .comment-actions button { background: transparent;
   border: 0;
-  color: #9499a1;
+  color: var(--game-text-button);
   font-size: 0.78rem;
   padding: 0; }
 .comment-actions button:hover,

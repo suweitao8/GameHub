@@ -45,12 +45,12 @@
   image-rendering: pixelated;
   object-fit: cover;
   width: 7rem; }
-.author-profile { color: rgb(48 49 51);
+.author-profile { color: var(--game-text);
   min-width: 0;
   text-shadow: 0 1px 1px rgb(255 255 255 / 55%); }
 .author-profile h1 { font-size: clamp(1.8rem, 4vw, 2.8rem);
   margin: 0; }
-.author-profile > p { color: #454b53;
+.author-profile > p { color: var(--game-text);
   margin: 0.45rem 0 0;
   max-width: 52rem;
   overflow: hidden;
@@ -68,7 +68,7 @@
 .follow-button.following { background: rgb(255 255 255 / 80%);
   border: 1px solid #c8d1d7;
   box-shadow: none;
-  color: #61666d; }
+  color: var(--game-text-button); }
 .follow-button:disabled { cursor: wait;
   opacity: 0.7; }
 .follow-action { align-items: flex-end;
@@ -91,7 +91,7 @@
 .author-tabs button { background: transparent;
   border: 0;
   border-bottom: 2px solid transparent;
-  color: #61666d;
+  color: var(--game-text-button);
   cursor: pointer;
   font-size: 0.9rem;
   padding: 1rem 0 0.85rem; }
@@ -101,7 +101,7 @@
 .author-tabs button:focus-visible { border-radius: 4px;
   outline: 2px solid rgb(0 174 236 / 35%);
   outline-offset: 2px; }
-.author-tabs span { color: #9499a1;
+.author-tabs span { color: var(--game-text-button);
   font-size: 0.75rem;
   margin-left: 0.15rem; }
 .author-layout { display: grid;
@@ -125,7 +125,7 @@
 .author-filter-row button { background: #fff;
   border: 1px solid var(--game-border);
   border-radius: 4px;
-  color: #61666d;
+  color: var(--game-text-button);
   font-size: 0.78rem;
   padding: 0.38rem 0.65rem; }
 .author-filter-row button.active { background: var(--game-brand-soft);

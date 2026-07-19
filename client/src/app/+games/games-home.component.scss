@@ -195,7 +195,7 @@
 .home-category-links a.active {
   background: #dfe2e5;
   border-color: #c9cdd1;
-  color: #4e5969;
+  color: var(--game-text-button);
 }
 
 .featured-discovery-grid {
@@ -226,6 +226,15 @@
   aspect-ratio: 16 / 9;
   background: #bfeeff;
   overflow: hidden;
+  position: relative;
+}
+
+.featured-cover::after {
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 42%, rgb(0 0 0 / 8%) 68%, rgb(0 0 0 / 42%) 100%);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
 }
 
 .featured-cover img {
@@ -269,6 +278,10 @@
   position: absolute;
   right: 1rem;
   z-index: 2;
+}
+
+.featured-controls > div:last-child {
+  margin-left: auto;
 }
 
 .featured-dots {
@@ -387,6 +400,12 @@
   .featured-cover { min-height: 0; }
   .featured-caption h3 { font-size: 1.05rem; }
   .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1200px) {
+  .game-community-content {
+    width: calc(100% - 2rem);
+  }
 }
 
 @media (max-width: 720px) {

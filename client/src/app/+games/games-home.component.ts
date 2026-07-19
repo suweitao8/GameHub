@@ -29,13 +29,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly view = signal('')
   readonly searchMode = signal(false)
   readonly category = signal('')
-  readonly device = signal<GamesListParams['device']>(undefined)
   readonly publishedAfter = signal('')
   readonly sort = signal<GamesListParams['sort']>('recommended')
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
   readonly carouselIndex = signal(0)
-  readonly featuredColors = signal<Record<string, string>>({})
+  readonly featuredGradients = signal<Record<string, string>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly categories = [
@@ -53,8 +52,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     { id: 'card', title: '卡牌', description: '组合卡组，做出关键的选择。', query: { category: 'card' } },
     { id: 'music', title: '音乐', description: '跟随节奏，完成一场声音之旅。', query: { category: 'music' } },
     { id: 'horror', title: '恐怖', description: '戴上耳机，探索未知角落。', query: { category: 'horror' } },
-    { id: 'board', title: '桌游', description: '熟悉的规则，适合短时游玩。', query: { category: 'board' } },
-    { id: 'multiplayer', title: '多人', description: '和朋友一起分享游戏时光。', query: { category: 'multiplayer' } }
+    { id: 'board', title: '桌游', description: '熟悉的规则，适合短时游玩。', query: { category: 'board' } }
   ]
 
   ngOnInit () {
@@ -63,7 +61,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       this.view.set(params.get('view') || '')
       this.category.set(params.get('category') || '')
       this.search.set(params.get('search') || '')
-      this.device.set(params.get('device') as GamesListParams['device'] || undefined)
       this.publishedAfter.set(params.get('publishedAfter') || '')
       const requestedSort = params.get('sort') as GamesListParams['sort']
       const validSorts = [ 'recommended', 'latest', 'popular', 'likes', 'coins', 'favorites' ]
@@ -95,7 +92,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       search: this.search() || undefined,
       category: this.category() || undefined,
       publishedAfter: this.publishedAfter() || undefined,
-      device: this.device(),
       view: this.view() === 'following' ? 'following' : undefined,
       count: 8
     }
@@ -226,47 +222,58 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     return games.length ? games[this.carouselIndex() % games.length] : null
   }
 
-  featuredColor (game: Game) {
-    const storedColor = this.featuredColors()[game.uuid]
-    if (storedColor) return storedColor
+  featuredGradient (game: Game) {
+    const storedGradient = this.featuredGradients()[game.uuid]
+    if (storedGradient) return storedGradient
 
     const seed = Array.from(game.uuid).reduce((total, character) => total + character.charCodeAt(0), 0)
-    return this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
+    const fallback = this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
+    return `linear-gradient(90deg, ${fallback} 0%, ${fallback} 100%)`
   }
 
   onFeaturedImageLoad (event: Event, uuid: string) {
-    if (this.featuredColors()[uuid]) return
+    if (this.featuredGradients()[uuid]) return
 
     const image = event.target as HTMLImageElement
     if (!image.naturalWidth || !image.naturalHeight) return
 
     try {
       const canvas = document.createElement('canvas')
-      canvas.width = 24
-      canvas.height = 14
+      // Only sample the bottom tenth: it is the part visually adjacent to the title.
+      canvas.width = 50
+      canvas.height = 10
       const context = canvas.getContext('2d', { willReadFrequently: true })
       if (!context) return
 
-      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      context.drawImage(
+        image, 0, image.naturalHeight * 0.9, image.naturalWidth, image.naturalHeight * 0.1, 0, 0, canvas.width, canvas.height
+      )
       const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
-      const buckets = new Map<string, { count: number, red: number, green: number, blue: number }>()
+      const colors = []
+      for (let segment = 0; segment < 5; segment++) {
+        let red = 0
+        let green = 0
+        let blue = 0
+        let count = 0
 
-      for (let index = 0; index < pixels.length; index += 4) {
-        if (pixels[index + 3] < 180) continue
+        for (let y = 0; y < canvas.height; y++) {
+          for (let x = segment * 10; x < (segment + 1) * 10; x++) {
+            const index = (y * canvas.width + x) * 4
+            if (pixels[index + 3] < 180) continue
+            red += pixels[index]
+            green += pixels[index + 1]
+            blue += pixels[index + 2]
+            count++
+          }
+        }
 
-        const red = Math.round(pixels[index] / 32) * 32
-        const green = Math.round(pixels[index + 1] / 32) * 32
-        const blue = Math.round(pixels[index + 2] / 32) * 32
-        const key = `${red},${green},${blue}`
-        const bucket = buckets.get(key) || { count: 0, red, green, blue }
-        bucket.count++
-        buckets.set(key, bucket)
+        if (!count) return
+        colors.push(`rgb(${Math.round(red / count)} ${Math.round(green / count)} ${Math.round(blue / count)})`)
       }
 
-      const dominant = [ ...buckets.values() ].sort((first, second) => second.count - first.count)[ 0 ]
-      if (!dominant) return
-
-      this.featuredColors.update(colors => ({ ...colors, [uuid]: `rgb(${dominant.red} ${dominant.green} ${dominant.blue})` }))
+      const gradientStops = colors.map((color, index) => `${color} ${index * 25}%`).join(', ')
+      const gradient = `linear-gradient(90deg, ${gradientStops}, ${colors[ 4 ]} 100%)`
+      this.featuredGradients.update(gradients => ({ ...gradients, [uuid]: gradient }))
     } catch {
       // Cross-origin cover images may not be readable by canvas; use the fallback palette.
     }
@@ -284,11 +291,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     this.loadGames()
   }
 
-  onDeviceChange (event: Event) {
-    this.device.set((event.target as HTMLSelectElement).value as GamesListParams['device'] || undefined)
-    this.loadGames()
-  }
-
   onPublishedAfterChange (event: Event) {
     this.publishedAfter.set((event.target as HTMLInputElement).value)
     this.loadGames()
@@ -296,7 +298,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   primaryHeading () {
     if (this.view() === 'following') return '关注动态'
-    if (this.searchMode() || this.search() || this.category() || this.device() || this.publishedAfter()) return '搜索结果'
+    if (this.searchMode() || this.search() || this.category() || this.publishedAfter()) return '搜索结果'
 
     return {
       recommended: '为你推荐',

@@ -24,7 +24,7 @@
 
       @if (category() && recommended().length) {
         <section class="game-section category-results-section"><div class="game-section-heading"><div><h2>{{ categoryTitle() }}热门游戏</h2></div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
-      } @else if (sort() === 'recommended' && !searchMode() && !search() && !device() && view() !== 'following' && carouselGame(); as featuredGame) {
+      } @else if (sort() === 'recommended' && !searchMode() && !search() && view() !== 'following' && carouselGame(); as featuredGame) {
         <section class="featured-section" aria-label="推荐游戏">
           <div class="section-with-side-action">
             <div class="featured-discovery-grid">
@@ -33,7 +33,7 @@
                   <div class="featured-cover">
                     @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
                   </div>
-                  <div class="featured-caption" [style.background-color]="featuredColor(featuredGame)"><h3>{{ featuredGame.title }}</h3></div>
+                  <div class="featured-caption" [style.background]="featuredGradient(featuredGame)"><h3>{{ featuredGame.title }}</h3></div>
                 </a>
                 <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
               </article>
@@ -46,11 +46,11 @@
         <section class="game-section"><div class="game-section-heading"><div><h2>{{ primaryHeading() }}</h2></div><div class="section-controls">@if (sort() === 'recommended' && !searchMode() && view() !== 'following') { <button class="shuffle-button" type="button" (click)="shuffleRecommendations()"><my-global-icon iconName="refresh" /><span>换一换</span></button> } @else if (view() !== 'following') { <label>排序<select [value]="sort()" (change)="onSortChange($event)"><option value="recommended">综合排序</option><option value="latest">最新发布</option><option value="popular">最多游玩</option><option value="likes">最多点赞</option><option value="coins">最多投币</option><option value="favorites">最多收藏</option></select></label> }</div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
       }
 
-      @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !device() && !publishedAfter() && view() !== 'following' && recent().length) {
+      @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !publishedAfter() && view() !== 'following' && recent().length) {
         <section class="game-section recent-games-section"><div class="game-section-heading compact-section-heading"><h2>我玩过的</h2></div><div class="game-grid">@for (game of recent().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
       }
 
-      @if (sort() === 'recommended' && !searchMode() && !category() && !device() && view() !== 'following') {
+      @if (sort() === 'recommended' && !searchMode() && !category() && view() !== 'following') {
         <section class="game-section"><div class="game-section-heading compact-section-heading"><h2>最新发布</h2></div><div class="section-with-side-action"><div class="game-grid">@for (game of latest().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div><button class="section-side-action" type="button" aria-label="换一批最新发布" (click)="shuffleLatest()"><my-global-icon class="section-side-action-icon" iconName="refresh" /><span class="section-side-action-label">换一批</span></button></div></section>
         <section class="game-section"><div class="game-section-heading compact-section-heading"><h2>热门游戏</h2></div><div class="section-with-side-action"><div class="game-grid">@for (game of popular().slice(0, 10); track game.uuid) { <my-game-card [game]="game" /> }</div><button class="section-side-action" type="button" aria-label="换一批热门游戏" (click)="shufflePopular()"><my-global-icon class="section-side-action-icon" iconName="refresh" /><span class="section-side-action-label">换一批</span></button></div></section>
       }

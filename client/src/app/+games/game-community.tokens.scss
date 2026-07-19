@@ -1,8 +1,10 @@
 .game-experience {
   --game-page-bg: #fff;
   --game-card-bg: #fff;
-  --game-text: rgb(48 49 51);
-  --game-muted: #61666d;
+  --game-text: rgb(30 30 30);
+  --game-text-button: rgb(100 100 100);
+  --game-text-hint: rgb(140 140 140);
+  --game-muted: rgb(100 100 100);
   --game-border: #e3e5e7;
   --game-brand: #00aeec;
   --game-brand-hover: #00a1d6;
@@ -23,6 +25,7 @@
   color: var(--game-text);
   background: var(--game-page-bg);
   min-height: calc(100vh - 76px);
+  overflow-x: clip;
 }
 
 .game-community-page button,
@@ -33,6 +36,7 @@
 }
 
 .game-community-page button {
+  color: var(--game-text-button);
   cursor: pointer;
 }
 

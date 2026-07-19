@@ -28,8 +28,8 @@
 .root {
   --co-logo-size: 34px;
   --co-root-padding: 1.5rem;
-  --game-text-primary: rgb(48 49 51);
-  --game-text-secondary: #61666d;
+  --game-text-primary: rgb(30 30 30);
+  --game-text-secondary: rgb(100 100 100);
 
   position: relative;
   color: pvar(--header-fg-500);
@@ -46,9 +46,13 @@
   --co-root-padding: 0.4rem 0.65rem;
   --game-brand: #00aeec;
 
-  background: #fff;
+  background-color: #fff;
+  background-image: linear-gradient(90deg, rgb(255 255 255 / 82%), rgb(255 255 255 / 64%) 50%, rgb(255 255 255 / 82%)), url('../../assets/images/gamehub-header-banner-10x1.png');
+  background-position: center 47%;
+  background-repeat: no-repeat;
+  background-size: cover;
   border-bottom: 1px solid #eceef0;
-  box-shadow: 0 1px 5px rgb(25 30 40 / 5%);
+  box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
   color: var(--game-text-primary);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -218,7 +222,7 @@
   border: 1px solid #e3e5e7;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(25 30 40 / 13%);
-  color: #61666d;
+  color: var(--game-text-secondary);
   left: 50%;
   overflow: hidden;
   padding: 0.75rem 0;
@@ -252,12 +256,12 @@
 }
 
 .game-header-popover > header strong {
-  color: rgb(48 49 51);
+  color: var(--game-text-primary);
   font-size: 0.95rem;
 }
 
 .game-header-popover a {
-  color: #61666d;
+  color: var(--game-text-secondary);
   text-decoration: none;
 }
 
@@ -307,7 +311,7 @@
 .game-live-preview strong,
 .game-notification-preview strong,
 .game-list-preview strong {
-  color: rgb(48 49 51);
+  color: var(--game-text-primary);
   font-size: 0.8rem;
   font-weight: 600;
   overflow: hidden;
@@ -319,7 +323,7 @@
 .game-notification-preview small,
 .game-list-preview small,
 .game-notification-preview em {
-  color: #9499a1;
+  color: var(--game-text-secondary);
   font-size: 0.72rem;
   font-style: normal;
   line-height: 1.45;
@@ -334,7 +338,7 @@
 
 .game-popover-divider span {
   background: #fff;
-  color: #9499a1;
+  color: var(--game-text-secondary);
   font-size: 0.72rem;
   padding: 0 0.6rem;
   position: relative;
@@ -395,7 +399,7 @@
 }
 
 .game-popover-empty {
-  color: #9499a1;
+  color: var(--game-text-secondary);
   font-size: 0.78rem;
   margin: 0;
   padding: 1rem;
@@ -427,7 +431,7 @@
   background: #f1f2f3;
   border: 1px solid #dfe2e5;
   border-radius: 4px;
-  color: #61666d;
+  color: var(--game-text-secondary);
   cursor: pointer;
   font-size: 0.82rem;
   padding: 0.55rem 0.7rem;
@@ -607,7 +611,7 @@ my-actor-avatar {
   border: 1px solid #e3e5e7;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgb(25 30 40 / 13%);
-  color: #4e5969;
+  color: var(--game-text-secondary);
   display: block;
   left: 50%;
   overflow: hidden;
@@ -621,6 +625,40 @@ my-actor-avatar {
 :host-context(.game-experience) .root-header {
   background: #fff;
   height: var(--header-height);
+}
+
+@media screen and (max-width: 1200px) {
+  :host-context(.game-experience) .root {
+    column-gap: 0.45rem;
+    padding-inline: 0.5rem;
+  }
+
+  :host-context(.game-experience) .game-brand {
+    margin-right: 0.35rem;
+  }
+
+  :host-context(.game-experience) .game-header-left-nav {
+    gap: 0;
+  }
+
+  :host-context(.game-experience) .game-header-left-nav a {
+    padding-inline: 0.45rem;
+  }
+
+  :host-context(.game-experience) .game-header-actions a {
+    min-width: 2.45rem;
+  }
+
+  :host-context(.game-experience) .game-header-actions a:last-child,
+  :host-context(.game-experience) .game-header-action-wrap:last-child a {
+    min-width: 3.35rem;
+  }
+
+  :host-context(.game-experience) my-game-navigation {
+    flex-basis: 360px;
+    max-width: 420px;
+    min-width: 0;
+  }
 }
 
 .game-avatar-profile { align-items: center;
@@ -637,14 +675,14 @@ my-actor-avatar {
   image-rendering: pixelated;
   object-fit: cover;
   width: 4.75rem; }
-.game-avatar-profile strong { color: rgb(48 49 51);
+.game-avatar-profile strong { color: var(--game-text-primary);
   font-size: 1rem;
   font-weight: 700;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; }
-.game-avatar-profile span { color: #9499a1;
+.game-avatar-profile span { color: var(--game-text-secondary);
   font-size: 0.76rem; }
 
 @media screen and (max-width: $mobile-view) {
@@ -770,6 +808,10 @@ my-actor-avatar {
 
   .game-header-actions {
     display: none;
+  }
+
+  :host-context(.game-experience) .root {
+    background-position: center 44%;
   }
 
   .instance-name {
