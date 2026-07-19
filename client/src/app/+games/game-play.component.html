@@ -1,6 +1,13 @@
 <main class="game-community-page game-play-page">
   @if (loading()) {
-    <div class="game-community-content game-play-state" role="status">正在打开游戏...</div>
+    <div class="game-community-content game-play-state" role="status">
+      <div class="game-skeleton-stage">
+        <div class="game-skeleton-game shimmer"></div>
+        <div class="game-skeleton-controls">
+          <div class="game-skeleton-control-bar shimmer"></div>
+        </div>
+      </div>
+    </div>
   } @else if (loadingError() || !game()) {
     <div class="game-community-content game-play-state" role="alert">
       <h1>游戏暂时无法打开</h1>
@@ -33,7 +40,7 @@
 
       <section class="game-stage" aria-label="游戏运行区域">
         @if (frameLoading()) { <div class="frame-loading" role="status">正在加载安全运行环境...</div> }
-        <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts" allow="fullscreen" referrerpolicy="no-referrer" tabindex="0" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
+        <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts allow-pointer-lock allow-fullscreen" allow="fullscreen" referrerpolicy="no-referrer" loading="lazy" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
         @if (!gameStarted() && !frameLoading()) { <button type="button" class="start-game-overlay" (click)="startGame()"><my-global-icon iconName="play" />开始游戏</button> }
         <div class="game-player-controls" aria-label="游戏播放控制">
           <div class="game-player-controls-left"><button type="button" aria-label="开始游戏" (click)="startGame()"><my-global-icon iconName="play" /></button><button type="button" aria-label="重新开始" (click)="reloadGame()"><my-global-icon iconName="refresh" /></button><span>{{ gameStarted() ? '正在游玩' : '准备就绪' }}</span></div>

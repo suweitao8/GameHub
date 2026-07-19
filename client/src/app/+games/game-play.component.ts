@@ -28,6 +28,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly game = signal<Game | null>(null)
   readonly loading = signal(true)
   readonly loadingError = signal(false)
+  readonly skeletonPulse = signal(true)
   readonly frameLoading = signal(true)
   readonly runtimeUrl = signal<SafeResourceUrl | null>(null)
   readonly community = signal<GameCommunity | null>(null)

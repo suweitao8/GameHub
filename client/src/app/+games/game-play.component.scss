@@ -619,5 +619,46 @@
   .game-play-page .game-info-grid,
   .game-play-page .game-comments,
   .game-play-page .game-community-content > .game-section,
-  .game-play-page .game-community-content > .related-section,
+  .game-play-page .game-related-section,
   .game-play-page .game-community-content > section:last-child { margin-top: 1rem; } .game-play-page .game-comments { margin-top: 1rem; } }
+
+/* Skeleton loading styles */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.game-skeleton-stage {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.game-skeleton-game {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: 0.5rem;
+  max-width: 900px;
+  width: 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+.game-skeleton-controls {
+  display: flex;
+  gap: 0.75rem;
+  max-width: 900px;
+  width: 100%;
+}
+
+.game-skeleton-control-bar {
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: 0.35rem;
+  height: 2.5rem;
+  width: 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
