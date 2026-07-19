@@ -9,7 +9,18 @@
   } @else if (error()) {
     <div class="game-community-content game-state error" role="alert"><h2>暂时加载失败</h2><p>网络或服务短暂异常，请重试。</p><button type="button" (click)="loadGames()">重新加载</button></div>
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {
-    @if (view() === 'following') { <div class="game-community-content game-empty-feed" role="status">暂时没有动态</div> } @else { <div class="game-community-content category-empty" aria-label="暂无游戏"></div> }
+    <div class="game-community-content game-empty-layout">
+      <nav class="home-discovery-nav" aria-label="游戏内容导航">
+        <div class="home-feed-tabs">
+          <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games" [queryParams]="{ view: 'following' }" [class.active]="view() === 'following'"><span>动态</span></a>
+          <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
+        </div>
+        <div class="home-category-links" aria-label="游戏分类">
+          @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id">{{ item.title }}</a> }
+        </div>
+      </nav>
+      @if (view() === 'following') { <div class="game-empty-feed" role="status">暂时没有动态</div> } @else { <div class="category-empty" aria-label="暂无游戏"></div> }
+    </div>
   } @else {
     <div class="game-community-content">
       <nav class="home-discovery-nav" aria-label="游戏内容导航">
