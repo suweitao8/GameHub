@@ -164,8 +164,11 @@
 .home-feed-tab-dynamic { background: #ff9214; }
 .home-feed-tab-hot { background: #fb7299; }
 .home-feed-tabs a.active {
-  background: var(--game-brand-deep);
+  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 60%), 0 1px 2px rgb(25 30 40 / 10%);
+  filter: brightness(0.9);
 }
+.home-feed-tab-dynamic.active { background: #ff9214; }
+.home-feed-tab-hot.active { background: #fb7299; }
 .home-feed-tabs a:hover,
 .home-feed-tabs a:focus-visible {
   color: #fff;
@@ -382,6 +385,12 @@
 .game-state p { color: var(--game-muted);
   margin: 0.6rem 0 1.2rem; }
 .game-state.error { color: var(--game-danger); }
+.game-empty-feed {
+  color: var(--game-muted);
+  min-height: 12rem;
+  padding-top: 5rem;
+  text-align: center;
+}
 
 .category-directory { padding-bottom: 4rem; }
 .category-directory-grid { display: grid;
