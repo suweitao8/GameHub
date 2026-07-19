@@ -41,8 +41,6 @@
         </div>
       </section>
 
-      <div class="game-play-header"><div class="game-player-info"><span>{{ game()!.playCount }} 次游玩</span><span>{{ community()?.reviews ?? game()!.comments ?? 0 }} 条评价</span><time [attr.datetime]="game()!.updatedAt">{{ game()!.updatedAt | date:'yyyy-MM-dd HH:mm' }}</time></div><span class="game-runtime-note">单 HTML · 安全运行</span></div>
-
       @if (community(); as state) {
         <section class="game-community-panel" aria-label="游戏互动操作">
           <div class="interaction-row"><button class="game-action-button" type="button" [class.active]="state.rating === 'like'" (click)="toggleRate('like')"><my-global-icon iconName="like" /><strong>{{ state.likes }}</strong><small>点赞</small></button><button class="game-action-button" type="button" (click)="coinAmount.set(1)"><my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong><small>投币</small></button><button class="game-action-button" type="button" [class.active]="state.favorite" (click)="toggleFavorite()"><my-global-icon iconName="star" /><strong>{{ state.favorite ? '已' : '' }}</strong><small>收藏</small></button><button class="game-action-button" type="button" (click)="shareGame()"><my-global-icon iconName="share" /><strong></strong><small>分享</small></button></div>

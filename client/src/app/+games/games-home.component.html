@@ -9,7 +9,7 @@
   } @else if (error()) {
     <div class="game-community-content game-state error" role="alert"><h2>暂时加载失败</h2><p>网络或服务短暂异常，请重试。</p><button type="button" (click)="loadGames()">重新加载</button></div>
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {
-    <div class="game-community-content game-state"><h2>还没有找到相关游戏</h2>@if (view() === 'following') { <p>关注作者后，这里会显示他们最新发布的游戏。</p><a routerLink="/games">去发现作者</a> } @else if (category()) { <p>这个分类暂时还没有游戏。</p> } @else { <p>换一个关键词，看看其他游戏。</p> }</div>
+    @if (category()) { <div class="game-community-content category-empty" aria-label="分类暂无游戏"></div> } @else { <div class="game-community-content game-state"><h2>还没有找到相关游戏</h2>@if (view() === 'following') { <p>关注作者后，这里会显示他们最新发布的游戏。</p><a routerLink="/games">去发现作者</a> } @else { <p>换一个关键词，看看其他游戏。</p> }</div> }
   } @else {
     <div class="game-community-content">
       <nav class="home-discovery-nav" aria-label="游戏内容导航">

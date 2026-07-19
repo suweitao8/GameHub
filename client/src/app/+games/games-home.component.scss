@@ -8,6 +8,10 @@
   padding-top: 0.1rem;
 }
 
+.category-empty {
+  min-height: calc(100vh - 8rem);
+}
+
 .section-controls {
   align-items: flex-end;
   display: flex;
