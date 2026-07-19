@@ -6,8 +6,8 @@
   gap: 0 1.25rem;
   grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
   grid-template-rows: auto minmax(0, auto) auto auto auto auto auto;
-  max-width: var(--game-content-width);
-  width: calc(100% - 100px); }
+  max-width: none;
+  width: 90%; }
 .game-title-bar { grid-column: 1;
   grid-row: 1;
   padding: 0.35rem 0 0.75rem; }
@@ -568,7 +568,7 @@
 .game-play-page .game-community-content > section:last-child { grid-column: 2;
   grid-row: 7; }
 
-@media (max-width: 1050px) { .game-play-page .game-community-content { width: calc(100% - 100px); } }
+@media (max-width: 1050px) { .game-play-page .game-community-content { width: 90%; } }
 
 @media (max-width: 900px) { .game-play-header,
   .game-details { align-items: flex-start;
@@ -580,7 +580,7 @@
     flex-direction: column; } }
 
 @media (max-width: 900px) { .game-play-page .game-community-content { display: block;
-    width: calc(100% - 32px); } .game-play-page .game-play-header,
+    width: 90%; } .game-play-page .game-play-header,
   .game-play-page .game-stage,
   .game-play-page .game-developer-card,
   .game-play-page .game-details,

@@ -66,18 +66,12 @@
             <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || '用户'" (error)="onGameAvatarError($event)">
           </button>
           @if (gameAvatarHoverVisible()) {
-            <div class="game-avatar-hover-card" role="menu" aria-label="个人菜单">
+            <div class="game-avatar-hover-card" role="dialog" aria-label="个人信息">
               <div class="game-avatar-profile">
                 <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
                 <strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong>
                 <span>硬币 {{ gameCoinBalance() ?? '—' }}</span>
               </div>
-              <a role="menuitem" [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()"><my-global-icon iconName="user" aria-hidden="true"></my-global-icon>个人主页<span aria-hidden="true">›</span></a>
-              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="star" aria-hidden="true"></my-global-icon>我的收藏<span aria-hidden="true">›</span></a>
-              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'recent' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="history" aria-hidden="true"></my-global-icon>游戏历史<span aria-hidden="true">›</span></a>
-              <a role="menuitem" routerLink="/games/creator" (click)="cancelGameAvatarHover()"><my-global-icon iconName="upload" aria-hidden="true"></my-global-icon>创作中心<span aria-hidden="true">›</span></a>
-              <div class="game-avatar-menu-divider"></div>
-              <button type="button" role="menuitem" (click)="logout($event)"><my-global-icon iconName="sign-out" aria-hidden="true"></my-global-icon>退出登录</button>
             </div>
           }
         } @else {

@@ -17,7 +17,7 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   readonly query = signal('')
   readonly focused = signal(false)
   readonly history = signal<string[]>([])
-  readonly hotKeywords = [ '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智', '策略挑战', '恐怖探索', '经典街机', '手机可玩', '新作推荐' ]
+  readonly hotKeywords = [ '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智', '策略挑战', '恐怖探索', '经典街机', '独立新作', '新作推荐' ]
 
   ngOnInit () {
     const history = this.readHistory()
