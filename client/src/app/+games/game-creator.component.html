@@ -2,7 +2,7 @@
   <div class="game-community-content">
     <header class="creator-header"><div><p class="game-eyebrow">创作中心</p><h1>创作中心</h1><p>上传、管理你的小游戏，查看作品互动数据。</p></div><a routerLink="/games/upload" class="upload-button">上传游戏</a></header>
     @if (error()) { <section class="creator-state"><h2>{{ error() }}</h2><a routerLink="/login">去登录</a></section> }
-    @else if (!overview()) { <section class="creator-state">正在加载创作数据...</section> }
+    @else if (!overview()) { <section class="creator-state"><div class="skeleton-metrics">@for (i of [1,2,3,4,5,6,7,8]; track $index) { <div class="skeleton-metric shimmer"></div> }</div></section> }
     @else {
       <section class="metric-grid">
         <article><span>维护游戏</span><strong>{{ overview()!.gameCount }} / {{ overview()!.gameLimit }}</strong></article>

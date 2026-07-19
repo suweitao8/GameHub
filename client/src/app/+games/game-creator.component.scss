@@ -83,3 +83,16 @@
 
 @media (max-width: 450px) { .metric-grid,
   .creator-shortcuts { grid-template-columns: 1fr; } }
+
+/* Skeleton loading */
+.skeleton-metrics {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.skeleton-metric {
+  background: #eceff3;
+  border-radius: var(--game-radius);
+  height: 5rem;
+}
