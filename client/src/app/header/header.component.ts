@@ -392,8 +392,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cancelGameNavHover()
   }
 
-  copyGamePrompt (prompt: string) {
-    void navigator.clipboard?.writeText(prompt)
+  async copyGamePrompt (prompt: string) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(prompt)
+        return
+      }
+    } catch {
+      // Fall back to the legacy clipboard path when browser permission is unavailable.
+    }
+
+    const textarea = document.createElement('textarea')
+    textarea.value = prompt
+    textarea.setAttribute('readonly', '')
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    textarea.remove()
   }
 
   getGameNavAvatarUrl (notification: GameNotification) {
