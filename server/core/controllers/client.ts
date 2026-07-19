@@ -22,6 +22,16 @@ const clientsRateLimiter = buildRateLimiter({
 
 const distPath = join(root(), 'client', 'dist')
 
+const gameHubLegacyPagePattern = /^\/(?:videos|video-channels|c|w|video-playlists|studio\/edit|stats\/videos|accounts|a|@[^/]+)(?:\/|$)/
+
+// Keep legacy PeerTube pages inside the GameHub SPA so the client can show
+// the consistent placeholder instead of generating a video/channel HTML page.
+clientsRouter.use(asyncMiddleware(async (req, res, next) => {
+  if (!gameHubLegacyPagePattern.test(req.path)) return next()
+
+  return serveIndexHTML(req, res)
+}))
+
 // Special route that add OpenGraph and oEmbed tags
 // Do not use a template engine for a so little thing
 clientsRouter.use([ '/w/p/:id', '/videos/watch/playlist/:id' ], clientsRateLimiter, asyncMiddleware(generateWatchPlaylistHtmlPage))
