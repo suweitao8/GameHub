@@ -4,6 +4,7 @@ import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
+import { GameSkeletonComponent } from './game-skeleton.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { Game, GameAuthor, GamesService } from './games.service'
 import { combineLatest } from 'rxjs'
@@ -14,7 +15,7 @@ type AuthorTab = 'home' | 'activity' | 'games' | 'collections'
   templateUrl: './game-author.component.html',
   styleUrl: './game-author.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink, DatePipe ]
+  imports: [ GameCardComponent, GameSkeletonComponent, RouterLink, DatePipe ]
 })
 export class GameAuthorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)

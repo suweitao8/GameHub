@@ -1,6 +1,15 @@
 <main class="game-community-page author-page">
   @if (loading()) {
-    <div class="game-community-content author-state">正在打开作者空间...</div>
+    <div class="game-community-content author-state">
+      <div class="author-skeleton-cover shimmer"></div>
+      <div class="author-skeleton-tabs">
+        <div class="author-skeleton-tab shimmer"></div>
+        <div class="author-skeleton-tab shimmer"></div>
+        <div class="author-skeleton-tab shimmer"></div>
+        <div class="author-skeleton-tab shimmer"></div>
+      </div>
+      <div class="game-grid">@for (i of [1,2,3,4,5,6]; track $index) { <my-game-skeleton /> }</div>
+    </div>
   } @else if (error() || !author()) {
     <div class="game-community-content author-state"><h1>作者空间暂时不可用</h1></div>
   } @else {

@@ -209,3 +209,25 @@
     min-height: 34px;
     padding: 0.45rem 0.8rem; } .author-tabs { gap: 1.1rem;
     overflow-x: auto; } .author-layout { padding-top: 1rem; } .author-sidebar { grid-template-columns: 1fr; } .author-main .game-grid { gap: 0.65rem; } }
+
+/* Skeleton loading */
+.author-skeleton-cover {
+  background: #eceff3;
+  border-radius: 0.5rem;
+  height: 10rem;
+  margin-bottom: 1rem;
+}
+
+.author-skeleton-tabs {
+  align-items: center;
+  display: flex;
+  gap: 1.7rem;
+  margin-bottom: 1rem;
+}
+
+.author-skeleton-tab {
+  background: #eceff3;
+  border-radius: 4px;
+  height: 2.2rem;
+  width: 4rem;
+}
