@@ -15,7 +15,7 @@ import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
 import type { MGame } from '@server/types/models/game/game.js'
-import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
+import { apiRateLimiter, asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
@@ -68,13 +68,13 @@ gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotif
 gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
 gamesRouter.get('/author/:accountId', optionalAuthenticate, asyncMiddleware(getAuthor))
-gamesRouter.post('/preview', authenticate, gameFile, asyncMiddleware(previewGame))
+gamesRouter.post('/preview', authenticate, gameUploadRateLimiter, gameFile, asyncMiddleware(previewGame))
 gamesRouter.get('/:uuid/download', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(downloadGame))
 gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
-gamesRouter.post('/', authenticate, gameFile, gameCreateValidator, asyncMiddleware(createGame))
-gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
+gamesRouter.post('/', authenticate, gameUploadRateLimiter, gameFile, gameCreateValidator, asyncMiddleware(createGame))
+gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameUploadRateLimiter, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
 gamesRouter.delete('/:uuid', authenticate, gameUUIDValidator, asyncMiddleware(removeGame))
-gamesRouter.post('/:uuid/play', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(recordPlay))
+gamesRouter.post('/:uuid/play', gameUUIDValidator, gamePlayRateLimiter, optionalAuthenticate, asyncMiddleware(recordPlay))
 gamesRouter.post('/:uuid/moderate', authenticate, gameModerationValidator, asyncMiddleware(moderateGame))
 
 export {

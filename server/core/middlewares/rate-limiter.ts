@@ -53,6 +53,16 @@ export const activityPubRateLimiter = buildRateLimiter({
   max: CONFIG.RATES_LIMIT.ACTIVITY_PUB.MAX
 })
 
+export const gameUploadRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 5
+})
+
+export const gamePlayRateLimiter = buildRateLimiter({
+  windowMs: 10 * 1000,
+  max: 60
+})
+
 // ---------------------------------------------------------------------------
 // Private
 // ---------------------------------------------------------------------------
