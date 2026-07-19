@@ -46,12 +46,16 @@
   --co-root-padding: 0.65rem;
   --game-brand: #00aeec;
   --game-header-nav-gap: 0.2rem;
+  --game-header-nav-foreground: #fff;
 
   background-color: #fff;
   background-image: url('../../assets/images/gamehub-header-banner-10x1.png');
-  background-position: center;
+  // Keep the 10:1 banner's aspect ratio while the fixed header viewport
+  // changes height during scroll. The header clips the image; it never
+  // stretches the image to fit the shorter viewport.
+  background-position: center top;
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: 100% auto;
   box-sizing: border-box;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
@@ -63,6 +67,14 @@
   min-height: var(--header-height);
   transition: min-height 180ms ease, padding 180ms ease;
   z-index: 10;
+}
+
+:host-context(.game-experience.game-header-scrolled) .root {
+  --game-header-nav-foreground: rgb(30 30 30);
+
+  background-color: #fff;
+  background-image: none;
+  color: rgb(30 30 30);
 }
 
 .peertube-title {
@@ -118,7 +130,7 @@
 
 .game-header-left-nav a {
   border-radius: 0.45rem;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   font-size: 0.84rem;
   font-weight: 600;
   padding: 0.42rem 0.65rem;
@@ -129,7 +141,7 @@
 .game-header-left-nav a:hover,
 .game-header-left-nav a:focus-visible {
   background: transparent;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   outline: 0;
 }
 
@@ -140,7 +152,7 @@
 
 .game-header-left-nav a.active {
   background: transparent;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-right {
@@ -160,7 +172,7 @@
 .game-header-actions a {
   align-items: center;
   border-radius: 0.55rem;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   display: inline-flex;
   flex-direction: column;
   font-size: 0.76rem;
@@ -194,7 +206,7 @@
 .game-header-actions a:hover,
 .game-header-actions a:focus-visible {
   background: transparent;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-actions a:focus-visible,
@@ -205,7 +217,7 @@
 
 .game-header-actions a.game-header-action-active {
   background: transparent;
-  color: var(--game-text-secondary) !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-actions a:hover my-global-icon,
