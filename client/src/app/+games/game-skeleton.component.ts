@@ -49,6 +49,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
       100% { background-position: 200% 0; }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .shimmer {
+        animation: none;
+      }
+    }
+
     .shimmer {
       background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
       background-size: 200% 100%;
