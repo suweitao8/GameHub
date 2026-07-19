@@ -73,11 +73,13 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       this.recommendedOffset.set(0)
       this.loadGames()
     })
-    this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
+    this.startCarousel()
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
   }
 
   ngOnDestroy () {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
   }
 
   loadGames () {
@@ -327,5 +329,14 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   categoryTitle () {
     return this.categories.find(item => item.id === this.category())?.title || '游戏'
+  }
+
+  private startCarousel () {
+    this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
+  }
+
+  private onVisibilityChange = () => {
+    if (this.carouselTimer) clearInterval(this.carouselTimer)
+    if (!document.hidden) this.startCarousel()
   }
 }
