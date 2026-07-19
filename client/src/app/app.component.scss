@@ -36,7 +36,7 @@
 }
 
 .game-experience {
-  --header-height: 58px;
+  --header-height: clamp(58px, 10vw, 198px);
   --game-page-bg: #fff;
   --game-card-bg: #fff;
   --game-text: rgb(30 30 30);
@@ -60,6 +60,11 @@
 
   background: var(--game-page-bg);
 
+  ::selection {
+    background: rgb(0 174 236 / 32%);
+    color: rgb(30 30 30);
+  }
+
   #left-menu {
     display: none;
   }
@@ -74,7 +79,12 @@
     background: var(--game-page-bg);
   }
 
+  ngx-loading-bar {
+    display: none !important;
+  }
+
   @media (max-width: 760px) {
+    --header-height: 58px;
     .buttons-container .settings-button,
     .buttons-container .create-account-button,
     .buttons-container .login-label,
@@ -110,4 +120,8 @@
       @include global-icon-size(20px);
     }
   }
+}
+
+.game-loading-hidden {
+  display: none !important;
 }

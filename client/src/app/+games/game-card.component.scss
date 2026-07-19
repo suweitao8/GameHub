@@ -38,17 +38,85 @@
 }
 
 .game-cover.placeholder {
-  align-items: center;
-  background: linear-gradient(135deg, #c9f1ff, #9de4fa 52%, #f8c6d8);
+  background: linear-gradient(135deg, #00aeec 0%, #367fc4 48%, #c36f9e 100%);
   display: flex;
   justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.game-cover.placeholder::before,
+.game-cover.placeholder::after {
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+  position: absolute;
+}
+
+.game-cover.placeholder::before {
+  background: rgb(255 255 255 / 16%);
+  height: 180%;
+  right: -22%;
+  top: -65%;
+  transform: rotate(22deg);
+  width: 48%;
+}
+
+.game-cover.placeholder::after {
+  border: 1px solid rgb(255 255 255 / 20%);
+  height: 130%;
+  left: -38%;
+  top: 35%;
+  width: 82%;
 }
 
 .cover-letter {
+  align-items: center;
+  background: rgb(20 30 48 / 22%);
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 0.7rem;
   color: #fff;
-  font-size: 3rem;
+  display: inline-flex;
+  flex: 0 0 3.2rem;
+  font-size: 2.1rem;
   font-weight: 800;
+  height: 3.2rem;
+  justify-content: center;
   text-shadow: 0 2px 12px rgb(0 92 126 / 28%);
+}
+
+.cover-placeholder-content {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  position: relative;
+  width: 100%;
+  z-index: 1;
+}
+
+.cover-placeholder-copy {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.cover-placeholder-copy strong,
+.cover-placeholder-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cover-placeholder-copy strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.cover-placeholder-copy small {
+  color: rgb(255 255 255 / 82%);
+  font-size: 0.68rem;
 }
 
 .game-card-body {
@@ -100,7 +168,7 @@
   display: flex;
   gap: 0.8rem;
   left: 0;
-  padding: 1.4rem 0.65rem 0.55rem;
+  padding: 1.1rem 0.65rem 0.25rem;
   position: absolute;
   right: 0;
 }
@@ -163,7 +231,7 @@
 
   .game-card-meta {
     gap: 0.25rem;
-    padding: 0.8rem 0.3rem 0.3rem;
+    padding: 0.7rem 0.3rem 0.2rem;
   }
 
   .game-card-stat {

@@ -30,6 +30,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly searchMode = signal(false)
   readonly category = signal('')
   readonly publishedAfter = signal('')
+  readonly communityRoute = signal(false)
   readonly sort = signal<GamesListParams['sort']>('recommended')
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
@@ -58,6 +59,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   ngOnInit () {
     const routePath = this.route.snapshot.routeConfig?.path
     const isCommunityRoute = routePath === 'community'
+    this.communityRoute.set(isCommunityRoute)
     this.searchMode.set(routePath === 'search')
     this.route.queryParamMap.subscribe(params => {
       this.view.set(params.get('view') || (isCommunityRoute ? 'following' : ''))
@@ -78,6 +80,16 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   }
 
   loadGames () {
+    if (this.communityRoute()) {
+      this.latest.set([])
+      this.popular.set([])
+      this.recent.set([])
+      this.recommended.set([])
+      this.carouselIndex.set(0)
+      this.loading.set(false)
+      return
+    }
+
     if (this.view() === 'categories') {
       this.latest.set([])
       this.popular.set([])

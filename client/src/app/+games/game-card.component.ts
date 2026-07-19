@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, Input, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -13,6 +13,12 @@ import { Game } from './games.service'
 })
 export class GameCardComponent {
   @Input({ required: true }) game!: Game
+  readonly coverUnavailable = signal(false)
+
+  private readonly categoryLabels: Record<string, string> = {
+    arcade: '动作', adventure: '冒险', shooter: '射击', puzzle: '解谜', casual: '休闲', rpg: '角色扮演', strategy: '策略',
+    simulation: '模拟', sandbox: '沙盒', racing: '竞速', sports: '体育', card: '卡牌', music: '音乐', horror: '恐怖', board: '桌游'
+  }
 
   formatCount (value: number | undefined) {
     if (!value) return '0'
@@ -30,5 +36,13 @@ export class GameCardComponent {
 
   getAuthorAvatar (label: string | undefined) {
     return buildGameAvatarDataUrl(label || '创')
+  }
+
+  categoryLabel () {
+    return this.categoryLabels[this.game.category] || '小游戏'
+  }
+
+  onCoverError () {
+    this.coverUnavailable.set(true)
   }
 }

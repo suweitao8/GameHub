@@ -75,10 +75,16 @@
 }
 
 .game-navigation-search my-global-icon {
-  display: block;
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
   height: 1.05rem;
   transition: transform 160ms ease;
   width: 1.05rem;
+}
+
+.game-navigation-search my-global-icon ::ng-deep svg {
+  display: block;
 }
 
 .game-navigation-search button:hover my-global-icon,

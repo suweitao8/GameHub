@@ -1,5 +1,13 @@
 <main class="game-community-page games-home" aria-label="游戏发现">
-  @if (view() === 'categories') {
+  @if (communityRoute()) {
+    <section class="game-community-content community-hub" aria-label="社区">
+      <div class="game-section-heading community-hub-heading"><div><p class="game-eyebrow">社区</p><h2>社区活动与比赛</h2><p>和玩家一起参加活动、交流玩法，发现新的挑战。</p></div></div>
+      <div class="community-hub-grid">
+        <article class="community-hub-card"><span class="community-hub-icon">活</span><div><h3>社区活动</h3><p>暂时没有进行中的活动。</p></div></article>
+        <article class="community-hub-card"><span class="community-hub-icon">赛</span><div><h3>比赛</h3><p>暂时没有开放中的比赛。</p></div></article>
+      </div>
+    </section>
+  } @else if (view() === 'categories') {
     <section class="game-community-content category-directory">
       <div class="game-section-heading"><div><p class="game-eyebrow">按类型浏览</p><h2>按分类发现游戏</h2><p>从熟悉的类型开始，找到下一款想试玩的作品。</p></div></div>
       <div class="category-directory-grid">@for (item of categories; track item.id) { <a class="category-directory-card" routerLink="/games" [queryParams]="item.query"><strong>{{ item.title }}</strong><span>{{ item.description }}</span><em>浏览分类 →</em></a> }</div>
