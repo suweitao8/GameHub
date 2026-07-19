@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import { RestExtractor } from '@app/core'
-import { catchError } from 'rxjs/operators'
+import { catchError, map } from 'rxjs/operators'
 import { Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
@@ -113,12 +113,14 @@ export class GamesService {
   list (params: GamesListParams = {}): Observable<GameList> {
     return this.http
       .get<GameList>(buildGamesListUrl(environment.apiUrl, params))
+      .pipe(map(result => this.normalizeGameList(result)))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
   }
 
   get (uuid: string): Observable<Game> {
     return this.http
       .get<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`)
+      .pipe(map(game => this.normalizeGame(game)))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
   }
 
@@ -192,7 +194,7 @@ export class GamesService {
 
   create (file: File, metadata: GameUploadMetadata): Observable<Game> {
     const body = buildGameUploadFormData(file, metadata)
-    return this.http.post<Game>(GamesService.BASE_URL, body)
+    return this.http.post<Game>(GamesService.BASE_URL, body).pipe(map(game => this.normalizeGame(game)))
   }
 
   update (uuid: string, metadata: {
@@ -205,7 +207,7 @@ export class GamesService {
     }
     if (metadata.file) body.append('gamefile', metadata.file, metadata.file.name)
     if (metadata.cover) body.append('coverfile', metadata.cover, metadata.cover.name)
-    return this.http.put<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`, body)
+    return this.http.put<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`, body).pipe(map(game => this.normalizeGame(game)))
   }
 
   remove (uuid: string): Observable<unknown> {
@@ -213,23 +215,27 @@ export class GamesService {
   }
 
   listFavorites (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/favorites`)
+    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/favorites`).pipe(map(result => this.normalizeGameList(result)))
   }
 
   listRecent (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/recent`)
+    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/recent`).pipe(map(result => this.normalizeGameList(result)))
   }
 
   listOwned (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/owned`)
+    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/owned`).pipe(map(result => this.normalizeGameList(result)))
   }
 
   author (accountId: string, sort: 'latest' | 'plays' | 'favorites' = 'latest'): Observable<GameAuthor> {
-    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`)
+    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`).pipe(
+      map(result => ({ ...result, data: result.data.map(game => this.normalizeGame(game)) }))
+    )
   }
 
   creatorOverview (): Observable<GameCreatorOverview> {
-    return this.http.get<GameCreatorOverview>(`${GamesService.BASE_URL}/me/overview`)
+    return this.http.get<GameCreatorOverview>(`${GamesService.BASE_URL}/me/overview`).pipe(
+      map(result => ({ ...result, games: result.games.map(game => this.normalizeGame(game)) }))
+    )
   }
 
   notifications (): Observable<{ total: number, unread: number, data: GameNotification[] }> {
@@ -258,5 +264,24 @@ export class GamesService {
 
   buildDownloadUrl (uuid: string) {
     return `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/download`
+  }
+
+  private normalizeGameList (result: GameList): GameList {
+    return { ...result, data: result.data.map(game => this.normalizeGame(game)) }
+  }
+
+  private normalizeGame (game: Game): Game {
+    if (!game.coverPath || typeof window === 'undefined') return game
+
+    try {
+      const coverUrl = new URL(game.coverPath, window.location.origin)
+      if (coverUrl.pathname.startsWith('/api/v1/games/')) {
+        return { ...game, coverPath: `${coverUrl.pathname}${coverUrl.search}` }
+      }
+    } catch {
+      // Keep the server-provided path if it is not a valid URL.
+    }
+
+    return game
   }
 }

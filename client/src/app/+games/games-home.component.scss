@@ -299,10 +299,12 @@
 }
 
 .featured-carousel-link {
+  color: inherit;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  text-decoration: none;
 }
 
 .featured-cover {
