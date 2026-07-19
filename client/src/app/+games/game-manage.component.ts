@@ -14,6 +14,7 @@ export class GameManageComponent implements OnInit {
   readonly games = signal<Game[]>([])
   readonly error = signal('')
   readonly feedback = signal('')
+  readonly loading = signal(true)
   readonly moderating = signal<string | null>(null)
   readonly removeTarget = signal<string | null>(null)
   readonly removing = signal<string | null>(null)
@@ -21,10 +22,10 @@ export class GameManageComponent implements OnInit {
 
   ngOnInit () {
     this.gamesService.listForModerators().subscribe({
-      next: result => this.games.set(result.data),
+      next: result => { this.games.set(result.data); this.loading.set(false) },
       error: () => this.gamesService.listOwned().subscribe({
-        next: result => { this.games.set(result.data); this.ownerView.set(true) },
-        error: () => this.error.set('只有管理员、审核员或游戏作者可以查看这里。')
+        next: result => { this.games.set(result.data); this.ownerView.set(true); this.loading.set(false) },
+        error: () => { this.error.set('只有管理员、审核员或游戏作者可以查看这里。'); this.loading.set(false) }
       })
     })
   }

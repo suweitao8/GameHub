@@ -47,3 +47,16 @@ h1 { margin: 0 0 28px;
   .manage-card { align-items: start;
     flex-direction: column; }
 }
+
+/* Skeleton loading */
+.manage-skeleton-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.manage-skeleton-card {
+  background: #eceff3;
+  border-radius: var(--game-radius);
+  height: 4.5rem;
+}

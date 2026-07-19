@@ -1,6 +1,7 @@
 <main class="manage-page margin-content">
   <p class="eyebrow">审核队列</p>
   <h1>{{ ownerView() ? '我的游戏管理' : '游戏审核' }}</h1>
+  @if (loading()) { <div class="manage-skeleton-list"><div class="manage-skeleton-card shimmer"></div><div class="manage-skeleton-card shimmer"></div><div class="manage-skeleton-card shimmer"></div></div> }
   @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
   @if (feedback()) { <p class="form-success" role="status">{{ feedback() }}</p> }
   <div class="manage-list">
