@@ -210,6 +210,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   private setupMobileMsg () {
+    if (this.isGameExperience()) return
     if (!this.isInMobileView()) return
     if (peertubeLocalStorage.getItem(HeaderComponent.LS_HIDE_MOBILE_MSG) === 'true') return
 
