@@ -498,7 +498,15 @@
 .game-header-creator-popover {
   left: auto;
   padding: 0.45rem 0;
+  position: fixed;
   right: 10px;
+  top: 61px;
+  transform: none;
+}
+
+.game-header-history-popover {
+  left: auto;
+  right: 0;
   transform: none;
 }
 

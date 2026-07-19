@@ -181,7 +181,7 @@
             <span>历史</span>
           </a>
           @if (gameNavHover() === 'history') {
-            <section class="game-header-popover game-header-list-popover" aria-label="游玩历史预览">
+            <section class="game-header-popover game-header-list-popover game-header-history-popover" aria-label="游玩历史预览">
               @if (gameNavLoading() && !gameNavRecent().length) { <p class="game-popover-empty">正在加载历史...</p> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>最近游玩</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
