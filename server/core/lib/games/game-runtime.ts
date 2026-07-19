@@ -324,7 +324,17 @@ function validateInlineCode (html: string) {
     /\bWebSocket\b/i,
     /navigator\.sendBeacon\s*\(/i,
     /\bwindow\.(?:open|top|parent)\b/i,
-    /\b(?:window\.)?(?:top|parent)\.location\b/i
+    /\b(?:window\.)?(?:top|parent)\.location\b/i,
+    /\bimportScripts\s*\(/i,
+    /\bdocument\.cookie\b/i,
+    /\blocalStorage\b/i,
+    /\bsessionStorage\b/i,
+    /\bdocument\.domain\b/i,
+    /\bpostMessage\b/i,
+    /\beval\s*\(/i,
+    /\bFunction\s*\(/i,
+    /\bsetTimeout\s*\(\s*['"]/i,
+    /\bsetInterval\s*\(\s*['"]/i
   ]
 
   if (forbiddenPatterns.some(pattern => pattern.test(html))) throw new GameRuntimeValidationError('Network and top-level navigation APIs are not supported')
