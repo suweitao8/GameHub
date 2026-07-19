@@ -135,3 +135,15 @@
 @media (max-width: 760px) { .upload-layout { grid-template-columns: 1fr; } .upload-guide { order: 2; } .upload-steps { gap: 0.1rem; } .upload-steps li { font-size: 0.65rem; } }
 
 @media (max-width: 480px) { .upload-steps li:not(.current) { color: transparent; } .field-grid { grid-template-columns: 1fr; } }
+
+/* Skeleton loading for edit form */
+.game-skeleton-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.game-skeleton-field {
+  background: #eceff3;
+  border-radius: 7px;
+  height: 2.8rem;
+}

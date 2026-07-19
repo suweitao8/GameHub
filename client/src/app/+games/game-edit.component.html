@@ -1,7 +1,7 @@
 <main class="game-form-page margin-content">
   <p class="eyebrow">创作中心</p>
   <h1>编辑游戏</h1>
-  @if (loading()) { <p>正在加载...</p> }
+  @if (loading()) { <div class="game-skeleton-form"><div class="game-skeleton-field shimmer"></div><div class="game-skeleton-field shimmer"></div><div class="game-skeleton-field shimmer"></div><div class="game-skeleton-field shimmer"></div><div class="game-skeleton-field shimmer"></div></div> }
   @if (!loading()) {
     <form (submit)="$event.preventDefault(); submit()" class="game-form">
       <label>替换游戏文件（可选）<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)" /></label>
