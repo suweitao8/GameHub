@@ -62,7 +62,7 @@ export type GameNotification = {
   read: boolean
   createdAt: string
   actor: { id: number, name: string, displayName: string } | null
-  game: { uuid: string, title: string } | null
+  game: { uuid: string, title: string, coverPath?: string | null } | null
 }
 
 export type GameCommunity = {

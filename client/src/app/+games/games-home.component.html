@@ -24,7 +24,7 @@
           <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
         </div>
         <div class="home-category-links" aria-label="游戏分类">
-          @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id">{{ item.title }}</a> }
+          @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [style.letterSpacing]="item.title.length === 2 ? '0.5em' : item.title.length === 3 ? '0.2em' : 'normal'">{{ item.title }}</a> }
         </div>
       </nav>
       @if (view() === 'following') { <div class="game-empty-feed" role="status">暂时没有动态</div> } @else { <div class="category-empty" aria-label="暂无游戏"></div> }

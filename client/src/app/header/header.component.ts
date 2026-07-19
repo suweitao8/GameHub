@@ -338,7 +338,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private updateGameHeaderScroll () {
-    const shouldShrink = this.isGameExperience() && window.innerWidth > 760 && window.scrollY > 32
+    const shouldShrink = this.isGameExperience() && window.innerWidth > 760 && window.scrollY > 150
     if (this.gameHeaderScrolled === shouldShrink) return
 
     this.gameHeaderScrolled = shouldShrink
@@ -416,6 +416,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   getGameNavAvatarUrl (notification: GameNotification) {
     const label = notification.actor?.displayName || notification.actor?.name || notification.game?.title || '动态'
     return buildGameAvatarDataUrl(label)
+  }
+
+  getGameNavAuthorAvatarUrl (game: Game) {
+    return buildGameAvatarDataUrl(game.author?.displayName || game.author?.name || 'GameHub 玩家')
   }
 
   private loadGameNavData (popup: GameHeaderPopup) {

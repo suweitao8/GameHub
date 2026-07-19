@@ -134,7 +134,13 @@ function formatGameNotification (notification: GameNotificationModel) {
       ? { id: notification.Actor.id, name: notification.Actor.name, displayName: notification.Actor.getDisplayName() }
       : null,
     game: notification.Game
-      ? { uuid: notification.Game.uuid, title: notification.Game.title }
+      ? {
+          uuid: notification.Game.uuid,
+          title: notification.Game.title,
+          coverPath: notification.Game.status === 'published' && notification.Game.coverPath
+            ? new URL(`/api/v1/games/${notification.Game.uuid}/cover`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+            : null
+        }
       : null
   }
 }

@@ -153,8 +153,9 @@
               @if (gameNavLoading() && !gameNavNotifications().length) { <p class="game-popover-empty">正在加载动态...</p> }
               @for (notification of gameNavNotifications().slice(0, 3); track notification.id) {
                 <a class="game-notification-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
-                  <img [src]="getGameNavAvatarUrl(notification)" alt="">
-                  <span><strong>{{ notification.actor?.displayName || notification.actor?.name || 'GameHub 玩家' }}</strong><small>{{ notification.message }}</small><em>{{ notification.createdAt | date:'MM-dd HH:mm' }}</em></span>
+                  <span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAvatarUrl(notification)" alt=""><strong>{{ notification.actor?.displayName || notification.actor?.name || 'GameHub 玩家' }}</strong></span>
+                  <span class="game-preview-title"><strong>{{ notification.game?.title || notification.message }}</strong><small>{{ notification.createdAt | date:'MM-dd HH:mm' }}</small></span>
+                  @if (notification.game?.coverPath) { <img class="game-preview-cover" [src]="notification.game!.coverPath!" [alt]="notification.game!.title" loading="lazy"> } @else { <img class="game-preview-cover" [src]="getGameNavAvatarUrl(notification)" alt="" loading="lazy"> }
                 </a>
               } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">暂时没有新的动态</p> } }
             </section>
@@ -169,7 +170,7 @@
             <section class="game-header-popover game-header-list-popover" aria-label="收藏预览">
               @if (gameNavLoading() && !gameNavFavorites().length) { <p class="game-popover-empty">正在加载收藏...</p> }
               @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
-                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div><span><strong>{{ game.title }}</strong><small>{{ game.author?.displayName || '独立开发者' }}</small></span></a>
+                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>已收藏</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
               } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有收藏游戏</p> } }
             </section>
           }
@@ -183,7 +184,7 @@
             <section class="game-header-popover game-header-list-popover" aria-label="游玩历史预览">
               @if (gameNavLoading() && !gameNavRecent().length) { <p class="game-popover-empty">正在加载历史...</p> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
-                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div><span><strong>{{ game.title }}</strong><small>最近游玩</small></span></a>
+                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>最近游玩</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
               } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有游玩记录</p> } }
             </section>
           }

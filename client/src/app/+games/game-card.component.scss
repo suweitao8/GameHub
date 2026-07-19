@@ -185,6 +185,7 @@
   color: inherit;
   flex: 0 0 0.85rem;
   height: 0.85rem;
+  transform: translateY(-1px);
   width: 0.85rem;
 }
 
@@ -195,6 +196,7 @@
 .game-card-stat span {
   color: #fff;
   font-size: 0.7rem;
+  transform: translateY(1px);
 }
 
 @media (max-width: 720px) {
