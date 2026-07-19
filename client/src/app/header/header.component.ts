@@ -134,12 +134,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   getGameAvatarUrl () {
     const account = this.user?.account
     const avatar = account?.avatars?.length ? findAppropriateImage(account.avatars, 64)?.fileUrl : undefined
-    return avatar || buildGameAvatarDataUrl(account?.displayName || account?.name || this.user?.username || '用户')
+    return avatar || buildGameAvatarDataUrl(account?.displayName || account?.name || this.user?.username || 'GameHub 玩家')
   }
 
   onGameAvatarError (event: Event) {
     const image = event.target as HTMLImageElement
-    const label = this.user?.account?.displayName || this.user?.account?.name || this.user?.username || '用户'
+    const label = this.user?.account?.displayName || this.user?.account?.name || this.user?.username || 'GameHub 玩家'
 
     if (image.src.startsWith('data:image/svg+xml')) return
     image.src = buildGameAvatarDataUrl(label)
@@ -323,7 +323,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   scheduleGameAvatarMenu () {
-    if (!this.isGameExperience() || !this.loggedIn) return
+    if (!this.isGameExperience()) return
 
     this.cancelGameAvatarHover(false)
     this.gameAvatarHoverTimer = setTimeout(() => {
@@ -342,7 +342,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   scheduleGameNavHover (popup: GameHeaderPopup) {
-    if (!this.isGameExperience() || !this.loggedIn) return
+    if (!this.isGameExperience()) return
 
     this.cancelGameNavHover(false)
     this.gameNavHoverTimer = setTimeout(() => {
@@ -437,7 +437,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     event.preventDefault()
     this.cancelGameAvatarHover()
     const accountId = this.user?.account?.id
-    void this.router.navigate(accountId ? [ '/games/author', accountId ] : [ '/games' ])
+    void this.router.navigate(accountId ? [ '/games/author', accountId ] : [ '/login' ])
   }
 
   private updateUserState () {

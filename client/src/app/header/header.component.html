@@ -38,7 +38,7 @@
 
   <div class="game-header-right">
     <div class="d-flex align-items-center buttons-container" [hidden]="!isLoaded()">
-    @if (!loggedIn) {
+    @if (!loggedIn && !isGameExperience()) {
       @if (!isGameExperience()) {
         <my-button
           i18n-title title="Open settings modal"
@@ -61,15 +61,15 @@
         (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
         >
         @if (isGameExperience()) {
-          <button class="tertiary-button" type="button" aria-label="打开个人主页" (click)="openGameProfile($event)">
-            <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || '用户'" (error)="onGameAvatarError($event)">
+          <button class="tertiary-button" type="button" [attr.aria-label]="loggedIn ? '打开个人主页' : '登录 GameHub'" (click)="openGameProfile($event)">
+            <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || 'GameHub 玩家'" (error)="onGameAvatarError($event)">
           </button>
           @if (gameAvatarHoverVisible()) {
             <div class="game-avatar-hover-card" role="dialog" aria-label="个人信息">
               <div class="game-avatar-profile">
                 <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
-                <strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong>
-                <span>硬币 {{ gameCoinBalance() ?? '—' }}</span>
+                <strong>{{ user?.account?.displayName || user?.username || 'GameHub 玩家' }}</strong>
+                <span>硬币 {{ gameCoinBalance() ?? 0 }}</span>
               </div>
             </div>
           }
@@ -79,6 +79,7 @@
           </button>
         }
 
+        @if (!isGameExperience()) {
         <div ngbDropdownMenu>
           @if (user.account) {
             <a ngbDropdownItem class="dropdown-item" [routerLink]="[ '/games/author', user.account.id ]">
@@ -125,6 +126,7 @@
             <ng-container i18n>Log out</ng-container>
           </button>
         </div>
+        }
       </div>
 
       @if (!isGameExperience()) {
