@@ -133,6 +133,11 @@
   outline: 0;
 }
 
+.game-header-left-nav a:focus-visible {
+  outline: 2px solid rgb(0 174 236 / 48%);
+  outline-offset: 2px;
+}
+
 .game-header-left-nav a.active {
   background: transparent;
   color: var(--game-text-secondary) !important;
@@ -190,6 +195,12 @@
 .game-header-actions a:focus-visible {
   background: transparent;
   color: var(--game-text-secondary) !important;
+}
+
+.game-header-actions a:focus-visible,
+.game-submit-button:focus-visible {
+  outline: 2px solid rgb(0 174 236 / 48%);
+  outline-offset: 2px;
 }
 
 .game-header-actions a.game-header-action-active {
