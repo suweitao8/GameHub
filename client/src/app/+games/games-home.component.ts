@@ -56,9 +56,11 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   ]
 
   ngOnInit () {
-    this.searchMode.set(this.route.snapshot.routeConfig?.path === 'search')
+    const routePath = this.route.snapshot.routeConfig?.path
+    const isCommunityRoute = routePath === 'community'
+    this.searchMode.set(routePath === 'search')
     this.route.queryParamMap.subscribe(params => {
-      this.view.set(params.get('view') || '')
+      this.view.set(params.get('view') || (isCommunityRoute ? 'following' : ''))
       this.category.set(params.get('category') || '')
       this.search.set(params.get('search') || '')
       this.publishedAfter.set(params.get('publishedAfter') || '')

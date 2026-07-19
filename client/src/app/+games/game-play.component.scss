@@ -149,6 +149,9 @@
 .game-player-controls-right { align-items: center;
   display: flex;
   gap: 0.7rem; }
+.game-volume-control { align-items: center;
+  display: inline-flex;
+  gap: 0.15rem; }
 .game-player-controls button { background: transparent;
   border: 0;
   color: #fff;
@@ -162,6 +165,15 @@
   height: 1rem;
   width: 1rem; }
 .game-player-controls button my-global-icon ::ng-deep svg { stroke-width: 2.1; }
+.game-volume-control input { accent-color: var(--game-brand);
+  height: 1rem;
+  opacity: 0;
+  padding: 0;
+  transition: opacity 160ms ease, width 160ms ease;
+  width: 0; }
+.game-volume-control:hover input,
+.game-volume-control:focus-within input { opacity: 1;
+  width: 4rem; }
 .game-player-controls-left span {
   color: #c9ccd2;
   font-size: 0.75rem;

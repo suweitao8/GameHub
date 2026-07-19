@@ -188,6 +188,55 @@ export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<
   }
 }
 
+export function injectGameRuntimeBridge (source: string) {
+  const bridge = `<script>
+    (() => {
+      let volume = 1
+      const contexts = new Set()
+      const applyMediaVolume = () => {
+        for (const media of document.querySelectorAll('audio,video')) {
+          media.volume = volume
+          media.muted = volume === 0
+        }
+      }
+      const rememberContext = context => {
+        contexts.add(context)
+        if (volume === 0) void context.suspend?.()
+      }
+      try {
+        const AudioContextConstructor = window.AudioContext || window.webkitAudioContext
+        if (AudioContextConstructor && !window.__gameHubAudioBridge) {
+          const GameHubAudioContext = function (...args) {
+            const context = new AudioContextConstructor(...args)
+            rememberContext(context)
+            return context
+          }
+          GameHubAudioContext.prototype = AudioContextConstructor.prototype
+          window.AudioContext = GameHubAudioContext
+          if (window.webkitAudioContext) window.webkitAudioContext = GameHubAudioContext
+          window.__gameHubAudioBridge = true
+        }
+      } catch {}
+      window.addEventListener('message', event => {
+        if (!event.data || event.data.type !== 'gamehub:set-volume') return
+        const requestedVolume = Number(event.data.volume)
+        volume = Number.isFinite(requestedVolume)
+          ? Math.min(1, Math.max(0, requestedVolume))
+          : event.data.enabled === false ? 0 : 1
+        applyMediaVolume()
+        for (const context of contexts) {
+          const operation = volume === 0 ? context.suspend?.() : context.resume?.()
+          void operation?.catch?.(() => undefined)
+        }
+      })
+      new MutationObserver(applyMediaVolume).observe(document.documentElement || document, { childList: true, subtree: true })
+      applyMediaVolume()
+    })()
+  </script>`
+
+  return /<\/body>/i.test(source) ? source.replace(/<\/body>/i, `${bridge}</body>`) : `${source}${bridge}`
+}
+
 async function writeRuntimeFiles (input: {
   rootPath: string
   runtimeDirectory: string

@@ -1,7 +1,7 @@
 import { asyncMiddleware } from '@server/middlewares/async.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
-import { getGameRuntimeHeaders, getGameRuntimeMimeType, readStoredGameCover, readStoredGameHtml, readStoredGameRuntimeFile } from '@server/lib/games/game-runtime.js'
+import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameHtml, readStoredGameRuntimeFile } from '@server/lib/games/game-runtime.js'
 import { readGameRuntimePreviewFile } from '@server/lib/games/game-runtime-preview.js'
 import express from 'express'
 
@@ -29,7 +29,7 @@ runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
 
   return res
     .set(getGameRuntimeHeaders(developmentOrigins))
-    .send(content)
+    .send(injectGameRuntimeBridge(content.toString('utf8')))
 }))
 
 runtimeRouter.get('/:uuid/runtime/*', asyncMiddleware(async (req, res) => {

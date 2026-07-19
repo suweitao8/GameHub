@@ -53,6 +53,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly deleteTarget = signal<GameComment | null>(null)
   readonly mutedHint = signal(false)
   readonly soundEnabled = signal(true)
+  readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
@@ -203,9 +204,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   toggleGameSound () {
-    const enabled = !this.soundEnabled()
-    this.soundEnabled.set(enabled)
-    this.iframe()?.nativeElement.contentWindow?.postMessage({ type: 'gamehub:set-volume', enabled, volume: enabled ? 1 : 0 }, '*')
+    this.setGameVolume(this.gameVolume() > 0 ? 0 : 1)
+  }
+
+  onGameVolumeChange (event: Event) {
+    this.setGameVolume(Number((event.target as HTMLInputElement).value))
   }
 
   submitComment () {
@@ -367,6 +370,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   onFrameLoaded () {
     this.frameLoading.set(false)
+    this.syncGameVolume()
   }
 
   onFrameError () {
@@ -383,6 +387,21 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private withReloadKey (url: string) {
     return `${url}${url.includes('?') ? '&' : '?'}reload=${this.reloadKey}`
+  }
+
+  private setGameVolume (volume: number) {
+    const nextVolume = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1
+    this.gameVolume.set(nextVolume)
+    this.soundEnabled.set(nextVolume > 0)
+    this.syncGameVolume()
+  }
+
+  private syncGameVolume () {
+    this.iframe()?.nativeElement.contentWindow?.postMessage({
+      type: 'gamehub:set-volume',
+      enabled: this.gameVolume() > 0,
+      volume: this.gameVolume()
+    }, '*')
   }
 
   private requireLogin () {

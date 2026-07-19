@@ -5,6 +5,7 @@ import { tmpdir } from 'os'
 import { join, resolve } from 'path'
 import {
   getGameRuntimeHeaders,
+  injectGameRuntimeBridge,
   storeGameRuntimePackage,
   storeSingleHtmlGame,
   validateSingleHtmlGame
@@ -114,5 +115,14 @@ describe('Game runtime security', function () {
     expect(headers['Content-Security-Policy']).to.contain("form-action 'none'")
     expect(headers['X-Content-Type-Options']).to.equal('nosniff')
     expect(headers['Referrer-Policy']).to.equal('no-referrer')
+  })
+
+  it('injects a parent-controlled audio bridge into the published document', function () {
+    const source = '<!doctype html><html><body><audio></audio></body></html>'
+    const bridged = injectGameRuntimeBridge(source)
+
+    expect(bridged).to.contain('gamehub:set-volume')
+    expect(bridged.indexOf('gamehub:set-volume')).to.be.lessThan(bridged.indexOf('</body>'))
+    expect(bridged.match(/gamehub:set-volume/g)).to.have.length(1)
   })
 })
