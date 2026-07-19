@@ -34,12 +34,12 @@
           @if (!community()!.isOwner) { <button type="button" class="developer-follow-button" [class.active]="community()!.following" (click)="toggleFollow()">{{ community()!.following ? '已关注' : '+ 关注' }}</button> }
           @if (community()!.isOwner) { <span class="developer-owner-label">这是你的游戏</span> }
         } @else {
-          <span class="developer-loading">开发者信息加载中...</span>
+          <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:#eceff3"></div>
         }
       </aside>
 
       <section class="game-stage" aria-label="游戏运行区域">
-        @if (frameLoading()) { <div class="frame-loading" role="status">正在加载安全运行环境...</div> }
+        @if (frameLoading()) { <div class="frame-loading" role="status"><div class="frame-skeleton shimmer" style="height:100%;width:100%;border-radius:8px;background:#eceff3"></div></div> }
         <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts allow-pointer-lock allow-fullscreen" allow="fullscreen" referrerpolicy="no-referrer" loading="lazy" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
         @if (!gameStarted() && !frameLoading()) { <button type="button" class="start-game-overlay" (click)="startGame()"><my-global-icon iconName="play" />开始游戏</button> }
         <div class="game-player-controls" aria-label="游戏播放控制">
