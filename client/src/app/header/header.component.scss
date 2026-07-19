@@ -49,13 +49,6 @@
   --game-header-nav-foreground: rgb(30 30 30);
 
   background-color: transparent;
-  background-image: url('../../assets/images/gamehub-header-banner-10x1.png');
-  // Keep the 10:1 banner's aspect ratio while the fixed header viewport
-  // changes height during scroll. The header clips the image; it never
-  // stretches the image to fit the shorter viewport.
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: auto 200px;
   box-sizing: border-box;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
@@ -65,8 +58,29 @@
   column-gap: 1rem;
   align-items: flex-start;
   min-height: var(--header-height);
+  isolation: isolate;
+  overflow: visible;
+  position: relative;
   transition: min-height 180ms ease, padding 180ms ease;
   z-index: 10;
+}
+
+:host-context(.game-experience) .root::before {
+  background-image: url('../../assets/images/gamehub-header-banner-10x1.png');
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: auto 200px;
+  content: '';
+  filter: saturate(1.18) contrast(1.08) brightness(0.96);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+:host-context(.game-experience) .root > * {
+  position: relative;
+  z-index: 1;
 }
 
 :host-context(.game-experience.game-header-scrolled) .root {
@@ -79,6 +93,10 @@
   height: 45px;
   min-height: 0;
   overflow: hidden;
+}
+
+:host-context(.game-experience.game-header-scrolled) .root::before {
+  display: none;
 }
 
 :host-context(.game-experience.game-header-scrolled) .root .peertube-title {
@@ -522,6 +540,11 @@ my-game-navigation {
 }
 
 @media screen and (min-width: 769px) {
+  :host-context(.game-experience) .menu-button {
+    display: none;
+    margin: 0;
+  }
+
   my-game-navigation {
     left: 50%;
     max-width: 520px;
@@ -878,8 +901,9 @@ my-actor-avatar {
 
   :host-context(.game-experience) .root {
     background-image: none;
-    background-position: center 44%;
   }
+
+  :host-context(.game-experience) .root::before { display: none; }
 
   .instance-name {
     display: none;

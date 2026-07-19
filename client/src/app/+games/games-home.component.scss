@@ -555,11 +555,12 @@
   .featured-side-grid { gap: 0.4rem; }
   .home-discovery-nav {
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .home-category-links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
+    overflow-x: auto;
   }
   .game-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

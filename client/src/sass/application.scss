@@ -51,6 +51,11 @@ body {
   background-color: pvar(--primary-450);
 }
 
+.game-experience ::selection {
+  background-color: #008acb;
+  color: #fff;
+}
+
 // Force to override bootstrap utilities
 body [hidden] {
   display: none !important;
