@@ -15,6 +15,7 @@ export class GameLibraryComponent implements OnInit {
   private readonly router = inject(Router)
   readonly tab = signal<'recent' | 'favorites' | 'owned'>('recent')
   readonly games = signal<Game[]>([])
+  readonly loading = signal(true)
   readonly error = signal('')
 
   ngOnInit () {
