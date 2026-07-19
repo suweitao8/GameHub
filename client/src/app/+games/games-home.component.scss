@@ -189,6 +189,8 @@
 }
 
 .featured-carousel {
+  align-self: start;
+  aspect-ratio: 1.45;
   background: var(--game-card-bg);
   border-radius: var(--game-radius);
   grid-column: span 2;
@@ -207,7 +209,7 @@
 
 .featured-cover {
   background: linear-gradient(135deg, #a9dff2, #4387b4);
-  min-height: 420px;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -353,7 +355,7 @@
   .game-grid,
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.65rem; }
-  .featured-cover { min-height: 360px; }
+  .featured-cover { min-height: 0; }
   .featured-overlay h3 { font-size: 1.05rem; }
 }
 
