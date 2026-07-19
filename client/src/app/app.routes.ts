@@ -9,7 +9,7 @@ import { GameAboutComponent } from './game-about.component'
 import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 
-const legacyVideoPrefixes = [ 'videos', 'video-channels', 'c', 'w', 'video-playlists', 'studio/edit', 'stats/videos' ]
+const legacyVideoPrefixes = [ 'videos', 'video-channels', 'c', 'w', 'video-playlists', 'studio', 'stats/videos' ]
 
 const legacyVideoMatcher: UrlMatcher = url => {
   if (!url.length) return null

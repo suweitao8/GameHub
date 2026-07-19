@@ -22,7 +22,7 @@ const clientsRateLimiter = buildRateLimiter({
 
 const distPath = join(root(), 'client', 'dist')
 
-const gameHubLegacyPagePattern = /^\/(?:videos|video-channels|c|w|video-playlists|studio\/edit|stats\/videos|accounts|a|@[^/]+)(?:\/|$)/
+const gameHubLegacyPagePattern = /^\/(?:videos|video-channels|c|w|video-playlists|studio|stats\/videos|accounts|a|@[^/]+)(?:\/|$)/
 
 // Keep legacy PeerTube pages inside the GameHub SPA so the client can show
 // the consistent placeholder instead of generating a video/channel HTML page.
