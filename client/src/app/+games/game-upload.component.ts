@@ -151,7 +151,7 @@ export class GameUploadComponent implements OnDestroy {
     if (this.previewTimer) clearTimeout(this.previewTimer)
     this.previewTimer = setTimeout(() => {
       if (!this.previewHandled && !this.previewError()) void this.finishPreview()
-    }, 1800)
+    }, 2800)
   }
 
   private readonly onPreviewMessage = (event: MessageEvent) => {
@@ -163,6 +163,11 @@ export class GameUploadComponent implements OnDestroy {
       this.previewStatus.set('运行检测失败')
       return
     }
+
+    // The probe can report that capture has started before the asynchronous
+    // DOM snapshot is ready. Keep waiting so the real runtime screenshot wins
+    // over the generated fallback cover.
+    if (data.kind === 'ready') return
 
     this.previewHandled = true
     if (this.previewTimer) clearTimeout(this.previewTimer)
@@ -265,7 +270,9 @@ export class GameUploadComponent implements OnDestroy {
           const width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0, 640)
           const height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0, 360)
           const styles = Array.from(document.querySelectorAll('style')).map(style => style.textContent || '').join('\\n')
-          const body = document.body?.innerHTML || document.documentElement.innerHTML
+          const bodyElement = document.body?.cloneNode(true)
+          bodyElement?.querySelectorAll('script, iframe').forEach(element => element.remove())
+          const body = bodyElement?.innerHTML || document.documentElement.innerHTML
           const svgOpen = [
             '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="',
             width,
@@ -278,20 +285,18 @@ export class GameUploadComponent implements OnDestroy {
             'px;overflow:hidden;background:#f6f7f8;">'
           ].join('')
           const svg = svgOpen + '<style>' + styles.replace(/<\\/style>/gi, '') + '</style>' + body + '</div></foreignObject></svg>'
-          const url = URL.createObjectURL(new Blob([ svg ], { type: 'image/svg+xml' }))
           const image = new Image()
           image.onload = () => {
             const canvas = document.createElement('canvas')
             canvas.width = 1280
             canvas.height = 720
             const context = canvas.getContext('2d')
-            if (!context) return URL.revokeObjectURL(url)
+            if (!context) return
             context.drawImage(image, 0, 0, canvas.width, canvas.height)
-            URL.revokeObjectURL(url)
             sendCanvas(canvas)
           }
-          image.onerror = () => URL.revokeObjectURL(url)
-          image.src = url
+          image.onerror = () => undefined
+          image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
         }
         const inspect = () => {
           if (sendCanvas(document.querySelector('canvas'))) return
