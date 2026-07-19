@@ -331,6 +331,29 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     return this.categories.find(item => item.id === this.category())?.title || '游戏'
   }
 
+  private carouselTouchStartX = 0
+  private carouselTouchStartY = 0
+  private readonly carouselSwipeThreshold = 50
+
+  onCarouselTouchStart (event: TouchEvent) {
+    this.carouselTouchStartX = event.changedTouches[0].screenX
+    this.carouselTouchStartY = event.changedTouches[0].screenY
+  }
+
+  onCarouselTouchEnd (event: TouchEvent) {
+    const endX = event.changedTouches[0].screenX
+    const endY = event.changedTouches[0].screenY
+    const deltaX = endX - this.carouselTouchStartX
+    const deltaY = endY - this.carouselTouchStartY
+
+    // Ignore if vertical scroll is dominant
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return
+
+    if (Math.abs(deltaX) > this.carouselSwipeThreshold) {
+      this.nextCarousel(deltaX < 0 ? 1 : -1)
+    }
+  }
+
   private startCarousel () {
     this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
   }

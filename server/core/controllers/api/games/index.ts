@@ -1,11 +1,13 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
+import { sanitizeGameDescription } from '@server/helpers/game-sanitization.js'
 import { GameRuntimeValidationError, readStoredGameHtml, storeGameCover, storeGameRuntimePackage } from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
 import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
+import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
 import { GameModel } from '@server/models/game/game.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
@@ -17,6 +19,7 @@ import { ActorModel } from '@server/models/actor/actor.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
+import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
 import { literal, Op } from 'sequelize'
@@ -58,7 +61,7 @@ gamesRouter.use(apiRateLimiter)
 gamesRouter.use('/', runtimeRouter)
 gamesRouter.use('/', gameCommunityRouter)
 
-gamesRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, asyncMiddleware(listGames))
+gamesRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listGames))
 gamesRouter.get('/admin', authenticate, asyncMiddleware(listGamesForModerators))
 gamesRouter.get('/me/favorites', authenticate, asyncMiddleware(listFavoriteGames))
 gamesRouter.get('/me/recent', authenticate, asyncMiddleware(listRecentGames))
@@ -67,10 +70,10 @@ gamesRouter.get('/me/overview', authenticate, asyncMiddleware(getCreatorOverview
 gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotifications))
 gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
-gamesRouter.get('/author/:accountId', optionalAuthenticate, asyncMiddleware(getAuthor))
+gamesRouter.get('/author/:accountId', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_AUTHOR), asyncMiddleware(getAuthor))
 gamesRouter.post('/preview', authenticate, gameUploadRateLimiter, gameFile, asyncMiddleware(previewGame))
 gamesRouter.get('/:uuid/download', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(downloadGame))
-gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getGame))
+gamesRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_DETAIL), asyncMiddleware(getGame))
 gamesRouter.post('/', authenticate, gameUploadRateLimiter, gameFile, gameCreateValidator, asyncMiddleware(createGame))
 gamesRouter.put('/:uuid', authenticate, gameUUIDValidator, gameUploadRateLimiter, gameFile, gameCreateValidator, asyncMiddleware(updateGame))
 gamesRouter.delete('/:uuid', authenticate, gameUUIDValidator, asyncMiddleware(removeGame))
@@ -505,8 +508,8 @@ async function createGame (req: express.Request, res: express.Response) {
     const game = await GameModel.create({
       ownerAccountId: user.Account.id,
       title: req.body.title,
-      description: req.body.description || '',
-      instructions: req.body.instructions || '',
+      description: sanitizeGameDescription(req.body.description || ''),
+      instructions: sanitizeGameDescription(req.body.instructions || ''),
       category: req.body.category,
       tags: parseGameTags(req.body.tags),
       runtimePath: stored.relativePath,
@@ -567,8 +570,8 @@ async function updateGame (req: express.Request, res: express.Response) {
     }
 
     game.title = req.body.title
-    game.description = req.body.description || ''
-    game.instructions = req.body.instructions || ''
+    game.description = sanitizeGameDescription(req.body.description || '')
+    game.instructions = sanitizeGameDescription(req.body.instructions || '')
     game.category = req.body.category
     game.tags = parseGameTags(req.body.tags)
 

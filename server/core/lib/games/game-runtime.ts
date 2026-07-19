@@ -171,6 +171,9 @@ export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'no-referrer',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Embedder-Policy': 'require-corp',
+    'Permissions-Policy': 'accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
     'Content-Security-Policy': [
       "default-src 'none'",
       "script-src 'self' 'unsafe-inline'",

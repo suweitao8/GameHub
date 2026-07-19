@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import { RestExtractor } from '@app/core'
-import { catchError, map } from 'rxjs/operators'
+import { catchError, map, shareReplay } from 'rxjs/operators'
 import { Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
@@ -107,21 +107,41 @@ export type GameReview = {
 export class GamesService {
   private readonly http = inject(HttpClient)
   private readonly restExtractor = inject(RestExtractor)
+  private readonly listCache = new Map<string, Observable<GameList>>()
+  private readonly detailCache = new Map<string, Observable<Game>>()
 
   static readonly BASE_URL = `${environment.apiUrl}/api/v1/games`
 
   list (params: GamesListParams = {}): Observable<GameList> {
-    return this.http
+    const cacheKey = JSON.stringify(params)
+    const cached = this.listCache.get(cacheKey)
+    if (cached) return cached
+
+    const request$ = this.http
       .get<GameList>(buildGamesListUrl(environment.apiUrl, params))
       .pipe(map(result => this.normalizeGameList(result)))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
+      .pipe(shareReplay({ bufferSize: 1, refCount: false, windowTime: 5000 }))
+
+    this.listCache.set(cacheKey, request$)
+    // Clean up cache entry after window time expires
+    setTimeout(() => this.listCache.delete(cacheKey), 5500)
+    return request$
   }
 
   get (uuid: string): Observable<Game> {
-    return this.http
+    const cached = this.detailCache.get(uuid)
+    if (cached) return cached
+
+    const request$ = this.http
       .get<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`)
       .pipe(map(game => this.normalizeGame(game)))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
+      .pipe(shareReplay({ bufferSize: 1, refCount: false, windowTime: 5000 }))
+
+    this.detailCache.set(uuid, request$)
+    setTimeout(() => this.detailCache.delete(uuid), 5500)
+    return request$
   }
 
   recordPlay (uuid: string): Observable<{ runtimeUrl: string }> {

@@ -186,7 +186,10 @@ export const ROUTE_CACHE_LIFETIME = {
     VIDEOS: '1 second' // 1 second, cache concurrent requests after a broadcast for example
   },
   STATS: '4 hours',
-  WELL_KNOWN: '1 day'
+  WELL_KNOWN: '1 day',
+  GAMES_LIST: '2 minutes',
+  GAMES_DETAIL: '5 minutes',
+  GAMES_AUTHOR: '10 minutes'
 }
 
 // ---------------------------------------------------------------------------

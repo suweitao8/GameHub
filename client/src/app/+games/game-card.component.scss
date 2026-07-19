@@ -200,6 +200,11 @@
   transform: translateY(1px);
 }
 
+.game-card-placeholder {
+  display: block;
+  min-height: 180px;
+}
+
 @media (max-width: 720px) {
   .game-card-body {
     padding: 0.35rem 0 0.55rem;

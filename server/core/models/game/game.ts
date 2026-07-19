@@ -21,9 +21,12 @@ import { getGameSortMetric } from '@server/lib/games/game-query.js'
   tableName: 'game',
   indexes: [
     { fields: [ 'uuid' ], unique: true },
-    { fields: [ 'status', { name: 'publishedAt', order: 'DESC' } ] },
-    { fields: [ 'ownerAccountId', { name: 'createdAt', order: 'DESC' } ] },
-    { fields: [ 'category' ] }
+    { fields: [ 'status', 'publishedAt' ] },
+    { fields: [ 'status', 'playCount' ] },
+    { fields: [ 'status', 'category', 'publishedAt' ] },
+    { fields: [ 'ownerAccountId', 'createdAt' ] },
+    { fields: [ 'category' ] },
+    { fields: [ 'title' ], using: 'gin', operator: 'gin_trgm_ops' }
   ]
 })
 export class GameModel extends SequelizeModel<GameModel> {

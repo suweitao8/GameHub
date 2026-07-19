@@ -52,7 +52,7 @@
         <section class="featured-section" aria-label="推荐游戏">
           <div class="section-with-side-action">
             <div class="featured-discovery-grid">
-              <article class="featured-carousel">
+              <article class="featured-carousel" (touchstart)="onCarouselTouchStart($event)" (touchend)="onCarouselTouchEnd($event)">
                 <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
                   <div class="featured-cover">
                     @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }

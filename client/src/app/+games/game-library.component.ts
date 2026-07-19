@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
+import { Subscription } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
 
@@ -9,22 +10,27 @@ import { GamesService, Game } from './games.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ GameCardComponent, RouterLink ]
 })
-export class GameLibraryComponent implements OnInit {
+export class GameLibraryComponent implements OnInit, OnDestroy {
   private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
   private readonly router = inject(Router)
+  private routeSubscription: Subscription | undefined
   readonly tab = signal<'recent' | 'favorites' | 'owned'>('recent')
   readonly games = signal<Game[]>([])
   readonly loading = signal(true)
   readonly error = signal('')
 
   ngOnInit () {
-    this.route.queryParamMap.subscribe(query => {
+    this.routeSubscription = this.route.queryParamMap.subscribe(query => {
       const tab = query.get('tab')
       const nextTab = tab === 'favorites' || tab === 'owned' || tab === 'recent' ? tab : 'recent'
       if (this.tab() !== nextTab) this.tab.set(nextTab)
       this.load()
     })
+  }
+
+  ngOnDestroy () {
+    this.routeSubscription?.unsubscribe()
   }
 
   selectTab (tab: 'recent' | 'favorites' | 'owned') {

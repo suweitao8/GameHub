@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -7,7 +7,7 @@ import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { Game, GameAuthor, GamesService } from './games.service'
-import { combineLatest } from 'rxjs'
+import { combineLatest, Subscription } from 'rxjs'
 
 type AuthorTab = 'home' | 'activity' | 'games' | 'collections'
 
@@ -17,11 +17,12 @@ type AuthorTab = 'home' | 'activity' | 'games' | 'collections'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ GameCardComponent, GameSkeletonComponent, RouterLink, DatePipe ]
 })
-export class GameAuthorComponent implements OnInit {
+export class GameAuthorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
   private readonly router = inject(Router)
+  private routeSubscription: Subscription | undefined
   readonly author = signal<GameAuthor | null>(null)
   readonly loading = signal(true)
   readonly error = signal(false)
@@ -40,7 +41,7 @@ export class GameAuthorComponent implements OnInit {
   })
 
   ngOnInit () {
-    combineLatest([ this.route.paramMap, this.route.queryParamMap ]).subscribe(([ params, query ]) => {
+    this.routeSubscription = combineLatest([ this.route.paramMap, this.route.queryParamMap ]).subscribe(([ params, query ]) => {
       const accountId = params.get('accountId')
       if (!accountId) return
       const sort = query.get('sort')
@@ -49,6 +50,10 @@ export class GameAuthorComponent implements OnInit {
       this.tab.set(tab === 'activity' || tab === 'games' || tab === 'collections' ? tab : 'home')
       this.loadAuthor(accountId)
     })
+  }
+
+  ngOnDestroy () {
+    this.routeSubscription?.unsubscribe()
   }
 
   selectTab (tab: AuthorTab) {
