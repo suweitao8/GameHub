@@ -7,12 +7,13 @@ import { GamesService, Game, GameComment, GameCommunity, GameReview } from './ga
 import { GameCardComponent } from './game-card.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   templateUrl: './game-play.component.html',
   styleUrl: './game-play.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ DatePipe, GameCardComponent, RouterLink ]
+  imports: [ DatePipe, GameCardComponent, GlobalIconComponent, RouterLink ]
 })
 export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)

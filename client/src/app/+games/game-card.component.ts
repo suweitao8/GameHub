@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { Game } from './games.service'
 
 @Component({
@@ -8,7 +9,7 @@ import { Game } from './games.service'
   templateUrl: './game-card.component.html',
   styleUrl: './game-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ RouterLink ]
+  imports: [ GlobalIconComponent, RouterLink ]
 })
 export class GameCardComponent {
   @Input({ required: true }) game!: Game

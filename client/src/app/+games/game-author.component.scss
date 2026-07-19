@@ -134,7 +134,7 @@
   font-weight: 700; }
 .author-main .game-grid { display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .author-sidebar { align-content: start;
   display: grid;
   gap: 0.9rem; }
@@ -187,14 +187,18 @@
   font-size: 0.8rem; }
 .author-collection .game-grid { display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .author-empty { color: var(--game-muted);
   padding: 2rem 0; }
 .author-state { padding: 4rem 1rem;
   text-align: center; }
 .author-state a { color: var(--game-brand); }
 
-@media (max-width: 850px) { .author-layout { grid-template-columns: 1fr; } .author-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .author-main .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1050px) { .author-main .game-grid,
+  .author-collection .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+@media (max-width: 850px) { .author-layout { grid-template-columns: 1fr; } .author-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .author-main .game-grid,
+  .author-collection .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 @media (max-width: 640px) { .author-cover,
   .author-cover-inner { min-height: 195px; } .author-cover-inner { align-items: flex-start;

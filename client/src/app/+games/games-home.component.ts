@@ -6,12 +6,13 @@ import { catchError } from 'rxjs/operators'
 import { GameCardComponent } from './game-card.component'
 import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   templateUrl: './games-home.component.html',
   styleUrl: './games-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink ]
+  imports: [ GameCardComponent, GlobalIconComponent, RouterLink ]
 })
 export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)
@@ -34,7 +35,9 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
   readonly carouselIndex = signal(0)
+  readonly featuredColors = signal<Record<string, string>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
+  private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly categories = [
     { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。', query: { category: 'arcade' } },
     { id: 'adventure', title: '冒险', description: '探索地图，发现隐藏的故事。', query: { category: 'adventure' } },
@@ -154,6 +157,25 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       return
     }
 
+    if (this.category()) {
+      this.gamesService.list({ ...common, count: 16, sort: 'popular' }).subscribe({
+        next: result => {
+          this.recommended.set(result.data)
+          this.carouselIndex.set(0)
+          this.recommendedTotal.set(result.total)
+          this.popular.set([])
+          this.latest.set([])
+          this.recent.set([])
+          this.loading.set(false)
+        },
+        error: () => {
+          this.error.set(true)
+          this.loading.set(false)
+        }
+      })
+      return
+    }
+
     forkJoin({
       latest: this.gamesService.list({ ...common, count: 5, sort: 'latest' }),
       popular: this.gamesService.list({ ...common, count: 10, sort: 'popular' }),
@@ -204,6 +226,52 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     return games.length ? games[this.carouselIndex() % games.length] : null
   }
 
+  featuredColor (game: Game) {
+    const storedColor = this.featuredColors()[game.uuid]
+    if (storedColor) return storedColor
+
+    const seed = Array.from(game.uuid).reduce((total, character) => total + character.charCodeAt(0), 0)
+    return this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
+  }
+
+  onFeaturedImageLoad (event: Event, uuid: string) {
+    if (this.featuredColors()[uuid]) return
+
+    const image = event.target as HTMLImageElement
+    if (!image.naturalWidth || !image.naturalHeight) return
+
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = 24
+      canvas.height = 14
+      const context = canvas.getContext('2d', { willReadFrequently: true })
+      if (!context) return
+
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
+      const buckets = new Map<string, { count: number, red: number, green: number, blue: number }>()
+
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index + 3] < 180) continue
+
+        const red = Math.round(pixels[index] / 32) * 32
+        const green = Math.round(pixels[index + 1] / 32) * 32
+        const blue = Math.round(pixels[index + 2] / 32) * 32
+        const key = `${red},${green},${blue}`
+        const bucket = buckets.get(key) || { count: 0, red, green, blue }
+        bucket.count++
+        buckets.set(key, bucket)
+      }
+
+      const dominant = [ ...buckets.values() ].sort((first, second) => second.count - first.count)[ 0 ]
+      if (!dominant) return
+
+      this.featuredColors.update(colors => ({ ...colors, [uuid]: `rgb(${dominant.red} ${dominant.green} ${dominant.blue})` }))
+    } catch {
+      // Cross-origin cover images may not be readable by canvas; use the fallback palette.
+    }
+  }
+
   nextCarousel (step = 1) {
     const total = this.carouselGames().length
     if (!total) return
@@ -238,5 +306,9 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       coins: '最多投币',
       favorites: '最多收藏'
     }[this.sort()]
+  }
+
+  categoryTitle () {
+    return this.categories.find(item => item.id === this.category())?.title || '游戏'
   }
 }
