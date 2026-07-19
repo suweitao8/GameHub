@@ -104,3 +104,18 @@
   .notification-stream { padding: 14px; }
   .notification-categories .mark-all { margin-left: 0; }
 }
+
+/* Skeleton loading */
+.skeleton-notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.skeleton-notification-item {
+  background: #eceff3;
+  border-radius: 0.5rem;
+  height: 3.5rem;
+  width: 100%;
+}
