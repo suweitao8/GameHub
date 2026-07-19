@@ -419,13 +419,24 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   private startCommentsPolling () {
+    this.stopCommentsPolling()
     this.commentsRefreshTimer = setInterval(() => this.refreshComments(), 4000)
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
   }
 
   private stopCommentsPolling () {
     if (!this.commentsRefreshTimer) return
     clearInterval(this.commentsRefreshTimer)
     this.commentsRefreshTimer = undefined
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
+  }
+
+  private onVisibilityChange = () => {
+    if (document.hidden) {
+      this.stopCommentsPolling()
+    } else {
+      this.startCommentsPolling()
+    }
   }
 
   private refreshComments () {
