@@ -69,13 +69,11 @@
             <div class="game-avatar-hover-card" role="menu" aria-label="个人菜单">
               <div class="game-avatar-profile">
                 <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
-                <div class="game-avatar-profile-copy"><strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong><span>&#64;{{ user?.account?.name || user?.username || 'gamehub' }}</span></div>
-                <span class="game-avatar-badge">GameHub</span>
+                <strong>{{ user?.account?.displayName || user?.username || '用户' }}</strong>
+                <span>硬币 {{ gameCoinBalance() ?? '—' }}</span>
               </div>
-              <div class="game-avatar-stats"><span><strong>0</strong>关注</span><span><strong>0</strong>粉丝</span><span><strong>0</strong>动态</span></div>
-              <div class="game-avatar-promo"><strong>开始创作你的 HTML 游戏</strong><span>上传作品，和玩家一起试玩</span></div>
               <a role="menuitem" [routerLink]="[ '/games/author', user?.account?.id ]" (click)="cancelGameAvatarHover()"><my-global-icon iconName="user" aria-hidden="true"></my-global-icon>个人主页<span aria-hidden="true">›</span></a>
-              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="like" aria-hidden="true"></my-global-icon>我的收藏<span aria-hidden="true">›</span></a>
+              <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'favorites' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="star" aria-hidden="true"></my-global-icon>我的收藏<span aria-hidden="true">›</span></a>
               <a role="menuitem" routerLink="/games/library" [queryParams]="{ tab: 'recent' }" (click)="cancelGameAvatarHover()"><my-global-icon iconName="history" aria-hidden="true"></my-global-icon>游戏历史<span aria-hidden="true">›</span></a>
               <a role="menuitem" routerLink="/games/creator" (click)="cancelGameAvatarHover()"><my-global-icon iconName="upload" aria-hidden="true"></my-global-icon>创作中心<span aria-hidden="true">›</span></a>
               <div class="game-avatar-menu-divider"></div>
@@ -150,23 +148,66 @@
 
     @if (isGameExperience()) {
       <div class="game-header-actions" aria-label="游戏快捷入口">
-        <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态" [attr.aria-label]="gameNotificationBadge.unread() ? '动态，' + gameNotificationBadge.unread() + ' 条未读' : '动态'">
-          <my-global-icon iconName="bell"></my-global-icon>
-          <span class="game-header-action-label">动态</span>
-          @if (gameNotificationBadge.unread()) { <span class="game-header-unread" aria-hidden="true">{{ gameNotificationBadge.unread() > 99 ? '99+' : gameNotificationBadge.unread() }}</span> }
-        </a>
-        <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
-          <my-global-icon iconName="like"></my-global-icon>
-          <span>收藏</span>
-        </a>
-        <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'recent' }" title="游玩历史">
-          <my-global-icon iconName="history"></my-global-icon>
-          <span>历史</span>
-        </a>
-        <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
-          <my-global-icon iconName="upload"></my-global-icon>
-          <span>创作中心</span>
-        </a>
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('notifications')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('notifications')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('notifications')" (focusout)="cancelGameNavHover()">
+          <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态" [attr.aria-label]="gameNotificationBadge.unread() ? '动态，' + gameNotificationBadge.unread() + ' 条未读' : '动态'">
+            <my-global-icon iconName="bell"></my-global-icon>
+            <span class="game-header-action-label">动态</span>
+            @if (gameNotificationBadge.unread()) { <span class="game-header-unread" aria-hidden="true">{{ gameNotificationBadge.unread() > 99 ? '99+' : gameNotificationBadge.unread() }}</span> }
+          </a>
+          @if (gameNavHover() === 'notifications') {
+            <section class="game-header-popover game-header-notification-popover" aria-label="动态预览">
+              @if (gameNavLoading() && !gameNavNotifications().length) { <p class="game-popover-empty">正在加载动态...</p> }
+              @for (notification of gameNavNotifications().slice(0, 3); track notification.id) {
+                <a class="game-notification-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
+                  <img [src]="getGameNavAvatarUrl(notification)" alt="">
+                  <span><strong>{{ notification.actor?.displayName || notification.actor?.name || 'GameHub 玩家' }}</strong><small>{{ notification.message }}</small><em>{{ notification.createdAt | date:'MM-dd HH:mm' }}</em></span>
+                </a>
+              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">暂时没有新的动态</p> } }
+            </section>
+          }
+        </div>
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('favorites')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('favorites')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('favorites')" (focusout)="cancelGameNavHover()">
+          <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
+            <my-global-icon iconName="star"></my-global-icon>
+            <span>收藏</span>
+          </a>
+          @if (gameNavHover() === 'favorites') {
+            <section class="game-header-popover game-header-list-popover" aria-label="收藏预览">
+              @if (gameNavLoading() && !gameNavFavorites().length) { <p class="game-popover-empty">正在加载收藏...</p> }
+              @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
+                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div><span><strong>{{ game.title }}</strong><small>{{ game.author?.displayName || '独立开发者' }}</small></span></a>
+              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有收藏游戏</p> } }
+            </section>
+          }
+        </div>
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('history')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('history')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('history')" (focusout)="cancelGameNavHover()">
+          <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'recent' }" title="游玩历史">
+            <my-global-icon iconName="history"></my-global-icon>
+            <span>历史</span>
+          </a>
+          @if (gameNavHover() === 'history') {
+            <section class="game-header-popover game-header-list-popover" aria-label="游玩历史预览">
+              @if (gameNavLoading() && !gameNavRecent().length) { <p class="game-popover-empty">正在加载历史...</p> }
+              @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
+                <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div><span><strong>{{ game.title }}</strong><small>最近游玩</small></span></a>
+              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有游玩记录</p> } }
+            </section>
+          }
+        </div>
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('creator')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="cancelGameNavHover()">
+          <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
+            <my-global-icon iconName="upload"></my-global-icon>
+            <span>创作中心</span>
+          </a>
+          @if (gameNavHover() === 'creator') {
+            <section class="game-header-popover game-header-creator-popover" aria-label="创作中心预览">
+              <div class="game-prompt-list">
+                <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 2D 游戏，使用 Canvas 和原生 JavaScript，不依赖外部资源，包含开始、暂停、重新开始和移动端触控操作。')">2D 游戏提示词</button>
+                <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 3D 游戏，使用 CSS 3D 或内嵌实现，不依赖外部网络资源，包含清晰的操作说明、开始和重新开始。')">3D 游戏提示词</button>
+              </div>
+            </section>
+          }
+        </div>
       </div>
     }
 

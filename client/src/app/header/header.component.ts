@@ -21,6 +21,9 @@ import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
 import { SearchTypeaheadComponent } from './search-typeahead.component'
+import { Game, GameNotification, GamesService } from '@app/+games/games.service'
+
+type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
 
 @Component({
   selector: 'my-header',
@@ -55,6 +58,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private router = inject(Router)
   private menu = inject(MenuService)
   private headerService = inject(HeaderService)
+  private gamesService = inject(GamesService)
   readonly gameNotificationBadge = inject(GameNotificationBadgeService)
 
   private static LS_HIDE_MOBILE_MSG = 'hide-mobile-msg'
@@ -62,6 +66,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
   readonly dropdown = viewChild<NgbDropdown>('dropdown')
   readonly gameAvatarHoverVisible = signal(false)
+  readonly gameCoinBalance = signal<number | null>(null)
+  readonly gameNavHover = signal<GameHeaderPopup | null>(null)
+  readonly gameNavFavorites = signal<Game[]>([])
+  readonly gameNavRecent = signal<Game[]>([])
+  readonly gameNavOwned = signal<Game[]>([])
+  readonly gameNavNotifications = signal<GameNotification[]>([])
+  readonly gameNavLoading = signal(false)
 
   user: AuthUser
   loggedIn: boolean
@@ -82,6 +93,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private hotkeysSub: Subscription
   private authSub: Subscription
   private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
+  private gameNavHoverTimer: ReturnType<typeof setTimeout> | undefined
+  private gameCoinBalanceRequested = false
+  private gameNavLoaded = new Set<GameHeaderPopup>()
 
   get requiresApproval () {
     return this.config.signup.requiresApproval
@@ -169,6 +183,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy () {
     this.cancelGameAvatarHover()
+    this.cancelGameNavHover()
     if (this.quickSettingsModalSub) this.quickSettingsModalSub.unsubscribe()
     if (this.hotkeysSub) this.hotkeysSub.unsubscribe()
     if (this.authSub) this.authSub.unsubscribe()
@@ -311,7 +326,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.isGameExperience() || !this.loggedIn) return
 
     this.cancelGameAvatarHover(false)
-    this.gameAvatarHoverTimer = setTimeout(() => this.gameAvatarHoverVisible.set(true), 500)
+    this.gameAvatarHoverTimer = setTimeout(() => {
+      this.gameAvatarHoverVisible.set(true)
+      this.loadGameCoinBalance()
+    }, 500)
   }
 
   cancelGameAvatarHover (close = true) {
@@ -321,6 +339,89 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     if (close) this.gameAvatarHoverVisible.set(false)
+  }
+
+  scheduleGameNavHover (popup: GameHeaderPopup) {
+    if (!this.isGameExperience() || !this.loggedIn) return
+
+    this.cancelGameNavHover(false)
+    this.gameNavHoverTimer = setTimeout(() => {
+      this.gameNavHover.set(popup)
+      this.loadGameNavData(popup)
+    }, 300)
+  }
+
+  cancelGameNavHover (close = true) {
+    if (this.gameNavHoverTimer) {
+      clearTimeout(this.gameNavHoverTimer)
+      this.gameNavHoverTimer = undefined
+    }
+
+    if (close) this.gameNavHover.set(null)
+  }
+
+  copyGamePrompt (prompt: string) {
+    void navigator.clipboard?.writeText(prompt)
+  }
+
+  getGameNavAvatarUrl (notification: GameNotification) {
+    const label = notification.actor?.displayName || notification.actor?.name || notification.game?.title || '动态'
+    return buildGameAvatarDataUrl(label)
+  }
+
+  private loadGameNavData (popup: GameHeaderPopup) {
+    if (this.gameNavLoaded.has(popup) || !this.loggedIn) return
+
+    this.gameNavLoaded.add(popup)
+    this.gameNavLoading.set(true)
+
+    if (popup === 'notifications') {
+      this.gamesService.notifications().subscribe({
+        next: value => this.gameNavNotifications.set(value.data || []),
+        error: () => {
+          this.gameNavNotifications.set([])
+          this.gameNavLoading.set(false)
+        },
+        complete: () => this.gameNavLoading.set(false)
+      })
+      return
+    }
+
+    if (popup === 'favorites') {
+      this.gamesService.listFavorites().subscribe({
+        next: value => this.gameNavFavorites.set(value.data || []),
+        error: () => {
+          this.gameNavFavorites.set([])
+          this.gameNavLoading.set(false)
+        },
+        complete: () => this.gameNavLoading.set(false)
+      })
+      return
+    }
+
+    if (popup === 'history') {
+      this.gamesService.listRecent().subscribe({
+        next: value => this.gameNavRecent.set(value.data || []),
+        error: () => {
+          this.gameNavRecent.set([])
+          this.gameNavLoading.set(false)
+        },
+        complete: () => this.gameNavLoading.set(false)
+      })
+      return
+    }
+
+    this.gamesService.creatorOverview().subscribe({
+      next: value => {
+        this.gameNavOwned.set(value.games || [])
+        this.gameCoinBalance.set(value.coinBalance)
+      },
+      error: () => {
+        this.gameNavOwned.set([])
+        this.gameNavLoading.set(false)
+      },
+      complete: () => this.gameNavLoading.set(false)
+    })
   }
 
   openGameProfile (event: Event) {
@@ -334,5 +435,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.user = this.loggedIn
       ? this.authService.getUser()
       : undefined
+
+    if (!this.loggedIn) {
+      this.gameCoinBalance.set(null)
+      this.gameCoinBalanceRequested = false
+    }
+  }
+
+  private loadGameCoinBalance () {
+    if (this.gameCoinBalanceRequested || !this.loggedIn) return
+
+    this.gameCoinBalanceRequested = true
+    this.gamesService.creatorOverview().subscribe({
+      next: overview => this.gameCoinBalance.set(overview.coinBalance),
+      error: () => this.gameCoinBalance.set(0)
+    })
   }
 }

@@ -2,7 +2,7 @@
   @if (loading()) {
     <div class="game-community-content author-state">正在打开作者空间...</div>
   } @else if (error() || !author()) {
-    <div class="game-community-content author-state"><h1>作者空间暂时不可用</h1><a routerLink="/games">返回发现</a></div>
+    <div class="game-community-content author-state"><h1>作者空间暂时不可用</h1></div>
   } @else {
     <section class="author-cover">
       <div class="author-cover-glow" aria-hidden="true"></div>

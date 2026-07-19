@@ -30,7 +30,7 @@
                 <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
                   <div class="featured-cover">
                     @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
-                    <div class="featured-overlay"><h3>{{ featuredGame.title }}</h3><p>{{ featuredGame.description || '打开即玩，发现下一款喜欢的游戏。' }}</p><div><span>▶ {{ featuredGame.playCount }}</span><span>▤ {{ featuredGame.comments }}</span></div></div>
+                    <div class="featured-overlay"><h3>{{ featuredGame.title }}</h3></div>
                   </div>
                 </a>
                 <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)">‹</button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)">›</button></div></div>
@@ -45,7 +45,7 @@
       }
 
       @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !device() && !publishedAfter() && view() !== 'following' && recent().length) {
-        <section class="game-section recent-games-section"><div class="game-section-heading compact-section-heading"><h2>我玩过的</h2></div><div class="game-grid">@for (game of recent().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+        <section class="game-section recent-games-section"><div class="game-section-heading compact-section-heading"><h2>我玩过的</h2></div><div class="game-grid">@for (game of recent(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
       }
 
       @if (sort() === 'recommended' && !searchMode() && view() !== 'following') {

@@ -212,10 +212,6 @@ export class TagsHtml {
       tagsStr += `<link rel="alternate" type="application/rss+xml" title="${escapeAttribute(rssLink.title)}" href="${rssLink.url}" />`
     }
 
-    // Favicon
-    const favicon = ServerConfigManager.Instance.getFavicon(serverActor)
-    tagsStr += `<link rel="icon" type="image/png" href="${escapeAttribute(favicon.fileUrl)}" />`
-
     // Apple Touch Icon
     const iconHref = ServerConfigManager.Instance.getLogoUrl(serverActor, 192)
 

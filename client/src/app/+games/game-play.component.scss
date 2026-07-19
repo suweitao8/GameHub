@@ -82,7 +82,6 @@
   display: flex;
   gap: 1.25rem;
   justify-content: space-between; }
-.back-link { display: none; }
 .game-actions,
 .interaction-row,
 .coin-row { display: flex;
@@ -133,8 +132,7 @@
   top: 50%;
   transform: translate(-50%, -50%);
   z-index: 2; }
-.start-game-overlay:hover { filter: brightness(1.06);
-  transform: translate(-50%, -50%) scale(1.03); }
+.start-game-overlay:hover { filter: brightness(1.06); }
 .game-player-controls { align-items: center;
   background: rgb(20 22 27 / 88%);
   bottom: 0;
@@ -477,7 +475,7 @@
     transform: translateY(0); } }
 .comment { border-top: 1px solid #f0f1f2;
   padding: 1rem 0; }
-.comment p { color: #18191c;
+.comment p { color: rgb(48 49 51);
   font-size: 0.88rem;
   line-height: 1.6;
   margin: 0.45rem 0 0;

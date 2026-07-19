@@ -214,12 +214,26 @@ export class GameUploadComponent implements OnDestroy {
         canvas.height = 720
         const context = canvas.getContext('2d')
         if (!context) return resolve(null)
-        context.fillStyle = '#111827'
+        context.fillStyle = '#eef2f5'
         context.fillRect(0, 0, canvas.width, canvas.height)
-        const scale = Math.min(canvas.width / image.width, canvas.height / image.height)
+        const scale = Math.max(canvas.width / image.width, canvas.height / image.height)
         const width = image.width * scale
         const height = image.height * scale
         context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height)
+        const overlay = context.createLinearGradient(0, canvas.height * 0.58, 0, canvas.height)
+        overlay.addColorStop(0, 'rgba(12, 20, 30, 0)')
+        overlay.addColorStop(1, 'rgba(12, 20, 30, .82)')
+        context.fillStyle = overlay
+        context.fillRect(0, 0, canvas.width, canvas.height)
+        context.fillStyle = '#fff'
+        context.font = '700 38px Arial, Microsoft YaHei, sans-serif'
+        context.shadowColor = 'rgba(0, 0, 0, .25)'
+        context.shadowBlur = 5
+        context.fillText(this.title.trim() || 'GameHub 游戏', 48, 625)
+        context.shadowBlur = 0
+        context.font = '600 20px Arial, Microsoft YaHei, sans-serif'
+        context.fillStyle = 'rgba(255, 255, 255, .86)'
+        context.fillText('GameHub 网页小游戏', 50, 662)
         canvas.toBlob(blob => {
           const file = blob ? new File([ blob ], 'gamehub-runtime-screenshot.png', { type: 'image/png' }) : null
           resolve(file)
@@ -234,14 +248,58 @@ export class GameUploadComponent implements OnDestroy {
     const probe = `<script>
       (() => {
         const send = payload => parent.postMessage({ source: 'gamehub-upload-preview', token: ${JSON.stringify(token)}, ...payload }, '*')
+        let captured = false
         window.addEventListener('error', event => send({ kind: 'error', message: event.message }))
-        const inspect = () => {
-          const canvas = document.querySelector('canvas')
-          if (canvas && canvas.width && canvas.height) send({ kind: 'canvas', dataUrl: canvas.toDataURL('image/png') })
-          else send({ kind: 'ready' })
+        const sendCanvas = canvas => {
+          if (captured || !canvas || !canvas.width || !canvas.height) return false
+          try {
+            captured = true
+            send({ kind: 'canvas', dataUrl: canvas.toDataURL('image/png') })
+            return true
+          } catch {
+            return false
+          }
         }
-        window.addEventListener('load', () => setTimeout(inspect, 500))
-        setTimeout(inspect, 1500)
+        const captureDom = () => {
+          if (captured) return
+          const width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0, 640)
+          const height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0, 360)
+          const styles = Array.from(document.querySelectorAll('style')).map(style => style.textContent || '').join('\\n')
+          const body = document.body?.innerHTML || document.documentElement.innerHTML
+          const svgOpen = [
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="',
+            width,
+            '" height="',
+            height,
+            '"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:',
+            width,
+            'px;height:',
+            height,
+            'px;overflow:hidden;background:#f6f7f8;">'
+          ].join('')
+          const svg = svgOpen + '<style>' + styles.replace(/<\\/style>/gi, '') + '</style>' + body + '</div></foreignObject></svg>'
+          const url = URL.createObjectURL(new Blob([ svg ], { type: 'image/svg+xml' }))
+          const image = new Image()
+          image.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = 1280
+            canvas.height = 720
+            const context = canvas.getContext('2d')
+            if (!context) return URL.revokeObjectURL(url)
+            context.drawImage(image, 0, 0, canvas.width, canvas.height)
+            URL.revokeObjectURL(url)
+            sendCanvas(canvas)
+          }
+          image.onerror = () => URL.revokeObjectURL(url)
+          image.src = url
+        }
+        const inspect = () => {
+          if (sendCanvas(document.querySelector('canvas'))) return
+          captureDom()
+          if (!captured) send({ kind: 'ready' })
+        }
+        window.addEventListener('load', () => setTimeout(inspect, 700))
+        setTimeout(inspect, 1800)
       })()
     </script>`
     return source.includes('</body>') ? source.replace('</body>', `${probe}</body>`) : `${source}${probe}`

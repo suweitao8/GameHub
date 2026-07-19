@@ -4,9 +4,8 @@
   } @else if (loadingError() || !game()) {
     <div class="game-community-content game-play-state" role="alert">
       <h1>游戏暂时无法打开</h1>
-      <p>请返回游戏列表重试，或稍后再来。</p>
+      <p>请重新加载或稍后再试。</p>
       <button type="button" (click)="retryLoadGame()">重新加载</button>
-      <a routerLink="/games">返回游戏列表</a>
     </div>
   } @else {
     <div class="game-community-content">

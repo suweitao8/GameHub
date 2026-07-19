@@ -370,7 +370,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
       include: []
     } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
-    limit: 100
+    limit: 5
   })
 
   return res.json({ total: rows.length, data: rows.map(row => formatGame(row.Game)) })

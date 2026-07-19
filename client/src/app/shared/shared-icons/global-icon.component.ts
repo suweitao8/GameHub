@@ -86,6 +86,7 @@ const icons = {
   'repeat': require('../../../assets/images/feather/repeat.svg'),
   'search': require('../../../assets/images/feather/search.svg'),
   'share': require('../../../assets/images/feather/share-2.svg'),
+  'star': require('../../../assets/images/feather/star.svg'),
   'shield': require('../../../assets/images/misc/shield.svg'),
   'sign-in': require('../../../assets/images/feather/log-in.svg'),
   'sign-out': require('../../../assets/images/feather/log-out.svg'),

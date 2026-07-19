@@ -103,7 +103,7 @@ export type GameReview = {
   isAuthor?: boolean
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class GamesService {
   private readonly http = inject(HttpClient)
   private readonly restExtractor = inject(RestExtractor)
