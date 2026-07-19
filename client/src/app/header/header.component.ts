@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
@@ -84,6 +84,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   iosAppUrl = ''
 
   searchHidden = false
+  gameHeaderScrolled = false
 
   private config: ServerConfig
   private htmlConfig: HTMLServerConfig
@@ -92,6 +93,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private getSearchHiddenSub: Subscription
   private hotkeysSub: Subscription
   private authSub: Subscription
+  private routerEventsSub: Subscription
   private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
   private gameNavHoverTimer: ReturnType<typeof setTimeout> | undefined
   private gameCoinBalanceRequested = false
@@ -179,6 +181,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       })
 
     this.setupMobileMsg()
+    this.routerEventsSub = this.router.events.subscribe(event => {
+      if (!(event instanceof NavigationEnd)) return
+
+      this.updateGameHeaderScroll()
+    })
+    this.updateGameHeaderScroll()
   }
 
   ngOnDestroy () {
@@ -187,6 +195,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.quickSettingsModalSub) this.quickSettingsModalSub.unsubscribe()
     if (this.hotkeysSub) this.hotkeysSub.unsubscribe()
     if (this.authSub) this.authSub.unsubscribe()
+    if (this.routerEventsSub) this.routerEventsSub.unsubscribe()
     if (this.getSearchHiddenSub) this.getSearchHiddenSub.unsubscribe()
   }
 
@@ -321,6 +330,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleMenu () {
     this.menu.toggleMenu()
+  }
+
+  @HostListener('window:scroll')
+  onGameWindowScroll () {
+    this.updateGameHeaderScroll()
+  }
+
+  private updateGameHeaderScroll () {
+    const shouldShrink = this.isGameExperience() && window.innerWidth > 760 && window.scrollY > 32
+    if (this.gameHeaderScrolled === shouldShrink) return
+
+    this.gameHeaderScrolled = shouldShrink
+    document.querySelector('.peertube-container')?.classList.toggle('game-header-scrolled', shouldShrink)
   }
 
   scheduleGameAvatarMenu () {

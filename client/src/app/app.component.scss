@@ -60,6 +60,16 @@
 
   background: var(--game-page-bg);
 
+  @media (min-width: 761px) {
+    &.game-header-scrolled {
+      --header-height: 100px;
+    }
+
+    > .root-header {
+      transition: height 180ms ease;
+    }
+  }
+
   ::selection {
     background: rgb(0 174 236 / 32%);
     color: rgb(30 30 30);
