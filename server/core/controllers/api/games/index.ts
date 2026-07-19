@@ -232,7 +232,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   const games = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [],
+    include: [ { model: AccountModel, required: true } ],
     order: [ [ 'createdAt', 'DESC' ] ]
   })
   const gameIds = games.map(game => game.id)
@@ -332,7 +332,11 @@ async function listGamesForModerators (_req: express.Request, res: express.Respo
   const user = getUser(res)
   if (!user || !isGameModerator(user)) return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
 
-  const data = await GameModel.findAll<MGame>({ order: [ [ 'createdAt', 'DESC' ] ], limit: 100 })
+  const data = await GameModel.findAll<MGame>({
+    include: [ { model: AccountModel, required: true } ],
+    order: [ [ 'createdAt', 'DESC' ] ],
+    limit: 100
+  })
   return res.json({ total: data.length, data: data.map(formatGame) })
 }
 
@@ -347,7 +351,7 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes('"Game"') },
-      include: []
+      include: [ { model: AccountModel, required: true } ]
     } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
@@ -367,7 +371,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
       where: { status: 'published' },
       required: true,
       attributes: { include: GameModel.getPublicStatsAttributes('"Game"') },
-      include: []
+      include: [ { model: AccountModel, required: true } ]
     } ],
     order: [ [ 'lastPlayedAt', 'DESC' ] ],
     limit: 5
@@ -383,7 +387,7 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
   const data = await GameModel.findAll<MGame>({
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [],
+    include: [ { model: AccountModel, required: true } ],
     order: [ [ 'createdAt', 'DESC' ] ],
     limit: 100
   })
