@@ -418,6 +418,7 @@ Export to Jaeger (tracing) or Prometheus (metrics) is configurable in
 3. 没有实际验证证据，不得声称“已完成”“已修复”或“可以运行”。
 4. 设计方向已明确后直接执行；只有范围、风险或关键取舍发生变化且代码无法合理推断时才暂停提问。
 5. 只管理当前任务创建的 worktree，不修改或删除其他会话的 worktree、分支和本地运行数据。
+6. `develop` 是唯一交付主分支。功能分支上的提交只有在快进或完成冲突解决并合并到 `develop`、且 `origin/develop` 已更新后，才算完成；只提交或推送功能分支不算完成。
 
 ### 开发前与开发中
 
@@ -469,5 +470,17 @@ docker compose -f support/docker/development/docker-compose.yml down
 
 ### 收尾与规则维护
 
-- 完成功能后先在 worktree 提交，再合并回开发基线、推送并删除当前 worktree，最后执行 `git worktree prune`；清理前必须再次确认分支已合并、工作区干净且没有未注册目录。
+- 完成功能后先在 worktree 提交，再合并回 `develop`、推送 `origin/develop`，最后删除当前 worktree 并执行 `git worktree prune`；清理前必须再次确认分支已合并、工作区干净且没有未注册目录。
+- 每次对话结束或向用户交付前，必须执行一次收尾检查：
+  1. `git status --short --branch`、`git diff --check`，确认没有本次任务遗漏的修改；已有的用户变更必须保留并明确标注，不能借清理之名删除。
+  2. `git branch --show-current`、`git log -1 --oneline --decorate` 和 `git worktree list --porcelain`，确认当前基线是 `develop`，提交已落在 `develop`，且当前任务 worktree 已移除；再用 `Test-Path <task-worktree-path>` 确认目录残留也已清理。
+  3. `git fetch origin --prune` 后执行以下命令，确认本地和远程主分支指向同一提交；不一致时必须继续推送或处理阻塞，不能宣称完成：
+     ```powershell
+     $localDevelop = git rev-parse develop
+     $remoteDevelop = git rev-parse origin/develop
+     if ($localDevelop -ne $remoteDevelop) { throw 'develop 尚未与 origin/develop 同步' }
+     ```
+  4. 对当前任务的功能分支执行 `git merge-base --is-ancestor <task-branch> develop`，确认其历史已进入主分支；合并前有冲突时必须真实解决并重新验证。
+  5. 如果本地服务在本轮被启动，确认其来自主仓库或明确停止；需要保持可运行时，从 `develop` 工作区启动并检查 `http://127.0.0.1:9000/api/v1/ping`。
+- 收尾检查未通过时，交付消息必须说明具体未完成项；不得用“已提交功能分支”“worktree 注册已移除”替代“已合并到主分支并完成清理”。
 - 修改本文件必须立即执行“修改 → 审查 → 优化 → 提交”流程：检查命令可执行性、架构准确性、非显而易见陷阱、简洁性、时效性和可操作性；发现重复、矛盾或过时内容时当场修正。
