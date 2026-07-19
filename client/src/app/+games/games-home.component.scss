@@ -246,7 +246,11 @@
   gap: 0.35rem;
   min-width: 0;
   overflow-x: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+.home-category-links::-webkit-scrollbar {
+  display: none;
 }
 
 .home-category-links a {
@@ -257,7 +261,7 @@
   font-size: 0.78rem;
   letter-spacing: 0.5em;
   min-height: 2.2rem;
-  min-width: 4.5rem;
+  min-width: 4.2rem;
   padding: 0.4rem 0.45rem;
   cursor: pointer;
   text-align: center;
