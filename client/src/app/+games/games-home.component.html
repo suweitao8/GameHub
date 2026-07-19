@@ -13,7 +13,12 @@
       <div class="category-directory-grid">@for (item of categories; track item.id) { <a class="category-directory-card" routerLink="/games" [queryParams]="item.query"><strong>{{ item.title }}</strong><span>{{ item.description }}</span><em>浏览分类 →</em></a> }</div>
     </section>
   } @else if (loading()) {
-    <div class="game-community-content game-state" role="status">正在为你准备游戏...</div>
+    <div class="game-community-content">
+      <div class="game-skeleton-nav" aria-hidden="true"><div class="game-skeleton-tab shimmer"></div><div class="game-skeleton-tab shimmer"></div></div>
+      <div class="game-section"><div class="game-section-heading"><div class="game-skeleton-heading shimmer"></div></div><div class="game-grid">@for (i of [1,2,3,4,5,6]; track $index) { <my-game-skeleton /> }</div></div>
+      <div class="game-section"><div class="game-section-heading compact-section-heading"><div class="game-skeleton-heading shimmer" style="width:4rem"></div></div><div class="game-grid">@for (i of [1,2,3,4,5]; track $index) { <my-game-skeleton /> }</div></div>
+      <div class="game-section"><div class="game-section-heading compact-section-heading"><div class="game-skeleton-heading shimmer" style="width:4rem"></div></div><div class="game-grid">@for (i of [1,2,3,4,5,6,7,8,9,10]; track $index) { <my-game-skeleton /> }</div></div>
+    </div>
   } @else if (error()) {
     <div class="game-community-content game-state error" role="alert"><h2>暂时加载失败</h2><p>网络或服务短暂异常，请重试。</p><button type="button" (click)="loadGames()">重新加载</button></div>
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {

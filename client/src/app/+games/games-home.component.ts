@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin, of } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 import { GameCardComponent } from './game-card.component'
+import { GameSkeletonComponent } from './game-skeleton.component'
 import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -12,7 +13,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
   templateUrl: './games-home.component.html',
   styleUrl: './games-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, GlobalIconComponent, RouterLink ]
+  imports: [ GameCardComponent, GameSkeletonComponent, GlobalIconComponent, RouterLink ]
 })
 export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)

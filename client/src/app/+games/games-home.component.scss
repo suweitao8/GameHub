@@ -592,3 +592,23 @@
   .category-directory-grid { grid-template-columns: 1fr; }
   .community-hub-grid { grid-template-columns: 1fr; }
 }
+
+/* Skeleton loading */
+.game-skeleton-nav {
+  align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  margin: 0.9rem 0;
+}
+
+.game-skeleton-tab {
+  border-radius: 6px;
+  height: 2.2rem;
+  width: 4.1rem;
+}
+
+.game-skeleton-heading {
+  border-radius: 4px;
+  height: 1.25rem;
+  width: 6rem;
+}
