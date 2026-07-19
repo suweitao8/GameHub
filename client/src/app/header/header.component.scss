@@ -177,7 +177,7 @@
   text-align: center;
   top: -0.35rem; }
 
-.game-header-actions a:last-child {
+.game-header-actions .game-header-action-wrap > a {
   min-width: 3.95rem;
 }
 
@@ -211,10 +211,6 @@
 
 .game-header-action-wrap {
   position: relative;
-}
-
-.game-header-action-wrap:last-child a {
-  min-width: 3.95rem;
 }
 
 .game-header-popover {
@@ -649,8 +645,7 @@ my-actor-avatar {
     min-width: 2.45rem;
   }
 
-  :host-context(.game-experience) .game-header-actions a:last-child,
-  :host-context(.game-experience) .game-header-action-wrap:last-child a {
+  :host-context(.game-experience) .game-header-action-wrap > a {
     min-width: 3.35rem;
   }
 
