@@ -55,7 +55,7 @@
               <article class="featured-carousel">
                 <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
                   <div class="featured-cover">
-                    @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
+                    @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
                   </div>
                   <div class="featured-caption" [style.background]="featuredGradient(featuredGame)"><h3>{{ featuredGame.title }}</h3></div>
                 </a>

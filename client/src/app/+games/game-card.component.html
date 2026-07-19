@@ -1,7 +1,7 @@
 <a class="game-card" [routerLink]="['/games', game.uuid]" [attr.aria-label]="'打开游戏：' + game.title">
   <div class="game-cover" [class.placeholder]="!game.coverPath || coverUnavailable()">
     @if (game.coverPath && !coverUnavailable()) {
-      <img [src]="game.coverPath" [alt]="game.title + ' 封面'" loading="lazy" (error)="onCoverError()">
+      <img [src]="game.coverPath" [alt]="game.title + ' 封面'" loading="lazy" decoding="async" width="320" height="180" (error)="onCoverError()">
     } @else {
       <div class="cover-placeholder-content">
         <span class="cover-letter" aria-hidden="true">{{ game.title.charAt(0) || 'G' }}</span>
