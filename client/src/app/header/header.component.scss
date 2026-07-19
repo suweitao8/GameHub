@@ -602,8 +602,10 @@ my-actor-avatar {
 :host-context(.game-experience) .logged-in-container > .tertiary-button:focus,
 :host-context(.game-experience) .logged-in-container > .tertiary-button:active {
   background: transparent !important;
+  border: 0;
   box-shadow: none !important;
   color: var(--game-text-secondary) !important;
+  padding: 0;
 }
 
 :host-context(.game-experience) .logged-in-container > .tertiary-button:focus-visible {
