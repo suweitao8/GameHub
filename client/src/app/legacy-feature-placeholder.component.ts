@@ -94,7 +94,7 @@ import { Component, signal } from '@angular/core'
       width: calc(100% - 2rem);
     }
 
-    .not-implemented-dialog p { color: #61666d; line-height: 1.6; margin: 0.65rem 0 1rem; }
+    .not-implemented-dialog p { color: rgb(100 100 100); line-height: 1.6; margin: 0.65rem 0 1rem; }
     .not-implemented-dialog button {
       background: #00aeec;
       border: 0;

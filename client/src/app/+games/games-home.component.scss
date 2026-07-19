@@ -217,8 +217,11 @@
   align-self: start;
   background: var(--game-brand);
   border-radius: var(--game-radius);
+  display: flex;
+  flex-direction: column;
   grid-column: span 2;
   grid-row: span 2;
+  height: 100%;
   min-width: 0;
   overflow: hidden;
   position: relative;
@@ -230,9 +233,17 @@
   position: relative;
 }
 
+.featured-carousel-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .featured-cover {
   aspect-ratio: 16 / 9;
   background: #bfeeff;
+  flex: 0 0 auto;
   overflow: hidden;
   position: relative;
 }
@@ -265,6 +276,7 @@
 
 .featured-caption {
   color: #fff;
+  flex: 1;
   min-height: 4.3rem;
   padding: 0.8rem 1rem 2.8rem;
 }
@@ -437,6 +449,7 @@
   .featured-carousel {
     grid-column: span 2;
     grid-row: auto;
+    height: auto;
   }
   .featured-side-grid {
     grid-column: span 2;
