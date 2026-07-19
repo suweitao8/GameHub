@@ -59,7 +59,6 @@
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
         (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
-        (mouseenter)="scheduleGameAvatarMenu()" (mouseleave)="cancelGameAvatarHover()"
         >
         @if (isGameExperience()) {
           <button class="tertiary-button" type="button" aria-label="打开个人主页" (click)="openGameProfile($event)">
@@ -142,7 +141,7 @@
 
     @if (isGameExperience()) {
       <div class="game-header-actions" aria-label="游戏快捷入口">
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('notifications')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('notifications')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('notifications')" (focusout)="cancelGameNavHover()">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('notifications')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('notifications')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态" [attr.aria-label]="gameNotificationBadge.unread() ? '动态，' + gameNotificationBadge.unread() + ' 条未读' : '动态'">
             <my-global-icon iconName="bell"></my-global-icon>
             <span class="game-header-action-label">动态</span>
@@ -160,7 +159,7 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('favorites')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('favorites')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('favorites')" (focusout)="cancelGameNavHover()">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('favorites')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('favorites')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
             <my-global-icon iconName="star"></my-global-icon>
             <span>收藏</span>
@@ -174,7 +173,7 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('history')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('history')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('history')" (focusout)="cancelGameNavHover()">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('history')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('history')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'recent' }" title="游玩历史">
             <my-global-icon iconName="history"></my-global-icon>
             <span>历史</span>
@@ -188,7 +187,7 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('creator')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="cancelGameNavHover()">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
             <my-global-icon iconName="upload"></my-global-icon>
             <span>创作中心</span>

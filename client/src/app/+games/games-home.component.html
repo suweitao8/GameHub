@@ -22,7 +22,9 @@
         </div>
       </nav>
 
-      @if (sort() === 'recommended' && !searchMode() && !search() && !device() && view() !== 'following' && carouselGame(); as featuredGame) {
+      @if (category() && recommended().length) {
+        <section class="game-section category-results-section"><div class="game-section-heading"><div><h2>{{ categoryTitle() }}热门游戏</h2></div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+      } @else if (sort() === 'recommended' && !searchMode() && !search() && !device() && view() !== 'following' && carouselGame(); as featuredGame) {
         <section class="featured-section" aria-label="推荐游戏">
           <div class="section-with-side-action">
             <div class="featured-discovery-grid">
@@ -44,10 +46,8 @@
         <section class="game-section"><div class="game-section-heading"><div><h2>{{ primaryHeading() }}</h2></div><div class="section-controls">@if (sort() === 'recommended' && !searchMode() && view() !== 'following') { <button class="shuffle-button" type="button" (click)="shuffleRecommendations()"><my-global-icon iconName="refresh" /><span>换一换</span></button> } @else if (view() !== 'following') { <label>排序<select [value]="sort()" (change)="onSortChange($event)"><option value="recommended">综合排序</option><option value="latest">最新发布</option><option value="popular">最多游玩</option><option value="likes">最多点赞</option><option value="coins">最多投币</option><option value="favorites">最多收藏</option></select></label> }</div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
       }
 
-      @if (category() && recommended().length) { <section class="game-section category-results-section"><div class="game-section-heading compact-section-heading"><h2>{{ categoryTitle() }}热门游戏</h2></div><div class="game-grid">@for (game of recommended().slice(7); track game.uuid) { <my-game-card [game]="game" /> }</div></section> }
-
       @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !device() && !publishedAfter() && view() !== 'following' && recent().length) {
-        <section class="game-section recent-games-section"><div class="game-section-heading compact-section-heading"><h2>我玩过的</h2></div><div class="game-grid">@for (game of recent(); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
+        <section class="game-section recent-games-section"><div class="game-section-heading compact-section-heading"><h2>我玩过的</h2></div><div class="game-grid">@for (game of recent().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div></section>
       }
 
       @if (sort() === 'recommended' && !searchMode() && !category() && !device() && view() !== 'following') {

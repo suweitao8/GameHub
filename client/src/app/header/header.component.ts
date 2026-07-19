@@ -360,6 +360,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (close) this.gameNavHover.set(null)
   }
 
+  onGameNavFocusOut (event: FocusEvent) {
+    const container = event.currentTarget as HTMLElement | null
+    const nextTarget = event.relatedTarget as Node | null
+
+    if (container?.contains(nextTarget)) return
+
+    this.cancelGameNavHover()
+  }
+
   copyGamePrompt (prompt: string) {
     void navigator.clipboard?.writeText(prompt)
   }
