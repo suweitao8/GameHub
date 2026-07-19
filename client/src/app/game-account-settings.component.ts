@@ -18,7 +18,6 @@ import { filter } from 'rxjs/operators'
   template: `
     <main class="game-community-page game-settings-page">
       <div class="game-community-content">
-        <a class="game-back-link" routerLink="/my-account">← 返回个人中心</a>
         <header class="game-settings-header">
           <p class="game-eyebrow">GAMEHUB ACCOUNT</p>
           <h1>账户设置</h1>

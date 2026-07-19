@@ -5,7 +5,6 @@
     <div class="game-community-content game-account-state" role="alert">
       <h1>创作者空间暂时不可用</h1>
       <p>请稍后重试，或返回 GameHub 继续发现游戏。</p>
-      <a routerLink="/games">返回游戏社区</a>
     </div>
   } @else {
     <section class="game-community-content game-account-hero">
@@ -31,7 +30,6 @@
         @if (videoChannels().length) {
           <my-subscribe-button [account]="account()" [videoChannels]="videoChannels()" size="small"></my-subscribe-button>
         }
-        <a routerLink="/games" class="game-account-back-link"><my-global-icon iconName="arrow-left"></my-global-icon> 返回发现</a>
       </div>
     </section>
 
