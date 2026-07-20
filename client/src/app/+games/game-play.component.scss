@@ -681,12 +681,46 @@
 }
 
 .game-skeleton-stage {
-  align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem 0;
+  gap: 0.75rem;
+  padding: 1rem 0 2rem;
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.game-skeleton-thumbnail {
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: var(--game-radius);
+  height: 200px;
+  width: 100%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+.game-skeleton-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.game-skeleton-title {
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  height: 1.5rem;
+  width: 55%;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+.game-skeleton-stats {
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  height: 0.85rem;
+  width: 35%;
+  animation: skeleton-shimmer 1.5s infinite linear;
 }
 
 .game-skeleton-game {
@@ -713,6 +747,26 @@
   height: 2.5rem;
   width: 100%;
   animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+.game-skeleton-sidebars {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  max-width: 900px;
+  width: 100%;
+}
+
+.game-skeleton-sidebar {
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background-size: 200% 100%;
+  border-radius: 0.5rem;
+  animation: skeleton-shimmer 1.5s infinite linear;
+}
+
+@media (max-width: 600px) {
+  .game-skeleton-sidebars { grid-template-columns: 1fr; }
 }
 
 /* Review skeleton loading */
