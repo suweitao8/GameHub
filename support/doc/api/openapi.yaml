@@ -9295,6 +9295,185 @@ paths:
         '204':
           description: successful operation
 
+  /api/v1/games/events:
+    get:
+      tags:
+        - Games
+      summary: List game events
+      description: Returns a paginated list of published game events and competitions
+      operationId: listGameEvents
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ activity, competition ]
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ upcoming, ongoing, ended, cancelled ]
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEventList'
+    post:
+      tags:
+        - Games
+      summary: Create a game event
+      description: Create a new community event or competition (requires authentication)
+      operationId: createGameEvent
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameEventCreate'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEvent'
+
+  /api/v1/games/events/{slug}:
+    get:
+      tags:
+        - Games
+      summary: Get game event detail
+      operationId: getGameEvent
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEvent'
+        '404':
+          description: event not found
+    put:
+      tags:
+        - Games
+      summary: Update game event
+      description: Update an event (only creator or admin)
+      operationId: updateGameEvent
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameEventCreate'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEvent'
+    delete:
+      tags:
+        - Games
+      summary: Delete game event
+      operationId: deleteGameEvent
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: successful operation
+
+  /api/v1/games/events/{slug}/participants:
+    get:
+      tags:
+        - Games
+      summary: List event participants
+      operationId: listGameEventParticipants
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEventParticipantList'
+
+  /api/v1/games/events/{slug}/join:
+    post:
+      tags:
+        - Games
+      summary: Join an event
+      operationId: joinGameEvent
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: successfully joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  joined:
+                    type: boolean
+        '409':
+          description: already joined or event closed
+    delete:
+      tags:
+        - Games
+      summary: Leave an event
+      operationId: leaveGameEvent
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: successfully left
+
 servers:
   - url: 'https://peertube2.cpy.re'
     description: Live Test Server (live data - latest nightly version)
@@ -15006,3 +15185,133 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    GameEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        slug:
+          type: string
+        type:
+          type: string
+          enum: [ activity, competition ]
+        status:
+          type: string
+          enum: [ upcoming, ongoing, ended, cancelled ]
+        coverPath:
+          type: string
+          nullable: true
+        startAt:
+          type: string
+          format: date-time
+          nullable: true
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+        rules:
+          type: string
+          nullable: true
+        prizes:
+          type: string
+          nullable: true
+        maxParticipants:
+          type: integer
+        participantCount:
+          type: integer
+        createdBy:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    GameEventCreate:
+      type: object
+      required:
+        - title
+        - slug
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
+        type:
+          type: string
+          enum: [ activity, competition ]
+        status:
+          type: string
+          enum: [ upcoming, ongoing, ended, cancelled ]
+        coverPath:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        rules:
+          type: string
+        prizes:
+          type: string
+        maxParticipants:
+          type: integer
+
+    GameEventList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameEvent'
+
+    GameEventParticipant:
+      type: object
+      properties:
+        id:
+          type: integer
+        account:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+        state:
+          type: string
+          enum: [ registered, submitted, winner, disqualified ]
+        rank:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    GameEventParticipantList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameEventParticipant'

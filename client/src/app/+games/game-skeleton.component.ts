@@ -5,6 +5,11 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
   template: `
     <div class="game-skeleton-card" aria-label="加载中">
       <div class="game-skeleton-cover shimmer"></div>
+      <div class="game-skeleton-stats">
+        <div class="skeleton-stat shimmer"></div>
+        <div class="skeleton-stat shimmer"></div>
+        <div class="skeleton-stat shimmer"></div>
+      </div>
       <div class="game-skeleton-body">
         <div class="game-skeleton-title shimmer"></div>
         <div class="game-skeleton-author shimmer"></div>
@@ -25,23 +30,36 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
       border-radius: 0.5rem;
     }
 
+    .game-skeleton-stats {
+      display: flex;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .skeleton-stat {
+      height: 0.75rem;
+      width: 2.2rem;
+      background: #eceff3;
+      border-radius: 0.2rem;
+    }
+
     .game-skeleton-body {
-      padding: 0.55rem 0 0.8rem;
+      padding: 0.45rem 0 0.6rem;
     }
 
     .game-skeleton-title {
-      height: 1.05rem;
+      height: 1rem;
       background: #eceff3;
       border-radius: 0.25rem;
-      width: 80%;
+      width: 75%;
     }
 
     .game-skeleton-author {
-      height: 0.85rem;
+      height: 0.8rem;
       background: #eceff3;
       border-radius: 0.25rem;
-      margin-top: 0.42rem;
-      width: 50%;
+      margin-top: 0.35rem;
+      width: 45%;
     }
 
     @keyframes shimmer {
@@ -50,9 +68,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core'
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .shimmer {
-        animation: none;
-      }
+      .shimmer { animation: none; }
     }
 
     .shimmer {
