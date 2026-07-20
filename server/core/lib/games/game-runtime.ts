@@ -358,7 +358,15 @@ function validateInlineCode (html: string) {
     /\bNotification\s*\(/i,
     /\bPushManager\b/i,
     /\bCacheStorage\b/i,
-    /\bOffscreenCanvas\b/i
+    /\bOffscreenCanvas\b/i,
+    /\bwebkitRequestFileSystem\b/i,
+    /\brequestFileSystem\b/i,
+    /\bcreateObjectURL\b/i,
+    /\brevokeObjectURL\b/i,
+    /\bFileReader\b/i,
+    /\bWebRTC\b/i,
+    /\bRTCPeerConnection\b/i,
+    /\bRTCSessionDescription\b/i
   ]
 
   if (forbiddenPatterns.some(pattern => pattern.test(html))) throw new GameRuntimeValidationError('Network and top-level navigation APIs are not supported')
