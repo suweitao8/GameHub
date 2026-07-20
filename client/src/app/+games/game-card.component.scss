@@ -8,16 +8,19 @@
 .game-card {
   background: transparent;
   border: 0;
+  border-radius: var(--game-radius);
   display: block;
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
   will-change: transform;
+  transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
-.game-card:hover,
-.game-card:focus-visible {
+.game-card:hover {
   outline: none;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgb(25 30 40 / 10%);
 }
 
 .game-cover {
@@ -36,6 +39,27 @@
 
 .game-card:hover .game-cover img {
   transform: scale(1.035);
+}
+
+.game-cover::after {
+  background: linear-gradient(
+    180deg,
+    rgb(20 24 30 / 0%) 0%,
+    rgb(20 24 30 / 0%) 62%,
+    rgb(20 24 30 / 45%) 100%
+  );
+  border-radius: inherit;
+  content: '';
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 200ms ease;
+  z-index: 1;
+}
+
+.game-card:hover .game-cover::after {
+  opacity: 1;
 }
 
 .game-cover.placeholder {
