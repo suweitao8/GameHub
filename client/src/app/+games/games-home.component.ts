@@ -43,6 +43,8 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly featured = signal<Game[]>([])
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
   private carouselTimer: ReturnType<typeof setInterval> | undefined
+  private carouselProgressTimer: ReturnType<typeof setInterval> | undefined
+  readonly carouselProgress = signal(0)
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly sortKinds = [
     { id: 'recommended' as GamesListParams['sort'], label: '综合' },
@@ -92,6 +94,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   ngOnDestroy () {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
+    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   }
 
@@ -317,6 +320,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     const total = this.carouselGames().length
     if (!total) return
     this.carouselIndex.set((this.carouselIndex() + step + total) % total)
+    this.carouselProgress.set(0)
   }
 
   onSortChange (event: Event) {
@@ -395,10 +399,18 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   private startCarousel () {
     this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
+
+    // Progress bar that fills over 6s then resets
+    this.carouselProgress.set(0)
+    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
+    this.carouselProgressTimer = setInterval(() => {
+      this.carouselProgress.update(value => value + 2)
+    }, 100)
   }
 
   private onVisibilityChange = () => {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
+    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
     if (!document.hidden) this.startCarousel()
   }
 }
