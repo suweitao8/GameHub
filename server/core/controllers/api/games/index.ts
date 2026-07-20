@@ -7,6 +7,7 @@ import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { getRecommendedGames, invalidateRecommendationCache } from '@server/lib/games/game-recommendations.js'
 import { getCreatorPlayTrend, getCreatorInteractionBreakdown, getCreatorGameRanking, getCreatorFollowerTrend } from '@server/lib/games/game-analytics.js'
 import { awardExp, claimDailyLogin, getUserLevelInfo } from '@server/lib/games/game-exp.js'
+import { getFollowingFeed, getPublicFeed as getPublicGameFeed } from '@server/lib/games/game-feed.js'
 import { createGameShareToken, resolveGameShareToken } from '@server/lib/games/game-share.js'
 import { GameRuntimeValidationError, MAX_SCREENSHOTS, readStoredGameHtml, storeGameCover, storeGameRuntimePackage, storeGameScreenshot } from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
@@ -80,6 +81,8 @@ gamesRouter.post('/me/level/daily-login', authenticate, asyncMiddleware(claimDai
 gamesRouter.get('/me/owned', authenticate, asyncMiddleware(listOwnedGames))
 gamesRouter.get('/me/overview', authenticate, asyncMiddleware(getCreatorOverview))
 gamesRouter.get('/me/analytics', authenticate, asyncMiddleware(getCreatorAnalytics))
+gamesRouter.get('/feed', optionalAuthenticate, asyncMiddleware(getFeed))
+gamesRouter.get('/feed/public', asyncMiddleware(getPublicFeed))
 gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotifications))
 gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
@@ -1118,5 +1121,34 @@ async function listReservations (_req: express.Request, res: express.Response) {
         game: formatGame(row.Game)
       }))
     })
+  })
+}
+
+/**
+ * 关注动态 Feed
+ */
+async function getFeed (req: express.Request, res: express.Response) {
+  return traceGameOperation('getFeed', async () => {
+    const user = getUser(res)
+    const start = Math.max(0, Number(req.query.start) || 0)
+    const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+
+    if (!user) return res.json({ total: 0, data: [] })
+
+    const result = await getFollowingFeed(user.Account.id, { limit: count, offset: start })
+    return res.json(result)
+  })
+}
+
+/**
+ * 公开动态 Feed
+ */
+async function getPublicFeed (req: express.Request, res: express.Response) {
+  return traceGameOperation('getPublicFeed', async () => {
+    const start = Math.max(0, Number(req.query.start) || 0)
+    const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+
+    const result = await getPublicGameFeed({ limit: count, offset: start })
+    return res.json(result)
   })
 }
