@@ -776,53 +776,76 @@ async function moderateGame (req: express.Request, res: express.Response) {
 
 async function getRankings (req: express.Request, res: express.Response) {
   return traceGameOperation('getRankings', async () => {
-    const kind = req.query.kind === 'newest' ? 'newest'
-      : req.query.kind === 'topRated' ? 'topRated'
-      : 'hot' // default
-
+    const kind = (req.query.kind as string) || 'hot'
     const count = Math.min(100, Math.max(1, Number(req.query.count) || 50))
     const category = req.query.category as string | undefined
 
-    const sortMetric = kind === 'hot' ? 'plays' : kind === 'newest' ? 'latest' : 'plays'
+    // Map kind to sort metric for listPublished
+    const sortMap: Record<string, string> = {
+      hot: 'plays',
+      newest: 'latest',
+      topRated: 'latest', // We'll sort by averageReviewScore after fetching
+      favorites: 'favorites',
+      coins: 'coins',
+      comments: 'likes', // We'll filter after fetching
+      likes: 'likes'
+    }
 
-    const { total, data } = await GameModel.listPublished({
+    const sortMetric = sortMap[kind] || 'plays'
+
+    const { data } = await GameModel.listPublished({
       category,
       sort: sortMetric,
       limit: count,
       offset: 0
     })
 
-    // Stats summary data is already included via getPublicStatsAttributes + StatsSummary JOIN
-    // Fetch averageReviewScore separately since it's not in getPublicStatsAttributes
+    // For topRated, sort by averageReviewScore; for comments, include comment count
     const gameIds = data.map(g => g.id)
-    const reviewScoreMap = new Map<number, number>()
+    const statsMap = new Map<number, any>()
     if (gameIds.length > 0) {
       const statsRows = await GameStatsSummaryModel.findAll({
         where: { gameId: gameIds },
-        attributes: [ 'gameId', 'averageReviewScore' ],
         raw: true
       })
-      for (const s of statsRows) reviewScoreMap.set(s.gameId, Number(s.averageReviewScore))
+      for (const s of statsRows) statsMap.set(s.gameId, s)
     }
 
-    const ranked = data.map((game, index) => {
+    // Re-sort for special rankings
+    let sortedData = data
+    if (kind === 'topRated') {
+      sortedData = data.sort((a, b) => {
+        const scoreA = Number(statsMap.get(a.id)?.averageReviewScore || 0)
+        const scoreB = Number(statsMap.get(b.id)?.averageReviewScore || 0)
+        return scoreB - scoreA
+      })
+    } else if (kind === 'comments') {
+      sortedData = data.sort((a, b) => {
+        const commentsA = Number(statsMap.get(a.id)?.comments || 0)
+        const commentsB = Number(statsMap.get(b.id)?.comments || 0)
+        return commentsB - commentsA
+      })
+    }
+
+    const ranked = sortedData.map((game, index) => {
       const formatted = formatGame(game)
+      const stats = statsMap.get(game.id)
       return {
         rank: index + 1,
         ...formatted,
         stats: {
           plays: game.playCount,
-          likes: Number(game.get?.('gameLikes') || 0),
-          favorites: Number(game.get?.('favoriteCount') || 0),
-          coins: Number(game.get?.('coinCount') || 0),
-          comments: Number(game.get?.('gameComments') || 0),
-          reviews: Number(game.get?.('gameReviews') || 0),
-          averageReviewScore: reviewScoreMap.get(game.id) || 0
+          likes: Number(stats?.likes || 0),
+          favorites: Number(stats?.favorites || 0),
+          coins: Number(stats?.coins || 0),
+          comments: Number(stats?.comments || 0),
+          reviews: Number(stats?.reviews || 0),
+          averageReviewScore: Number(stats?.averageReviewScore || 0)
         }
       }
     })
 
-    return res.json({ kind, total, data: ranked })
+    return res.json({ kind, total: ranked.length, data: ranked })
   })
 }
 
