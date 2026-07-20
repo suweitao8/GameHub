@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
 import { getGameActionErrorMessage } from './game-action-feedback'
@@ -14,11 +15,13 @@ import { GamesService } from './games.service'
 export class GameEditComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
+  private readonly sanitizer = inject(DomSanitizer)
   readonly loading = signal(true)
   readonly submitting = signal(false)
   readonly message = signal('')
   readonly error = signal('')
   readonly fileError = signal('')
+  readonly runtimePreview = signal<SafeResourceUrl | null>(null)
   readonly uuid = this.route.snapshot.paramMap.get('uuid') || ''
   file: File | null = null
   cover: File | null = null
@@ -45,6 +48,7 @@ export class GameEditComponent implements OnInit {
         this.instructions = game.instructions
         this.category = game.category
         this.tags = game.tags.join(', ')
+        this.runtimePreview.set(this.sanitizer.bypassSecurityTrustResourceUrl(game.runtimeUrl))
         this.loading.set(false)
       },
       error: () => { this.error.set('无法加载游戏，可能没有管理权限。'); this.loading.set(false) }
@@ -67,6 +71,12 @@ export class GameEditComponent implements OnInit {
     this.fileError.set('')
     this.error.set('')
     this.file = file
+
+    // Preview new file
+    if (file) {
+      const url = URL.createObjectURL(file)
+      this.runtimePreview.set(this.sanitizer.bypassSecurityTrustResourceUrl(url))
+    }
   }
 
   onCoverChange (event: Event) { this.cover = (event.target as HTMLInputElement).files?.[0] || null }

@@ -35,6 +35,15 @@
       </label>
       <label>简介<textarea name="description" [(ngModel)]="description" rows="4" maxlength="5000" placeholder="一句话介绍你的游戏特色"></textarea></label>
       <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" maxlength="5000" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
+      @if (runtimePreview()) {
+        <div class="edit-preview-section">
+          <div class="edit-preview-header">
+            <span>运行预览</span>
+            <a [routerLink]="['/games', uuid]" target="_blank">新标签页打开</a>
+          </div>
+          <iframe [src]="runtimePreview()" title="游戏运行预览" sandbox="allow-scripts allow-pointer-lock allow-fullscreen" class="edit-preview-frame"></iframe>
+        </div>
+      }
       @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
       @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
       <button type="submit" [disabled]="submitting() || !isValid()">{{ submittingMessage() }}</button>

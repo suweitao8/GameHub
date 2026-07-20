@@ -174,6 +174,45 @@
   bottom: 0.7rem;
 }
 
+/* Edit preview iframe */
+.edit-preview-section {
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  overflow: hidden;
+}
+
+.edit-preview-header {
+  align-items: center;
+  background: #f8f9fa;
+  border-bottom: 1px solid var(--game-border);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+}
+
+.edit-preview-header span {
+  color: var(--game-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.edit-preview-header a {
+  color: var(--game-brand);
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.edit-preview-header a:hover { text-decoration: underline; }
+
+.edit-preview-frame {
+  aspect-ratio: 16 / 9;
+  background: #111827;
+  border: 0;
+  display: block;
+  max-height: 400px;
+  width: 100%;
+}
+
 .upload-success-links { display: flex;
   flex-wrap: wrap;
   gap: 0.8rem; }
