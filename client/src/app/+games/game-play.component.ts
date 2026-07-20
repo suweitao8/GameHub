@@ -468,6 +468,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.mutedHint.set(true)
   }
 
+  formatBigNumber (value: number | undefined) {
+    if (!value || value < 1) return '0'
+    if (value >= 10000) return (value / 10000).toFixed(1) + '万'
+    return String(value)
+  }
+
   reloadGame () {
     const currentGame = this.game()
     if (!currentGame) return
