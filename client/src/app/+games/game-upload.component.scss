@@ -37,7 +37,31 @@
   padding: 0.7rem 0.9rem; }
 .upload-status.error { background: #fff0f0;
   color: var(--game-danger); }
-.upload-layout { align-items: start;
+/* Upload progress bar */
+.upload-progress-bar {
+  background: var(--game-border);
+  border-radius: 999px;
+  height: 0.45rem;
+  margin: 0 0 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.upload-progress-fill {
+  background: linear-gradient(90deg, var(--game-brand) 0%, #34d399 100%);
+  border-radius: 999px;
+  height: 100%;
+  transition: width 0.5s ease;
+  min-width: 0;
+}
+
+.upload-progress-text {
+  color: var(--game-muted);
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.35rem;
+  text-align: right;
+}
   display: grid;
   gap: 1.5rem;
   grid-template-columns: 0.8fr 1.4fr; }

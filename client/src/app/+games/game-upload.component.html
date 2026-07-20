@@ -1,7 +1,7 @@
 <main class="game-community-page upload-page">
   <div class="game-community-content">
     <header class="upload-header"><div><p class="game-eyebrow">创作中心</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
-    <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>
+    <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>@if (submitting()) { <div class="upload-progress-bar" aria-label="上传进度" role="progressbar" [attr.aria-valuenow]="uploadProgress()" aria-valuemin="0" aria-valuemax="100"><div class="upload-progress-fill" [style.width.%]="uploadProgress()"></div><span class="upload-progress-text">{{ precentsText() }}</span></div> }
     @if (previewStatus()) { <p class="upload-status" [class.error]="previewError()" role="status">{{ previewStatus() }}</p> }
     <div class="upload-layout">
       <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>只支持单个 HTML 文件，大小不能超过 20MB</li><li>HTML 内的样式和脚本需要写在同一个文件中</li><li>不支持外部网络请求、页面跳转或表单提交</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>不上传封面时，系统会根据实际运行画面或标题自动生成 GameHub 封面。</p></aside>

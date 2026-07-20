@@ -35,6 +35,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly previewError = signal('')
   readonly coverSource = signal<'runtime' | 'generated' | 'manual'>('generated')
   readonly createdGame = signal<Game | null>(null)
+  readonly uploadProgress = signal(0)
   private readonly runtimeScreenshot = signal('')
 
   constructor () {
@@ -82,14 +83,17 @@ export class GameUploadComponent implements OnDestroy {
       return
     }
     this.submitting.set(true)
+    this.uploadProgress.set(0)
     this.step.set(2)
     this.previewStatus.set('正在上传并检查文件…')
+    this.uploadProgress.set(12)
     this.error.set('')
     this.message.set('')
     let cover = this.cover
     if (!cover) {
       this.step.set(4)
       this.previewStatus.set('正在生成封面…')
+      this.uploadProgress.set(35)
       cover = await this.generateAutomaticCover()
       this.cover = cover
       this.coverSource.set('generated')
@@ -97,6 +101,7 @@ export class GameUploadComponent implements OnDestroy {
     }
     this.step.set(5)
     this.previewStatus.set('正在提交审核…')
+    this.uploadProgress.set(65)
     this.gamesService.create(this.file, {
       title: this.title.trim(),
       description: this.description.trim(),
@@ -106,6 +111,7 @@ export class GameUploadComponent implements OnDestroy {
       cover
     }).subscribe({
       next: game => {
+        this.uploadProgress.set(100)
         this.submitting.set(false)
         this.step.set(6)
         this.previewStatus.set('上传成功')
@@ -113,6 +119,7 @@ export class GameUploadComponent implements OnDestroy {
         this.message.set(game.status === 'published' ? '上传成功，游戏已发布。' : '上传成功，等待管理员审核。')
       },
       error: error => {
+        this.uploadProgress.set(0)
         this.submitting.set(false)
         this.step.set(1)
         this.previewStatus.set('')
@@ -123,6 +130,10 @@ export class GameUploadComponent implements OnDestroy {
 
   formatBytes (value: number) {
     return value < 1024 * 1024 ? `${Math.ceil(value / 1024)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  precentsText () {
+    return `上传中... ${this.uploadProgress()}%`
   }
 
   getDownloadUrl (uuid: string) {
