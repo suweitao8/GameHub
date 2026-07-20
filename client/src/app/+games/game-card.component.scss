@@ -179,6 +179,17 @@
   width: 1.35rem;
 }
 
+.author-name-link {
+  color: var(--game-text-button);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.author-name-link:hover {
+  color: var(--game-brand);
+  text-decoration: underline;
+}
+
 .game-card-time {
   color: var(--game-text-button);
   margin-left: 0;

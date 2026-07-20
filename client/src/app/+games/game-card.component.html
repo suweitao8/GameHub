@@ -29,7 +29,11 @@
       <h3>{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}</h3>
       <div class="game-card-author">
         <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
-        <span>{{ game.author?.displayName || '独立创作者' }}</span>
+        @if (game.author?.id) {
+          <a class="author-name-link" [routerLink]="['/games/author', game.author.id]" (click)="$event.stopPropagation()">{{ game.author?.displayName || '独立创作者' }}</a>
+        } @else {
+          <span>{{ game.author?.displayName || '独立创作者' }}</span>
+        }
         <span class="game-card-time">· {{ formatDate(game.publishedAt || game.createdAt) }}</span>
       </div>
     </div>
