@@ -63,11 +63,17 @@
 .notification-state a { color: var(--game-brand);
   font-weight: 700; }
 .notification-item { align-items: center;
+  animation: notificationSlideIn 300ms ease-out backwards;
   border-bottom: 1px solid var(--game-border);
   cursor: pointer;
   display: flex;
   gap: 0.9rem;
   padding: 0.9rem 0; }
+
+@keyframes notificationSlideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 .notification-item:last-child { border-bottom: 0; }
 .notification-item.unread { background: var(--game-brand-soft);
   margin-inline: -0.6rem;
