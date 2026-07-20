@@ -481,6 +481,29 @@
   padding: 0.75rem 0; }
 .chat-message:first-child { border-top: 0; }
 .chat-message .comment-author { font-size: 0.78rem; }
+.chat-message .comment-author span:first-of-type {
+  background: var(--game-brand);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.35rem;
+  margin-left: 0.4rem;
+}
+
+/* Author comment highlight */
+.chat-message:has(.comment-author span:first-of-type) {
+  background: var(--game-brand-soft);
+  border-left: 3px solid var(--game-brand);
+  border-radius: 0 6px 6px 0;
+  padding-left: 0.85rem;
+}
+.comment-reply:has(.comment-author span:first-of-type) {
+  background: var(--game-brand-soft);
+  border-left: 3px solid var(--game-brand);
+  border-radius: 0 6px 6px 0;
+  padding-left: 0.85rem;
+}
 .chat-message .comment-author time,
 .comment-reply .comment-author time { color: var(--game-text-button);
   font-size: 0.7rem;
