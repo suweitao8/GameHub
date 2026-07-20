@@ -24,6 +24,7 @@ import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameNotificationModel } from '@server/models/game/game-notification.js'
+import { GameReportModel } from '@server/models/game/game-report.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
@@ -110,6 +111,7 @@ gamesRouter.delete('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddl
 gamesRouter.get('/me/reservations', authenticate, asyncMiddleware(listReservations))
 gamesRouter.get('/me/following', authenticate, asyncMiddleware(listFollowing))
 gamesRouter.post('/:uuid/share', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(shareGame))
+gamesRouter.post('/:uuid/report', gameUUIDValidator, authenticate, asyncMiddleware(reportGame))
 gamesRouter.post('/:uuid/moderate', authenticate, gameModerationValidator, asyncMiddleware(moderateGame))
 gamesRouter.put('/:uuid/featured', authenticate, gameUUIDValidator, asyncMiddleware(setFeatured))
 
@@ -1312,5 +1314,38 @@ async function listFollowing (req: express.Request, res: express.Response) {
     }))
 
     return res.json({ total: data.length, data })
+  })
+}
+
+/**
+ * 举报游戏
+ */
+async function reportGame (req: express.Request, res: express.Response) {
+  return traceGameOperation('reportGame', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    const user = getUser(res)
+    const reason = String(req.body.reason || '').trim()
+    if (!reason) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'reason is required' })
+
+    const predefinedReasons = Array.isArray(req.body.predefinedReasons)
+      ? req.body.predefinedReasons.filter((r: unknown) => typeof r === 'string').slice(0, 10)
+      : []
+
+    const report = await GameReportModel.create({
+      reporterAccountId: user.Account.id,
+      gameId: game.id,
+      commentId: null,
+      reason,
+      state: 'pending',
+      predefinedReasons
+    })
+
+    return res.status(HttpStatusCode.CREATED_201).json({
+      id: report.id,
+      state: report.state,
+      createdAt: report.createdAt
+    })
   })
 }

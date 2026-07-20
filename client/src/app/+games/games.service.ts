@@ -394,6 +394,14 @@ export class GamesService {
     return this.http.post<{ url: string; shortUrl: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})
   }
 
+  // Report
+  report (uuid: string, reason: string, predefinedReasons: string[] = []): Observable<{ id: number; state: string }> {
+    return this.http.post<{ id: number; state: string }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/report`,
+      { reason, predefinedReasons }
+    )
+  }
+
   buildRuntimeUrl (runtimeOrigin: string, uuid: string) {
     return buildGameRuntimeUrl(runtimeOrigin, uuid)
   }

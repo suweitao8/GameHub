@@ -67,6 +67,15 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly shareUrl = signal('')
   readonly shareCopied = signal(false)
   readonly relatedArticles = signal<{ id: number; title: string; slug: string; summary: string; category: string }[]>([])
+  readonly reportDialog = signal(false)
+  readonly reportReason = signal('')
+  readonly reportPredefined = signal<string[]>([])
+  readonly reportSubmitting = signal(false)
+  readonly reportFeedback = signal('')
+  readonly reportReasons = [
+    '色情低俗', '暴力血腥', '违法违规', '侵权抄袭',
+    '恶意代码', '无法运行', '垃圾内容', '其他'
+  ]
   readonly sortedComments = computed(() => {
     const comments = [ ...this.comments() ]
     if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
@@ -439,6 +448,49 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   closeShareDialog () {
     this.shareDialog.set(false)
     this.shareCopied.set(false)
+  }
+
+  openReportDialog () {
+    if (!this.requireLogin()) return
+    this.reportDialog.set(true)
+    this.reportReason.set('')
+    this.reportPredefined.set([])
+    this.reportFeedback.set('')
+  }
+
+  toggleReportPredefined (reason: string) {
+    this.reportPredefined.update(list =>
+      list.includes(reason) ? list.filter(r => r !== reason) : [...list, reason]
+    )
+  }
+
+  submitReport () {
+    const reason = this.reportReason().trim()
+    if (!reason && this.reportPredefined().length === 0) {
+      this.reportFeedback.set('请选择或填写举报原因')
+      return
+    }
+    this.reportSubmitting.set(true)
+    this.gamesService.report(
+      this.currentUuid,
+      reason || this.reportPredefined().join(', '),
+      this.reportPredefined()
+    ).subscribe({
+      next: () => {
+        this.reportSubmitting.set(false)
+        this.reportFeedback.set('举报已提交，我们会尽快处理')
+        setTimeout(() => this.reportDialog.set(false), 2000)
+      },
+      error: error => {
+        this.reportSubmitting.set(false)
+        this.reportFeedback.set(getGameActionErrorMessage(error))
+      }
+    })
+  }
+
+  closeReportDialog () {
+    this.reportDialog.set(false)
+    this.reportFeedback.set('')
   }
 
   private updateMetaTags (game: Game) {

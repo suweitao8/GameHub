@@ -33,6 +33,9 @@
           <span aria-label="收藏数"><my-global-icon iconName="star" />{{ formatBigNumber(game()!.favorites || 0) }} 收藏</span>
           <span aria-label="评价数量"><my-global-icon iconName="message-circle" />{{ community()?.reviews ?? game()!.comments ?? 0 }} 评价</span>
           <time [attr.datetime]="game()!.updatedAt">{{ game()!.updatedAt | date:'yyyy-MM-dd HH:mm' }}</time>
+          @if (!community()?.isOwner) {
+            <button type="button" class="report-trigger-btn" (click)="openReportDialog()" aria-label="举报游戏">举报</button>
+          }
         </div>
       </section>
 
@@ -167,6 +170,41 @@
             }
           </div>
         </section>
+      }
+
+      @if (reportDialog()) {
+        <div class="report-dialog-overlay" (click)="closeReportDialog()">
+          <div class="report-dialog" (click)="$event.stopPropagation()">
+            <div class="report-dialog-header">
+              <h3>举报游戏</h3>
+              <button type="button" class="report-close-btn" (click)="closeReportDialog()">&times;</button>
+            </div>
+            <div class="report-dialog-body">
+              <div class="report-predefined">
+                <p>选择举报原因（可多选）</p>
+                <div class="report-reasons-grid">
+                  @for (reason of reportReasons; track reason) {
+                    <button type="button"
+                            [class.selected]="reportPredefined().includes(reason)"
+                            (click)="toggleReportPredefined(reason)">{{ reason }}</button>
+                  }
+                </div>
+              </div>
+              <label class="report-text-label">
+                补充说明
+                <textarea [value]="reportReason()" (input)="reportReason.set($any($event.target).value)"
+                          rows="3" placeholder="详细描述问题..." maxlength="1000"></textarea>
+              </label>
+              @if (reportFeedback()) { <p class="report-feedback" role="status">{{ reportFeedback() }}</p> }
+              <div class="report-actions">
+                <button type="button" (click)="closeReportDialog()">取消</button>
+                <button type="button" class="primary" [disabled]="reportSubmitting()" (click)="submitReport()">
+                  {{ reportSubmitting() ? '提交中...' : '提交举报' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       }
     </div>
   }
