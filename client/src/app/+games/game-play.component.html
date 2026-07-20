@@ -56,7 +56,7 @@
         <section class="game-screenshots" aria-label="游戏截图">
           <div class="screenshot-gallery">
             <div class="screenshot-main">
-              <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" loading="lazy">
+              <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" loading="lazy" (click)="openLightbox()" style="cursor:zoom-in">
             </div>
             <div class="screenshot-thumbs">
               @for (url of game()!.screenshots; track $index) {
@@ -67,6 +67,20 @@
             </div>
           </div>
         </section>
+      }
+
+      @if (lightboxOpen()) {
+        <div class="screenshot-lightbox" (click)="closeLightbox()" role="dialog" aria-label="截图查看">
+          <button type="button" class="lightbox-close" (click)="closeLightbox()">&times;</button>
+          @if (game()!.screenshots!.length > 1) {
+            <button type="button" class="lightbox-nav lightbox-prev" (click)="lightboxPrev(); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button>
+          }
+          <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" (click)="$event.stopPropagation()">
+          @if (game()!.screenshots!.length > 1) {
+            <button type="button" class="lightbox-nav lightbox-next" (click)="lightboxNext(); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button>
+          }
+          <span class="lightbox-counter">{{ activeScreenshot() + 1 }} / {{ game()!.screenshots!.length }}</span>
+        </div>
       }
 
       <section class="game-stage" aria-label="游戏运行区域">

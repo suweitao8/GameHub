@@ -1080,6 +1080,85 @@
   object-fit: cover;
 }
 
+/* Screenshot Lightbox */
+.screenshot-lightbox {
+  align-items: center;
+  background: rgb(0 0 0 / 90%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 200;
+}
+
+.screenshot-lightbox img {
+  max-height: 85vh;
+  max-width: 90vw;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0;
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  z-index: 2;
+}
+
+.lightbox-close:hover { color: var(--game-brand); }
+
+.lightbox-nav {
+  align-items: center;
+  background: rgb(255 255 255 / 10%);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 3rem;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background-color 160ms ease;
+  width: 3rem;
+  z-index: 2;
+}
+
+.lightbox-nav:hover { background: rgb(255 255 255 / 20%); }
+
+.lightbox-nav my-global-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
+
+.lightbox-counter {
+  background: rgb(0 0 0 / 50%);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  position: absolute;
+}
+
+@media (max-width: 600px) {
+  .lightbox-nav { height: 2.5rem; width: 2.5rem; }
+  .lightbox-nav my-global-icon { height: 1.2rem; width: 1.2rem; }
+  .lightbox-prev { left: 0.5rem; }
+  .lightbox-next { right: 0.5rem; }
+  .lightbox-close { right: 0.75rem; top: 0.75rem; font-size: 1.5rem; }
+}
+
 /* Share Dialog */
 .share-dialog-overlay {
   align-items: center;

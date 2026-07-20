@@ -65,6 +65,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
   readonly activeScreenshot = signal<number>(0)
+  readonly lightboxOpen = signal(false)
   readonly tripleAnimating = signal(false)
   readonly tripleApplied = signal(false)
   readonly shareDialog = signal(false)
@@ -583,6 +584,26 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!value || value < 1) return '0'
     if (value >= 10000) return (value / 10000).toFixed(1) + '万'
     return String(value)
+  }
+
+  openLightbox () {
+    this.lightboxOpen.set(true)
+  }
+
+  closeLightbox () {
+    this.lightboxOpen.set(false)
+  }
+
+  lightboxPrev () {
+    const total = this.game()?.screenshots?.length || 0
+    if (!total) return
+    this.activeScreenshot.set((this.activeScreenshot() - 1 + total) % total)
+  }
+
+  lightboxNext () {
+    const total = this.game()?.screenshots?.length || 0
+    if (!total) return
+    this.activeScreenshot.set((this.activeScreenshot() + 1) % total)
   }
 
   @HostListener('document:keydown', [ '$event' ])
