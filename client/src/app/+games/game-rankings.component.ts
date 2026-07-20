@@ -12,10 +12,20 @@ import { GamesService } from '../games.service'
     <div class="rankings-container">
       <div class="rankings-header">
         <h2>游戏排行</h2>
-        <div class="rankings-tabs">
-          @for (tab of tabs; track tab.id) {
-            <button [class.active]="currentTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }}</button>
-          }
+        <div class="rankings-filters">
+          <div class="rankings-tabs">
+            @for (tab of tabs; track tab.id) {
+              <button [class.active]="currentTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }}</button>
+            }
+          </div>
+          <div class="rankings-category-filter">
+            <select [value]="selectedCategory()" (change)="setCategory($any($event.target).value)">
+              <option value="">全部分类</option>
+              @for (cat of categories; track cat.id) {
+                <option [value]="cat.id">{{ cat.label }}</option>
+              }
+            </select>
+          </div>
         </div>
       </div>
 
@@ -39,8 +49,8 @@ import { GamesService } from '../games.service'
               </div>
             </div>
             <div class="ranking-score">
-              <span class="score-value">{{ formatNumber(game.stats.plays) }}</span>
-              <span class="score-label">热度</span>
+              <span class="score-value">{{ getScoreDisplay(game) }}</span>
+              <span class="score-label">{{ getScoreLabel() }}</span>
             </div>
           </a>
         } @empty {
@@ -67,11 +77,20 @@ import { GamesService } from '../games.service'
     .rankings-header { margin-bottom: 1rem; }
     .rankings-header h2 { font-size: 1.4rem; margin-bottom: 0.75rem; }
 
+    .rankings-filters {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: space-between;
+    }
+
     .rankings-tabs {
       display: flex;
       gap: 0.25rem;
       border-bottom: 1px solid var(--game-border);
       overflow-x: auto;
+      flex: 1;
     }
 
     .rankings-tabs button {
@@ -89,6 +108,16 @@ import { GamesService } from '../games.service'
     .rankings-tabs button.active {
       color: var(--game-brand);
       border-bottom-color: var(--game-brand);
+    }
+
+    .rankings-category-filter select {
+      background: #fff;
+      border: 1px solid var(--game-border);
+      border-radius: 6px;
+      color: var(--game-text);
+      font-size: 0.82rem;
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
     }
 
     .rankings-list { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -220,12 +249,19 @@ import { GamesService } from '../games.service'
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+
+    @media (max-width: 600px) {
+      .rankings-filters { flex-direction: column; align-items: stretch; }
+      .rankings-category-filter { margin-top: 0.5rem; }
+      .rankings-category-filter select { width: 100%; }
+    }
   `]
 })
 export class GameRankingsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   rankings = signal<GameRanking[]>([])
   currentTab = signal<'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
+  selectedCategory = signal<string>('')
   loading = signal(false)
 
   tabs: { id: typeof this.currentTab extends ReturnType<typeof signal<infer T>> ? T : never; label: string }[] = [
@@ -238,6 +274,25 @@ export class GameRankingsComponent implements OnInit {
     { id: 'likes', label: '最多点赞' }
   ]
 
+  categories = [
+    { id: '', label: '全部' },
+    { id: 'arcade', label: '动作' },
+    { id: 'adventure', label: '冒险' },
+    { id: 'shooter', label: '射击' },
+    { id: 'puzzle', label: '解谜' },
+    { id: 'casual', label: '休闲' },
+    { id: 'rpg', label: '角色扮演' },
+    { id: 'strategy', label: '策略' },
+    { id: 'simulation', label: '模拟' },
+    { id: 'sandbox', label: '沙盒' },
+    { id: 'racing', label: '竞速' },
+    { id: 'sports', label: '体育' },
+    { id: 'card', label: '卡牌' },
+    { id: 'music', label: '音乐' },
+    { id: 'horror', label: '恐怖' },
+    { id: 'board', label: '桌游' }
+  ]
+
   ngOnInit () {
     this.loadRankings()
   }
@@ -248,15 +303,47 @@ export class GameRankingsComponent implements OnInit {
     this.loadRankings()
   }
 
+  setCategory (category: string) {
+    this.selectedCategory.set(category)
+    this.rankings.set([])
+    this.loadRankings()
+  }
+
   loadRankings () {
     this.loading.set(true)
-    this.gamesService.getRankings(this.currentTab(), 50).subscribe({
+    this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined).subscribe({
       next: (result) => {
         this.rankings.set(result.data)
         this.loading.set(false)
       },
       error: () => this.loading.set(false)
     })
+  }
+
+  getScoreDisplay (game: GameRanking): string {
+    switch (this.currentTab()) {
+      case 'hot': return this.formatNumber(game.stats.plays)
+      case 'newest': return this.formatNumber(game.stats.plays)
+      case 'topRated': return game.stats.averageReviewScore.toFixed(1)
+      case 'favorites': return this.formatNumber(game.stats.favorites)
+      case 'coins': return this.formatNumber(game.stats.coins)
+      case 'comments': return this.formatNumber(game.stats.comments)
+      case 'likes': return this.formatNumber(game.stats.likes)
+      default: return this.formatNumber(game.stats.plays)
+    }
+  }
+
+  getScoreLabel (): string {
+    const labels: Record<string, string> = {
+      hot: '热度',
+      newest: '游玩',
+      topRated: '评分',
+      favorites: '收藏',
+      coins: '投币',
+      comments: '评论',
+      likes: '点赞'
+    }
+    return labels[this.currentTab()] || '热度'
   }
 
   formatNumber (num: number): string {

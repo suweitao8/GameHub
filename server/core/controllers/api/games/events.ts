@@ -21,6 +21,11 @@ gameEventRouter.get('/:slug/participants', asyncMiddleware(listEventParticipants
 gameEventRouter.post('/:slug/join', authenticate, asyncMiddleware(joinEvent))
 gameEventRouter.delete('/:slug/join', authenticate, asyncMiddleware(leaveEvent))
 
+// Admin routes
+gameEventRouter.post('/', authenticate, asyncMiddleware(createEvent))
+gameEventRouter.put('/:slug', authenticate, asyncMiddleware(updateEvent))
+gameEventRouter.delete('/:slug', authenticate, asyncMiddleware(deleteEvent))
+
 async function listEvents (req: express.Request, res: express.Response) {
   return traceGameOperation('listEvents', async () => {
     const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
@@ -191,6 +196,100 @@ async function leaveEvent (req: express.Request, res: express.Response) {
     event.participantCount = Math.max(0, event.participantCount - 1)
     await event.save()
 
+    return res.status(HttpStatusCode.NO_CONTENT_204).end()
+  })
+}
+
+async function createEvent (req: express.Request, res: express.Response) {
+  return traceGameOperation('createEvent', async () => {
+    const user = getUser(res)
+    if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+    const { title, description, slug, type, status, coverPath, startAt, endAt, rules, prizes, maxParticipants } = req.body
+    if (!title || !slug) {
+      return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'title and slug are required' })
+    }
+
+    const event = await GameEventModel.create({
+      title,
+      description: description || null,
+      slug,
+      type: type || 'activity',
+      status: status || 'upcoming',
+      coverPath: coverPath || null,
+      startAt: startAt ? new Date(startAt) : null,
+      endAt: endAt ? new Date(endAt) : null,
+      rules: rules || null,
+      prizes: prizes || null,
+      maxParticipants: maxParticipants || 0,
+      participantCount: 0,
+      createdByAccountId: user.Account.id
+    })
+
+    return res.status(HttpStatusCode.CREATED_201).json({
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      status: event.status
+    })
+  })
+}
+
+async function updateEvent (req: express.Request, res: express.Response) {
+  return traceGameOperation('updateEvent', async () => {
+    const user = getUser(res)
+    if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+    const event = await GameEventModel.findOne({
+      where: { slug: req.params.slug }
+    })
+    if (!event) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    // Only creator or admin can update
+    if (event.createdByAccountId !== user.Account.id) {
+      return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
+    }
+
+    const { title, description, type, status, coverPath, startAt, endAt, rules, prizes, maxParticipants } = req.body
+
+    if (title) event.title = title
+    if (description !== undefined) event.description = description || null
+    if (type) event.type = type
+    if (status) event.status = status
+    if (coverPath !== undefined) event.coverPath = coverPath || null
+    if (startAt !== undefined) event.startAt = startAt ? new Date(startAt) : null
+    if (endAt !== undefined) event.endAt = endAt ? new Date(endAt) : null
+    if (rules !== undefined) event.rules = rules || null
+    if (prizes !== undefined) event.prizes = prizes || null
+    if (maxParticipants !== undefined) event.maxParticipants = maxParticipants
+
+    await event.save()
+
+    return res.json({
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      status: event.status
+    })
+  })
+}
+
+async function deleteEvent (req: express.Request, res: express.Response) {
+  return traceGameOperation('deleteEvent', async () => {
+    const user = getUser(res)
+    if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+    const event = await GameEventModel.findOne({
+      where: { slug: req.params.slug }
+    })
+    if (!event) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    // Only creator or admin can delete
+    if (event.createdByAccountId !== user.Account.id) {
+      return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
+    }
+
+    await event.destroy()
     return res.status(HttpStatusCode.NO_CONTENT_204).end()
   })
 }

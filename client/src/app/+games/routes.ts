@@ -18,6 +18,7 @@ import { GameCollectionsComponent } from './game-collections.component'
 import { GameCollectionDetailComponent } from './game-collection-detail.component'
 import { GameEventsComponent } from './game-events.component'
 import { GameEventDetailComponent } from './game-event-detail.component'
+import { GameEventAdminComponent } from './game-event-admin.component'
 import { GameFollowingComponent } from './game-following.component'
 
 export default [
@@ -118,6 +119,12 @@ export default [
         path: 'event/:slug',
         component: GameEventDetailComponent,
         data: { meta: { title: $localize`Event detail` } }
+      },
+      {
+        path: 'event-admin',
+        component: GameEventAdminComponent,
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`Event admin` } }
       },
       {
         path: 'following',

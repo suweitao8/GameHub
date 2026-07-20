@@ -347,8 +347,10 @@ export class GamesService {
   }
 
   // Rankings
-  getRankings (kind: 'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes', count = 50): Observable<{ kind: string; total: number; data: GameRanking[] }> {
-    return this.http.get<{ kind: string; total: number; data: GameRanking[] }>(`${GamesService.BASE_URL}/rankings?kind=${kind}&count=${count}`)
+  getRankings (kind: 'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes', count = 50, category?: string): Observable<{ kind: string; total: number; data: GameRanking[] }> {
+    let url = `${GamesService.BASE_URL}/rankings?kind=${kind}&count=${count}`
+    if (category) url += `&category=${encodeURIComponent(category)}`
+    return this.http.get<{ kind: string; total: number; data: GameRanking[] }>(url)
   }
 
   // Feed
