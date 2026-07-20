@@ -59,6 +59,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
   readonly activeScreenshot = signal<number>(0)
+  readonly tripleAnimating = signal(false)
+  readonly tripleApplied = signal(false)
   readonly shareDialog = signal(false)
   readonly shareUrl = signal('')
   readonly shareCopied = signal(false)
@@ -196,6 +198,34 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.actionFeedback.set(value.following ? '已关注作者' : '已取消关注')
       },
       error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
+    })
+  }
+
+  tripleAction () {
+    if (!this.requireLogin()) return
+    if (this.tripleAnimating() || this.tripleApplied()) return
+    this.tripleAnimating.set(true)
+    this.actionFeedback.set('')
+    this.gamesService.triple(this.currentUuid).subscribe({
+      next: result => {
+        this.tripleAnimating.set(false)
+        this.tripleApplied.set(result.liked || result.coined || result.favorited)
+
+        const messages: string[] = []
+        if (result.liked) messages.push('点赞')
+        if (result.coined) messages.push('投币')
+        if (result.favorited) messages.push('收藏')
+        this.actionFeedback.set('一键三连' + (messages.length ? '：' + messages.join(' + ') : '已完成'))
+
+        // Refresh community stats
+        this.gamesService.community(this.currentUuid).subscribe({
+          next: value => this.community.set(value)
+        })
+      },
+      error: error => {
+        this.tripleAnimating.set(false)
+        this.actionFeedback.set(getGameActionErrorMessage(error))
+      }
     })
   }
 

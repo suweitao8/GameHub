@@ -274,6 +274,41 @@
   border-color: var(--game-brand);
   color: #fff;
   font-weight: 700; }
+
+/* Triple Action Button */
+.triple-action {
+  position: relative;
+  transition: transform 0.3s ease, background-color 0.2s ease;
+}
+
+.triple-action:not(:disabled) {
+  animation: triplePulse 2s ease-in-out infinite;
+}
+
+.triple-action.animating my-global-icon {
+  animation: tripleSpin 0.6s ease-in-out;
+}
+
+.triple-action.applied {
+  background: linear-gradient(135deg, var(--game-brand), #f59e0b) !important;
+  border-color: var(--game-brand) !important;
+  color: #fff !important;
+}
+
+.triple-action.applied > span,
+.triple-action.applied > my-global-icon { color: #fff; }
+.triple-action.applied small { color: rgb(255 255 255 / 85%); }
+
+@keyframes triplePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(0 174 236 / 30%); }
+  50% { box-shadow: 0 0 0 6px rgb(0 174 236 / 0%); }
+}
+
+@keyframes tripleSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
+}
 .game-review-panel { border-top: 1px solid var(--game-border);
   margin-top: 1rem;
   padding-top: 1rem; }
