@@ -852,6 +852,35 @@
   .related-articles-list { grid-template-columns: 1fr; }
 }
 
+/* Mobile responsive optimizations */
+@media (max-width: 600px) {
+  .game-title-bar h1 { font-size: 1.35rem; }
+  .game-title-meta {
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    gap: 0.25rem 0.6rem;
+  }
+  .game-title-meta > span { font-size: 0.72rem; }
+  .game-developer-card { padding: 0.6rem; }
+  .developer-identity img { height: 2.2rem; width: 2.2rem; }
+  .game-action-button { min-width: 2.8rem; padding: 0.05rem 0.2rem !important; }
+  .game-action-button > my-global-icon { height: 1.1rem; width: 1.1rem; }
+  .game-action-button strong { font-size: 0.7rem; }
+  .game-action-button small { font-size: 0.65rem; }
+  .coin-row { flex-wrap: wrap; gap: 0.5rem; }
+  .coin-row span { font-size: 0.75rem; }
+  .review-score-picker button { padding: 0.1rem; }
+  .review-score-picker my-global-icon { height: 1.1rem; width: 1.1rem; }
+  .chat-composer { flex-direction: column; gap: 0.4rem; }
+  .chat-composer input { width: 100%; }
+  .chat-composer button { width: 100%; }
+  .share-dialog { max-width: calc(100% - 1rem); }
+  .share-actions { flex-wrap: wrap; }
+  .report-dialog { max-width: calc(100% - 1rem); }
+  .report-reasons-grid button { font-size: 0.72rem; padding: 0.3rem 0.5rem; }
+  .keyboard-shortcuts-hint { display: none; }
+}
+
 .related-article-card {
   background: #fff;
   border: 1px solid var(--game-border);
