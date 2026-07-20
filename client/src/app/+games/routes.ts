@@ -17,6 +17,7 @@ import { GameAnalyticsDashboardComponent } from './game-analytics-dashboard.comp
 import { GameCollectionsComponent } from './game-collections.component'
 import { GameCollectionDetailComponent } from './game-collection-detail.component'
 import { GameEventsComponent } from './game-events.component'
+import { GameEventDetailComponent } from './game-event-detail.component'
 import { GameFollowingComponent } from './game-following.component'
 
 export default [
@@ -112,6 +113,11 @@ export default [
         path: 'events',
         component: GameEventsComponent,
         data: { meta: { title: $localize`Game events` } }
+      },
+      {
+        path: 'event/:slug',
+        component: GameEventDetailComponent,
+        data: { meta: { title: $localize`Event detail` } }
       },
       {
         path: 'following',
