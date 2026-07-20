@@ -124,14 +124,21 @@ async function listReviews (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
-  const reviews = await GameReviewModel.findAll({
-    where: { gameId: game.id },
-    include: [ commentAccountInclude ],
-    order: [ [ 'createdAt', 'DESC' ] ],
-    limit: 50
-  })
+  const start = Math.max(0, Number(req.query.start) || 0)
+  const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
 
-  return res.json({ total: reviews.length, data: formatReviews(reviews, game) })
+  const [ total, reviews ] = await Promise.all([
+    GameReviewModel.count({ where: { gameId: game.id } }),
+    GameReviewModel.findAll({
+      where: { gameId: game.id },
+      include: [ commentAccountInclude ],
+      order: [ [ 'createdAt', 'DESC' ] ],
+      limit: count,
+      offset: start
+    })
+  ])
+
+  return res.json({ total, data: formatReviews(reviews, game) })
 }
 
 async function upsertReview (req: express.Request, res: express.Response) {
@@ -177,6 +184,9 @@ async function listComments (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
+  const start = Math.max(0, Number(req.query.start) || 0)
+  const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+
   const where = { gameId: game.id, inReplyToCommentId: null, deletedAt: null }
   const [ total, comments ] = await Promise.all([
     GameCommentModel.count({ where }),
@@ -184,7 +194,8 @@ async function listComments (req: express.Request, res: express.Response) {
       where,
       include: [ commentAccountInclude ],
       order: [ [ 'createdAt', 'ASC' ] ],
-      limit: 20
+      limit: count,
+      offset: start
     })
   ])
 
@@ -199,6 +210,9 @@ async function listReplies (req: express.Request, res: express.Response) {
   const parent = await getCommentForGame(game, commentId)
   if (!parent) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
+  const start = Math.max(0, Number(req.query.start) || 0)
+  const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+
   const where = { gameId: game.id, inReplyToCommentId: commentId, deletedAt: null }
   const [ total, comments ] = await Promise.all([
     GameCommentModel.count({ where }),
@@ -206,7 +220,8 @@ async function listReplies (req: express.Request, res: express.Response) {
       where,
       include: [ commentAccountInclude ],
       order: [ [ 'createdAt', 'ASC' ] ],
-      limit: 100
+      limit: count,
+      offset: start
     })
   ])
 
