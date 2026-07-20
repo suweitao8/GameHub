@@ -294,6 +294,42 @@
   }
 }
 
+/* Extra small screens — single column feel */
+@media (max-width: 420px) {
+  .game-card h3 {
+    font-size: 0.68rem;
+  }
+
+  .game-card-author {
+    gap: 0.15rem;
+    font-size: 0.58rem;
+  }
+
+  .game-card-meta {
+    gap: 0.2rem;
+    padding: 0.55rem 0.25rem 0.15rem;
+  }
+
+  .game-card-stat {
+    font-size: 0.55rem;
+  }
+
+  .game-card-stat span {
+    font-size: 0.55rem;
+  }
+
+  .game-card-stat my-global-icon {
+    flex-basis: 0.6rem;
+    height: 0.6rem;
+    width: 0.6rem;
+  }
+
+  /* On very small screens, hide favorites stat to reduce clutter */
+  .game-card-stat:nth-child(4) {
+    display: none;
+  }
+}
+
 /* Search highlight */
 :host ::ng-deep .search-highlight {
   background: var(--game-brand);
