@@ -222,6 +222,20 @@
   justify-content: center;
   min-width: 3.8rem;
   padding: 0.15rem 0.35rem;
+  transition: transform 160ms ease;
+}
+
+.shuffle-button:hover my-global-icon {
+  animation: shuffleSpin 500ms ease;
+}
+
+@keyframes shuffleSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.shuffle-button:active {
+  transform: scale(0.92);
 }
 
 .shuffle-button span:first-child {
@@ -299,6 +313,14 @@
   background: #e8eaed;
   border-color: #d9dde1;
   color: var(--game-muted);
+}
+
+.section-side-action:hover .section-side-action-icon {
+  animation: shuffleSpin 500ms ease;
+}
+
+.section-side-action:active {
+  transform: scale(0.95);
 }
 
 .section-side-action:focus-visible {
