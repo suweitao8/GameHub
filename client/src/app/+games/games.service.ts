@@ -103,6 +103,50 @@ export type GameReview = {
   isAuthor?: boolean
 }
 
+export type GameLevelInfo = {
+  exp: number
+  levelInfo: {
+    level: number
+    title: string
+    currentLevelExp: number
+    nextLevelExp: number | null
+    progress: number
+  }
+  dailyLoginAvailable: boolean
+}
+
+export type GameAnalytics = {
+  playTrend: { date: string; plays: number }[]
+  interactionBreakdown: { likes: number; coins: number; favorites: number; comments: number; reviews: number }
+  gameRanking: { gameId: number; title: string; plays: number; likes: number; coins: number }[]
+  followerTrend: { date: string; followers: number }[]
+}
+
+export type GameActivity = {
+  id: number
+  kind: string
+  message: string
+  createdAt: string
+  actor: { id: number; name: string; displayName: string | null } | null
+  game: { uuid: string; title: string; coverPath: string | null } | null
+}
+
+export type GameRanking = {
+  rank: number
+  uuid: string
+  title: string
+  coverPath: string | null
+  stats: {
+    plays: number
+    likes: number
+    favorites: number
+    coins: number
+    comments: number
+    reviews: number
+    averageReviewScore: number
+  }
+}
+
 @Injectable({ providedIn: 'root' })
 export class GamesService {
   private readonly http = inject(HttpClient)
@@ -276,6 +320,59 @@ export class GamesService {
 
   moderate (uuid: string, action: 'approve' | 'reject' | 'block' | 'unlist', reason = ''): Observable<Game> {
     return this.http.post<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/moderate`, { action, reason })
+  }
+
+  // User Level
+  getUserLevel (): Observable<GameLevelInfo> {
+    return this.http.get<GameLevelInfo>(`${GamesService.BASE_URL}/me/level`)
+  }
+
+  claimDailyLogin (): Observable<{ claimed: boolean; exp: number; totalExp: number; levelInfo: GameLevelInfo['levelInfo'] }> {
+    return this.http.post<{ claimed: boolean; exp: number; totalExp: number; levelInfo: GameLevelInfo['levelInfo'] }>(
+      `${GamesService.BASE_URL}/me/level/daily-login`, {}
+    )
+  }
+
+  // Analytics
+  getAnalytics (): Observable<GameAnalytics> {
+    return this.http.get<GameAnalytics>(`${GamesService.BASE_URL}/me/analytics`)
+  }
+
+  // Rankings
+  getRankings (kind: 'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes', count = 50): Observable<{ kind: string; total: number; data: GameRanking[] }> {
+    return this.http.get<{ kind: string; total: number; data: GameRanking[] }>(`${GamesService.BASE_URL}/rankings?kind=${kind}&count=${count}`)
+  }
+
+  // Feed
+  getFeed (start = 0, count = 20): Observable<{ total: number; data: GameActivity[] }> {
+    return this.http.get<{ total: number; data: GameActivity[] }>(`${GamesService.BASE_URL}/feed?start=${start}&count=${count}`)
+  }
+
+  getPublicFeed (start = 0, count = 20): Observable<{ total: number; data: GameActivity[] }> {
+    return this.http.get<{ total: number; data: GameActivity[] }>(`${GamesService.BASE_URL}/feed/public?start=${start}&count=${count}`)
+  }
+
+  // Reservation
+  reserve (uuid: string): Observable<{ id: number; gameId: number; createdAt: string }> {
+    return this.http.post<{ id: number; gameId: number; createdAt: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`, {})
+  }
+
+  cancelReserve (uuid: string): Observable<unknown> {
+    return this.http.delete<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`)
+  }
+
+  listReservations (): Observable<{ total: number; data: { id: number; notified: boolean; createdAt: string; game: Game }[] }> {
+    return this.http.get<{ total: number; data: { id: number; notified: boolean; createdAt: string; game: Game }[] }>(`${GamesService.BASE_URL}/me/reservations`)
+  }
+
+  // Featured
+  getFeaturedGames (count = 10): Observable<GameList> {
+    return this.http.get<GameList>(`${GamesService.BASE_URL}/featured?count=${count}`).pipe(map(result => this.normalizeGameList(result)))
+  }
+
+  // Share
+  share (uuid: string): Observable<{ url: string; shortUrl: string }> {
+    return this.http.post<{ url: string; shortUrl: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})
   }
 
   buildRuntimeUrl (runtimeOrigin: string, uuid: string) {
