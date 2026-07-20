@@ -162,6 +162,48 @@ export async function readStoredGameCover (root: string, coverPath: string) {
   return readFile(absolutePath)
 }
 
+export type StoredGameScreenshot = {
+  absolutePath: string
+  relativePath: string
+  mimeType: string
+}
+
+const MAX_SCREENSHOTS = 5
+const MAX_SCREENSHOT_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB each
+
+export async function storeGameScreenshot (input: { root: string; filename: string; mimeType: string; content: Buffer }): Promise<StoredGameScreenshot> {
+  const extension = extname(basename(input.filename)).toLowerCase()
+  const mimeType = input.mimeType.toLowerCase()
+  const supported = new Map([ [ '.png', 'image/png' ], [ '.jpg', 'image/jpeg' ], [ '.jpeg', 'image/jpeg' ], [ '.webp', 'image/webp' ] ])
+  if (supported.get(extension) !== mimeType || input.content.length === 0 || input.content.length > MAX_SCREENSHOT_SIZE_BYTES) {
+    throw new GameRuntimeValidationError('Screenshot must be a non-empty PNG, JPEG, or WebP image smaller than 5 MB')
+  }
+
+  const rootPath = resolve(input.root)
+  const screenshotDirectory = join(rootPath, 'screenshots', cryptoRandomDirectoryName())
+  const absolutePath = join(screenshotDirectory, `screenshot${extension}`)
+  if (!isPathInside(rootPath, absolutePath)) throw new GameRuntimeValidationError('Game screenshot path escapes storage root')
+
+  await mkdir(screenshotDirectory, { recursive: true })
+  try {
+    await writeFile(absolutePath, input.content, { flag: 'wx', mode: 0o600 })
+  } catch (err) {
+    await rm(screenshotDirectory, { recursive: true, force: true })
+    throw err
+  }
+
+  return { absolutePath, relativePath: relative(rootPath, absolutePath).split(sep).join('/'), mimeType }
+}
+
+export async function readStoredGameScreenshot (root: string, screenshotPath: string) {
+  const rootPath = resolve(root)
+  const absolutePath = resolve(rootPath, screenshotPath)
+  if (!isPathInside(rootPath, absolutePath) || !screenshotPath.startsWith('screenshots/')) throw new GameRuntimeValidationError('Invalid game screenshot path')
+  return readFile(absolutePath)
+}
+
+export { MAX_SCREENSHOTS }
+
 export async function verifyGameRuntimeHash (root: string, runtimePath: string, expectedSha256: string): Promise<boolean> {
   try {
     const content = await readStoredGameHtml(root, runtimePath)

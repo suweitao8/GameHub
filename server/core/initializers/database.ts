@@ -87,6 +87,10 @@ import { GameCommentModel } from '../models/game/game-comment.js'
 import { GameReviewModel } from '../models/game/game-review.js'
 import { GameReportModel } from '../models/game/game-report.js'
 import { GameNotificationModel } from '../models/game/game-notification.js'
+import { GameStatsSummaryModel } from '../models/game/game-stats-summary.js'
+import { GameUserLevelModel } from '../models/game/game-user-level.js'
+import { GameReserveModel } from '../models/game/game-reserve.js'
+import { GameUserPreferenceModel } from '../models/game/game-user-preference.js'
 import { CONFIG } from './config.js'
 
 pg.defaults.parseInt8 = true // Avoid BIGINT to be converted to string
@@ -183,6 +187,10 @@ export async function initDatabaseModels (silent: boolean) {
     GameReviewModel,
     GameReportModel,
     GameNotificationModel,
+    GameStatsSummaryModel,
+    GameUserLevelModel,
+    GameReserveModel,
+    GameUserPreferenceModel,
     ChangeOwnershipModel,
     VideoChannelModel,
     VideoShareModel,

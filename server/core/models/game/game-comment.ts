@@ -1,7 +1,10 @@
-import { AllowNull, AutoIncrement, BelongsTo, Column, DataType, ForeignKey, PrimaryKey, Table } from 'sequelize-typescript'
+import { AllowNull, AutoIncrement, BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Table } from 'sequelize-typescript'
 import { AccountModel } from '../account/account.js'
 import { SequelizeModel } from '../shared/index.js'
 import { GameModel } from './game.js'
+
+// 精选评论的最低点赞数阈值
+export const FEATURED_COMMENT_LIKE_THRESHOLD = 10
 
 @Table({
   tableName: 'gameComment',
@@ -10,7 +13,9 @@ import { GameModel } from './game.js'
     { fields: [ 'gameId', 'inReplyToCommentId' ] },
     { fields: [ 'gameId', 'deletedAt' ] },
     { fields: [ 'accountId', 'createdAt' ] },
-    { fields: [ 'accountId' ] }
+    { fields: [ 'accountId' ] },
+    { fields: [ 'gameId', 'likeCount' ] },
+    { fields: [ 'gameId', 'isFeatured', 'createdAt' ] }
   ]
 })
 export class GameCommentModel extends SequelizeModel<GameCommentModel> {
@@ -42,6 +47,16 @@ export class GameCommentModel extends SequelizeModel<GameCommentModel> {
   @Column(DataType.DATE)
   declare deletedAt: Date | null
 
+  @Default(0)
+  @AllowNull(false)
+  @Column(DataType.INTEGER)
+  declare likeCount: number
+
+  @Default(false)
+  @AllowNull(false)
+  @Column(DataType.BOOLEAN)
+  declare isFeatured: boolean
+
   @BelongsTo(() => GameModel, { foreignKey: 'gameId', onDelete: 'CASCADE' })
   declare Game: Awaited<GameModel>
 
@@ -53,6 +68,19 @@ export class GameCommentModel extends SequelizeModel<GameCommentModel> {
 
   isDeleted () {
     return this.deletedAt !== null
+  }
+
+  /**
+   * 根据点赞数更新精选状态
+   * 点赞数 >= FEATURED_COMMENT_LIKE_THRESHOLD 时标记为精选
+   */
+  updateFeaturedStatus () {
+    const shouldFeature = this.likeCount >= FEATURED_COMMENT_LIKE_THRESHOLD
+    if (this.isFeatured !== shouldFeature) {
+      this.isFeatured = shouldFeature
+      return true
+    }
+    return false
   }
 
   toFormattedJSON (options: { totalReplies?: number } = {}) {
@@ -70,6 +98,8 @@ export class GameCommentModel extends SequelizeModel<GameCommentModel> {
       isDeleted: this.isDeleted(),
       totalRepliesFromVideoAuthor: 0,
       totalReplies: options.totalReplies || 0,
+      likeCount: this.likeCount,
+      isFeatured: this.isFeatured,
       account: this.Account?.toFormattedJSON() || null
     }
   }

@@ -1,8 +1,10 @@
 import { asyncMiddleware } from '@server/middlewares/async.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
-import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameHtml, readStoredGameRuntimeFile, verifyGameRuntimeHash } from '@server/lib/games/game-runtime.js'
+import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameScreenshot, readStoredGameHtml, readStoredGameRuntimeFile, verifyGameRuntimeHash } from '@server/lib/games/game-runtime.js'
 import { readGameRuntimePreviewFile } from '@server/lib/games/game-runtime-preview.js'
+import { generateGameAssetETag, getGameCoverCacheHeaders, getGameRuntimeAssetCacheHeaders, verifyGameSignedUrl } from '@server/lib/games/game-cdn.js'
+import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import express from 'express'
 
 const runtimeRouter = express.Router()
@@ -16,49 +18,65 @@ runtimeRouter.get('/preview/:token/runtime/*', asyncMiddleware(async (req, res) 
 }))
 
 runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
-  const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
-  if (!game) return res.sendStatus(404)
+  return traceGameOperation('serveRuntime', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game) return res.sendStatus(404)
 
-  const hashValid = await verifyGameRuntimeHash(CONFIG.STORAGE.GAMES_DIR, game.runtimePath, game.runtimeSha256)
-  if (!hashValid) {
-    return res.status(500).json({ error: 'Game runtime integrity verification failed' })
-  }
+    const hashValid = await verifyGameRuntimeHash(CONFIG.STORAGE.GAMES_DIR, game.runtimePath, game.runtimeSha256)
+    if (!hashValid) {
+      return res.status(500).json({ error: 'Game runtime integrity verification failed' })
+    }
 
-  const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
-  const parentOrigin = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
-  const developmentOrigins = CONFIG.WEBSERVER.HOSTNAME === 'localhost'
-    ? [ parentOrigin, `${CONFIG.WEBSERVER.SCHEME}://127.0.0.1:${CONFIG.WEBSERVER.PORT}` ]
-    : [ parentOrigin ]
-
-  res.removeHeader('X-Frame-Options')
-
-  return res
-    .set(getGameRuntimeHeaders(developmentOrigins))
-    .send(injectGameRuntimeBridge(content.toString('utf8')))
-}))
-
-runtimeRouter.get('/:uuid/runtime/*', asyncMiddleware(async (req, res) => {
-  const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
-  if (!game) return res.sendStatus(404)
-
-  const assetPath = req.params[0]
-  const runtimeDirectory = game.runtimePath.slice(0, game.runtimePath.lastIndexOf('/'))
-  const runtimePath = `${runtimeDirectory}/${assetPath}`
-
-  try {
-    const content = await readStoredGameRuntimeFile(CONFIG.STORAGE.GAMES_DIR, runtimePath)
+    const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
     const parentOrigin = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
     const developmentOrigins = CONFIG.WEBSERVER.HOSTNAME === 'localhost'
       ? [ parentOrigin, `${CONFIG.WEBSERVER.SCHEME}://127.0.0.1:${CONFIG.WEBSERVER.PORT}` ]
       : [ parentOrigin ]
 
     res.removeHeader('X-Frame-Options')
+
     return res
-      .set({ ...getGameRuntimeHeaders(developmentOrigins), 'Content-Type': getGameRuntimeMimeType(runtimePath) })
-      .send(content)
-  } catch {
-    return res.sendStatus(404)
-  }
+      .set(getGameRuntimeHeaders(developmentOrigins))
+      .send(injectGameRuntimeBridge(content.toString('utf8')))
+  })
+}))
+
+runtimeRouter.get('/:uuid/runtime/*', asyncMiddleware(async (req, res) => {
+  return traceGameOperation('serveRuntimeAsset', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game) return res.sendStatus(404)
+
+    const assetPath = req.params[0]
+    const runtimeDirectory = game.runtimePath.slice(0, game.runtimePath.lastIndexOf('/'))
+    const runtimePath = `${runtimeDirectory}/${assetPath}`
+
+    try {
+      const content = await readStoredGameRuntimeFile(CONFIG.STORAGE.GAMES_DIR, runtimePath)
+      const parentOrigin = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
+      const developmentOrigins = CONFIG.WEBSERVER.HOSTNAME === 'localhost'
+        ? [ parentOrigin, `${CONFIG.WEBSERVER.SCHEME}://127.0.0.1:${CONFIG.WEBSERVER.PORT}` ]
+        : [ parentOrigin ]
+
+      const etag = generateGameAssetETag(game.runtimeSha256, runtimePath)
+
+      // Support conditional requests via If-None-Match
+      if (req.headers['if-none-match'] === etag) {
+        return res.status(304).set({ 'Cache-Control': 'public, max-age=3600' }).end()
+      }
+
+      res.removeHeader('X-Frame-Options')
+      return res
+        .set({
+          ...getGameRuntimeHeaders(developmentOrigins),
+          ...getGameRuntimeAssetCacheHeaders(),
+          'Content-Type': getGameRuntimeMimeType(runtimePath),
+          etag
+        })
+        .send(content)
+    } catch {
+      return res.sendStatus(404)
+    }
+  })
 }))
 
 async function sendPreviewFile (req: express.Request, res: express.Response, relativePath: string) {
@@ -131,18 +149,79 @@ function injectPreviewProbe (source: string, token: string) {
 }
 
 runtimeRouter.get('/:uuid/cover', asyncMiddleware(async (req, res) => {
-  const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
-  if (!game?.coverPath) return res.sendStatus(404)
+  return traceGameOperation('serveCover', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game?.coverPath) return res.sendStatus(404)
 
-  const content = await readStoredGameCover(CONFIG.STORAGE.GAMES_DIR, game.coverPath)
-  return res
-    .set({
-      'Cache-Control': 'public, max-age=3600',
-      'X-Content-Type-Options': 'nosniff',
-      'Referrer-Policy': 'no-referrer'
-    })
-    .type(game.coverPath.endsWith('.png') ? 'png' : game.coverPath.endsWith('.webp') ? 'webp' : 'jpeg')
-    .send(content)
+    // Validate signed URL if signature is present
+    const sig = req.query.sig as string | undefined
+    const expires = req.query.expires as string | undefined
+    if (sig && expires) {
+      const valid = verifyGameSignedUrl({
+        uuid: req.params.uuid,
+        path: req.originalUrl.split('?')[0],
+        signature: sig,
+        expires: parseInt(expires, 10)
+      })
+      if (!valid) return res.sendStatus(403)
+    }
+
+    const content = await readStoredGameCover(CONFIG.STORAGE.GAMES_DIR, game.coverPath)
+    const etag = generateGameAssetETag(game.runtimeSha256, game.coverPath)
+
+    // Support conditional requests via If-None-Match
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).set({ 'Cache-Control': 'public, max-age=86400' }).end()
+    }
+
+    return res
+      .set({
+        ...getGameCoverCacheHeaders(),
+        etag
+      })
+      .type(game.coverPath.endsWith('.png') ? 'png' : game.coverPath.endsWith('.webp') ? 'webp' : 'jpeg')
+      .send(content)
+  })
+}))
+
+runtimeRouter.get('/:uuid/screenshots/:index', asyncMiddleware(async (req, res) => {
+  return traceGameOperation('serveScreenshot', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game?.screenshotPaths?.length) return res.sendStatus(404)
+
+    const index = parseInt(req.params.index, 10)
+    if (isNaN(index) || index < 0 || index >= game.screenshotPaths.length) return res.sendStatus(404)
+
+    const screenshotPath = game.screenshotPaths[index]
+
+    // Validate signed URL if signature is present
+    const sig = req.query.sig as string | undefined
+    const expires = req.query.expires as string | undefined
+    if (sig && expires) {
+      const valid = verifyGameSignedUrl({
+        uuid: req.params.uuid,
+        path: req.originalUrl.split('?')[0],
+        signature: sig,
+        expires: parseInt(expires, 10)
+      })
+      if (!valid) return res.sendStatus(403)
+    }
+
+    const content = await readStoredGameScreenshot(CONFIG.STORAGE.GAMES_DIR, screenshotPath)
+    const etag = generateGameAssetETag(game.runtimeSha256, screenshotPath)
+
+    if (req.headers['if-none-match'] === etag) {
+      return res.status(304).set({ 'Cache-Control': 'public, max-age=86400' }).end()
+    }
+
+    return res
+      .set({
+        ...getGameCoverCacheHeaders(),
+        etag
+      })
+      .type(screenshotPath.endsWith('.png') ? 'png' : screenshotPath.endsWith('.webp') ? 'webp' : 'jpeg')
+      .send(content)
+  })
 }))
 
 export {

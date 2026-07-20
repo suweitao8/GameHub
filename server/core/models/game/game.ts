@@ -1,6 +1,6 @@
 import { isGameStatusValid } from '@server/helpers/custom-validators/games.js'
 import type { GameStatus, MGame } from '@server/types/models/game/game.js'
-import { literal, Op } from 'sequelize'
+import { col, fn, literal, Op } from 'sequelize'
 import {
   AllowNull,
   BelongsTo,
@@ -9,11 +9,13 @@ import {
   DataType,
   Default,
   ForeignKey,
+  HasOne,
   Is,
   Table,
   UpdatedAt
 } from 'sequelize-typescript'
 import { AccountModel } from '../account/account.js'
+import { GameStatsSummaryModel } from './game-stats-summary.js'
 import { SequelizeModel, throwIfNotValid } from '../shared/index.js'
 import { getGameSortMetric } from '@server/lib/games/game-query.js'
 
@@ -22,6 +24,7 @@ import { getGameSortMetric } from '@server/lib/games/game-query.js'
   indexes: [
     { fields: [ 'uuid' ], unique: true },
     { fields: [ 'status', 'publishedAt' ] },
+    { fields: [ 'status', 'featured', 'featuredAt' ] },
     { fields: [ 'status', 'playCount' ] },
     { fields: [ 'status', 'category', 'publishedAt' ] },
     { fields: [ 'ownerAccountId', 'createdAt' ] },
@@ -45,6 +48,9 @@ export class GameModel extends SequelizeModel<GameModel> {
     onDelete: 'CASCADE'
   })
   declare Owner: Awaited<AccountModel>
+
+  @HasOne(() => GameStatsSummaryModel, { foreignKey: 'gameId' })
+  declare StatsSummary: Awaited<GameStatsSummaryModel> | null
 
   @AllowNull(false)
   @Is('GameTitle', value => throwIfNotValid(value, value => typeof value === 'string' && value.length >= 1 && value.length <= 120, 'title'))
@@ -70,6 +76,11 @@ export class GameModel extends SequelizeModel<GameModel> {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare coverPath: string
+
+  @AllowNull(false)
+  @Default([])
+  @Column(DataType.ARRAY(DataType.TEXT))
+  declare screenshotPaths: string[]
 
   @AllowNull(false)
   @Column(DataType.TEXT)
@@ -110,6 +121,19 @@ export class GameModel extends SequelizeModel<GameModel> {
   @Column
   declare publishedAt: Date
 
+  @Default(false)
+  @AllowNull(false)
+  @Column(DataType.BOOLEAN)
+  declare featured: boolean
+
+  @AllowNull(true)
+  @Column(DataType.DATE)
+  declare featuredAt: Date | null
+
+  @AllowNull(true)
+  @Column(DataType.DATE)
+  declare releaseDate: Date | null
+
   @CreatedAt
   declare createdAt: Date
 
@@ -140,38 +164,51 @@ export class GameModel extends SequelizeModel<GameModel> {
     if (options.device) where.tags = { [Op.contains]: [ options.device ] }
     if (options.ownerAccountIds) where.ownerAccountId = { [Op.in]: options.ownerAccountIds }
     if (options.search) {
+      const search = options.search
+      const escapedSearch = search.replace(/'/g, "''")
+
+      // Use pg_trgm % operator for index-accelerated matching on title
+      // and ILIKE fallback for description/category which lack trgm indexes
       const ownerIds = await AccountModel.findAll({
         attributes: [ 'id' ],
-        where: { name: { [Op.iLike]: `%${options.search}%` } }
+        where: { name: { [Op.iLike]: `%${search}%` } }
       }).then(accounts => accounts.map(account => account.id))
 
       where[Op.or] = [
-        { title: { [Op.iLike]: `%${options.search}%` } },
-        { description: { [Op.iLike]: `%${options.search}%` } },
-        { category: { [Op.iLike]: `%${options.search}%` } },
-        { tags: { [Op.contains]: [ options.search ] } }
+        literal(`"GameModel"."title" % '${escapedSearch}'`),
+        { description: { [Op.iLike]: `%${search}%` } },
+        { category: { [Op.iLike]: `%${search}%` } },
+        { tags: { [Op.contains]: [ search ] } }
       ]
       if (ownerIds.length > 0) where[Op.or].push({ ownerAccountId: { [Op.in]: ownerIds } })
     }
 
     const metric = getGameSortMetric(options.sort)
-    const aggregateOrder = {
-      likes: literal('(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = "GameModel"."id" AND "gameRating"."type" = \'like\')'),
-      coins: literal('(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = "GameModel"."id" AND "gameCoinLedger"."kind" = \'spend\')'),
-      favorites: literal('(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = "GameModel"."id")')
-    }
-    const order = metric === 'plays'
-      ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
-      : metric === 'latest' || metric === 'recommended'
-        ? [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
-        : [ [ aggregateOrder[metric], 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+    const statsCol = (field: string) => col(`StatsSummary.${field}`)
+
+    // When searching, sort by similarity score first, then by popularity
+    const isSearch = !!options.search
+    const order = isSearch
+      ? [
+          [ fn('GREATEST', literal(`similarity("GameModel"."title", '${options.search.replace(/'/g, "''")}')`), literal(`similarity("GameModel"."description", '${options.search.replace(/'/g, "''")}')`)), 'DESC' ],
+          [ 'playCount', 'DESC' ],
+          [ 'publishedAt', 'DESC' ]
+        ]
+      : metric === 'plays'
+        ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+        : metric === 'latest' || metric === 'recommended'
+          ? [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
+          : [ [ statsCol(metric), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
 
     return Promise.all([
       GameModel.count({ where }),
       GameModel.findAll<MGame>({
         where,
         attributes: { include: GameModel.getPublicStatsAttributes() },
-        include: [ { model: AccountModel, required: true } ],
+        include: [
+          { model: AccountModel, required: true },
+          { model: GameStatsSummaryModel, required: false }
+        ],
         order: order as any,
         limit: options.limit,
         offset: options.offset
@@ -179,16 +216,18 @@ export class GameModel extends SequelizeModel<GameModel> {
     ]).then(([ total, data ]) => ({ total, data }))
   }
 
-  static getPublicStatsAttributes (tableAlias = '"GameModel"') {
-    const gameId = `${tableAlias}."id"`
-
+  /**
+   * 从 GameStatsSummaryModel JOIN 读取聚合统计，替代每行子查询
+   * 必须配合 include: [ GameStatsSummaryModel ] 使用
+   */
+  static getPublicStatsAttributes (_tableAlias = '"GameModel"') {
     return [
-      [ literal(`(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = ${gameId} AND "gameRating"."type" = 'like')`), 'gameLikes' ],
-      [ literal(`(SELECT COUNT(*) FROM "gameRating" WHERE "gameRating"."gameId" = ${gameId} AND "gameRating"."type" = 'dislike')`), 'gameDislikes' ],
-      [ literal(`(SELECT COUNT(*) FROM "gameReview" WHERE "gameReview"."gameId" = ${gameId})`), 'gameReviews' ],
-      [ literal(`(SELECT COUNT(*) FROM "gameComment" WHERE "gameComment"."gameId" = ${gameId} AND "gameComment"."deletedAt" IS NULL)`), 'gameComments' ],
-      [ literal(`(SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = ${gameId})`), 'favoriteCount' ],
-      [ literal(`(SELECT COALESCE(SUM("amount" * -1), 0) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = ${gameId} AND "gameCoinLedger"."kind" = 'spend')`), 'coinCount' ]
+      [ col('StatsSummary.likes'), 'gameLikes' ],
+      [ col('StatsSummary.dislikes'), 'gameDislikes' ],
+      [ col('StatsSummary.reviews'), 'gameReviews' ],
+      [ col('StatsSummary.comments'), 'gameComments' ],
+      [ col('StatsSummary.favorites'), 'favoriteCount' ],
+      [ col('StatsSummary.coins'), 'coinCount' ]
     ] as any
   }
 }

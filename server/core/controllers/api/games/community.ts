@@ -12,12 +12,18 @@ import { GameCommentModel } from '@server/models/game/game-comment.js'
 import { GameReviewModel } from '@server/models/game/game-review.js'
 import { GameRatingModel, type GameRatingType } from '@server/models/game/game-rating.js'
 import { GameModel } from '@server/models/game/game.js'
+import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, gameCoinRateLimiter, gameCommentRateLimiter, gameFavoriteRateLimiter, gameRatingRateLimiter, gameReviewRateLimiter, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
 import { canDeleteGameComment, isSupportedGameRating, normalizeGameRating } from '../../../lib/games/game-community-policy.js'
 import { createGameNotification } from '../../../lib/games/game-notifications.js'
+import { traceGameOperation } from '../../../lib/games/game-tracing.js'
+import { invalidateRecommendationCache } from '../../../lib/games/game-recommendations.js'
+import { awardExp } from '../../../lib/games/game-exp.js'
+
+type CommentSortOption = 'hot' | 'new' | 'old'
 
 const gameCommunityRouter = express.Router()
 gameCommunityRouter.use(apiRateLimiter)
@@ -25,6 +31,7 @@ gameCommunityRouter.use(apiRateLimiter)
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
 gameCommunityRouter.get('/:uuid/reviews', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReviews))
 gameCommunityRouter.put('/:uuid/review', gameUUIDValidator, authenticate, gameReviewRateLimiter, asyncMiddleware(upsertReview))
+gameCommunityRouter.get('/:uuid/comments/featured', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listFeaturedComments))
 gameCommunityRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
 gameCommunityRouter.get('/:uuid/comments/:commentId/replies', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReplies))
 gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, gameCommentRateLimiter, asyncMiddleware(addComment))
@@ -36,6 +43,7 @@ gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, game
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
 gameCommunityRouter.put('/author/:accountId/follow', authenticate, asyncMiddleware(followAccount))
 gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, gameCoinRateLimiter, asyncMiddleware(coinGame))
+gameCommunityRouter.post('/:uuid/triple', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(tripleAction))
 
 export { gameCommunityRouter }
 
@@ -72,51 +80,45 @@ async function getCommentForGame (game: MGame | null, commentId: number, include
 }
 
 async function getCommunity (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  return traceGameOperation('getCommunity', async () => {
+    const game = await getPublishedGame(req)
+    if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
-  const author = await getGameAuthor(game)
-  const user = getUser(res)
-  const following = author?.Actor && user
-    ? !!await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, author.Actor.id)
-    : false
-  const favorite = user
-    ? !!await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
-    : false
-  const rating = user ? await userRating(user.Account.id, game.id) : null
-  const likes = await GameRatingModel.count({ where: { gameId: game.id, type: 'like' } })
-  const coinState = user ? await getCoinState(game.id, user.Account.id) : { balance: 0, given: 0 }
-  const totalCoins = Number(await GameCoinLedgerModel.sum('amount', { where: { gameId: game.id, kind: 'spend' } }) || 0) * -1
-  const [ reviewCount, reviewAverage, chatMessageCount ] = await Promise.all([
-    GameReviewModel.count({ where: { gameId: game.id } }),
-    GameReviewModel.findOne({
-      where: { gameId: game.id },
-      attributes: [ [ sequelizeTypescript.fn('AVG', sequelizeTypescript.col('score')), 'average' ] ],
-      raw: true
-    }),
-    GameCommentModel.count({ where: { gameId: game.id, deletedAt: null } })
-  ])
+    const author = await getGameAuthor(game)
+    const user = getUser(res)
+    const [ following, favorite, rating, coinState, stats ] = await Promise.all([
+      author?.Actor && user
+        ? ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, author.Actor.id).then(r => !!r)
+        : Promise.resolve(false),
+      user
+        ? GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } }).then(r => !!r)
+        : Promise.resolve(false),
+      user ? userRating(user.Account.id, game.id) : Promise.resolve(null),
+      user ? getCoinState(game.id, user.Account.id) : Promise.resolve({ balance: 0, given: 0 }),
+      GameStatsSummaryModel.findOne({ where: { gameId: game.id }, raw: true })
+    ])
 
-  return res.json({
-    isOwner: !!user && user.Account.id === game.ownerAccountId,
-    likes,
-    reviews: reviewCount,
-    averageReviewScore: Number(Number((reviewAverage as any)?.average || 0).toFixed(1)),
-    chatMessages: chatMessageCount,
-    rating,
-    favorite,
-    following,
-    coins: Math.max(0, totalCoins),
-    coinBalance: coinState.balance,
-    coinsGiven: coinState.given,
-    author: author
-      ? {
-          id: author.id,
-          name: author.name,
-          displayName: author.getDisplayName(),
-          handle: author.Actor?.getIdentifier()
-        }
-      : null
+    return res.json({
+      isOwner: !!user && user.Account.id === game.ownerAccountId,
+      likes: stats?.likes || 0,
+      reviews: stats?.reviews || 0,
+      averageReviewScore: Number(Number(stats?.averageReviewScore || 0).toFixed(1)),
+      chatMessages: stats?.comments || 0,
+      rating,
+      favorite,
+      following,
+      coins: Math.max(0, stats?.coins || 0),
+      coinBalance: coinState.balance,
+      coinsGiven: coinState.given,
+      author: author
+        ? {
+            id: author.id,
+            name: author.name,
+            displayName: author.getDisplayName(),
+            handle: author.Actor?.getIdentifier()
+          }
+        : null
+    })
   })
 }
 
@@ -177,29 +179,35 @@ async function upsertReview (req: express.Request, res: express.Response) {
     include: [ commentAccountInclude ]
   })
   if (!hydratedReview) return res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
+  if (created) awardExp(user.Account.id, 'REVIEW').catch(() => undefined)
   return res.json({ review: formatReviews([ hydratedReview ], game)[0] })
 }
 
 async function listComments (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  return traceGameOperation('listComments', async () => {
+    const game = await getPublishedGame(req)
+    if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
-  const start = Math.max(0, Number(req.query.start) || 0)
-  const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+    const start = Math.max(0, Number(req.query.start) || 0)
+    const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+    const sort = parseCommentSort(req.query.sort as string)
 
-  const where = { gameId: game.id, inReplyToCommentId: null, deletedAt: null }
-  const [ total, comments ] = await Promise.all([
-    GameCommentModel.count({ where }),
-    GameCommentModel.findAll({
-      where,
-      include: [ commentAccountInclude ],
-      order: [ [ 'createdAt', 'ASC' ] ],
-      limit: count,
-      offset: start
-    })
-  ])
+    const where = { gameId: game.id, inReplyToCommentId: null, deletedAt: null }
+    const order = getCommentSortOrder(sort)
 
-  return res.json({ total, data: await formatComments(comments, game, getUser(res)) })
+    const [ total, comments ] = await Promise.all([
+      GameCommentModel.count({ where }),
+      GameCommentModel.findAll({
+        where,
+        include: [ commentAccountInclude ],
+        order,
+        limit: count,
+        offset: start
+      })
+    ])
+
+    return res.json({ total, data: await formatComments(comments, game, getUser(res)) })
+  })
 }
 
 async function listReplies (req: express.Request, res: express.Response) {
@@ -254,6 +262,7 @@ async function addComment (req: express.Request, res: express.Response) {
       message: `${user.username} 评论了你的游戏`
     })
   }
+  awardExp(user.Account.id, 'COMMENT').catch(() => undefined)
 
   return res.status(HttpStatusCode.CREATED_201).json({ comment: (await formatComments([ hydratedComment ], game, user))[0] })
 }
@@ -287,22 +296,35 @@ async function replyToComment (req: express.Request, res: express.Response) {
       message: `${user.username} 回复了你的游戏评论`
     })
   }
+  awardExp(user.Account.id, 'COMMENT').catch(() => undefined)
   return res.status(HttpStatusCode.CREATED_201).json({ comment: (await formatComments([ hydratedComment ], game, user))[0] })
 }
 
 async function likeComment (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  const user = getUser(res)
-  const comment = await getCommentForGame(game, Number(req.params.commentId))
-  if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (typeof req.body.liked !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'liked must be boolean' })
+  return traceGameOperation('likeComment', async () => {
+    const game = await getPublishedGame(req)
+    const user = getUser(res)
+    const comment = await getCommentForGame(game, Number(req.params.commentId))
+    if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+    if (typeof req.body.liked !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'liked must be boolean' })
 
-  const existing = await GameCommentReactionModel.findOne({ where: { commentId: comment.id, accountId: user.Account.id } })
-  if (req.body.liked && !existing) await GameCommentReactionModel.create({ commentId: comment.id, accountId: user.Account.id })
-  if (!req.body.liked && existing) await existing.destroy()
+    const existing = await GameCommentReactionModel.findOne({ where: { commentId: comment.id, accountId: user.Account.id } })
+    if (req.body.liked && !existing) {
+      await GameCommentReactionModel.create({ commentId: comment.id, accountId: user.Account.id })
+      comment.likeCount += 1
+    }
+    if (!req.body.liked && existing) {
+      await existing.destroy()
+      comment.likeCount = Math.max(0, comment.likeCount - 1)
+    }
 
-  const likes = await GameCommentReactionModel.count({ where: { commentId: comment.id } })
-  return res.json({ liked: req.body.liked, likes })
+    // 更新精选状态
+    if (comment.updateFeaturedStatus() || comment.likeCount !== comment.getDataValue('likeCount')) {
+      await comment.save()
+    }
+
+    return res.json({ liked: req.body.liked, likes: comment.likeCount, isFeatured: comment.isFeatured })
+  })
 }
 
 async function deleteComment (req: express.Request, res: express.Response) {
@@ -361,7 +383,9 @@ async function rateGame (req: express.Request, res: express.Response) {
       kind: 'like',
       message: `${user.username} 赞了你的游戏`
     })
+    awardExp(user.Account.id, 'LIKE').catch(() => undefined)
   }
+  invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
@@ -414,6 +438,8 @@ async function coinGame (req: express.Request, res: express.Response) {
     message: `${user.username} 给你的游戏投了 ${result.coinsGiven} 枚硬币`
   })
 
+  awardExp(user.Account.id, 'COIN').catch(() => undefined)
+  invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.json({ coins: result.coinsGiven, ...result })
 }
 
@@ -437,6 +463,8 @@ async function favoriteGame (req: express.Request, res: express.Response) {
     })
   }
 
+  if (req.body.favorite) awardExp(user.Account.id, 'FAVORITE').catch(() => undefined)
+  invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.json({ favorite: req.body.favorite })
 }
 
@@ -552,22 +580,24 @@ function formatReviews (reviews: GameReviewModel[], game: MGame) {
 
 async function formatComments (comments: GameCommentModel[], game: MGame, user: any) {
   const commentIds = comments.map(comment => comment.id)
-  const [ reactions, replyCounts ] = await Promise.all([
-    commentIds.length
-      ? GameCommentReactionModel.findAll({ where: { commentId: commentIds } })
+  const [ userReactions, replyCounts ] = await Promise.all([
+    user && commentIds.length
+      ? GameCommentReactionModel.findAll({ where: { commentId: commentIds, accountId: user.Account.id } })
       : [],
     Promise.all(comments.map(comment => GameCommentModel.count({
       where: { gameId: game.id, inReplyToCommentId: comment.id, deletedAt: null }
     })))
   ])
 
+  const likedCommentIds = new Set(userReactions.map(r => r.commentId))
+
   return comments.map((comment, index) => {
     const formatted = comment.toFormattedJSON({ totalReplies: replyCounts[index] })
-    const commentReactions = reactions.filter(reaction => reaction.commentId === comment.id)
     return {
       ...formatted,
-      likes: commentReactions.length,
-      liked: !!user && commentReactions.some(reaction => reaction.accountId === user.Account.id),
+      likes: comment.likeCount,
+      liked: !!user && likedCommentIds.has(comment.id),
+      isFeatured: comment.isFeatured,
       isAuthor: comment.accountId === game.ownerAccountId,
       canDelete: !!user && canDeleteGameComment({
         commentAccountId: comment.accountId,
@@ -576,5 +606,138 @@ async function formatComments (comments: GameCommentModel[], game: MGame, user: 
         canManageAny: user.hasRight(UserRight.MANAGE_ANY_VIDEO_COMMENT)
       })
     }
+  })
+}
+
+/**
+ * 一键三连：点赞 + 投币(1枚) + 收藏
+ * 如果已经操作过则跳过该步骤，不会重复操作
+ */
+async function tripleAction (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const user = getUser(res)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  if (game.ownerAccountId === user.Account.id) {
+    return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot triple their own game' })
+  }
+
+  const results = { liked: false, coined: false, favorited: false }
+
+  // 1. Like (if not already liked)
+  const existingRating = await GameRatingModel.load(user.Account.id, game.id)
+  if (!existingRating) {
+    await GameRatingModel.create({ accountId: user.Account.id, gameId: game.id, type: 'like' })
+    results.liked = true
+  }
+
+  // 2. Coin (1 coin, if balance allows and not already given max)
+  const day = new Date().toISOString().slice(0, 10)
+  await GameCoinLedgerModel.findOrCreate({
+    where: { accountId: user.Account.id, day, kind: 'daily_grant' },
+    defaults: { accountId: user.Account.id, gameId: null, day, kind: 'daily_grant', amount: 2 }
+  })
+  const balance = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id } }) || 0)
+  const given = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id, gameId: game.id, kind: 'spend' } }) || 0) * -1
+  if (balance >= 1 && given < 2) {
+    await GameCoinLedgerModel.create({ accountId: user.Account.id, gameId: game.id, amount: -1, day, kind: 'spend' })
+    results.coined = true
+  }
+
+  // 3. Favorite (if not already favorited)
+  const existingFavorite = await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
+  if (!existingFavorite) {
+    await GameFavoriteModel.create({ gameId: game.id, accountId: user.Account.id })
+    results.favorited = true
+  }
+
+  // Send notifications for new actions
+  if (results.liked) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'like',
+      message: `${user.username} 赞了你的游戏`
+    })
+  }
+  if (results.coined) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'coin',
+      message: `${user.username} 给你的游戏投了硬币`
+    })
+  }
+  if (results.favorited) {
+    await createGameNotification({
+      recipientAccountId: game.ownerAccountId,
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'favorite',
+      message: `${user.username} 收藏了你的游戏`
+    })
+  }
+
+  awardExp(user.Account.id, 'TRIPLE').catch(() => undefined)
+  invalidateRecommendationCache(user.Account.id).catch(() => undefined)
+  return res.json(results)
+}
+
+/**
+ * 解析评论排序参数，默认 new
+ */
+function parseCommentSort (sort: string | undefined): CommentSortOption {
+  if (sort === 'hot' || sort === 'new' || sort === 'old') return sort
+  return 'new'
+}
+
+/**
+ * 根据排序选项生成 Sequelize order 子句
+ * hot: 精选优先，然后按点赞数降序，再按时间降序
+ * new: 按创建时间降序
+ * old: 按创建时间升序
+ */
+function getCommentSortOrder (sort: CommentSortOption): OrderItem[] {
+  switch (sort) {
+    case 'hot':
+      return [
+        [ 'isFeatured', 'DESC' ],
+        [ 'likeCount', 'DESC' ],
+        [ 'createdAt', 'DESC' ]
+      ]
+    case 'new':
+      return [ [ 'createdAt', 'DESC' ] ]
+    case 'old':
+      return [ [ 'createdAt', 'ASC' ] ]
+  }
+}
+
+type OrderItem = [ string, string ] | [ string, string, string ]
+
+/**
+ * 获取游戏的精选评论列表
+ */
+async function listFeaturedComments (req: express.Request, res: express.Response) {
+  return traceGameOperation('listFeaturedComments', async () => {
+    const game = await getPublishedGame(req)
+    if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    const start = Math.max(0, Number(req.query.start) || 0)
+    const count = Math.min(50, Math.max(1, Number(req.query.count) || 20))
+
+    const where = { gameId: game.id, inReplyToCommentId: null, deletedAt: null, isFeatured: true }
+    const [ total, comments ] = await Promise.all([
+      GameCommentModel.count({ where }),
+      GameCommentModel.findAll({
+        where,
+        include: [ commentAccountInclude ],
+        order: [ [ 'likeCount', 'DESC' ], [ 'createdAt', 'DESC' ] ],
+        limit: count,
+        offset: start
+      })
+    ])
+
+    return res.json({ total, data: await formatComments(comments, game, getUser(res)) })
   })
 }

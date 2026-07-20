@@ -385,9 +385,9 @@
 .featured-caption {
   color: #fff;
   flex: 1;
-  min-height: 4.3rem;
-  margin-top: -2.5rem;
-  padding: 3.2rem 1rem 2.8rem;
+  min-height: 3.5rem;
+  margin-top: -2rem;
+  padding: 2.8rem 0.75rem 2rem;
   position: relative;
   z-index: 1;
 }
@@ -415,12 +415,12 @@
 
 .featured-controls {
   align-items: center;
-  bottom: 0.85rem;
+  bottom: 0.4rem;
   display: flex;
   justify-content: space-between;
-  left: 1rem;
+  left: 0.75rem;
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
   z-index: 2;
 }
 

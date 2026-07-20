@@ -142,6 +142,7 @@ import { ActorFollowScheduler } from './core/lib/schedulers/actor-follow-schedul
 import { AutoFollowIndexInstances } from './core/lib/schedulers/auto-follow-index-instances.js'
 import { BlocklistSubscriptionsScheduler } from './core/lib/schedulers/blocklist-subscriptions-scheduler.js'
 import { GeoIPUpdateScheduler } from './core/lib/schedulers/geo-ip-update-scheduler.js'
+import { GameStatsSummaryScheduler } from './core/lib/schedulers/game-stats-summary-scheduler.js'
 import { PeerTubeVersionCheckScheduler } from './core/lib/schedulers/peertube-version-check-scheduler.js'
 import { PluginsCheckScheduler } from './core/lib/schedulers/plugins-check-scheduler.js'
 import { RemoveDanglingResumableUploadsScheduler } from './core/lib/schedulers/remove-dangling-resumable-uploads-scheduler.js'
@@ -334,6 +335,7 @@ async function startApplication () {
   VideoChannelSyncLatestScheduler.Instance.enable()
   VideoStatsBufferScheduler.Instance.enable()
   GeoIPUpdateScheduler.Instance.enable()
+  GameStatsSummaryScheduler.Instance.enable()
   RunnerJobWatchDogScheduler.Instance.enable()
   RemoveExpiredUserExportsScheduler.Instance.enable()
   UpdateTokenSessionScheduler.Instance.enable()
