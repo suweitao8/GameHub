@@ -1,24 +1,56 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { GameCardComponent } from './game-card.component'
-import { GameCreatorOverview, GameNotification, GamesService } from './games.service'
+import { GameCreatorOverview, GameLevelInfo, GameNotification, GamesService } from './games.service'
+import { GameLevelBadgeComponent } from './game-level-badge.component'
 
 @Component({
   templateUrl: './game-creator.component.html',
   styleUrl: './game-creator.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink ]
+  imports: [ GameCardComponent, RouterLink, GameLevelBadgeComponent ]
 })
 export class GameCreatorComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   readonly overview = signal<GameCreatorOverview | null>(null)
+  readonly levelInfo = signal<GameLevelInfo | null>(null)
+  readonly dailyLoginLoading = signal(false)
+  readonly dailyLoginMessage = signal('')
   readonly error = signal('')
   readonly recentNotifications = signal<GameNotification[]>([])
 
   ngOnInit () {
-    this.gamesService.creatorOverview().subscribe({ next: value => this.overview.set(value), error: () => this.error.set('请先登录后进入创作中心。') })
+    this.gamesService.creatorOverview().subscribe({
+      next: value => this.overview.set(value),
+      error: () => this.error.set('请先登录后进入创作中心。')
+    })
+    this.gamesService.getUserLevel().subscribe({
+      next: value => this.levelInfo.set(value),
+      error: () => {}
+    })
     this.gamesService.notifications().subscribe({
       next: value => this.recentNotifications.set(value.data.filter(item => item.kind === 'comment' || item.kind === 'reply').slice(0, 5))
+    })
+  }
+
+  claimDaily () {
+    if (this.dailyLoginLoading()) return
+    this.dailyLoginLoading.set(true)
+    this.dailyLoginMessage.set('')
+    this.gamesService.claimDailyLogin().subscribe({
+      next: result => {
+        if (result.claimed) {
+          this.dailyLoginMessage.set(`签到成功！+${result.exp} EXP`)
+          this.levelInfo.update(li => li ? { ...li, exp: result.totalExp, levelInfo: result.levelInfo, dailyLoginAvailable: false } : li)
+        } else {
+          this.dailyLoginMessage.set('今日已签到')
+        }
+        this.dailyLoginLoading.set(false)
+      },
+      error: () => {
+        this.dailyLoginMessage.set('签到失败，请重试')
+        this.dailyLoginLoading.set(false)
+      }
     })
   }
 

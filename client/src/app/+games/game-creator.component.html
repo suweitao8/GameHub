@@ -4,6 +4,15 @@
     @if (error()) { <section class="creator-state"><h2>{{ error() }}</h2><a routerLink="/login">去登录</a></section> }
     @else if (!overview()) { <section class="creator-state"><div class="skeleton-metrics">@for (i of [1,2,3,4,5,6,7,8]; track $index) { <div class="skeleton-metric shimmer"></div> }</div></section> }
     @else {
+      <section class="creator-profile-bar">
+        <my-game-level-badge [levelInfo]="levelInfo()" />
+        @if (levelInfo()?.dailyLoginAvailable) {
+          <button type="button" class="daily-login-btn" [disabled]="dailyLoginLoading()" (click)="claimDaily()">
+            {{ dailyLoginLoading() ? '签到中…' : '🎁 每日签到' }}
+          </button>
+        }
+        @if (dailyLoginMessage()) { <span class="daily-login-msg">{{ dailyLoginMessage() }}</span> }
+      </section>
       <section class="metric-grid">
         <article><span>维护游戏</span><strong>{{ overview()!.gameCount }} / {{ overview()!.gameLimit }}</strong></article>
         <article><span>存储用量</span><strong>{{ formatBytes(overview()!.storageBytes) }}</strong><small>总上限 {{ formatBytes(overview()!.storageLimitBytes) }}</small></article>

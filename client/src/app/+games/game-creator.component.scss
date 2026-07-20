@@ -84,7 +84,47 @@
 @media (max-width: 450px) { .metric-grid,
   .creator-shortcuts { grid-template-columns: 1fr; } }
 
-/* Skeleton loading */
+/* Creator profile bar */
+.creator-profile-bar {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 1rem;
+}
+
+.daily-login-btn {
+  background: var(--game-brand);
+  border: 1px solid var(--game-brand);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.45rem 0.85rem;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.daily-login-btn:hover {
+  background: var(--game-brand-deep);
+  border-color: var(--game-brand-deep);
+}
+
+.daily-login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.daily-login-msg {
+  color: var(--game-success);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
 .skeleton-metrics {
   display: grid;
   gap: 1rem;
