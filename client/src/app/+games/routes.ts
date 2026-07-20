@@ -10,6 +10,10 @@ import { GameAuthorComponent } from './game-author.component'
 import { GameCreatorComponent } from './game-creator.component'
 import { GameNotificationsComponent } from './game-notifications.component'
 import { GameLoginGuard } from './game-login.guard'
+import { GameActivityFeedComponent } from './game-activity-feed.component'
+import { GameReservationsComponent } from './game-reservations.component'
+import { GameRankingsComponent } from './game-rankings.component'
+import { GameAnalyticsDashboardComponent } from './game-analytics-dashboard.component'
 
 export default [
   {
@@ -26,6 +30,12 @@ export default [
         component: GameCreatorComponent,
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Creator center` } }
+      },
+      {
+        path: 'analytics',
+        component: GameAnalyticsDashboardComponent,
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`Analytics dashboard` } }
       },
       {
         path: 'notifications',
@@ -66,6 +76,23 @@ export default [
         path: 'community',
         component: GamesHomeComponent,
         data: { meta: { title: $localize`GameHub community` } }
+      },
+      {
+        path: 'rankings',
+        component: GameRankingsComponent,
+        data: { meta: { title: $localize`Game rankings` } }
+      },
+      {
+        path: 'activity',
+        component: GameActivityFeedComponent,
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`Community activity` } }
+      },
+      {
+        path: 'reservations',
+        component: GameReservationsComponent,
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`My reservations` } }
       },
       {
         path: '',

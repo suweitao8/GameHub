@@ -14,6 +14,7 @@ export type Game = {
   category: string
   tags: string[]
   coverPath: string | null
+  screenshots: string[]
   status: 'pending' | 'published' | 'rejected' | 'unlisted' | 'blocked'
   fileSizeBytes: number
   playCount: number
@@ -198,8 +199,10 @@ export class GamesService {
     return this.http.get<GameCommunity>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/community`)
   }
 
-  comments (uuid: string): Observable<{ total: number, data: GameComment[] }> {
-    return this.http.get<{ total: number, data: GameComment[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`)
+  comments (uuid: string, sort: 'hot' | 'new' | 'old' = 'hot'): Observable<{ total: number, data: GameComment[] }> {
+    return this.http.get<{ total: number, data: GameComment[] }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments?sort=${sort}`
+    )
   }
 
   reviews (uuid: string): Observable<{ total: number, data: GameReview[] }> {
@@ -254,6 +257,11 @@ export class GamesService {
   coin (uuid: string, amount: 1 | 2): Observable<{ coins: number, coinBalance: number, coinsGiven: number }> {
     return this.http.post<{ coins: number, coinBalance: number, coinsGiven: number }>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount })
+  }
+
+  triple (uuid: string): Observable<{ liked: boolean; coined: boolean; favorited: boolean }> {
+    return this.http.post<{ liked: boolean; coined: boolean; favorited: boolean }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/triple`, {})
   }
 
   create (file: File, metadata: GameUploadMetadata): Observable<Game> {

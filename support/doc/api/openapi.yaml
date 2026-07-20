@@ -322,6 +322,8 @@ tags:
     description: Operations on video passwords.
   - name: Client Config
     description: Configuration of the web client.
+  - name: Games
+    description: GameHub game discovery, community, and social features.
 
 x-tagGroups:
   - name: Static endpoints
@@ -9065,6 +9067,234 @@ paths:
         '204':
           description: successful operation
 
+  /api/v1/games:
+    get:
+      tags:
+        - Games
+      summary: List games
+      description: Get a paginated list of published games with optional filtering
+      operationId: listGames
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search by title or tags
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by game category
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [recommended, latest, popular, likes, coins, favorites]
+          description: Sort order
+        - name: publishedAfter
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Only games published after this date
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameList'
+
+  /api/v1/games/{uuid}:
+    get:
+      tags:
+        - Games
+      summary: Get a game
+      description: Get detailed information about a specific game
+      operationId: getGame
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+
+  /api/v1/games/{uuid}/community:
+    get:
+      tags:
+        - Games
+      summary: Get game community stats
+      description: Get community statistics for a game (likes, reviews, etc.)
+      operationId: getGameCommunity
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCommunity'
+
+  /api/v1/games/{uuid}/comments:
+    get:
+      tags:
+        - Games
+      summary: List game comments
+      description: Get comments for a game
+      operationId: listGameComments
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCommentList'
+
+  /api/v1/games/{uuid}/reviews:
+    get:
+      tags:
+        - Games
+      summary: List game reviews
+      description: Get reviews for a game
+      operationId: listGameReviews
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameReviewList'
+
+  /api/v1/games/feed:
+    get:
+      tags:
+        - Games
+      summary: Get following feed
+      description: Get activity feed from followed creators (requires authentication)
+      operationId: getGameFeed
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameActivityList'
+
+  /api/v1/games/feed/public:
+    get:
+      tags:
+        - Games
+      summary: Get public feed
+      description: Get public activity feed
+      operationId: getGamePublicFeed
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameActivityList'
+
+  /api/v1/games/rankings:
+    get:
+      tags:
+        - Games
+      summary: Get game rankings
+      description: Get ranked list of games by various criteria
+      operationId: getGameRankings
+      parameters:
+        - name: kind
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [hot, newest, topRated, favorites, coins, comments, likes]
+          description: Ranking criteria
+        - name: count
+          in: query
+          schema:
+            type: integer
+            default: 50
+          description: Number of results
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameRankingList'
+
+  /api/v1/games/featured:
+    get:
+      tags:
+        - Games
+      summary: Get featured games
+      description: Get a list of featured/curated games
+      operationId: getFeaturedGames
+      parameters:
+        - name: count
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameList'
+
+  /api/v1/games/{uuid}/reserve:
+    post:
+      tags:
+        - Games
+      summary: Reserve a game
+      description: Create a reservation for a game (requires authentication)
+      operationId: reserveGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameReservation'
+    delete:
+      tags:
+        - Games
+      summary: Cancel reservation
+      description: Cancel a game reservation (requires authentication)
+      operationId: cancelGameReservation
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '204':
+          description: successful operation
+
 servers:
   - url: 'https://peertube2.cpy.re'
     description: Live Test Server (live data - latest nightly version)
@@ -9072,6 +9302,7 @@ servers:
     description: Live Test Server (live data - latest RC version)
   - url: 'https://peertube.cpy.re'
     description: Live Test Server (live data - stable version)
+
 components:
   parameters:
     start:
@@ -14489,3 +14720,289 @@ components:
         The user import state:
           - `1`: Pending
           - `2`: Accepted
+
+    # GameHub Schemas
+    Game:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        instructions:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        coverPath:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, published, rejected, unlisted, blocked]
+        fileSizeBytes:
+          type: integer
+        playCount:
+          type: integer
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        runtimeUrl:
+          type: string
+        ownerAccountId:
+          type: integer
+        likes:
+          type: integer
+        coins:
+          type: integer
+        favorites:
+          type: integer
+        author:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+            handle:
+              type: string
+
+    GameList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+
+    GameCommunity:
+      type: object
+      properties:
+        isOwner:
+          type: boolean
+        likes:
+          type: integer
+        reviews:
+          type: integer
+        averageReviewScore:
+          type: number
+        chatMessages:
+          type: integer
+        rating:
+          type: string
+          enum: [like, none]
+        favorite:
+          type: boolean
+        following:
+          type: boolean
+        coins:
+          type: integer
+        coinBalance:
+          type: integer
+        coinsGiven:
+          type: integer
+        author:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+            handle:
+              type: string
+
+    GameComment:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        account:
+          type: object
+          nullable: true
+          properties:
+            displayName:
+              type: string
+            name:
+              type: string
+        totalReplies:
+          type: integer
+        inReplyToCommentId:
+          type: integer
+          nullable: true
+        likes:
+          type: integer
+        liked:
+          type: boolean
+        isAuthor:
+          type: boolean
+        canDelete:
+          type: boolean
+
+    GameCommentList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameComment'
+
+    GameReview:
+      type: object
+      properties:
+        id:
+          type: integer
+        score:
+          type: integer
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        account:
+          type: object
+          nullable: true
+          properties:
+            displayName:
+              type: string
+            name:
+              type: string
+        isAuthor:
+          type: boolean
+
+    GameReviewList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameReview'
+
+    GameActivity:
+      type: object
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+          enum: [publish, like, coin, favorite, comment, reply, review, follow]
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        actor:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+        game:
+          type: object
+          nullable: true
+          properties:
+            uuid:
+              type: string
+            title:
+              type: string
+            coverPath:
+              type: string
+              nullable: true
+
+    GameActivityList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameActivity'
+
+    GameRanking:
+      type: object
+      properties:
+        rank:
+          type: integer
+        uuid:
+          type: string
+        title:
+          type: string
+        coverPath:
+          type: string
+          nullable: true
+        stats:
+          type: object
+          properties:
+            plays:
+              type: integer
+            likes:
+              type: integer
+            favorites:
+              type: integer
+            coins:
+              type: integer
+            comments:
+              type: integer
+            reviews:
+              type: integer
+            averageReviewScore:
+              type: number
+
+    GameRankingList:
+      type: object
+      properties:
+        kind:
+          type: string
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameRanking'
+
+    GameReservation:
+      type: object
+      properties:
+        id:
+          type: integer
+        gameId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time

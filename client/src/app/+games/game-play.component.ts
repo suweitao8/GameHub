@@ -58,6 +58,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
+  readonly activeScreenshot = signal<number>(0)
   readonly sortedComments = computed(() => {
     const comments = [ ...this.comments() ]
     if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
@@ -114,7 +115,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
           next: community => this.community.set(community),
           error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
         })
-        this.gamesService.comments(uuid).subscribe({
+        this.gamesService.comments(uuid, this.commentSort()).subscribe({
           next: result => {
             this.comments.set(result.data)
             this.commentsLoading.set(false)
@@ -195,6 +196,21 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
+  tripleAction () {
+    if (!this.requireLogin()) return
+    const current = this.community()
+    if (!current || current.isOwner) return
+    this.gamesService.triple(this.currentUuid).subscribe({
+      next: (value) => {
+        this.actionFeedback.set('一键三连成功！')
+        this.gamesService.community(this.currentUuid).subscribe({
+          next: state => this.community.set(state)
+        })
+      },
+      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
+    })
+  }
+
   startGame () {
     this.gameStarted.set(true)
     if (this.playRecordedFor !== this.currentUuid) {
@@ -210,6 +226,21 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   onGameVolumeChange (event: Event) {
     this.setGameVolume(Number((event.target as HTMLInputElement).value))
+  }
+
+  setCommentSort (sort: 'hot' | 'latest') {
+    this.commentSort.set(sort)
+    this.commentsLoading.set(true)
+    this.gamesService.comments(this.currentUuid, sort).subscribe({
+      next: result => {
+        this.comments.set(result.data)
+        this.commentsLoading.set(false)
+      },
+      error: () => {
+        this.commentsLoading.set(false)
+        this.commentsError.set('评论重新加载失败')
+      }
+    })
   }
 
   submitComment () {
@@ -327,11 +358,18 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   async shareGame () {
-    const url = window.location.href
+    const currentGame = this.game()
+    if (!currentGame) return
     try {
-      if (navigator.share) await navigator.share({ title: this.game()?.title, url })
-      else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url)
+      if (navigator.share) {
+        const result = await this.gamesService.share(currentGame.uuid).toPromise()
+        await navigator.share({
+          title: currentGame.title,
+          url: result?.shortUrl || window.location.href
+        })
+      } else if (navigator.clipboard) {
+        const result = await this.gamesService.share(currentGame.uuid).toPromise()
+        await navigator.clipboard.writeText(result?.shortUrl || window.location.href)
         this.actionFeedback.set('链接已复制')
       } else {
         this.actionFeedback.set('当前浏览器不支持分享')

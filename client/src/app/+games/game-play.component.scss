@@ -418,6 +418,23 @@
   display: inline-block;
   height: 0.42rem;
   width: 0.42rem; }
+.chat-controls { align-items: center;
+  display: flex;
+  gap: 0.75rem; }
+.comment-sort { display: flex;
+  gap: 0.25rem; }
+.comment-sort button { background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: 4px;
+  color: var(--game-muted);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  transition: all 0.2s; }
+.comment-sort button.active { background: var(--game-brand);
+  border-color: var(--game-brand);
+  color: #fff; }
+.comment-sort button:hover:not(.active) { background: var(--game-border); }
 .chat-intro { color: var(--game-muted);
   font-size: 0.78rem;
   margin: 0.5rem 0 0.75rem; }
@@ -677,4 +694,59 @@
   border-radius: 4px;
   height: 2.5rem;
   margin-bottom: 0.4rem;
+}
+
+/* Screenshot gallery */
+.game-screenshots { grid-column: 1;
+  grid-row: 2; }
+.game-play-page .game-screenshots + .game-stage { grid-row: 3; }
+
+.screenshot-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.screenshot-main {
+  border-radius: var(--game-radius);
+  overflow: hidden;
+  background: var(--game-surface);
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+}
+
+.screenshot-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #17191e;
+}
+
+.screenshot-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.screenshot-thumbs button {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: var(--game-surface);
+  transition: border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.screenshot-thumbs button.active { border-color: var(--game-brand); }
+.screenshot-thumbs button:hover:not(.active) { border-color: var(--game-border); }
+
+.screenshot-thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
