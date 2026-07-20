@@ -36,6 +36,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly coverSource = signal<'runtime' | 'generated' | 'manual'>('generated')
   readonly createdGame = signal<Game | null>(null)
   readonly uploadProgress = signal(0)
+  readonly dragActive = signal(false)
   private readonly runtimeScreenshot = signal('')
 
   constructor () {
@@ -69,6 +70,34 @@ export class GameUploadComponent implements OnDestroy {
     this.coverSource.set('generated')
     this.previewError.set('')
     if (this.file) void this.preparePreview(this.file)
+  }
+
+  onFileDrop (event: DragEvent) {
+    this.dragActive.set(false)
+    const file = event.dataTransfer?.files?.[0]
+    if (!file) return
+
+    // Simulate the same flow as onFileChange
+    this.file = file
+    this.fileSize.set(file.size)
+    if (!/\.html?$/i.test(file.name.trim())) {
+      this.error.set('只支持单个 .html 或 .htm 文件。')
+      this.file = null
+      return
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      this.error.set('HTML 文件不能超过 20MB。')
+      this.file = null
+      return
+    }
+
+    this.error.set('')
+    this.createdGame.set(null)
+    this.cover = null
+    this.coverPreview.set('')
+    this.coverSource.set('generated')
+    this.previewError.set('')
+    void this.preparePreview(file)
   }
 
   onCoverChange (event: Event) {

@@ -100,7 +100,12 @@
   grid-template-columns: 1fr 0.65fr; }
 .file-picker { background: var(--game-brand-soft);
   border: 1px dashed rgb(0 174 236 / 48%);
-  padding: 1rem; }
+  padding: 1rem;
+  transition: background-color 160ms ease, border-color 160ms ease; }
+.file-picker.dragover {
+  background: rgb(0 174 236 / 18%);
+  border-color: var(--game-brand);
+  border-style: solid; }
 .file-picker input { display: none; }
 .file-picker span { color: var(--game-muted);
   font-weight: 400; }
