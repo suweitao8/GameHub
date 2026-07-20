@@ -13,7 +13,7 @@
         }
         <div class="game-search-panel-heading"><strong>热门搜索</strong></div>
         <ol class="game-search-hot-list">
-          @for (term of hotKeywords; track term; let index = $index) { <li><button type="button" (click)="selectSearch(term)"><span>{{ index + 1 }}</span>{{ term }}</button></li> }
+          @for (term of hotKeywords(); track term; let index = $index) { <li><button type="button" (click)="selectSearch(term)"><span>{{ index + 1 }}</span>{{ term }}</button></li> }
         </ol>
       </section>
     }
