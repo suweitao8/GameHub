@@ -14,6 +14,8 @@ import { GameActivityFeedComponent } from './game-activity-feed.component'
 import { GameReservationsComponent } from './game-reservations.component'
 import { GameRankingsComponent } from './game-rankings.component'
 import { GameAnalyticsDashboardComponent } from './game-analytics-dashboard.component'
+import { GameCollectionsComponent } from './game-collections.component'
+import { GameCollectionDetailComponent } from './game-collection-detail.component'
 
 export default [
   {
@@ -93,6 +95,16 @@ export default [
         component: GameReservationsComponent,
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My reservations` } }
+      },
+      {
+        path: 'collections',
+        component: GameCollectionsComponent,
+        data: { meta: { title: $localize`Game collections` } }
+      },
+      {
+        path: 'collection/:slug',
+        component: GameCollectionDetailComponent,
+        data: { meta: { title: $localize`Collection` } }
       },
       {
         path: '',
