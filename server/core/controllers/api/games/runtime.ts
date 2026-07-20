@@ -1,7 +1,7 @@
 import { asyncMiddleware } from '@server/middlewares/async.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
-import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameHtml, readStoredGameRuntimeFile } from '@server/lib/games/game-runtime.js'
+import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameHtml, readStoredGameRuntimeFile, verifyGameRuntimeHash } from '@server/lib/games/game-runtime.js'
 import { readGameRuntimePreviewFile } from '@server/lib/games/game-runtime-preview.js'
 import express from 'express'
 
@@ -18,6 +18,11 @@ runtimeRouter.get('/preview/:token/runtime/*', asyncMiddleware(async (req, res) 
 runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
   const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
   if (!game) return res.sendStatus(404)
+
+  const hashValid = await verifyGameRuntimeHash(CONFIG.STORAGE.GAMES_DIR, game.runtimePath, game.runtimeSha256)
+  if (!hashValid) {
+    return res.status(500).json({ error: 'Game runtime integrity verification failed' })
+  }
 
   const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
   const parentOrigin = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`

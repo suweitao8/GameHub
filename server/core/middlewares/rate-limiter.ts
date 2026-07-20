@@ -63,6 +63,31 @@ export const gamePlayRateLimiter = buildRateLimiter({
   max: 60
 })
 
+export const gameCommentRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 15
+})
+
+export const gameReviewRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 5
+})
+
+export const gameRatingRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 20
+})
+
+export const gameFavoriteRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 30
+})
+
+export const gameCoinRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 10
+})
+
 // ---------------------------------------------------------------------------
 // Private
 // ---------------------------------------------------------------------------

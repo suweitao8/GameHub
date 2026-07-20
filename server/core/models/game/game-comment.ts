@@ -8,6 +8,8 @@ import { GameModel } from './game.js'
   indexes: [
     { fields: [ 'gameId', 'createdAt' ] },
     { fields: [ 'gameId', 'inReplyToCommentId' ] },
+    { fields: [ 'gameId', 'deletedAt' ] },
+    { fields: [ 'accountId', 'createdAt' ] },
     { fields: [ 'accountId' ] }
   ]
 })

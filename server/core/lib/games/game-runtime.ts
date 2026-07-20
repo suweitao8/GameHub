@@ -162,6 +162,16 @@ export async function readStoredGameCover (root: string, coverPath: string) {
   return readFile(absolutePath)
 }
 
+export async function verifyGameRuntimeHash (root: string, runtimePath: string, expectedSha256: string): Promise<boolean> {
+  try {
+    const content = await readStoredGameHtml(root, runtimePath)
+    const actualSha256 = createHash('sha256').update(content).digest('hex')
+    return actualSha256 === expectedSha256
+  } catch {
+    return false
+  }
+}
+
 export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<string, string> {
   const origins = (Array.isArray(parentOrigin) ? parentOrigin : [ parentOrigin ])
     .map(origin => new URL(origin).origin)
@@ -337,7 +347,18 @@ function validateInlineCode (html: string) {
     /\beval\s*\(/i,
     /\bFunction\s*\(/i,
     /\bsetTimeout\s*\(\s*['"]/i,
-    /\bsetInterval\s*\(\s*['"]/i
+    /\bsetInterval\s*\(\s*['"]/i,
+    /\bWorker\s*\(/i,
+    /\bSharedWorker\s*\(/i,
+    /\bServiceWorker\b/i,
+    /\bindexedDB\b/i,
+    /\bwebkitIndexedDB\b/i,
+    /\bBroadcastChannel\b/i,
+    /\bnavigator\.(?:clipboard|permissions|mediaDevices|wakeLock|usb|bluetooth|serial)\b/i,
+    /\bNotification\s*\(/i,
+    /\bPushManager\b/i,
+    /\bCacheStorage\b/i,
+    /\bOffscreenCanvas\b/i
   ]
 
   if (forbiddenPatterns.some(pattern => pattern.test(html))) throw new GameRuntimeValidationError('Network and top-level navigation APIs are not supported')

@@ -13,7 +13,7 @@ import { GameReviewModel } from '@server/models/game/game-review.js'
 import { GameRatingModel, type GameRatingType } from '@server/models/game/game-rating.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
-import { apiRateLimiter, asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
+import { apiRateLimiter, asyncMiddleware, authenticate, gameCoinRateLimiter, gameCommentRateLimiter, gameFavoriteRateLimiter, gameRatingRateLimiter, gameReviewRateLimiter, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
 import { canDeleteGameComment, isSupportedGameRating, normalizeGameRating } from '../../../lib/games/game-community-policy.js'
@@ -24,18 +24,18 @@ gameCommunityRouter.use(apiRateLimiter)
 
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
 gameCommunityRouter.get('/:uuid/reviews', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReviews))
-gameCommunityRouter.put('/:uuid/review', gameUUIDValidator, authenticate, asyncMiddleware(upsertReview))
+gameCommunityRouter.put('/:uuid/review', gameUUIDValidator, authenticate, gameReviewRateLimiter, asyncMiddleware(upsertReview))
 gameCommunityRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
 gameCommunityRouter.get('/:uuid/comments/:commentId/replies', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReplies))
-gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, asyncMiddleware(addComment))
-gameCommunityRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, asyncMiddleware(replyToComment))
-gameCommunityRouter.put('/:uuid/comments/:commentId/like', gameUUIDValidator, authenticate, asyncMiddleware(likeComment))
+gameCommunityRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, gameCommentRateLimiter, asyncMiddleware(addComment))
+gameCommunityRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, gameCommentRateLimiter, asyncMiddleware(replyToComment))
+gameCommunityRouter.put('/:uuid/comments/:commentId/like', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(likeComment))
 gameCommunityRouter.delete('/:uuid/comments/:commentId', gameUUIDValidator, authenticate, asyncMiddleware(deleteComment))
-gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, asyncMiddleware(rateGame))
-gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, asyncMiddleware(favoriteGame))
+gameCommunityRouter.put('/:uuid/rate', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(rateGame))
+gameCommunityRouter.put('/:uuid/favorite', gameUUIDValidator, authenticate, gameFavoriteRateLimiter, asyncMiddleware(favoriteGame))
 gameCommunityRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
 gameCommunityRouter.put('/author/:accountId/follow', authenticate, asyncMiddleware(followAccount))
-gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, asyncMiddleware(coinGame))
+gameCommunityRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, gameCoinRateLimiter, asyncMiddleware(coinGame))
 
 export { gameCommunityRouter }
 
