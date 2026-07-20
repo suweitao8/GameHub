@@ -778,3 +778,28 @@
   width: 4px;
 }
 
+/* Homepage tags row */
+.home-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.home-tag-link {
+  background: #f7f8f9;
+  border: 1px solid #e5e6e8;
+  border-radius: 999px;
+  color: var(--game-muted);
+  font-size: 0.78rem;
+  padding: 0.35rem 0.65rem;
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.home-tag-link:hover {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  color: var(--game-brand-deep);
+}
+
+

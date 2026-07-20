@@ -21,6 +21,7 @@ import { GameEventDetailComponent } from './game-event-detail.component'
 import { GameEventAdminComponent } from './game-event-admin.component'
 import { GameFollowingComponent } from './game-following.component'
 import { GameArticlesComponent } from './game-articles.component'
+import { GameTagsCloudComponent } from './game-tags-cloud.component'
 
 export default [
   {
@@ -115,6 +116,11 @@ export default [
         path: 'articles',
         component: GameArticlesComponent,
         data: { meta: { title: $localize`Game articles` } }
+      },
+      {
+        path: 'tags',
+        component: GameTagsCloudComponent,
+        data: { meta: { title: $localize`Popular tags` } }
       },
       {
         path: 'events',

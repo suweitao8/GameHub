@@ -125,6 +125,20 @@
           <div class="game-grid">@for (game of featured().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div>
         </section>
       }
+
+      @if (sort() === 'recommended' && !searchMode() && !category() && !publishedAfter() && view() !== 'following') {
+        <section class="game-section tags-section" aria-labelledby="home-tags-title">
+          <div class="game-section-heading compact-section-heading">
+            <h2 id="home-tags-title">热门标签</h2>
+            <a class="section-more-link" routerLink="/games/tags">查看全部 <my-global-icon iconName="chevron-right" /></a>
+          </div>
+          <div class="home-tags-row">
+            @for (cat of visibleCategories(); track cat.id) {
+              <a class="home-tag-link" routerLink="/games" [queryParams]="cat.query">{{ cat.title }}</a>
+            }
+          </div>
+        </section>
+      }
     </div>
   }
 </main>
