@@ -22,6 +22,7 @@ import { createGameNotification } from '../../../lib/games/game-notifications.js
 import { traceGameOperation } from '../../../lib/games/game-tracing.js'
 import { invalidateRecommendationCache } from '../../../lib/games/game-recommendations.js'
 import { awardExp } from '../../../lib/games/game-exp.js'
+import { GameActivityModel } from '@server/models/game/game-activity.js'
 
 type CommentSortOption = 'hot' | 'new' | 'old'
 
@@ -179,7 +180,16 @@ async function upsertReview (req: express.Request, res: express.Response) {
     include: [ commentAccountInclude ]
   })
   if (!hydratedReview) return res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
-  if (created) awardExp(user.Account.id, 'REVIEW').catch(() => undefined)
+  if (created) {
+    awardExp(user.Account.id, 'REVIEW').catch(() => undefined)
+
+    GameActivityModel.createActivity({
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'review',
+      message: `${user.username} 评价了游戏《${game.title}》`
+    }).catch(() => undefined)
+  }
   return res.json({ review: formatReviews([ hydratedReview ], game)[0] })
 }
 
@@ -264,6 +274,13 @@ async function addComment (req: express.Request, res: express.Response) {
   }
   awardExp(user.Account.id, 'COMMENT').catch(() => undefined)
 
+  GameActivityModel.createActivity({
+    actorAccountId: user.Account.id,
+    gameId: game.id,
+    kind: 'comment',
+    message: `${user.username} 评论了游戏《${game.title}》`
+  }).catch(() => undefined)
+
   return res.status(HttpStatusCode.CREATED_201).json({ comment: (await formatComments([ hydratedComment ], game, user))[0] })
 }
 
@@ -297,6 +314,14 @@ async function replyToComment (req: express.Request, res: express.Response) {
     })
   }
   awardExp(user.Account.id, 'COMMENT').catch(() => undefined)
+
+  GameActivityModel.createActivity({
+    actorAccountId: user.Account.id,
+    gameId: game.id,
+    kind: 'reply',
+    message: `${user.username} 回复了游戏《${game.title}》的评论`
+  }).catch(() => undefined)
+
   return res.status(HttpStatusCode.CREATED_201).json({ comment: (await formatComments([ hydratedComment ], game, user))[0] })
 }
 
@@ -384,6 +409,13 @@ async function rateGame (req: express.Request, res: express.Response) {
       message: `${user.username} 赞了你的游戏`
     })
     awardExp(user.Account.id, 'LIKE').catch(() => undefined)
+
+    GameActivityModel.createActivity({
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'like',
+      message: `${user.username} 赞了游戏《${game.title}》`
+    }).catch(() => undefined)
   }
   invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
@@ -439,6 +471,14 @@ async function coinGame (req: express.Request, res: express.Response) {
   })
 
   awardExp(user.Account.id, 'COIN').catch(() => undefined)
+
+  GameActivityModel.createActivity({
+    actorAccountId: user.Account.id,
+    gameId: game.id,
+    kind: 'coin',
+    message: `${user.username} 给游戏《${game.title}》投了 ${result.coinsGiven} 枚硬币`
+  }).catch(() => undefined)
+
   invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.json({ coins: result.coinsGiven, ...result })
 }
@@ -463,7 +503,16 @@ async function favoriteGame (req: express.Request, res: express.Response) {
     })
   }
 
-  if (req.body.favorite) awardExp(user.Account.id, 'FAVORITE').catch(() => undefined)
+  if (req.body.favorite) {
+    awardExp(user.Account.id, 'FAVORITE').catch(() => undefined)
+
+    GameActivityModel.createActivity({
+      actorAccountId: user.Account.id,
+      gameId: game.id,
+      kind: 'favorite',
+      message: `${user.username} 收藏了游戏《${game.title}》`
+    }).catch(() => undefined)
+  }
   invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.json({ favorite: req.body.favorite })
 }

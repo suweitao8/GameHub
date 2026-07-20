@@ -26,6 +26,7 @@ import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
+import { GameActivityModel } from '@server/models/game/game-activity.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
@@ -591,6 +592,15 @@ async function createGame (req: express.Request, res: express.Response) {
 
       auditLogger.create(getAuditIdFromRes(res), new GameAuditView(formatGame(game)))
       awardExp(user.Account.id, 'PUBLISH_GAME').catch(() => undefined)
+
+      if (game.status === 'published') {
+        GameActivityModel.createActivity({
+          actorAccountId: user.Account.id,
+          gameId: game.id,
+          kind: 'publish',
+          message: `${user.username} 发布了游戏《${game.title}》`
+        }).catch(() => undefined)
+      }
 
       return res.status(HttpStatusCode.CREATED_201).json(formatGame(game))
     } catch (err) {
