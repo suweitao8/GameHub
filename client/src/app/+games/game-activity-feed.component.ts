@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import type { GameActivity } from '../games.service'
 import { GamesService } from '../games.service'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   selector: 'my-game-activity-feed',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, GlobalIconComponent],
   template: `
     <div class="feed-container">
       <div class="feed-header">
@@ -18,7 +19,24 @@ import { GamesService } from '../games.service'
         </div>
       </div>
 
+      @if (loading() && activities().length === 0) {
+        <div class="feed-skeleton-list">
+          @for (i of [1,2,3,4,5,6]; track $index) {
+            <div class="feed-skeleton-item">
+              <div class="skeleton-avatar shimmer"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-line shimmer" style="width:70%"></div>
+                <div class="skeleton-line shimmer" style="width:40%"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
       <div class="feed-list">
+        @if (refreshing()) {
+          <div class="feed-refresh-bar" role="status"><my-global-icon iconName="refresh-cw" /><span>刷新中...</span></div>
+        }
         @for (activity of activities(); track activity.id) {
           <div class="feed-item" [attr.data-kind]="activity.kind">
             <div class="feed-avatar">
@@ -42,16 +60,32 @@ import { GamesService } from '../games.service'
             </div>
           </div>
         } @empty {
-          <div class="feed-empty">
-            <span>暂无动态</span>
-            <p>关注创作者或浏览发现页，查看最新游戏动态</p>
-          </div>
+          @if (!loading()) {
+            <div class="feed-empty">
+              @if (tabError()) {
+                <span>加载失败</span>
+                <p>请检查网络后重试</p>
+                <button type="button" (click)="retry()">重新加载</button>
+              } @else if (tab() === 'following') {
+                <span>关注列表暂无动态</span>
+                <p>去发现页浏览更多内容</p>
+                <button type="button" (click)="setTab('public')">去看看</button>
+              } @else {
+                <span>暂无社区动态</span>
+                <p>成为第一个分享游戏动态的玩家</p>
+              }
+            </div>
+          }
         }
       </div>
 
-      @if (hasMore()) {
-        <button class="load-more" (click)="loadMore()" [disabled]="loading()">
-          {{ loading() ? '加载中...' : '加载更多' }}
+      @if (hasMore() && activities().length > 0) {
+        <button class="load-more" (click)="loadMore()" [disabled]="loadingMore()">
+          @if (loadingMore()) {
+            <my-global-icon iconName="loader" /><span>加载中...</span>
+          } @else {
+            <span>加载更多</span>
+          }
         </button>
       }
     </div>
@@ -85,6 +119,28 @@ import { GamesService } from '../games.service'
 
     .feed-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
+    .feed-refresh-bar {
+      align-items: center;
+      background: var(--game-brand-soft);
+      border-radius: var(--game-radius);
+      color: var(--game-brand-deep);
+      display: flex;
+      font-size: 0.82rem;
+      gap: 0.5rem;
+      justify-content: center;
+      padding: 0.5rem;
+    }
+
+    .feed-refresh-bar my-global-icon {
+      animation: spin 0.8s linear infinite;
+      height: 0.9rem;
+      width: 0.9rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .feed-item {
       display: flex;
       align-items: flex-start;
@@ -93,7 +149,12 @@ import { GamesService } from '../games.service'
       border-radius: var(--game-radius);
       background: var(--game-surface);
       border: 1px solid var(--game-border);
-      transition: all 0.2s;
+      animation: feedItemIn 300ms ease-out;
+    }
+
+    @keyframes feedItemIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .feed-item:hover {
@@ -144,7 +205,16 @@ import { GamesService } from '../games.service'
     }
 
     .feed-empty span { font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
-    .feed-empty p { font-size: 0.8rem; }
+    .feed-empty p { font-size: 0.8rem; margin: 0 0 1rem; }
+    .feed-empty button {
+      background: var(--game-brand);
+      border: 1px solid var(--game-brand);
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.45rem 0.9rem;
+    }
 
     .load-more {
       width: 100%;
@@ -157,10 +227,45 @@ import { GamesService } from '../games.service'
       color: var(--game-text);
       font-size: 0.9rem;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
     }
 
+    .load-more my-global-icon { animation: spin 0.8s linear infinite; height: 0.85rem; width: 0.85rem; }
     .load-more:hover:not(:disabled) { background: var(--game-border); }
     .load-more:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Skeleton */
+    .feed-skeleton-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .feed-skeleton-item {
+      align-items: center;
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: var(--game-radius);
+      background: var(--game-surface);
+      border: 1px solid var(--game-border);
+    }
+    .skeleton-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: #eceff3;
+      flex-shrink: 0;
+    }
+    .skeleton-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    .skeleton-line {
+      height: 0.75rem;
+      border-radius: 4px;
+      background: #eceff3;
+    }
   `]
 })
 export class GameActivityFeedComponent implements OnInit {
@@ -168,6 +273,9 @@ export class GameActivityFeedComponent implements OnInit {
   activities = signal<GameActivity[]>([])
   tab = signal<'following' | 'public'>('following')
   loading = signal(false)
+  loadingMore = signal(false)
+  refreshing = signal(false)
+  tabError = signal(false)
   hasMore = signal(true)
   offset = 0
 
@@ -176,14 +284,17 @@ export class GameActivityFeedComponent implements OnInit {
   }
 
   setTab (tab: 'following' | 'public') {
+    if (this.tab() === tab) return
     this.tab.set(tab)
     this.offset = 0
     this.activities.set([])
+    this.tabError.set(false)
     this.loadFeed()
   }
 
   loadFeed () {
     this.loading.set(true)
+    this.tabError.set(false)
     const service = this.tab() === 'following'
       ? this.gamesService.getFeed(this.offset, 20)
       : this.gamesService.getPublicFeed(this.offset, 20)
@@ -193,13 +304,27 @@ export class GameActivityFeedComponent implements OnInit {
         this.activities.update(prev => [...prev, ...result.data])
         this.hasMore.set(result.data.length === 20)
         this.loading.set(false)
+        this.refreshing.set(false)
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        if (this.activities().length === 0) this.tabError.set(true)
+        this.loading.set(false)
+        this.refreshing.set(false)
+        this.loadingMore.set(false)
+      }
     })
   }
 
   loadMore () {
     this.offset += 20
+    this.loadingMore.set(true)
+    this.loadFeed()
+  }
+
+  retry () {
+    this.offset = 0
+    this.activities.set([])
+    this.tabError.set(false)
     this.loadFeed()
   }
 
