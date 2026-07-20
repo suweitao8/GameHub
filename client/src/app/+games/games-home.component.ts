@@ -38,6 +38,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly sort = signal<GamesListParams['sort']>('recommended')
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
+  readonly loadingMore = signal(false)
   readonly carouselIndex = signal(0)
   readonly featuredGradients = signal<Record<string, string>>({})
   readonly featured = signal<Game[]>([])
@@ -240,6 +241,36 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       : this.recommendedOffset() + 8
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
+  }
+
+  loadMoreRecommended () {
+    if (this.loadingMore() || this.loading()) return
+    const total = this.recommendedTotal()
+    const current = this.recommended().length
+    if (current >= total) return
+
+    this.loadingMore.set(true)
+    const common: GamesListParams = {
+      search: this.search() || undefined,
+      category: this.category() || undefined,
+      publishedAfter: this.publishedAfter() || undefined,
+      view: this.view() === 'following' ? 'following' : undefined,
+      count: 8,
+      sort: this.sort(),
+      start: current
+    }
+    this.gamesService.list(common).subscribe({
+      next: result => {
+        this.recommended.update(prev => [...prev, ...result.data])
+        this.recommendedTotal.set(result.total)
+        this.loadingMore.set(false)
+      },
+      error: () => this.loadingMore.set(false)
+    })
+  }
+
+  hasMoreToLoad () {
+    return this.recommended().length < this.recommendedTotal()
   }
 
   shufflePopular () {
