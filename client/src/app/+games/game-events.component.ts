@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { Component, inject, signal, OnInit, computed } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -30,15 +30,20 @@ export type GameEvent = {
       <div class="events-header">
         <h2>社区活动与比赛</h2>
         <p>和玩家一起参加活动、交流玩法，发现新的挑战。</p>
+        <div class="events-filters">
+          @for (filter of filters; track filter.id) {
+            <button [class.active]="currentFilter() === filter.id" (click)="setFilter(filter.id)">{{ filter.label }}</button>
+          }
+        </div>
       </div>
 
       @if (loading()) {
         <div class="events-skeleton">
           <div class="event-card shimmer" *ngFor="let _ of [1,2,3]"></div>
         </div>
-      } @else if (events().length) {
+      } @else if (filteredEvents().length) {
         <div class="events-grid">
-          @for (event of events(); track event.id) {
+          @for (event of filteredEvents(); track event.id) {
             <a class="event-card" [routerLink]="['/games/event', event.slug]">
               <div class="event-cover">
                 @if (event.coverPath) {
@@ -74,6 +79,35 @@ export type GameEvent = {
     .events-header { margin-bottom: 1.5rem; }
     .events-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .events-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+
+    .events-filters {
+      display: flex;
+      gap: 0.35rem;
+      margin-top: 1rem;
+    }
+
+    .events-filters button {
+      background: #fff;
+      border: 1px solid var(--game-border);
+      border-radius: 6px;
+      color: var(--game-muted);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.4rem 0.85rem;
+      transition: all 160ms ease;
+    }
+
+    .events-filters button:hover {
+      background: #f0f2f4;
+      color: var(--game-text);
+    }
+
+    .events-filters button.active {
+      background: var(--game-brand);
+      border-color: var(--game-brand);
+      color: #fff;
+    }
 
     .events-grid {
       display: grid;
@@ -160,6 +194,20 @@ export class GameEventsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   events = signal<GameEvent[]>([])
   loading = signal(false)
+  currentFilter = signal<'all' | 'upcoming' | 'ongoing' | 'ended'>('all')
+
+  filters = [
+    { id: 'all' as const, label: '全部' },
+    { id: 'upcoming' as const, label: '即将开始' },
+    { id: 'ongoing' as const, label: '进行中' },
+    { id: 'ended' as const, label: '已结束' }
+  ]
+
+  filteredEvents = computed(() => {
+    const filter = this.currentFilter()
+    if (filter === 'all') return this.events()
+    return this.events().filter(e => e.status === filter)
+  })
 
   ngOnInit () {
     this.loading.set(true)
@@ -170,6 +218,10 @@ export class GameEventsComponent implements OnInit {
       },
       error: () => this.loading.set(false)
     })
+  }
+
+  setFilter (filter: 'all' | 'upcoming' | 'ongoing' | 'ended') {
+    this.currentFilter.set(filter)
   }
 
   eventTypeLabel (type: string) {
