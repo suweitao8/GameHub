@@ -68,6 +68,33 @@
   text-transform: uppercase;
 }
 
+/* Global scrollbar styling */
+@supports (scrollbar-color: auto) {
+  :root {
+    scrollbar-color: #c9cdd1 #f7f8f9;
+    scrollbar-width: thin;
+  }
+}
+
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f7f8f9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c9cdd1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8adb3;
+}
+
 .game-section-heading {
   align-items: end;
   display: flex;

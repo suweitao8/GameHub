@@ -828,6 +828,7 @@
 .collection-pill:hover {
   border-color: var(--game-brand);
   box-shadow: var(--game-shadow);
+  transform: translateY(-1px);
 }
 
 .collection-pill-cover {
