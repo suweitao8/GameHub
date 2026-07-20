@@ -199,9 +199,9 @@ export class GamesService {
     return this.http.get<GameCommunity>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/community`)
   }
 
-  comments (uuid: string, sort: 'hot' | 'new' | 'old' = 'hot'): Observable<{ total: number, data: GameComment[] }> {
+  comments (uuid: string, sort: 'hot' | 'new' | 'old' = 'hot', start = 0, count = 20): Observable<{ total: number, data: GameComment[] }> {
     return this.http.get<{ total: number, data: GameComment[] }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments?sort=${sort}`
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments?sort=${sort}&start=${start}&count=${count}`
     )
   }
 

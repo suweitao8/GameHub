@@ -38,6 +38,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly comments = signal<GameComment[]>([])
   readonly commentsLoading = signal(true)
   readonly commentsError = signal('')
+  readonly commentsTotal = signal(0)
+  readonly commentsLoadingMore = signal(false)
   readonly commentDraft = signal('')
   readonly reviews = signal<GameReview[]>([])
   readonly reviewsLoading = signal(true)
@@ -136,6 +138,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gamesService.comments(uuid, this.commentSort()).subscribe({
           next: result => {
             this.comments.set(result.data)
+            this.commentsTotal.set(result.total)
             this.commentsLoading.set(false)
           },
           error: () => {
@@ -298,6 +301,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gamesService.comments(this.currentUuid, sort).subscribe({
       next: result => {
         this.comments.set(result.data)
+        this.commentsTotal.set(result.total)
         this.commentsLoading.set(false)
       },
       error: () => {
@@ -305,6 +309,23 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.commentsError.set('评论重新加载失败')
       }
     })
+  }
+
+  loadMoreComments () {
+    if (this.commentsLoadingMore() || this.comments().length >= this.commentsTotal()) return
+    this.commentsLoadingMore.set(true)
+    this.gamesService.comments(this.currentUuid, this.commentSort(), this.comments().length, 20).subscribe({
+      next: result => {
+        this.comments.update(prev => [...prev, ...result.data])
+        this.commentsTotal.set(result.total)
+        this.commentsLoadingMore.set(false)
+      },
+      error: () => this.commentsLoadingMore.set(false)
+    })
+  }
+
+  hasMoreComments () {
+    return this.comments().length < this.commentsTotal()
   }
 
   submitComment () {
