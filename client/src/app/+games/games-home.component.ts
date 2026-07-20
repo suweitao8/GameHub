@@ -44,6 +44,14 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
+  readonly sortKinds = [
+    { id: 'recommended' as GamesListParams['sort'], label: '综合' },
+    { id: 'latest' as GamesListParams['sort'], label: '最新' },
+    { id: 'popular' as GamesListParams['sort'], label: '最热' },
+    { id: 'likes' as GamesListParams['sort'], label: '点赞' },
+    { id: 'coins' as GamesListParams['sort'], label: '投币' },
+    { id: 'favorites' as GamesListParams['sort'], label: '收藏' }
+  ]
   readonly categories = [
     { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。', query: { category: 'arcade' } },
     { id: 'adventure', title: '冒险', description: '探索地图，发现隐藏的故事。', query: { category: 'adventure' } },
@@ -315,6 +323,24 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     const sort = (event.target as HTMLSelectElement).value as GamesListParams['sort']
     this.sort.set(sort || 'recommended')
     this.loadGames()
+  }
+
+  onSortPill (sort: GamesListParams['sort']) {
+    if (this.sort() === sort) return
+    this.sort.set(sort)
+    this.loadGames()
+  }
+
+  sortLabel () {
+    const labels: Record<string, string> = {
+      recommended: '综合排序',
+      latest: '最新发布',
+      popular: '最多游玩',
+      likes: '最多点赞',
+      coins: '最多投币',
+      favorites: '最多收藏'
+    }
+    return labels[this.sort()] || '排序'
   }
 
   onPublishedAfterChange (event: Event) {

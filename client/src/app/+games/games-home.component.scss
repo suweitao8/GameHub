@@ -94,6 +94,39 @@
   min-height: 2.8rem;
 }
 
+.sort-pills {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.sort-pills button {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 6px;
+  color: var(--game-muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
+}
+
+.sort-pills button:hover {
+  background: #f0f2f4;
+  border-color: #c9cdd1;
+  color: var(--game-text);
+}
+
+.sort-pills button.active {
+  background: var(--game-brand);
+  border-color: var(--game-brand);
+  color: #fff;
+}
+
+.sort-pills button:active {
+  transform: scale(0.95);
+}
+
 .shuffle-button {
   align-items: center;
   display: inline-flex;
