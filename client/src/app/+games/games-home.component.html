@@ -53,7 +53,21 @@
           @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [style.letterSpacing]="item.title.length === 2 ? '0.5em' : item.title.length === 3 ? '0.2em' : 'normal'">{{ item.title }}</a> }
         </div>
       </nav>
-      @if (view() === 'following') { <div class="game-empty-feed" role="status">暂时没有动态</div> } @else { <div class="category-empty" aria-label="暂无游戏"></div> }
+      @if (view() === 'following') { 
+        <div class="game-empty-feed" role="status">
+          <div class="empty-feed-icon" aria-hidden="true">👥</div>
+          <span class="empty-feed-title">关注列表暂无动态</span>
+          <p class="empty-feed-desc">去发现页浏览更多内容</p>
+          <a routerLink="/games">去发现</a>
+        </div>
+      } @else { 
+        <div class="category-empty" aria-label="暂无游戏">
+          <div class="empty-icon" aria-hidden="true">🎮</div>
+          <span class="empty-title">还没有游戏</span>
+          <p class="empty-desc">成为第一个分享作品的创作者</p>
+          <a routerLink="/games/upload" class="empty-cta">上传游戏</a>
+        </div>
+      }
     </div>
   } @else {
     <div class="game-community-content">
