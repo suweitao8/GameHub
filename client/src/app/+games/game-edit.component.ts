@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
 import { getGameActionErrorMessage } from './game-action-feedback'
@@ -18,6 +18,7 @@ export class GameEditComponent implements OnInit {
   readonly submitting = signal(false)
   readonly message = signal('')
   readonly error = signal('')
+  readonly fileError = signal('')
   readonly uuid = this.route.snapshot.paramMap.get('uuid') || ''
   file: File | null = null
   cover: File | null = null
@@ -26,6 +27,15 @@ export class GameEditComponent implements OnInit {
   instructions = ''
   category = ''
   tags = ''
+
+  tagCount = computed(() => this.tags.split(',').filter(t => t.trim()).length)
+  isValid = computed(() => this.title.trim().length > 0 && this.category.trim().length > 0)
+  submittingMessage = computed(() => {
+    if (this.submitting()) return '正在保存...'
+    if (!this.title.trim()) return '请输入标题'
+    if (!this.category.trim()) return '请选择分类'
+    return '保存修改'
+  })
 
   ngOnInit () {
     this.gamesService.get(this.uuid).subscribe({
@@ -45,16 +55,27 @@ export class GameEditComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0] || null
     if (file && !isSupportedGameRuntimeFilename(file.name)) {
       this.file = null
-      this.error.set('只支持单个 .html 或 .htm 文件。')
+      this.fileError.set('只支持 .html 或 .htm 文件')
+      return
+    }
+    if (file && file.size > 20 * 1024 * 1024) {
+      this.file = null
+      this.fileError.set('文件不能超过 20MB')
       return
     }
 
+    this.fileError.set('')
     this.error.set('')
     this.file = file
   }
+
   onCoverChange (event: Event) { this.cover = (event.target as HTMLInputElement).files?.[0] || null }
 
   submit () {
+    if (!this.isValid()) {
+      this.error.set('请填写游戏标题并选择分类。')
+      return
+    }
     this.submitting.set(true)
     this.error.set('')
     this.gamesService.update(this.uuid, {
@@ -64,5 +85,9 @@ export class GameEditComponent implements OnInit {
       next: game => { this.submitting.set(false); this.message.set(game.status === 'pending' ? '修改已提交，等待重新审核。' : '修改已保存。') },
       error: error => { this.submitting.set(false); this.error.set(getGameActionErrorMessage(error)) }
     })
+  }
+
+  formatFileSize (bytes: number) {
+    return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`
   }
 }

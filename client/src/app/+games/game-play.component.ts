@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common'
 import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameComment, GameCommunity, GameReview } from './games.service'
@@ -21,6 +21,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
   private readonly sanitizer = inject(DomSanitizer)
+  private readonly meta = inject(Meta, { optional: true })
+  private readonly titleService = inject(Title, { optional: true })
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private reloadKey = 0
@@ -113,6 +115,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gamesService.get(uuid).subscribe({
       next: game => {
         this.game.set(game)
+        this.updateMetaTags(game)
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
@@ -417,6 +420,46 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   closeShareDialog () {
     this.shareDialog.set(false)
     this.shareCopied.set(false)
+  }
+
+  private updateMetaTags (game: Game) {
+    if (!this.titleService || !this.meta) return
+
+    const title = `${game.title} - GameHub`
+    this.titleService.setTitle(title)
+
+    const baseUrl = window.location.origin
+    const gameUrl = `${baseUrl}/games/${game.uuid}`
+    const description = game.description?.slice(0, 200) || '试玩这个有趣的网页小游戏'
+
+    this.setMeta('description', description)
+    this.setMeta('og:title', title)
+    this.setMeta('og:description', description)
+    this.setMeta('og:url', gameUrl)
+    this.setMeta('og:type', 'article')
+    this.setMeta('og:site_name', 'GameHub')
+    this.setMeta('twitter:card', 'summary_large_image')
+    this.setMeta('twitter:title', title)
+    this.setMeta('twitter:description', description)
+    this.setMeta('twitter:url', gameUrl)
+
+    if (game.coverPath) {
+      this.setMeta('og:image', game.coverPath)
+      this.setMeta('twitter:image', game.coverPath)
+    }
+  }
+
+  private setMeta (name: string, content: string) {
+    if (!this.meta) return
+
+    const isProperty = name.startsWith('og:')
+    const key = isProperty ? 'property' : 'name'
+    const existing = this.meta.getTag(`${key}="${name}"`)
+    if (existing) {
+      this.meta.updateTag({ [key]: name, content })
+    } else {
+      this.meta.addTag({ [key]: name, content })
+    }
   }
 
   focusGame () {

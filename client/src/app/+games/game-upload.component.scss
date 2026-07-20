@@ -149,6 +149,31 @@
   margin: 0; }
 .form-success { color: var(--game-success);
   margin: 0; }
+
+/* Form validation hints */
+.field-hint { color: var(--game-muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+  margin: 0.3rem 0 0; }
+.field-hint.error { color: var(--game-danger); }
+.char-count { color: var(--game-muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-align: right; }
+
+.file-input-label input[aria-invalid="true"] {
+  border-color: var(--game-danger);
+}
+
+.text-input-label {
+  position: relative;
+}
+.text-input-label .char-count {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.7rem;
+}
+
 .upload-success-links { display: flex;
   flex-wrap: wrap;
   gap: 0.8rem; }
