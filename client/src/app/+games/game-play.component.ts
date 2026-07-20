@@ -44,6 +44,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly reviews = signal<GameReview[]>([])
   readonly reviewsLoading = signal(true)
   readonly reviewsError = signal('')
+  readonly reviewsTotal = signal(0)
+  readonly reviewsLoadingMore = signal(false)
   readonly reviewDraft = signal('')
   readonly reviewScore = signal(5)
   readonly reviewScores = [ 1, 2, 3, 4, 5 ]
@@ -149,6 +151,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gamesService.reviews(uuid).subscribe({
           next: result => {
             this.reviews.set(result.data)
+            this.reviewsTotal.set(result.total)
             this.reviewsLoading.set(false)
           },
           error: () => {
@@ -326,6 +329,23 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   hasMoreComments () {
     return this.comments().length < this.commentsTotal()
+  }
+
+  loadMoreReviews () {
+    if (this.reviewsLoadingMore() || this.reviews().length >= this.reviewsTotal()) return
+    this.reviewsLoadingMore.set(true)
+    this.gamesService.reviews(this.currentUuid, this.reviews().length, 20).subscribe({
+      next: result => {
+        this.reviews.update(prev => [...prev, ...result.data])
+        this.reviewsTotal.set(result.total)
+        this.reviewsLoadingMore.set(false)
+      },
+      error: () => this.reviewsLoadingMore.set(false)
+    })
+  }
+
+  hasMoreReviews () {
+    return this.reviews().length < this.reviewsTotal()
   }
 
   submitComment () {

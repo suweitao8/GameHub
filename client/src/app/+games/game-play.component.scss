@@ -934,6 +934,36 @@
   margin-bottom: 0.5rem;
 }
 
+/* Reviews load more */
+.reviews-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+}
+
+.reviews-load-more button {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 6px;
+  color: var(--game-text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1.25rem;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.reviews-load-more button:hover:not(:disabled) {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  color: var(--game-brand-deep);
+}
+
+.reviews-load-more button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Comments load more */
 .comments-load-more {
   display: flex;

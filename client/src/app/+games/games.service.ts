@@ -205,8 +205,8 @@ export class GamesService {
     )
   }
 
-  reviews (uuid: string): Observable<{ total: number, data: GameReview[] }> {
-    return this.http.get<{ total: number, data: GameReview[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reviews`)
+  reviews (uuid: string, start = 0, count = 20): Observable<{ total: number, data: GameReview[] }> {
+    return this.http.get<{ total: number, data: GameReview[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reviews?start=${start}&count=${count}`)
   }
 
   replies (uuid: string, commentId: number): Observable<{ total: number, data: GameComment[] }> {

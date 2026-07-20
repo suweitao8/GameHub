@@ -106,6 +106,7 @@
                   <article class="game-review-item"><div class="review-author"><strong>{{ review.account?.displayName || review.account?.name || '已注销用户' }}</strong>@if (review.isAuthor) { <span>作者</span> }<time>{{ review.createdAt | date:'yyyy-MM-dd HH:mm' }}</time></div><div class="review-score" [attr.aria-label]="review.score + ' 分'">@for (score of reviewScores; track score) { <my-global-icon [class.active]="score <= review.score" iconName="star" /> }</div><p>{{ review.text }}</p></article>
                 } @empty { <p class="empty-reviews">还没有评价，玩过之后留下第一条吧。</p> }
               }
+              @if (hasMoreReviews()) { <div class="reviews-load-more"><button type="button" [disabled]="reviewsLoadingMore()" (click)="loadMoreReviews()">{{ reviewsLoadingMore() ? '加载中...' : '加载更多评价' }}</button></div> }
             </div>
           </section>
         </section>
