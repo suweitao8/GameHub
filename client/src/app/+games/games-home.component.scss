@@ -563,7 +563,13 @@
   border-radius: 50%;
   height: 0.45rem;
   padding: 0;
+  position: relative;
+  transition: background-color 200ms ease, width 300ms ease;
   width: 0.45rem;
+}
+
+.featured-dots button:hover {
+  background: rgb(255 255 255 / 80%);
 }
 
 .featured-dots button.active {

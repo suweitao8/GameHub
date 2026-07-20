@@ -119,7 +119,7 @@
                   </div>
                   <div class="featured-caption" [style.background]="featuredGradient(featuredGame)"><h3>{{ featuredGame.title }}</h3></div>
                 </a>
-                <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
+                <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" [title]="game.title" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
                 <div class="carousel-progress-bar" aria-hidden="true">
                   <div class="carousel-progress-fill" [style.width.%]="carouselProgress()"></div>
                 </div>
