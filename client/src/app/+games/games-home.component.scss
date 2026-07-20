@@ -517,6 +517,26 @@
   transform: rotate(180deg);
 }
 
+/* Carousel progress bar */
+.carousel-progress-bar {
+  background: rgb(255 255 255 / 20%);
+  border-radius: 2px;
+  bottom: 0;
+  height: 3px;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+}
+
+.carousel-progress-fill {
+  background: var(--game-brand);
+  border-radius: 2px;
+  height: 100%;
+  transition: width 0.1s linear;
+}
+
 .featured-side-grid {
   display: grid;
   gap: 1rem;
