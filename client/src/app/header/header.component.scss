@@ -50,52 +50,34 @@
 
   background-color: transparent;
   box-sizing: border-box;
-  border-bottom: 1px solid #eceef0;
-  box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
+  border-bottom: 1px solid transparent;
   color: var(--game-text-primary);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   column-gap: 1rem;
   align-items: flex-start;
-  min-height: var(--header-height);
+  min-height: 45px;
   isolation: isolate;
   overflow: visible;
-  position: relative;
-  transition: min-height 180ms ease, padding 180ms ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
   z-index: 10;
 }
 
-:host-context(.game-experience) .root::before {
-  background-image: url('../../assets/images/gamehub-header-banner-10x1.png');
-  background-position: center top;
-  background-repeat: no-repeat;
-  background-size: auto 200px;
-  content: '';
-  filter: saturate(1.18) contrast(1.08) brightness(0.96);
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: -1;
-}
-
-:host-context(.game-experience) .root > * {
-  position: relative;
-  z-index: 1;
-}
-
 :host-context(.game-experience.game-header-scrolled) .root {
-  --co-root-padding: 0;
+  --co-root-padding: 0.65rem;
   --game-header-nav-foreground: rgb(30 30 30);
 
   background-color: #fff;
-  background-image: none;
+  border-bottom: 1px solid #eceef0;
+  box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
   color: rgb(30 30 30);
-  height: 45px;
-  min-height: 0;
-  overflow: hidden;
 }
 
-:host-context(.game-experience.game-header-scrolled) .root::before {
+:host-context(.game-experience) .root::before {
   display: none;
 }
 

@@ -4,6 +4,27 @@
   padding-bottom: 4rem;
 }
 
+.game-home-banner {
+  height: 200px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+
+  img {
+    display: block;
+    height: 200px;
+    object-fit: cover;
+    object-position: center top;
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .game-home-banner {
+    display: none;
+  }
+}
+
 .games-home > .game-community-content {
   padding-top: 0.1rem;
 }
