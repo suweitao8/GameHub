@@ -608,6 +608,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown', [ '$event' ])
   onKeydown (event: KeyboardEvent) {
+    // Lightbox ESC/arrow keys take priority
+    if (this.lightboxOpen()) {
+      if (event.key === 'Escape') { event.preventDefault(); this.closeLightbox(); return }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); this.lightboxPrev(); return }
+      if (event.key === 'ArrowRight') { event.preventDefault(); this.lightboxNext(); return }
+    }
+
     // Only handle when game is loaded and user is not typing in an input
     const target = event.target as HTMLElement
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
