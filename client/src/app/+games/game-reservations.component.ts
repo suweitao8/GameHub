@@ -1,13 +1,14 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { RouterModule } from '@angular/router'
+import { RouterLink } from '@angular/router'
 import { GamesService } from '../games.service'
 import type { Game } from '../games.service'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   selector: 'my-game-reservations',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterLink, GlobalIconComponent],
   template: `
     <div class="reservations-container">
       <div class="reservations-header">
@@ -30,8 +31,14 @@ import type { Game } from '../games.service'
               <div class="reservation-meta">
                 <span class="reservation-date">预约于 {{ formatDate(item.createdAt) }}</span>
                 @if (item.notified) {
-                  <span class="notified-badge">已通知</span>
+                  <span class="notified-badge">已发布</span>
+                } @else {
+                  <span class="pending-badge">等待发布</span>
                 }
+              </div>
+              <div class="reservation-stats">
+                <span><my-global-icon iconName="play" />{{ item.game.playCount }} 游玩</span>
+                <span><my-global-icon iconName="like" />{{ item.game.likes || 0 }} 点赞</span>
               </div>
             </div>
             <button class="cancel-btn" (click)="cancelReservation(item.id, $index)" [disabled]="item.loading">
@@ -129,6 +136,7 @@ import type { Game } from '../games.service'
       align-items: center;
       gap: 0.5rem;
       font-size: 0.8rem;
+      margin-bottom: 0.35rem;
     }
 
     .reservation-date { color: var(--game-muted); }
@@ -137,9 +145,29 @@ import type { Game } from '../games.service'
       font-size: 0.7rem;
       padding: 0.1rem 0.4rem;
       border-radius: 4px;
-      background: #dbeafe;
-      color: #3b82f6;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 600;
     }
+
+    .pending-badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 600;
+    }
+
+    .reservation-stats {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--game-muted);
+    }
+
+    .reservation-stats span { display: inline-flex; align-items: center; gap: 0.2rem; }
+    .reservation-stats my-global-icon { height: 0.75rem; width: 0.75rem; }
 
     .cancel-btn {
       padding: 0.4rem 0.75rem;
