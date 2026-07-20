@@ -427,9 +427,14 @@
 
 .home-category-links a:hover,
 .home-category-links a.active {
-  background: #dfe2e5;
-  border-color: #c9cdd1;
-  color: var(--game-text-button);
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  color: var(--game-brand-deep);
+  font-weight: 600;
+}
+
+.home-category-links a.active {
+  box-shadow: inset 0 -2px 0 var(--game-brand);
 }
 
 .featured-discovery-grid {
