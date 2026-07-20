@@ -253,3 +253,12 @@
     width: 0.68rem;
   }
 }
+
+/* Search highlight */
+:host ::ng-deep .search-highlight {
+  background: var(--game-brand);
+  color: #fff;
+  border-radius: 2px;
+  padding: 0 2px;
+  font-weight: 700;
+}

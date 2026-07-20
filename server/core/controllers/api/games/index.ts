@@ -37,6 +37,7 @@ import express from 'express'
 import { literal, Op } from 'sequelize'
 import { runtimeRouter } from './runtime.js'
 import { gameCommunityRouter } from './community.js'
+import { gameEventRouter } from './events.js'
 
 const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile', 'screenshots' ], {
   'text/html': '.html',
@@ -72,6 +73,7 @@ const auditLogger = auditLoggerFactory('games')
 gamesRouter.use(apiRateLimiter)
 gamesRouter.use('/', runtimeRouter)
 gamesRouter.use('/', gameCommunityRouter)
+gamesRouter.use('/events', gameEventRouter)
 
 gamesRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listGames))
 gamesRouter.get('/admin', authenticate, asyncMiddleware(listGamesForModerators))
@@ -105,6 +107,7 @@ gamesRouter.post('/:uuid/play', gameUUIDValidator, gamePlayRateLimiter, optional
 gamesRouter.post('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddleware(reserveGame))
 gamesRouter.delete('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddleware(cancelReserve))
 gamesRouter.get('/me/reservations', authenticate, asyncMiddleware(listReservations))
+gamesRouter.get('/me/following', authenticate, asyncMiddleware(listFollowing))
 gamesRouter.post('/:uuid/share', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(shareGame))
 gamesRouter.post('/:uuid/moderate', authenticate, gameModerationValidator, asyncMiddleware(moderateGame))
 gamesRouter.put('/:uuid/featured', authenticate, gameUUIDValidator, asyncMiddleware(setFeatured))
@@ -1248,5 +1251,51 @@ async function getCollection (req: express.Request, res: express.Response) {
       total: items.length,
       data: items.map(item => formatGame(item.Game))
     })
+  })
+}
+
+/**
+ * 获取当前用户关注的作者列表
+ */
+async function listFollowing (req: express.Request, res: express.Response) {
+  return traceGameOperation('listFollowing', async () => {
+    const user = getUser(res)
+    if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
+
+    const follows = await ActorFollowModel.findAll({
+      where: { actorId: user.Account.Actor.id, state: 'accepted' },
+      attributes: [ 'targetActorId' ],
+      raw: true
+    })
+    const targetActorIds = follows.map(follow => follow.targetActorId)
+    if (targetActorIds.length === 0) return res.json({ total: 0, data: [] })
+
+    const actors = await ActorModel.findAll({
+      where: { id: targetActorIds },
+      include: [
+        {
+          model: AccountModel,
+          required: true
+        },
+        {
+          model: GameModel,
+          where: { status: 'published' },
+          required: false,
+          attributes: [ 'id' ]
+        }
+      ]
+    })
+
+    const data = actors.map(actor => ({
+      id: actor.Account.id,
+      name: actor.Account.name,
+      displayName: actor.Account.getDisplayName(),
+      description: actor.Account.description || '',
+      handle: actor.getIdentifier(),
+      followers: actor.followersCount || 0,
+      games: (actor as any).Games?.length || 0
+    }))
+
+    return res.json({ total: data.length, data })
   })
 }

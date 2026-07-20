@@ -3,16 +3,18 @@ import { RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { Game } from './games.service'
+import { HighlightPipe } from './highlight.pipe'
 
 @Component({
   selector: 'my-game-card',
   templateUrl: './game-card.component.html',
   styleUrl: './game-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GlobalIconComponent, RouterLink ]
+  imports: [ GlobalIconComponent, RouterLink, HighlightPipe ]
 })
 export class GameCardComponent implements OnInit, OnDestroy {
   @Input({ required: true }) game!: Game
+  @Input() searchTerm: string | undefined
   readonly coverUnavailable = signal(false)
   readonly isVisible = signal(false)
 

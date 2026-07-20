@@ -378,6 +378,11 @@ export class GamesService {
     return this.http.get<GameList>(`${GamesService.BASE_URL}/featured?count=${count}`).pipe(map(result => this.normalizeGameList(result)))
   }
 
+  // Following
+  listFollowing (): Observable<{ total: number; data: { id: number; name: string; displayName: string; description: string; handle: string; followers: number; games: number }[] }> {
+    return this.http.get<{ total: number; data: { id: number; name: string; displayName: string; description: string; handle: string; followers: number; games: number }[] }>(`${GamesService.BASE_URL}/me/following`)
+  }
+
   // Share
   share (uuid: string): Observable<{ url: string; shortUrl: string }> {
     return this.http.post<{ url: string; shortUrl: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})

@@ -16,6 +16,8 @@ import { GameRankingsComponent } from './game-rankings.component'
 import { GameAnalyticsDashboardComponent } from './game-analytics-dashboard.component'
 import { GameCollectionsComponent } from './game-collections.component'
 import { GameCollectionDetailComponent } from './game-collection-detail.component'
+import { GameEventsComponent } from './game-events.component'
+import { GameFollowingComponent } from './game-following.component'
 
 export default [
   {
@@ -105,6 +107,17 @@ export default [
         path: 'collection/:slug',
         component: GameCollectionDetailComponent,
         data: { meta: { title: $localize`Collection` } }
+      },
+      {
+        path: 'events',
+        component: GameEventsComponent,
+        data: { meta: { title: $localize`Game events` } }
+      },
+      {
+        path: 'following',
+        component: GameFollowingComponent,
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`My following` } }
       },
       {
         path: '',

@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="game-card-body">
-      <h3>{{ game.title }}</h3>
+      <h3>{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}</h3>
       <div class="game-card-author">
         <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
         <span>{{ game.author?.displayName || '独立创作者' }}</span>

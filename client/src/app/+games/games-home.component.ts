@@ -8,6 +8,8 @@ import { GameSkeletonComponent } from './game-skeleton.component'
 import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { HttpClient } from '@angular/common/http'
+import { environment } from '../../environments/environment'
 
 @Component({
   templateUrl: './games-home.component.html',
@@ -19,6 +21,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
   private readonly route = inject(ActivatedRoute)
+  private readonly http = inject(HttpClient)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
@@ -37,6 +40,8 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly recommendedTotal = signal(0)
   readonly carouselIndex = signal(0)
   readonly featuredGradients = signal<Record<string, string>>({})
+  readonly featured = signal<Game[]>([])
+  readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly categories = [
@@ -195,13 +200,17 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       recent: this.authService.isLoggedIn()
         ? this.gamesService.listRecent().pipe(catchError(() => of({ total: 0, data: [] as Game[] })))
         : of({ total: 0, data: [] as Game[] }),
-      recommended: this.gamesService.list({ ...common, sort: 'recommended', start: this.recommendedOffset() })
+      recommended: this.gamesService.list({ ...common, sort: 'recommended', start: this.recommendedOffset() }),
+      featured: this.gamesService.getFeaturedGames(6).pipe(catchError(() => of({ total: 0, data: [] as Game[] }))),
+      collections: this.http.get<{ total: number; data: { id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[] }>(`${environment.apiUrl}/api/v1/games/collections`).pipe(catchError(() => of({ total: 0, data: [] })))
     }).subscribe({
       next: result => {
         this.latest.set(result.latest.data)
         this.popular.set(result.popular.data)
         this.recent.set(result.recent.data)
         this.recommended.set(result.recommended.data)
+        this.featured.set(result.featured.data)
+        this.collections.set(result.collections.data)
         this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)

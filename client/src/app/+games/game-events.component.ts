@@ -1,0 +1,188 @@
+import { Component, inject, signal, OnInit } from '@angular/core'
+import { CommonModule } from '@angular/common'
+import { ActivatedRoute, RouterLink } from '@angular/router'
+import { HttpClient } from '@angular/common/http'
+import { environment } from '../../environments/environment'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+
+export type GameEvent = {
+  id: number
+  title: string
+  description: string | null
+  slug: string
+  type: 'activity' | 'competition'
+  status: 'upcoming' | 'ongoing' | 'ended' | 'cancelled'
+  coverPath: string | null
+  startAt: string | null
+  endAt: string | null
+  maxParticipants: number
+  participantCount: number
+  createdBy: { id: number; name: string; displayName: string } | null
+  createdAt: string
+}
+
+@Component({
+  selector: 'my-game-events',
+  standalone: true,
+  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  template: `
+    <div class="events-container">
+      <div class="events-header">
+        <h2>社区活动与比赛</h2>
+        <p>和玩家一起参加活动、交流玩法，发现新的挑战。</p>
+      </div>
+
+      @if (loading()) {
+        <div class="events-skeleton">
+          <div class="event-card shimmer" *ngFor="let _ of [1,2,3]"></div>
+        </div>
+      } @else if (events().length) {
+        <div class="events-grid">
+          @for (event of events(); track event.id) {
+            <a class="event-card" [routerLink]="['/games/event', event.slug]">
+              <div class="event-cover">
+                @if (event.coverPath) {
+                  <img [src]="event.coverPath" [alt]="event.title" loading="lazy">
+                } @else {
+                  <div class="event-cover-placeholder">{{ event.title.charAt(0) }}</div>
+                }
+              </div>
+              <div class="event-info">
+                <span class="event-type" [class]="event.type">{{ eventTypeLabel(event.type) }}</span>
+                <span class="event-status" [class]="event.status">{{ eventStatusLabel(event.status) }}</span>
+                <h3>{{ event.title }}</h3>
+                @if (event.description) { <p>{{ event.description }}</p> }
+                <div class="event-meta">
+                  <span><my-global-icon iconName="calendar" />{{ event.startAt | date:'MM-dd' }}</span>
+                  <span><my-global-icon iconName="users" />{{ event.participantCount }} / {{ event.maxParticipants || '∞' }}</span>
+                </div>
+              </div>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="events-empty">
+          <span>暂无进行中的活动</span>
+          <p>关注社区动态，第一时间获取活动信息</p>
+        </div>
+      }
+    </div>
+  `,
+  styles: [`
+    .events-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+
+    .events-header { margin-bottom: 1.5rem; }
+    .events-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .events-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .event-card {
+      background: #fff;
+      border: 1px solid var(--game-border);
+      border-radius: var(--game-radius);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .event-card:hover {
+      border-color: var(--game-brand);
+      box-shadow: var(--game-shadow);
+    }
+
+    .event-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+    .event-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .event-cover-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--game-brand-soft);
+      color: var(--game-brand-deep);
+      font-size: 2.5rem;
+      font-weight: 700;
+    }
+
+    .event-info { padding: 0.75rem; }
+
+    .event-type, .event-status {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-right: 0.35rem;
+      text-transform: uppercase;
+    }
+
+    .event-type.activity { background: #e0f2fe; color: #0369a1; }
+    .event-type.competition { background: #fef3c7; color: #92400e; }
+
+    .event-status.upcoming { background: #dcfce7; color: #166534; }
+    .event-status.ongoing { background: #dbeafe; color: #1e40af; }
+    .event-status.ended { background: #f3f4f6; color: #4b5563; }
+    .event-status.cancelled { background: #fee2e2; color: #991b1b; }
+
+    .event-info h3 { font-size: 1rem; margin: 0.5rem 0 0.25rem; }
+    .event-info p { color: var(--game-muted); font-size: 0.8rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .event-meta {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--game-muted);
+    }
+
+    .event-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
+    .event-meta my-global-icon { height: 0.8rem; width: 0.8rem; }
+
+    .events-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
+    .events-empty span { display: block; font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .events-empty p { font-size: 0.82rem; margin: 0; }
+
+    .events-skeleton { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+    .events-skeleton .event-card { height: 200px; }
+  `]
+})
+export class GameEventsComponent implements OnInit {
+  private readonly http = inject(HttpClient)
+  private readonly route = inject(ActivatedRoute)
+  events = signal<GameEvent[]>([])
+  loading = signal(false)
+
+  ngOnInit () {
+    this.loading.set(true)
+    this.http.get<{ total: number; data: GameEvent[] }>(`${environment.apiUrl}/api/v1/games/events`).subscribe({
+      next: (result) => {
+        this.events.set(result.data)
+        this.loading.set(false)
+      },
+      error: () => this.loading.set(false)
+    })
+  }
+
+  eventTypeLabel (type: string) {
+    return type === 'activity' ? '活动' : '比赛'
+  }
+
+  eventStatusLabel (status: string) {
+    const labels: Record<string, string> = {
+      upcoming: '即将开始',
+      ongoing: '进行中',
+      ended: '已结束',
+      cancelled: '已取消'
+    }
+    return labels[status] || status
+  }
+}
