@@ -837,6 +837,66 @@
   .game-skeleton-sidebars { grid-template-columns: 1fr; }
 }
 
+/* Related articles section */
+.related-articles-section {
+  margin-top: 1.5rem;
+}
+
+.related-articles-list {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 720px) {
+  .related-articles-list { grid-template-columns: 1fr; }
+}
+
+.related-article-card {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.related-article-card:hover {
+  border-color: var(--game-brand);
+  box-shadow: var(--game-shadow);
+  transform: translateY(-2px);
+}
+
+.related-article-card strong {
+  color: var(--game-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.related-article-card p {
+  color: var(--game-muted);
+  font-size: 0.78rem;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-category-tag {
+  background: var(--game-brand-soft);
+  border-radius: 3px;
+  color: var(--game-brand-deep);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  width: fit-content;
+}
+
 /* Review skeleton loading */
 .review-skeleton {
   background: #eceff3;

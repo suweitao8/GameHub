@@ -154,6 +154,20 @@
         </div>
       }
       @if (related().length) { <section class="related-section"><div class="game-section-heading"><div><p class="game-eyebrow">继续游玩</p><h2>同类型推荐</h2></div></div><div class="game-grid">@for (item of related(); track item.uuid) { <my-game-card [game]="item" /> }</div></section> }
+      @if (relatedArticles().length) {
+        <section class="related-articles-section" aria-labelledby="related-articles-title">
+          <div class="game-section-heading"><div><p class="game-eyebrow">相关内容</p><h2 id="related-articles-title">相关游戏推荐</h2></div></div>
+          <div class="related-articles-list">
+            @for (article of relatedArticles(); track article.slug) {
+              <a class="related-article-card" [routerLink]="['/games', article.slug]">
+                <strong>{{ article.title }}</strong>
+                <p>{{ article.summary }}</p>
+                <span class="article-category-tag">{{ article.category }}</span>
+              </a>
+            }
+          </div>
+        </section>
+      }
     </div>
   }
 </main>

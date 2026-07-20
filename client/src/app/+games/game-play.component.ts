@@ -155,6 +155,24 @@ export class GamePlayComponent implements OnInit, OnDestroy {
             ))
           })
         }
+        // Load related articles based on tags (uses tag-based search as articles API not yet available)
+        if (game.tags?.length) {
+          const firstTag = game.tags[0]
+          this.gamesService.list({ search: firstTag, count: 3, sort: 'likes' }).subscribe({
+            next: result => this.relatedArticles.set(
+              result.data
+                .filter(item => item.uuid !== game.uuid)
+                .slice(0, 3)
+                .map(item => ({
+                  id: 0,
+                  title: item.title,
+                  slug: item.uuid,
+                  summary: item.description || '查看这个相关游戏',
+                  category: item.category
+                }))
+            )
+          })
+        }
       },
       error: () => {
         this.loading.set(false)
