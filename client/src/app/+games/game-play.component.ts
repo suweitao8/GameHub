@@ -59,6 +59,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly actionFeedback = signal('')
   readonly commentSort = signal<'latest' | 'hot'>('latest')
   readonly activeScreenshot = signal<number>(0)
+  readonly shareDialog = signal(false)
+  readonly shareUrl = signal('')
+  readonly shareCopied = signal(false)
   readonly sortedComments = computed(() => {
     const comments = [ ...this.comments() ]
     if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
@@ -361,22 +364,29 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     const currentGame = this.game()
     if (!currentGame) return
     try {
+      const result = await this.gamesService.share(currentGame.uuid).toPromise()
+      const url = result?.shortUrl || window.location.href
       if (navigator.share) {
-        const result = await this.gamesService.share(currentGame.uuid).toPromise()
-        await navigator.share({
-          title: currentGame.title,
-          url: result?.shortUrl || window.location.href
-        })
-      } else if (navigator.clipboard) {
-        const result = await this.gamesService.share(currentGame.uuid).toPromise()
-        await navigator.clipboard.writeText(result?.shortUrl || window.location.href)
-        this.actionFeedback.set('链接已复制')
+        await navigator.share({ title: currentGame.title, url })
       } else {
-        this.actionFeedback.set('当前浏览器不支持分享')
+        this.shareUrl.set(url)
+        this.shareDialog.set(true)
       }
     } catch {
       this.actionFeedback.set('分享未完成')
     }
+  }
+
+  copyShareUrl () {
+    navigator.clipboard?.writeText(this.shareUrl()).then(() => {
+      this.shareCopied.set(true)
+      setTimeout(() => this.shareCopied.set(false), 2000)
+    })
+  }
+
+  closeShareDialog () {
+    this.shareDialog.set(false)
+    this.shareCopied.set(false)
   }
 
   focusGame () {

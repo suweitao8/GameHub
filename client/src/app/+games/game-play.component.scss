@@ -750,3 +750,113 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* Share Dialog */
+.share-dialog-overlay {
+  align-items: center;
+  background: rgb(0 0 0 / 50%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 100;
+}
+
+.share-dialog {
+  background: #fff;
+  border-radius: var(--game-radius);
+  max-width: 420px;
+  overflow: hidden;
+  width: calc(100% - 2rem);
+}
+
+.share-dialog-header {
+  align-items: center;
+  border-bottom: 1px solid var(--game-border);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+}
+
+.share-dialog-header h3 { font-size: 1rem; margin: 0; }
+
+.share-close-btn {
+  background: none;
+  border: none;
+  color: var(--game-muted);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0;
+  width: 1.5rem;
+}
+
+.share-close-btn:hover { color: var(--game-text); }
+
+.share-dialog-body { padding: 1rem; }
+
+.share-game-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.share-url-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.share-url-box input {
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: 6px;
+  color: var(--game-text);
+  flex: 1;
+  font-size: 0.82rem;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.share-url-box button {
+  background: var(--game-brand);
+  border: 1px solid var(--game-brand);
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 0.85rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.share-url-box button.copied { background: #22c55e; border-color: #22c55e; }
+
+.share-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.share-btn {
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 700;
+  height: 2.8rem;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform 0.2s;
+  width: 2.8rem;
+}
+
+.share-btn:hover { transform: scale(1.1); }
+
+.share-btn.weibo { background: #e6162d; }
+.share-btn.qq { background: #12b7f5; }
+.share-btn.twitter { background: #000; }
+

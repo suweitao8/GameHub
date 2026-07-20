@@ -107,7 +107,36 @@
 
       <section class="game-comments" aria-labelledby="comments-title"><div class="chat-heading"><div><p class="game-eyebrow">实时交流</p><h2 id="comments-title">讨论群</h2></div><div class="chat-controls"><span class="chat-live-status"><i></i>实时同步 · {{ comments().length }} 条消息</span><div class="comment-sort"><button type="button" [class.active]="commentSort() === 'hot'" (click)="setCommentSort('hot')">最热</button><button type="button" [class.active]="commentSort() === 'latest'" (click)="setCommentSort('latest')">最新</button></div></div></div><p class="chat-intro">这里用于和玩家、开发者实时交流玩法、反馈和更新，功能与群聊一致。</p><div class="chat-message-list">@if (commentsLoading()) { <div class="chat-skeleton shimmer"></div><div class="chat-skeleton shimmer"></div><div class="chat-skeleton shimmer"></div> } @else if (commentsError()) { <p class="feedback" role="alert">{{ commentsError() }}</p> } @else { @for (comment of sortedComments(); track comment.id) { <article class="chat-message"><div class="comment-author"><strong>{{ comment.account?.displayName || comment.account?.name || '已注销用户' }}</strong>@if (comment.isAuthor) { <span>作者</span> }<time>{{ comment.createdAt | date:'MM-dd HH:mm' }}</time></div><p>{{ comment.text }}</p><div class="comment-actions"><button type="button" [class.active]="comment.liked" (click)="toggleCommentLike(comment)"><my-global-icon iconName="like" />{{ comment.likes || 0 }}</button><button type="button" (click)="replyTo.set(comment.id)">回复</button>@if (comment.totalReplies) { <button type="button" (click)="toggleReplies(comment)">{{ replies()[comment.id] ? '收起回复' : comment.totalReplies + ' 条回复' }}</button> }@if (comment.canDelete) { <button type="button" (click)="requestDeleteComment(comment)">删除</button> }</div>@if (replies()[comment.id]; as replyList) { <div class="comment-replies">@for (reply of replyList; track reply.id) { <article class="comment-reply"><div class="comment-author"><strong>{{ reply.account?.displayName || reply.account?.name || '已注销用户' }}</strong>@if (reply.isAuthor) { <span>作者</span> }<time>{{ reply.createdAt | date:'MM-dd HH:mm' }}</time></div><p>{{ reply.text }}</p><div class="comment-actions"><button type="button" [class.active]="reply.liked" (click)="toggleCommentLike(reply)"><my-global-icon iconName="like" />{{ reply.likes || 0 }}</button>@if (reply.canDelete) { <button type="button" (click)="requestDeleteComment(reply)">删除</button> }</div></article> }</div> }</article> } @empty { <p class="empty-comments">还没有群聊消息，来打个招呼吧。</p> } }</div><form class="chat-composer" (submit)="$event.preventDefault(); replyTo() ? submitReply() : submitComment()"><input aria-label="讨论群消息" [value]="commentDraft()" (input)="commentDraft.set($any($event.target).value)" placeholder="{{ replyTo() ? '回复这条消息' : '在讨论群里说点什么...' }}" maxlength="5000"><button type="submit">{{ replyTo() ? '回复' : '发送' }}</button></form>@if (replyTo()) { <button type="button" class="cancel-reply" (click)="replyTo.set(null)">取消回复</button> }@if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }@if (deleteTarget(); as target) { <div class="comment-dialog" role="dialog" aria-label="确认删除消息"><p>确定删除这条消息吗？</p><button type="button" (click)="deleteTarget.set(null)">取消</button><button type="button" class="danger" (click)="confirmDeleteComment()">确认删除</button></div> }</section>
 
-      @if (authorGames().length) { <section class="game-section creator-games"><div class="game-section-heading"><div><p class="game-eyebrow">作者其他作品</p><h2>作者的其他游戏</h2></div></div><div class="game-grid">@for (item of authorGames(); track item.uuid) { <my-game-card [game]="item" /> }</div></section> }
+      @if (shareDialog()) {
+        <div class="share-dialog-overlay" (click)="closeShareDialog()">
+          <div class="share-dialog" (click)="$event.stopPropagation()">
+            <div class="share-dialog-header">
+              <h3>分享游戏</h3>
+              <button type="button" class="share-close-btn" (click)="closeShareDialog()">&times;</button>
+            </div>
+            <div class="share-dialog-body">
+              <p class="share-game-title">{{ game()?.title }}</p>
+              <div class="share-url-box">
+                <input type="text" [value]="shareUrl()" readonly (click)="$event.target.select()">
+                <button type="button" [class.copied]="shareCopied()" (click)="copyShareUrl()">
+                  {{ shareCopied() ? '已复制' : '复制链接' }}
+                </button>
+              </div>
+              <div class="share-actions">
+                <a [href]="'https://service.weibo.com/share/share.php?url=' + encodeURIComponent(shareUrl()) + '&title=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn weibo">
+                  <span>微博</span>
+                </a>
+                <a [href]="'https://connect.qq.com/widget/shareqq/index.html?url=' + encodeURIComponent(shareUrl()) + '&title=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn qq">
+                  <span>QQ</span>
+                </a>
+                <a [href]="'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl()) + '&text=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn twitter">
+                  <span>X</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
       @if (related().length) { <section class="related-section"><div class="game-section-heading"><div><p class="game-eyebrow">继续游玩</p><h2>同类型推荐</h2></div></div><div class="game-grid">@for (item of related(); track item.uuid) { <my-game-card [game]="item" /> }</div></section> }
     </div>
   }

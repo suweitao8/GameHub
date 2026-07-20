@@ -27,6 +27,30 @@
       </div>
     </section>
     <div class="game-community-content author-content">
+      <!-- Stats Bar -->
+      <div class="author-stats-bar">
+        <div class="author-stat">
+          <span class="author-stat-value">{{ formatNumber(author()!.stats.games) }}</span>
+          <span class="author-stat-label">作品</span>
+        </div>
+        <div class="author-stat">
+          <span class="author-stat-value">{{ formatNumber(author()!.stats.plays) }}</span>
+          <span class="author-stat-label">总游玩</span>
+        </div>
+        <div class="author-stat">
+          <span class="author-stat-value">{{ formatNumber(author()!.stats.likes) }}</span>
+          <span class="author-stat-label">获赞</span>
+        </div>
+        <div class="author-stat">
+          <span class="author-stat-value">{{ formatNumber(author()!.stats.favorites) }}</span>
+          <span class="author-stat-label">被收藏</span>
+        </div>
+        <div class="author-stat">
+          <span class="author-stat-value">{{ formatNumber(author()!.account.followers) }}</span>
+          <span class="author-stat-label">粉丝</span>
+        </div>
+      </div>
+
       <nav class="author-tabs" aria-label="作者空间导航">
         <button type="button" [class.active]="tab() === 'home'" (click)="selectTab('home')">主页</button>
         <button type="button" [class.active]="tab() === 'activity'" (click)="selectTab('activity')">动态</button>

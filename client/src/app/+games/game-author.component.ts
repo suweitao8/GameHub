@@ -101,6 +101,12 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
     return this.authService.getUser()?.account?.id === this.author()?.account.id
   }
 
+  formatNumber (num: number): string {
+    if (num >= 10000) return (num / 10000).toFixed(1) + 'w'
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k'
+    return String(num)
+  }
+
   getAvatarUrl () {
     const account = this.author()?.account
     return buildGameAvatarDataUrl(account?.displayName || account?.name || '创')
