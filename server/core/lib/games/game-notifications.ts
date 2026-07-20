@@ -5,20 +5,41 @@ export function isGameNotificationKind (value: unknown): value is GameNotificati
   return typeof value === 'string' && (GAME_NOTIFICATION_KINDS as readonly string[]).includes(value)
 }
 
-export async function createGameNotification (options: {
+type CreateNotificationOptions = {
   recipientAccountId: number
   actorAccountId?: number | null
   gameId?: number | null
   kind: GameNotificationKind
   message: string
-}) {
+}
+
+const notificationBatch: CreateNotificationOptions[] = []
+const BATCH_SIZE = 50
+const BATCH_INTERVAL_MS = 5000
+
+export async function createGameNotification (options: CreateNotificationOptions) {
+  notificationBatch.push(options)
+  if (notificationBatch.length >= BATCH_SIZE) {
+    await flushNotificationBatch()
+  } else if (notificationBatch.length === 1) {
+    setTimeout(() => { void flushNotificationBatch() }, BATCH_INTERVAL_MS)
+  }
+}
+
+async function flushNotificationBatch () {
+  if (notificationBatch.length === 0) return
+
+  const batch = notificationBatch.splice(0, notificationBatch.length)
   const { GameNotificationModel } = await import('@server/models/game/game-notification.js')
-  return GameNotificationModel.create({
-    recipientAccountId: options.recipientAccountId,
-    actorAccountId: options.actorAccountId || null,
-    gameId: options.gameId || null,
-    kind: options.kind,
-    message: options.message,
-    readAt: null
-  })
+  await GameNotificationModel.bulkCreate(
+    batch.map(options => ({
+      recipientAccountId: options.recipientAccountId,
+      actorAccountId: options.actorAccountId || null,
+      gameId: options.gameId || null,
+      kind: options.kind,
+      message: options.message,
+      readAt: null
+    })),
+    { validate: true }
+  )
 }
