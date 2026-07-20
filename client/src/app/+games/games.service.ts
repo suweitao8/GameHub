@@ -322,6 +322,10 @@ export class GamesService {
     return this.http.post(`${GamesService.BASE_URL}/me/notifications/read-all`, {})
   }
 
+  deleteNotification (id: number): Observable<unknown> {
+    return this.http.delete(`${GamesService.BASE_URL}/me/notifications/${id}`)
+  }
+
   listForModerators (): Observable<GameList> {
     return this.http.get<GameList>(`${GamesService.BASE_URL}/admin`)
   }

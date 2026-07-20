@@ -97,6 +97,43 @@
   width: 7px; }
 .notification-item.unread .notification-dot { opacity: 1; }
 
+.notification-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.notification-delete-btn {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--game-muted);
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.8rem;
+  justify-content: center;
+  padding: 0;
+  transition: background-color 160ms ease, color 160ms ease;
+  width: 1.8rem;
+}
+
+.notification-delete-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.notification-delete-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.notification-delete-btn my-global-icon {
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
 @media (max-width: 640px) {
   .game-notifications-page { padding-top: 20px; }
   .notifications-header { align-items: start;

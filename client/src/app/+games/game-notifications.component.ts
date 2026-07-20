@@ -4,8 +4,9 @@ import { AuthService } from '@app/core/auth/auth.service'
 import { RouterLink } from '@angular/router'
 import { GameNotificationBadgeService } from '../header/game-notification-badge.service'
 import { getGameActionErrorMessage } from './game-action-feedback'
-import { markAllGameNotificationsRead, markGameNotificationRead } from './game-notification-state'
+import { markAllGameNotificationsRead, markGameNotificationRead, removeGameNotification } from './game-notification-state'
 import { GameNotification, GamesService } from './games.service'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 type NotificationFilter = 'all' | 'comment' | 'like' | 'coin' | 'favorite' | 'follow' | 'moderation'
 
@@ -13,7 +14,7 @@ type NotificationFilter = 'all' | 'comment' | 'like' | 'coin' | 'favorite' | 'fo
   templateUrl: './game-notifications.component.html',
   styleUrl: './game-notifications.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ RouterLink, DatePipe ]
+  imports: [ RouterLink, DatePipe, GlobalIconComponent ]
 })
 export class GameNotificationsComponent implements OnInit {
   private readonly authService = inject(AuthService)
@@ -27,6 +28,7 @@ export class GameNotificationsComponent implements OnInit {
   readonly feedback = signal('')
   readonly notificationLoading = signal<number | null>(null)
   readonly markAllLoading = signal(false)
+  readonly deletingId = signal<number | null>(null)
   readonly visibleNotifications = computed(() => {
     const filter = this.selectedFilter()
     return filter === 'all'
@@ -93,10 +95,33 @@ export class GameNotificationsComponent implements OnInit {
         this.unread.set(0)
         this.notificationBadge.clear()
         this.markAllLoading.set(false)
+        this.feedback.set('已将全部消息标为已读')
+        setTimeout(() => this.feedback.set(''), 2000)
       },
       error: error => {
         this.feedback.set(getGameActionErrorMessage(error))
         this.markAllLoading.set(false)
+      }
+    })
+  }
+
+  deleteNotification (notification: GameNotification, event: Event) {
+    event.stopPropagation()
+    if (this.deletingId() !== null) return
+    this.deletingId.set(notification.id)
+    this.gamesService.deleteNotification(notification.id).subscribe({
+      next: () => {
+        const wasUnread = !notification.read
+        this.notifications.set(removeGameNotification(this.notifications(), notification.id))
+        if (wasUnread) {
+          this.unread.update(value => Math.max(0, value - 1))
+          this.notificationBadge.decrement()
+        }
+        this.deletingId.set(null)
+      },
+      error: error => {
+        this.feedback.set(getGameActionErrorMessage(error))
+        this.deletingId.set(null)
       }
     })
   }

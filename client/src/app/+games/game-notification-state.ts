@@ -15,3 +15,7 @@ export function markGameNotificationRead (notifications: GameNotification[], id:
 export function markAllGameNotificationsRead (notifications: GameNotification[]) {
   return notifications.map(notification => notification.read ? notification : { ...notification, read: true })
 }
+
+export function removeGameNotification (notifications: GameNotification[], id: number) {
+  return notifications.filter(notification => notification.id !== id)
+}

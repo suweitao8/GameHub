@@ -90,6 +90,7 @@ gamesRouter.get('/feed/public', asyncMiddleware(getPublicFeed))
 gamesRouter.get('/me/notifications', authenticate, asyncMiddleware(listGameNotifications))
 gamesRouter.put('/me/notifications/:notificationId/read', authenticate, asyncMiddleware(markGameNotificationRead))
 gamesRouter.post('/me/notifications/read-all', authenticate, asyncMiddleware(markAllGameNotificationsRead))
+gamesRouter.delete('/me/notifications/:notificationId', authenticate, asyncMiddleware(deleteGameNotification))
 gamesRouter.get('/author/:accountId', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_AUTHOR), asyncMiddleware(getAuthor))
 gamesRouter.get('/rankings', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(getRankings))
 gamesRouter.get('/tags', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listTags))
@@ -230,6 +231,20 @@ async function markAllGameNotificationsRead (_req: express.Request, res: express
     { readAt: new Date() },
     { where: { recipientAccountId: user.Account.id, readAt: null } }
   )
+  return res.status(HttpStatusCode.NO_CONTENT_204).end()
+}
+
+/**
+ * 删除单条游戏通知
+ */
+async function deleteGameNotification (req: express.Request, res: express.Response) {
+  const user = getUser(res)
+  const notification = await GameNotificationModel.findOne({
+    where: { id: Number(req.params.notificationId), recipientAccountId: user.Account.id }
+  })
+  if (!notification) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  await notification.destroy()
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
