@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
@@ -472,6 +472,29 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!value || value < 1) return '0'
     if (value >= 10000) return (value / 10000).toFixed(1) + '万'
     return String(value)
+  }
+
+  @HostListener('document:keydown', [ '$event' ])
+  onKeydown (event: KeyboardEvent) {
+    // Only handle when game is loaded and user is not typing in an input
+    const target = event.target as HTMLElement
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+    if (!this.game() || this.loading()) return
+
+    if (event.code === 'Space') {
+      event.preventDefault()
+      if (this.gameStarted()) {
+        this.reloadGame()
+      } else {
+        this.startGame()
+      }
+    } else if (event.key === 'f' || event.key === 'F') {
+      event.preventDefault()
+      this.enterFullscreen()
+    } else if (event.key === 'r' || event.key === 'R') {
+      event.preventDefault()
+      this.reloadGame()
+    }
   }
 
   reloadGame () {
