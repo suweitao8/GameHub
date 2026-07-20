@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit, signal } from '@angular/core'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
@@ -99,5 +99,25 @@ export class GameEditComponent implements OnInit {
 
   formatFileSize (bytes: number) {
     return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  private hasUnsavedChanges (): boolean {
+    return !this.submitting() && !this.message() && (
+      this.title.trim().length > 0 ||
+      this.description.trim().length > 0 ||
+      this.tags.trim().length > 0 ||
+      !!this.file ||
+      !!this.cover
+    )
+  }
+
+  @HostListener('window:beforeunload', [ '$event' ])
+  onBeforeUnload (event: BeforeUnloadEvent) {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault()
+      event.returnValue = '你有未保存的修改，确定离开吗？'
+      return event.returnValue
+    }
+    return undefined
   }
 }
