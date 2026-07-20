@@ -66,6 +66,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly shareDialog = signal(false)
   readonly shareUrl = signal('')
   readonly shareCopied = signal(false)
+  readonly relatedArticles = signal<{ id: number; title: string; slug: string; summary: string; category: string }[]>([])
   readonly sortedComments = computed(() => {
     const comments = [ ...this.comments() ]
     if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))

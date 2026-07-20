@@ -20,6 +20,7 @@ import { GameEventsComponent } from './game-events.component'
 import { GameEventDetailComponent } from './game-event-detail.component'
 import { GameEventAdminComponent } from './game-event-admin.component'
 import { GameFollowingComponent } from './game-following.component'
+import { GameArticlesComponent } from './game-articles.component'
 
 export default [
   {
@@ -109,6 +110,11 @@ export default [
         path: 'collection/:slug',
         component: GameCollectionDetailComponent,
         data: { meta: { title: $localize`Collection` } }
+      },
+      {
+        path: 'articles',
+        component: GameArticlesComponent,
+        data: { meta: { title: $localize`Game articles` } }
       },
       {
         path: 'events',
