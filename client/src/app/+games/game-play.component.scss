@@ -803,6 +803,18 @@
 @media (max-width: 600px) {
   .related-game-grid { grid-template-columns: 1fr; }
 }
+.author-games-section { grid-column: 2;
+  grid-row: 7; }
+.author-games-grid { display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 0.65rem; }
+@media (max-width: 900px) {
+  .author-games-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .author-games-grid { grid-template-columns: 1fr; }
+}
 .creator-games .game-section-heading,
 .related-section .game-section-heading { margin-top: 1rem; }
 .game-play-state { align-items: center;

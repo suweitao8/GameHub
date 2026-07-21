@@ -219,6 +219,21 @@
           </div>
         </section>
       }
+      @if (authorGames().length) {
+        <section class="author-games-section" aria-labelledby="author-games-title">
+          <div class="game-section-heading">
+            <div>
+              <p class="game-eyebrow">作者作品</p>
+              <h2 id="author-games-title">作者其他游戏</h2>
+            </div>
+          </div>
+          <div class="author-games-grid">
+            @for (item of authorGames(); track item.uuid) {
+              <my-game-card [game]="item" [searchTerm]="" />
+            }
+          </div>
+        </section>
+      }
       @if (relatedArticles().length) {
         <section class="related-articles-section" aria-labelledby="related-articles-title">
           <div class="game-section-heading"><div><p class="game-eyebrow">相关内容</p><h2 id="related-articles-title">相关游戏推荐</h2></div></div>
