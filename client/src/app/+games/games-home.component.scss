@@ -357,10 +357,14 @@
 
 .home-discovery-nav {
   align-items: center;
+  background: var(--game-bg, #fff);
   display: flex;
   gap: 0.55rem;
   justify-content: flex-start;
   margin: 0.9rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
 .home-feed-tabs {
