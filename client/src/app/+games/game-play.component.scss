@@ -1507,3 +1507,30 @@
   cursor: not-allowed;
 }
 
+/* Back to top button */
+.back-to-top { align-items: center;
+  background: var(--game-brand);
+  border: 0;
+  border-radius: 50%;
+  bottom: 1.5rem;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 2.75rem;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 1.5rem;
+  transform: translateY(1rem);
+  transition: opacity 0.3s, transform 0.3s;
+  width: 2.75rem;
+  z-index: 50; }
+.back-to-top.visible { opacity: 0.9;
+  pointer-events: auto;
+  transform: translateY(0); }
+.back-to-top:hover { opacity: 1; }
+.back-to-top my-global-icon { height: 1.25rem;
+  width: 1.25rem; }
+

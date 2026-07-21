@@ -71,6 +71,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private screenshotPaused = false
   readonly tripleAnimating = signal(false)
   readonly tripleApplied = signal(false)
+  readonly showBackToTop = signal(false)
   readonly shareDialog = signal(false)
   readonly shareUrl = signal('')
   readonly shareCopied = signal(false)
@@ -97,12 +98,22 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
     this.subscriptions.push(sub)
+    window.addEventListener('scroll', this.onScroll, { passive: true })
   }
 
   ngOnDestroy () {
     this.stopCommentsPolling()
     this.stopScreenshotCarousel()
     this.subscriptions.forEach(subscription => subscription.unsubscribe())
+    window.removeEventListener('scroll', this.onScroll)
+  }
+
+  onScroll = () => {
+    this.showBackToTop.set(window.scrollY > 600)
+  }
+
+  scrollToTop () {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   loadGame (uuid: string) {

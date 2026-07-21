@@ -1,4 +1,8 @@
 <main class="game-community-page game-play-page">
+  <!-- Back to top button -->
+  <button type="button" class="back-to-top" (click)="scrollToTop()" [class.visible]="showBackToTop()" aria-label="回到顶部">
+    <my-global-icon iconName="arrow-up" />
+  </button>
   @if (loading()) {
     <div class="game-community-content game-play-state" role="status">
       <div class="game-skeleton-stage">
