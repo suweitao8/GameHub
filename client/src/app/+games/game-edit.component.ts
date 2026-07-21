@@ -30,6 +30,11 @@ export class GameEditComponent implements OnInit {
   instructions = ''
   category = ''
   tags = ''
+  private originalTitle = ''
+  private originalDescription = ''
+  private originalInstructions = ''
+  private originalCategory = ''
+  private originalTags = ''
 
   tagCount = computed(() => this.tags.split(',').filter(t => t.trim()).length)
   isValid = computed(() => this.title.trim().length > 0 && this.category.trim().length > 0)
@@ -48,6 +53,11 @@ export class GameEditComponent implements OnInit {
         this.instructions = game.instructions
         this.category = game.category
         this.tags = game.tags.join(', ')
+        this.originalTitle = game.title
+        this.originalDescription = game.description
+        this.originalInstructions = game.instructions
+        this.originalCategory = game.category
+        this.originalTags = game.tags.join(', ')
         this.runtimePreview.set(this.sanitizer.bypassSecurityTrustResourceUrl(game.runtimeUrl))
         this.loading.set(false)
       },
@@ -103,9 +113,11 @@ export class GameEditComponent implements OnInit {
 
   private hasUnsavedChanges (): boolean {
     return !this.submitting() && !this.message() && (
-      this.title.trim().length > 0 ||
-      this.description.trim().length > 0 ||
-      this.tags.trim().length > 0 ||
+      this.title.trim() !== this.originalTitle.trim() ||
+      this.description.trim() !== this.originalDescription.trim() ||
+      this.instructions.trim() !== this.originalInstructions.trim() ||
+      this.category !== this.originalCategory ||
+      this.tags.trim() !== this.originalTags.trim() ||
       !!this.file ||
       !!this.cover
     )
