@@ -4,8 +4,20 @@
   @if (loading()) { <div class="manage-skeleton-list"><div class="manage-skeleton-card shimmer"></div><div class="manage-skeleton-card shimmer"></div><div class="manage-skeleton-card shimmer"></div></div> }
   @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
   @if (feedback()) { <p class="form-success" role="status">{{ feedback() }}</p> }
+
+  <div class="manage-filters">
+    <div class="manage-search">
+      <input type="search" placeholder="搜索游戏名称" [value]="searchQuery()" (input)="setSearchQuery($any($event.target).value)" aria-label="搜索游戏">
+    </div>
+    <div class="manage-status-tabs">
+      @for (tab of statusTabs; track tab.id) {
+        <button type="button" [class.active]="statusFilter() === tab.id" (click)="setStatusFilter(tab.id)">{{ tab.label }}</button>
+      }
+    </div>
+  </div>
+
   <div class="manage-list">
-    @for (game of games(); track game.uuid) {
+    @for (game of filteredGames(); track game.uuid) {
       <article class="manage-card">
         <div>
           <span class="status">{{ statusLabel(game.status) }}</span>
@@ -26,7 +38,7 @@
         </div>
       </article>
     } @empty {
-      <p>当前没有待处理游戏。</p>
+      <p class="manage-empty">当前没有符合条件的游戏。</p>
     }
   </div>
 </main>

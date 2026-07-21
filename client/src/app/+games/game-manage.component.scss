@@ -43,9 +43,43 @@ h1 { margin: 0 0 28px;
 .manage-actions .danger-action { border-color: var(--game-danger);
   color: var(--game-danger); }
 
+/* Filters */
+.manage-filters { display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem; }
+.manage-search { flex: 1;
+  min-width: 0; }
+.manage-search input { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 8px;
+  color: var(--game-text);
+  font-size: 0.85rem;
+  height: 2.4rem;
+  padding: 0 0.75rem;
+  width: 100%; }
+.manage-search input:focus { border-color: var(--game-brand);
+  box-shadow: 0 0 0 2px rgb(0 174 236 / 10%); }
+.manage-status-tabs { display: flex;
+  gap: 0.25rem; }
+.manage-status-tabs button { background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--game-muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.6rem; }
+.manage-status-tabs button.active { border-bottom-color: var(--game-brand);
+  color: var(--game-brand);
+  font-weight: 600; }
+.manage-empty { color: var(--game-muted);
+  padding: 2rem;
+  text-align: center; }
+
 @media (max-width: 700px) {
   .manage-card { align-items: start;
     flex-direction: column; }
+  .manage-filters { flex-direction: column; }
 }
 
 /* Skeleton loading */
