@@ -167,8 +167,21 @@
 }
 
 .game-card-author {
-  margin-top: 0.42rem;
+  margin-top: 0.3rem;
 }
+
+.game-card-tags { display: flex;
+  gap: 0.35rem;
+  margin-top: 0.25rem; }
+.game-card-category { background: rgb(0 174 236 / 8%);
+  border: 1px solid rgb(0 174 236 / 18%);
+  border-radius: 4px;
+  color: var(--game-brand);
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 0.08rem 0.35rem;
+  white-space: nowrap; }
 
 .author-avatar {
   border: 1px solid rgb(0 0 0 / 8%);

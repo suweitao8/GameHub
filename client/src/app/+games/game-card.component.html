@@ -33,6 +33,9 @@
     </div>
     <div class="game-card-body">
       <h3>{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}</h3>
+      <div class="game-card-tags">
+        <span class="game-card-category">{{ categoryLabel() }}</span>
+      </div>
       <div class="game-card-author">
         <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
         @if (game.author?.id) {
