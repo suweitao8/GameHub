@@ -39,7 +39,7 @@ export type GameEvent = {
 
       @if (loading()) {
         <div class="events-skeleton">
-          <div class="event-card shimmer" *ngFor="let _ of [1,2,3]"></div>
+          @for (i of [1,2,3]; track $index) { <div class="event-card shimmer"></div> }
         </div>
       } @else if (filteredEvents().length) {
         <div class="events-grid">

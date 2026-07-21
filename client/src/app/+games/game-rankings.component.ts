@@ -54,7 +54,13 @@ import { GamesService } from '../games.service'
             </div>
           </a>
         } @empty {
-          @if (!loading()) {
+          @if (error()) {
+            <div class="rankings-error">
+              <span>加载失败</span>
+              <p>数据加载失败，请稍后重试</p>
+              <button type="button" (click)="loadRankings()">重试</button>
+            </div>
+          } @else if (!loading()) {
             <div class="rankings-empty">
               <span>暂无数据</span>
             </div>
@@ -209,6 +215,34 @@ import { GamesService } from '../games.service'
       color: var(--game-muted);
     }
 
+    .rankings-error {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--game-muted);
+    }
+
+    .rankings-error span {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .rankings-error p {
+      font-size: 0.82rem;
+      margin: 0 0 1rem;
+    }
+
+    .rankings-error button {
+      background: var(--game-brand);
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+    }
+
     .rankings-loading { display: flex; flex-direction: column; gap: 0.5rem; }
 
     .ranking-skeleton {
@@ -284,6 +318,7 @@ export class GameRankingsComponent implements OnInit {
   currentTab = signal<'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
   loading = signal(false)
+  error = signal(false)
 
   tabs: { id: typeof this.currentTab extends ReturnType<typeof signal<infer T>> ? T : never; label: string }[] = [
     { id: 'hot', label: '最热' },
@@ -332,12 +367,16 @@ export class GameRankingsComponent implements OnInit {
 
   loadRankings () {
     this.loading.set(true)
+    this.error.set(false)
     this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined).subscribe({
       next: (result) => {
         this.rankings.set(result.data)
         this.loading.set(false)
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false)
+        this.error.set(true)
+      }
     })
   }
 
