@@ -23,6 +23,7 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService)
   private readonly router = inject(Router)
   private routeSubscription: Subscription | undefined
+  private currentAccountId = ''
   readonly author = signal<GameAuthor | null>(null)
   readonly loading = signal(true)
   readonly error = signal(false)
@@ -48,6 +49,7 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
       this.sort.set(sort === 'plays' || sort === 'favorites' ? sort : 'latest')
       const tab = query.get('tab')
       this.tab.set(tab === 'activity' || tab === 'games' || tab === 'collections' ? tab : 'home')
+      this.currentAccountId = accountId
       this.loadAuthor(accountId)
     })
   }
@@ -131,6 +133,11 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
       board: '桌游',
       other: '其他'
     }[category] || '其他'
+  }
+
+  retryLoad () {
+    if (!this.currentAccountId) return
+    this.loadAuthor(this.currentAccountId)
   }
 
   private loadAuthor (accountId: string) {
