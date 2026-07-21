@@ -247,7 +247,28 @@
 .description,
 .game-stats,
 .game-info-card p,
-.empty-comments { color: var(--game-muted); }
+.empty-comments { align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  text-align: center; }
+.empty-comments my-global-icon { color: #d0d4da;
+  height: 2.5rem;
+  width: 2.5rem; }
+.empty-comments p { margin: 0;
+  font-size: 0.9rem; }
+.empty-comments button { background: var(--game-brand);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  transition: opacity 160ms ease; }
+.empty-comments button:hover { opacity: 0.9; }
 .description { margin: 0;
   max-width: 700px; }
 .game-stats { display: flex;

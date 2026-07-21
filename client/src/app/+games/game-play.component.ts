@@ -587,6 +587,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.mutedHint.set(true)
   }
 
+  focusCommentInput () {
+    const input = document.querySelector('.chat-composer input') as HTMLInputElement | null
+    if (input) input.focus()
+  }
+
   formatBigNumber (value: number | undefined) {
     if (!value || value < 1) return '0'
     if (value >= 10000) return (value / 10000).toFixed(1) + '万'
