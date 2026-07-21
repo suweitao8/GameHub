@@ -65,7 +65,7 @@ import { GamesService } from '../games.service'
       @if (loading()) {
         <div class="rankings-loading">
           @for (i of [1,2,3,4,5,6,7,8,9,10]; track $index) {
-            <div class="ranking-skeleton"><div class="skeleton-rank"></div><div class="skeleton-cover"></div><div class="skeleton-text"></div></div>
+            <div class="ranking-skeleton"><div class="skeleton-rank"></div><div class="skeleton-cover"></div><div class="skeleton-text"><div class="skeleton-text-line"></div><div class="skeleton-text-line short"></div></div></div>
           }
         </div>
       }
@@ -226,7 +226,6 @@ import { GamesService } from '../games.service'
       height: 1.75rem;
       border-radius: 4px;
       background: var(--game-border);
-      animation: pulse 1.5s infinite;
     }
 
     .skeleton-cover {
@@ -234,20 +233,42 @@ import { GamesService } from '../games.service'
       height: 4rem;
       border-radius: 6px;
       background: var(--game-border);
-      animation: pulse 1.5s infinite;
+      flex-shrink: 0;
     }
 
     .skeleton-text {
       flex: 1;
-      height: 1rem;
-      border-radius: 4px;
-      background: var(--game-border);
-      animation: pulse 1.5s infinite;
+      min-width: 0;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+    .skeleton-text-line {
+      background: var(--game-border);
+      border-radius: 4px;
+      height: 0.85rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .skeleton-text-line.short { width: 40%; }
+
+    .ranking-skeleton .skeleton-rank,
+    .ranking-skeleton .skeleton-cover,
+    .ranking-skeleton .skeleton-text-line {
+      background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ranking-skeleton .skeleton-rank,
+      .ranking-skeleton .skeleton-cover,
+      .ranking-skeleton .skeleton-text-line {
+        animation: none;
+      }
     }
 
     @media (max-width: 600px) {

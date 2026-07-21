@@ -61,7 +61,7 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
 
   selectSearch (term: string) {
     this.query.set(term)
-    this.focused.set(true)
+    this.submitSearch(new Event('submit'))
   }
 
   onQueryChange (value: string) {
@@ -78,6 +78,13 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
 
   onKeydown (event: KeyboardEvent) {
     if (event.key === 'Enter') {
+      event.preventDefault()
+      // If suggestions are visible, pick the first one; otherwise submit search
+      const suggestionList = this.suggestions()
+      if (this.suggestionVisible() && suggestionList.length > 0) {
+        this.selectSearch(suggestionList[0])
+        return
+      }
       this.submitSearch(event as unknown as Event)
     }
   }
