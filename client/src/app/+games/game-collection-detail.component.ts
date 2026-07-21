@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 import { GameCardComponent } from './game-card.component'
+import { GameSkeletonComponent } from './game-skeleton.component'
 import type { Game } from './games.service'
 
 export type GameCollectionDetail = {
@@ -19,10 +20,27 @@ export type GameCollectionDetail = {
 @Component({
   selector: 'my-game-collection-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, GameCardComponent],
+  imports: [CommonModule, RouterModule, GameCardComponent, GameSkeletonComponent],
   template: `
     <div class="collection-detail-container">
-      @if (collection(); as c) {
+      @if (loading()) {
+        <div class="collection-skeleton-header">
+          <div class="collection-skeleton-cover shimmer"></div>
+          <div class="collection-skeleton-text shimmer"></div>
+          <div class="collection-skeleton-text short shimmer"></div>
+        </div>
+        <div class="collection-skeleton-grid">
+          @for (i of [1,2,3,4,5,6]; track $index) {
+            <my-game-skeleton />
+          }
+        </div>
+      } @else if (error()) {
+        <div class="collection-error">
+          <span>加载失败</span>
+          <p>专题数据加载失败，请稍后重试</p>
+          <button type="button" (click)="retryLoad()">重新加载</button>
+        </div>
+      } @else if (collection(); as c) {
         <div class="collection-header">
           @if (c.coverPath) {
             <div class="collection-cover">
@@ -37,16 +55,19 @@ export type GameCollectionDetail = {
         </div>
 
         <div class="collection-games">
-          <div class="game-grid">
-            @for (game of c.data; track game.uuid) {
-              <my-game-card [game]="game" />
-            }
-          </div>
-        </div>
-      } @else if (loading()) {
-        <div class="collection-skeleton">
-          <div class="skeleton-cover shimmer"></div>
-          <div class="skeleton-text shimmer"></div>
+          @if (c.data.length) {
+            <div class="game-grid">
+              @for (game of c.data; track game.uuid) {
+                <my-game-card [game]="game" />
+              }
+            </div>
+          } @else {
+            <div class="collection-empty">
+              <span>该专题暂无游戏</span>
+              <p>去看看其他专题吧</p>
+              <a routerLink="/games/collections">浏览全部专题</a>
+            </div>
+          }
         </div>
       } @else {
         <div class="collection-not-found">
@@ -69,14 +90,56 @@ export type GameCollectionDetail = {
 
     .collection-games .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
 
-    .collection-skeleton { display: flex; flex-direction: column; gap: 1rem; }
-    .skeleton-cover { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--game-radius); background: var(--game-border); }
-    .skeleton-text { height: 1.5rem; width: 60%; border-radius: 4px; background: var(--game-border); }
+    .collection-skeleton-header { margin-bottom: 1.5rem; }
+    .collection-skeleton-cover { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--game-radius); background: #e2e8f0; margin-bottom: 0.75rem; }
+    .collection-skeleton-text { height: 1rem; width: 60%; border-radius: 4px; background: #e2e8f0; margin-bottom: 0.5rem; }
+    .collection-skeleton-text.short { width: 30%; }
+    .collection-skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
 
     .collection-not-found { text-align: center; padding: 3rem; }
     .collection-not-found span { display: block; font-size: 1.1rem; margin-bottom: 1rem; color: var(--game-muted); }
     .collection-not-found a { color: var(--game-brand); text-decoration: none; }
     .collection-not-found a:hover { text-decoration: underline; }
+
+    .collection-empty {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--game-border);
+      border-radius: var(--game-radius);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      justify-content: center;
+      min-height: calc(100vh - 8rem);
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+    .collection-empty span { font-size: 1.1rem; color: var(--game-muted); }
+    .collection-empty p { margin: 0; color: var(--game-muted); }
+    .collection-empty a { color: var(--game-brand); text-decoration: none; font-weight: 600; }
+    .collection-empty a:hover { text-decoration: underline; }
+
+    .collection-error {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      justify-content: center;
+      min-height: calc(100vh - 8rem);
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+    .collection-error span { font-size: 1.1rem; color: var(--game-muted); }
+    .collection-error p { margin: 0; color: var(--game-muted); }
+    .collection-error button {
+      background: var(--game-brand);
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+    }
   `]
 })
 export class GameCollectionDetailComponent implements OnInit {
@@ -84,19 +147,35 @@ export class GameCollectionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   collection = signal<GameCollectionDetail | null>(null)
   loading = signal(false)
+  error = signal(false)
+  private currentSlug = ''
 
   ngOnInit () {
     this.route.paramMap.subscribe(params => {
       const slug = params.get('slug')
       if (!slug) return
-      this.loading.set(true)
-      this.http.get<GameCollectionDetail>(`${environment.apiUrl}/api/v1/games/collections/${slug}`).subscribe({
-        next: (result) => {
-          this.collection.set(result)
-          this.loading.set(false)
-        },
-        error: () => this.loading.set(false)
-      })
+      this.currentSlug = slug
+      this.loadCollection(slug)
+    })
+  }
+
+  retryLoad () {
+    if (!this.currentSlug) return
+    this.loadCollection(this.currentSlug)
+  }
+
+  private loadCollection (slug: string) {
+    this.loading.set(true)
+    this.error.set(false)
+    this.http.get<GameCollectionDetail>(`${environment.apiUrl}/api/v1/games/collections/${slug}`).subscribe({
+      next: (result) => {
+        this.collection.set(result)
+        this.loading.set(false)
+      },
+      error: () => {
+        this.error.set(true)
+        this.loading.set(false)
+      }
     })
   }
 }

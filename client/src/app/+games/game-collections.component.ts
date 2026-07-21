@@ -24,34 +24,50 @@ export type GameCollection = {
         <p>按主题发现精彩游戏</p>
       </div>
 
-      <div class="collections-grid">
-        @for (collection of collections(); track collection.id) {
-          <a class="collection-card" [routerLink]="['/games/collection', collection.slug]">
-            @if (collection.coverPath) {
-              <div class="collection-cover">
-                <img [src]="collection.coverPath" [alt]="collection.title" loading="lazy">
-              </div>
-            } @else {
-              <div class="collection-cover-placeholder">
-                <span>{{ collection.title.charAt(0).toUpperCase() }}</span>
-              </div>
-            }
-            <div class="collection-info">
-              <h3>{{ collection.title }}</h3>
-              @if (collection.description) {
-                <p>{{ collection.description }}</p>
-              }
-              <span class="collection-count">{{ collection.gameCount }} 个游戏</span>
+      @if (loading()) {
+        <div class="collections-skeleton-grid">
+          @for (i of [1,2,3]; track $index) {
+            <div class="collection-skeleton-card shimmer">
+              <div class="collection-skeleton-cover shimmer"></div>
+              <div class="collection-skeleton-text shimmer"></div>
+              <div class="collection-skeleton-text short shimmer"></div>
             </div>
-          </a>
-        } @empty {
-          @if (!loading()) {
+          }
+        </div>
+      } @else if (error()) {
+        <div class="collections-error">
+          <span>加载失败</span>
+          <p>专题数据加载失败，请稍后重试</p>
+          <button type="button" (click)="loadCollections()">重新加载</button>
+        </div>
+      } @else {
+        <div class="collections-grid">
+          @for (collection of collections(); track collection.id) {
+            <a class="collection-card" [routerLink]="['/games/collection', collection.slug]">
+              @if (collection.coverPath) {
+                <div class="collection-cover">
+                  <img [src]="collection.coverPath" [alt]="collection.title" loading="lazy">
+                </div>
+              } @else {
+                <div class="collection-cover-placeholder">
+                  <span>{{ collection.title.charAt(0).toUpperCase() }}</span>
+                </div>
+              }
+              <div class="collection-info">
+                <h3>{{ collection.title }}</h3>
+                @if (collection.description) {
+                  <p>{{ collection.description }}</p>
+                }
+                <span class="collection-count">{{ collection.gameCount }} 个游戏</span>
+              </div>
+            </a>
+          } @empty {
             <div class="collections-empty">
               <span>暂无专题合集</span>
             </div>
           }
-        }
-      </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -102,21 +118,80 @@ export type GameCollection = {
     .collection-count { font-size: 0.75rem; color: var(--game-muted); }
 
     .collections-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
+
+    .collections-skeleton-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .collection-skeleton-card {
+      border-radius: var(--game-radius);
+      border: 1px solid var(--game-border);
+      overflow: hidden;
+      background: var(--game-surface);
+      padding-bottom: 0.75rem;
+    }
+
+    .collection-skeleton-cover {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #e2e8f0;
+    }
+
+    .collection-skeleton-text {
+      height: 0.9rem;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin: 0.6rem 0.75rem 0;
+      width: 70%;
+    }
+
+    .collection-skeleton-text.short {
+      width: 40%;
+    }
+
+    .collections-error {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--game-muted);
+    }
+
+    .collections-error span { display: block; font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .collections-error p { margin: 0 0 1rem; }
+    .collections-error button {
+      background: var(--game-brand);
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.55rem 1.25rem;
+    }
   `]
 })
 export class GameCollectionsComponent implements OnInit {
   private readonly http = inject(HttpClient)
   collections = signal<GameCollection[]>([])
   loading = signal(false)
+  error = signal(false)
 
   ngOnInit () {
+    this.loadCollections()
+  }
+
+  loadCollections () {
     this.loading.set(true)
+    this.error.set(false)
     this.http.get<{ total: number; data: GameCollection[] }>(`${environment.apiUrl}/api/v1/games/collections`).subscribe({
       next: (result) => {
         this.collections.set(result.data)
         this.loading.set(false)
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.error.set(true)
+        this.loading.set(false)
+      }
     })
   }
 }
