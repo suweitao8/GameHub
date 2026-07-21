@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal }
 import { FormsModule } from '@angular/forms'
 import { Router } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { GamesService } from '../+games/games.service'
+import { HttpClient } from '@angular/common/http'
+import { environment } from '../../environments/environment'
 
 @Component({
   selector: 'my-game-navigation',
@@ -12,13 +15,19 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 })
 export class GameNavigationComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router)
+  private readonly gamesService = inject(GamesService)
+  private readonly http = inject(HttpClient)
   private readonly historyStorageKey = 'gamehub-search-history'
   private blurTimer: ReturnType<typeof setTimeout> | undefined
   private hotRefreshTimer: ReturnType<typeof setInterval> | undefined
+  private suggestionTimer: ReturnType<typeof setTimeout> | undefined
   readonly query = signal('')
   readonly focused = signal(false)
   readonly history = signal<string[]>([])
   readonly hotKeywords = signal<string[]>([ '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智', '策略挑战', '恐怖探索', '经典街机', '独立新作', '新作推荐' ])
+  readonly suggestions = signal<string[]>([])
+  readonly suggestionLoading = signal(false)
+  readonly suggestionVisible = signal(false)
 
   private readonly allHotKeywords = [
     '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智',
@@ -53,6 +62,34 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   selectSearch (term: string) {
     this.query.set(term)
     this.focused.set(true)
+  }
+
+  onQueryChange (value: string) {
+    this.query.set(value)
+    if (this.suggestionTimer) clearTimeout(this.suggestionTimer)
+    const trimmed = value.trim()
+    if (trimmed.length < 2) {
+      this.suggestions.set([])
+      this.suggestionLoading.set(false)
+      return
+    }
+    this.suggestionTimer = setTimeout(() => this.fetchSuggestions(trimmed), 150)
+  }
+
+  onKeydown (event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      this.submitSearch(event as unknown as Event)
+    }
+  }
+
+  private fetchSuggestions (query: string) {
+    if (!query) return
+    this.suggestionLoading.set(true)
+    this.http.get<{ data: string[] }>(`${environment.apiUrl}/api/v1/games/suggest?q=${encodeURIComponent(query)}`)
+      .subscribe({
+        next: result => { this.suggestions.set(result.data.slice(0, 8)); this.suggestionLoading.set(false) },
+        error: () => { this.suggestions.set([]); this.suggestionLoading.set(false) }
+      })
   }
 
   clearHistory () {

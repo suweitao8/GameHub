@@ -9308,6 +9308,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/GameList'
 
+  /api/v1/games/suggest:
+    get:
+      tags:
+        - Games
+      summary: Search suggestions
+      description: Returns up to 20 game titles, tags, or categories matching the input prefix for the top search bar autocomplete.
+      operationId: suggestGames
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search prefix (min 2 characters)
+        - name: count
+          in: query
+          schema:
+            type: integer
+            default: 8
+            maximum: 20
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameSuggestList'
+        '400':
+          description: Query too short or invalid
+
   /api/v1/games/{uuid}/reserve:
     post:
       tags:
@@ -15306,6 +15336,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GameRanking'
+
+    GameSuggestList:
+      type: object
+      description: Search autocomplete suggestions (game titles, tags, categories).
+      properties:
+        data:
+          type: array
+          items:
+            type: string
+          description: Ordered list of matching suggestion strings.
 
     GameReservation:
       type: object

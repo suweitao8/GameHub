@@ -97,6 +97,7 @@ gamesRouter.get('/rankings', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETI
 gamesRouter.get('/tags', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listTags))
 gamesRouter.get('/categories', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listCategories))
 gamesRouter.get('/featured', optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listFeaturedGames))
+gamesRouter.get('/suggest', cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(suggestGames))
 gamesRouter.get('/s/:token', asyncMiddleware(resolveShare))
 gamesRouter.post('/preview', authenticate, gameUploadRateLimiter, gameFile, asyncMiddleware(previewGame))
 gamesRouter.get('/:uuid/download', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(downloadGame))
@@ -1030,6 +1031,56 @@ async function listFeaturedGames (req: express.Request, res: express.Response) {
 
     return res.json({ total: data.length, data: data.map(formatGame) })
   })
+}
+
+/**
+ * 搜索建议：根据输入前缀返回匹配的游戏标题和标签
+ * 用于顶部搜索框自动补全
+ */
+async function suggestGames (req: express.Request, res: express.Response) {
+  const q = typeof req.query.q === 'string' ? req.query.q.trim() : ''
+  if (q.length < 2) return res.json({ data: [] })
+
+  const limit = Math.min(20, Math.max(1, Number(req.query.count) || 8))
+  const like = `%${q}%`
+  const ilike = { [Op.iLike]: like }
+
+  const [ titles, tags ] = await Promise.all([
+    GameModel.findAll<MGame>({
+      where: { status: 'published', title: ilike },
+      attributes: [ 'title' ],
+      order: [ [ 'playCount', 'DESC' ] ],
+      limit: limit * 2
+    }),
+    GameModel.findAll<MGame>({
+      where: { status: 'published', tags: { [Op.overlap]: [ q ] } },
+      attributes: [ 'tags' ],
+      limit: limit * 2
+    })
+  ])
+
+  const results = new Set<string>()
+  titles.forEach(g => results.add(g.title))
+  tags.forEach(g => {
+    (g.tags || []).forEach((tag: string) => {
+      if (tag.toLowerCase().includes(q.toLowerCase())) results.add(tag)
+    })
+  })
+
+  // Fallback to category match
+  const categoryMap: Record<string, string> = {
+    '动作': 'arcade', '冒险': 'adventure', '射击': 'shooter',
+    '解谜': 'puzzle', '休闲': 'casual', '角色': 'rpg',
+    '策略': 'strategy', '模拟': 'simulation', '沙盒': 'sandbox',
+    '竞速': 'racing', '体育': 'sports', '卡牌': 'card',
+    '音乐': 'music', '恐怖': 'horror', '桌游': 'board'
+  }
+  Object.entries(categoryMap).forEach(([ label, key ]) => {
+    if (label.includes(q) || q.includes(label)) results.add(label)
+  })
+
+  const data = Array.from(results).slice(0, limit)
+  return res.json({ data })
 }
 
 /**

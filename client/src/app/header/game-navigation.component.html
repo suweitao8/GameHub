@@ -1,11 +1,21 @@
 <nav class="game-navigation" aria-label="游戏社区导航">
   <form class="game-navigation-search" (submit)="submitSearch($event)">
     <label class="visually-hidden" for="game-community-search">搜索游戏、作者或标签</label>
-    <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="query.set($event)" (focus)="onFocus()" (blur)="onBlur()" placeholder="搜索游戏、作者或标签" type="search" autocomplete="off">
+    <input id="game-community-search" name="search" [ngModel]="query()" (ngModelChange)="onQueryChange($event)" (focus)="onFocus()" (blur)="onBlur()" (keydown)="onKeydown($event)" placeholder="搜索游戏、作者或标签" type="search" autocomplete="off">
     <button type="submit" aria-label="搜索"><my-global-icon iconName="search"></my-global-icon></button>
     @if (focused()) {
       <section class="game-search-panel" aria-label="搜索建议" (mousedown)="$event.preventDefault()">
-        @if (history().length) {
+        @if (query().trim().length > 0 && (suggestions().length || suggestionLoading())) {
+          <div class="game-search-panel-heading"><strong>搜索建议</strong></div>
+          <ul class="game-search-suggestions">
+            @if (suggestionLoading()) {
+              @for (i of [1,2,3,4,5]; track i) { <li class="suggestion-shimmer"><span></span></li> }
+            } @else {
+              @for (term of suggestions(); track term) { <li><button type="button" (click)="selectSearch(term)">{{ term }}</button></li> }
+            }
+          </ul>
+        }
+        @if (history().length && !suggestionLoading() && !query().trim()) {
           <div class="game-search-panel-heading"><strong>搜索历史</strong><button type="button" (click)="clearHistory()">清空</button></div>
           <div class="game-search-history">
             @for (term of history(); track term) { <button type="button" (click)="selectSearch(term)">{{ term }}</button> }
