@@ -66,6 +66,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly commentSort = signal<'latest' | 'hot'>('latest')
   readonly activeScreenshot = signal<number>(0)
   readonly lightboxOpen = signal(false)
+  private screenshotTimer: ReturnType<typeof setInterval> | undefined
+  private screenshotPaused = false
   readonly tripleAnimating = signal(false)
   readonly tripleApplied = signal(false)
   readonly shareDialog = signal(false)
@@ -97,6 +99,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   ngOnDestroy () {
     this.stopCommentsPolling()
+    this.stopScreenshotCarousel()
     this.subscriptions.forEach(subscription => subscription.unsubscribe())
   }
 
@@ -134,6 +137,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
+        this.activeScreenshot.set(0)
+        this.startScreenshotCarousel()
         this.gamesService.community(uuid).subscribe({
           next: community => this.community.set(community),
           error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
@@ -588,10 +593,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   openLightbox () {
     this.lightboxOpen.set(true)
+    this.stopScreenshotCarousel()
   }
 
   closeLightbox () {
     this.lightboxOpen.set(false)
+    this.startScreenshotCarousel()
   }
 
   lightboxPrev () {
@@ -604,6 +611,25 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     const total = this.game()?.screenshots?.length || 0
     if (!total) return
     this.activeScreenshot.set((this.activeScreenshot() + 1) % total)
+  }
+
+  private startScreenshotCarousel () {
+    this.stopScreenshotCarousel()
+    const total = this.game()?.screenshots?.length || 0
+    if (total <= 1) return
+    this.screenshotTimer = setInterval(() => {
+      if (this.screenshotPaused || this.lightboxOpen()) return
+      const count = this.game()?.screenshots?.length || 0
+      if (count <= 1) return
+      this.activeScreenshot.update(current => (current + 1) % count)
+    }, 5000)
+  }
+
+  private stopScreenshotCarousel () {
+    if (this.screenshotTimer) {
+      clearInterval(this.screenshotTimer)
+      this.screenshotTimer = undefined
+    }
   }
 
   @HostListener('document:keydown', [ '$event' ])
