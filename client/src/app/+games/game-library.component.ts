@@ -47,13 +47,14 @@ export class GameLibraryComponent implements OnInit, OnDestroy {
     return this.gamesService.buildDownloadUrl(uuid)
   }
 
-  private load () {
+  load () {
+    this.loading.set(true)
     const request = this.tab() === 'favorites'
       ? this.gamesService.listFavorites()
       : this.tab() === 'owned' ? this.gamesService.listOwned() : this.gamesService.listRecent()
     request.subscribe({
-      next: result => { this.games.set(result.data); this.error.set('') },
-      error: () => this.error.set('请先登录后查看你的游戏收藏、最近游玩和创作内容。')
+      next: result => { this.games.set(result.data); this.error.set(''); this.loading.set(false) },
+      error: () => { this.error.set('请先登录后查看你的游戏收藏、最近游玩和创作内容。'); this.loading.set(false) }
     })
   }
 }

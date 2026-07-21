@@ -12,7 +12,7 @@
       <button type="button" [class.active]="tab() === 'owned'" (click)="selectTab('owned')">我的创作</button>
     </nav>
 
-    @if (error()) { <p class="library-error" role="alert">{{ error() }}</p> }
+    @if (error()) { <p class="library-error" role="alert">{{ error() }}</p><button type="button" class="library-retry" (click)="load()">重新加载</button> }
 
     @if (loading()) {
       <div class="library-skeleton-grid">
