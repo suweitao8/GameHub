@@ -60,12 +60,22 @@
           <p class="empty-feed-desc">去发现页浏览更多内容</p>
           <a routerLink="/games">去发现</a>
         </div>
-      } @else { 
+      } @else {
         <div class="category-empty" aria-label="暂无游戏">
-          <div class="empty-icon" aria-hidden="true">🎮</div>
-          <span class="empty-title">还没有游戏</span>
-          <p class="empty-desc">成为第一个分享作品的创作者</p>
-          <a routerLink="/games/upload" class="empty-cta">上传游戏</a>
+          <div class="empty-icon" aria-hidden="true">🔍</div>
+          @if (search() || searchMode()) {
+            <span class="empty-title">未找到匹配结果</span>
+            <p class="empty-desc">试试换个关键词，或浏览其他分类</p>
+            <a routerLink="/games" class="empty-cta">返回发现</a>
+          } @else if (category()) {
+            <span class="empty-title">该分类暂无游戏</span>
+            <p class="empty-desc">去看看其他分类，或上传第一个作品</p>
+            <a routerLink="/games" class="empty-cta">浏览全部</a>
+          } @else {
+            <span class="empty-title">还没有游戏</span>
+            <p class="empty-desc">成为第一个分享作品的创作者</p>
+            <a routerLink="/games/upload" class="empty-cta">上传游戏</a>
+          }
         </div>
       }
     </div>
