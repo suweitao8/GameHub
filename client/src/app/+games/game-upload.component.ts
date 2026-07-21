@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { FormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
@@ -41,6 +41,14 @@ export class GameUploadComponent implements OnDestroy {
 
   constructor () {
     window.addEventListener('message', this.onPreviewMessage)
+  }
+
+  @HostListener('window:beforeunload', [ '$event' ])
+  onBeforeUnload (event: BeforeUnloadEvent) {
+    if (this.submitting() || this.file || this.createdGame()) return
+    event.preventDefault()
+    event.returnValue = '你有未保存的修改，确定离开吗？'
+    return event.returnValue
   }
 
   ngOnDestroy () {
