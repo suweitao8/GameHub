@@ -133,7 +133,7 @@
               <form class="review-form" (submit)="$event.preventDefault(); submitReview()"><textarea aria-label="评价内容" [value]="reviewDraft()" (input)="reviewDraft.set($any($event.target).value)" placeholder="游玩后写下你的评价" maxlength="5000"></textarea><button type="submit">发布评价</button></form>
             }
             <div class="review-list">
-              @if (reviewsLoading()) { <div class="review-skeleton shimmer"></div><div class="review-skeleton shimmer"></div><div class="review-skeleton shimmer"></div> }
+              @if (reviewsLoading()) { @for (i of [1,2,3]; track $index) { <div class="review-skeleton-row shimmer"><div class="review-skeleton-header"><div class="review-skeleton-avatar"></div><div class="review-skeleton-meta"><div class="review-skeleton-name"></div><div class="review-skeleton-date"></div></div></div><div class="review-skeleton-stars"></div><div class="review-skeleton-text"></div><div class="review-skeleton-text short"></div></div> } }
               @else if (reviewsError()) { <p class="feedback" role="alert">{{ reviewsError() }}</p> }
               @else {
                 @for (review of reviews(); track review.id) {

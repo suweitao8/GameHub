@@ -1063,6 +1063,41 @@
 }
 
 /* Review skeleton loading */
+.review-skeleton-row { background: #f6f7f8;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem; }
+.review-skeleton-header { align-items: center;
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 0.5rem; }
+.review-skeleton-avatar { background: #e2e8f0;
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 2rem;
+  width: 2rem; }
+.review-skeleton-meta { display: flex;
+  flex-direction: column;
+  gap: 0.3rem; }
+.review-skeleton-name { background: #e2e8f0;
+  border-radius: 4px;
+  height: 0.8rem;
+  width: 5rem; }
+.review-skeleton-date { background: #e2e8f0;
+  border-radius: 4px;
+  height: 0.7rem;
+  width: 3rem; }
+.review-skeleton-stars { background: #e2e8f0;
+  border-radius: 4px;
+  height: 0.85rem;
+  margin-bottom: 0.5rem;
+  width: 6rem; }
+.review-skeleton-text { background: #e2e8f0;
+  border-radius: 4px;
+  height: 0.85rem;
+  margin-bottom: 0.4rem;
+  width: 100%; }
+.review-skeleton-text.short { width: 60%; }
 .review-skeleton {
   background: #eceff3;
   border-radius: 4px;
