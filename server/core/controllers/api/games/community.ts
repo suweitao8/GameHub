@@ -162,7 +162,7 @@ async function getRatingDistribution (req: express.Request, res: express.Respons
     attributes: [ 'score', [ GameReviewModel.sequelize.fn('COUNT', GameReviewModel.sequelize.col('id')), 'count' ] ],
     group: [ 'score' ],
     raw: true
-  }) as unknown as Array<{ score: number, count: number }>
+  }) as unknown as { score: number, count: number }[]
 
   const distribution = [ 5, 4, 3, 2, 1 ].map(star => {
     const row = rows.find(r => Number(r.score) === star)

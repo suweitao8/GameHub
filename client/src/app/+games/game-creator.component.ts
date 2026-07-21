@@ -18,6 +18,9 @@ export class GameCreatorComponent implements OnInit {
   readonly dailyLoginMessage = signal('')
   readonly error = signal('')
   readonly recentNotifications = signal<GameNotification[]>([])
+  readonly trendLoading = signal(true)
+  readonly trendError = signal(false)
+  readonly trendPlays = signal<{ date: string; plays: number }[]>([])
 
   ngOnInit () {
     this.gamesService.creatorOverview().subscribe({
@@ -30,6 +33,17 @@ export class GameCreatorComponent implements OnInit {
     })
     this.gamesService.notifications().subscribe({
       next: value => this.recentNotifications.set(value.data.filter(item => item.kind === 'comment' || item.kind === 'reply').slice(0, 5))
+    })
+    // Load play trend for the mini chart
+    this.gamesService.getAnalytics().subscribe({
+      next: data => {
+        this.trendPlays.set(data.playTrend)
+        this.trendLoading.set(false)
+      },
+      error: () => {
+        this.trendError.set(true)
+        this.trendLoading.set(false)
+      }
     })
   }
 
@@ -56,5 +70,11 @@ export class GameCreatorComponent implements OnInit {
 
   formatBytes (bytes: number) {
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  }
+
+  trendMax () {
+    const data = this.trendPlays()
+    if (!data.length) return 1
+    return Math.max(...data.map(t => t.plays), 1)
   }
 }

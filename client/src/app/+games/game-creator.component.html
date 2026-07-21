@@ -13,6 +13,27 @@
         }
         @if (dailyLoginMessage()) { <span class="daily-login-msg">{{ dailyLoginMessage() }}</span> }
       </section>
+      <section class="creator-trend-card">
+        <div class="trend-header">
+          <p class="game-eyebrow">游玩趋势</p>
+          <span class="trend-count">{{ overview()!.plays }} 次总游玩</span>
+        </div>
+        @if (trendLoading()) {
+          <div class="trend-skeleton shimmer"></div>
+        } @else if (trendError()) {
+          <p class="trend-fallback">数据加载失败</p>
+        } @else {
+          <div class="trend-mini-chart">
+            <div class="trend-bars">
+              @for (item of trendPlays(); track item.date) {
+                <div class="trend-bar-wrapper" [style.height.%]="(item.plays / trendMax()) * 100">
+                  <span class="trend-bar" [title]="item.date + ': ' + item.plays + '次'"></span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </section>
       <section class="metric-grid">
         <article><span>维护游戏</span><strong>{{ overview()!.gameCount }} / {{ overview()!.gameLimit }}</strong></article>
         <article><span>存储用量</span><strong>{{ formatBytes(overview()!.storageBytes) }}</strong><small>总上限 {{ formatBytes(overview()!.storageLimitBytes) }}</small></article>
