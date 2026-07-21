@@ -111,8 +111,14 @@
 }
 
 .trend-mini-chart {
+  cursor: pointer;
   height: 4rem;
   padding: 0.25rem 0;
+  transition: opacity 200ms ease;
+}
+
+.trend-mini-chart:hover {
+  opacity: 0.85;
 }
 
 .trend-bars {

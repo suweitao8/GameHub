@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
-import { RouterLink } from '@angular/router'
+import { Router, RouterLink } from '@angular/router'
 import { GameCardComponent } from './game-card.component'
 import { GameCreatorOverview, GameLevelInfo, GameNotification, GamesService } from './games.service'
 import { GameLevelBadgeComponent } from './game-level-badge.component'
@@ -12,6 +12,7 @@ import { GameLevelBadgeComponent } from './game-level-badge.component'
 })
 export class GameCreatorComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
+  private readonly router = inject(Router)
   readonly overview = signal<GameCreatorOverview | null>(null)
   readonly levelInfo = signal<GameLevelInfo | null>(null)
   readonly dailyLoginLoading = signal(false)
@@ -76,5 +77,9 @@ export class GameCreatorComponent implements OnInit {
     const data = this.trendPlays()
     if (!data.length) return 1
     return Math.max(...data.map(t => t.plays), 1)
+  }
+
+  goToAnalytics () {
+    void this.router.navigate(['/games/analytics'])
   }
 }

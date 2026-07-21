@@ -23,7 +23,7 @@
         } @else if (trendError()) {
           <p class="trend-fallback">数据加载失败</p>
         } @else {
-          <div class="trend-mini-chart">
+          <div class="trend-mini-chart" (click)="goToAnalytics()">
             <div class="trend-bars">
               @for (item of trendPlays(); track item.date) {
                 <div class="trend-bar-wrapper" [style.height.%]="(item.plays / trendMax()) * 100">
