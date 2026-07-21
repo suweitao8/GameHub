@@ -29,7 +29,7 @@ export type FollowedAuthor = {
 
       @if (loading()) {
         <div class="following-skeleton">
-          <div class="following-item shimmer" *ngFor="let _ of [1,2,3,4,5]"></div>
+          @for (i of [1,2,3,4,5]; track $index) { <div class="following-item shimmer"></div> }
         </div>
       } @else if (error()) {
         <div class="following-error">
