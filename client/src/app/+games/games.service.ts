@@ -104,6 +104,31 @@ export type GameReview = {
   isAuthor?: boolean
 }
 
+export type GameRatingBucket = {
+  star: number
+  count: number
+  percent: number
+}
+
+export type GameRatingDistribution = {
+  total: number
+  distribution: GameRatingBucket[]
+}
+
+export type GameRelatedGame = {
+  uuid: string
+  title: string
+  category: string
+  tags: string[]
+  coverPath: string | null
+  coverFallback: string | null
+  playCount: number
+  likes: number
+  favorites: number
+  publishedAt: string | null
+  author: { id: number, name: string, displayName: string, handle: string } | null
+}
+
 export type GameLevelInfo = {
   exp: number
   levelInfo: {
@@ -207,6 +232,16 @@ export class GamesService {
 
   reviews (uuid: string, start = 0, count = 20): Observable<{ total: number, data: GameReview[] }> {
     return this.http.get<{ total: number, data: GameReview[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reviews?start=${start}&count=${count}`)
+  }
+
+  ratingDistribution (uuid: string): Observable<GameRatingDistribution> {
+    return this.http.get<GameRatingDistribution>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rating-distribution`)
+  }
+
+  related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
+    return this.http.get<{ total: number, data: GameRelatedGame[] }>(
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/related?count=${count}`
+    )
   }
 
   replies (uuid: string, commentId: number): Observable<{ total: number, data: GameComment[] }> {

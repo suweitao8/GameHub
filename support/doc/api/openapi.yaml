@@ -9175,6 +9175,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/GameReviewList'
 
+  /api/v1/games/{uuid}/rating-distribution:
+    get:
+      tags:
+        - Games
+      summary: Get rating distribution
+      description: Returns 5-star to 1-star review counts and percentages for the rating histogram shown on the game detail page.
+      operationId: getGameRatingDistribution
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameRatingDistribution'
+        '404':
+          description: game not found
+
+  /api/v1/games/{uuid}/related:
+    get:
+      tags:
+        - Games
+      summary: List related games
+      description: Get up to 20 related games (same category and tag overlap first, backfilled by same author / popular games).
+      operationId: listRelatedGames
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+        - name: count
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 8
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameRelatedList'
+        '404':
+          description: game not found
+
   /api/v1/games/feed:
     get:
       tags:
@@ -15087,6 +15132,93 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GameReview'
+
+    GameRatingDistribution:
+      type: object
+      description: 5-star to 1-star rating histogram data for the game detail page.
+      properties:
+        total:
+          type: integer
+          description: Total number of reviews used to compute percentages.
+        distribution:
+          type: array
+          description: One entry per star bucket (5 down to 1).
+          items:
+            $ref: '#/components/schemas/GameRatingBucket'
+
+    GameRatingBucket:
+      type: object
+      properties:
+        star:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Star bucket (5 = best, 1 = worst).
+        count:
+          type: integer
+          minimum: 0
+          description: Number of reviews with this score.
+        percent:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Share of total reviews (one decimal, e.g. 33.3). 0 when total is 0.
+
+    GameRelatedGame:
+      type: object
+      description: Lightweight summary of a related/recommended game.
+      properties:
+        uuid:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        coverPath:
+          type: string
+          nullable: true
+          description: Signed cover URL when cover exists.
+        coverFallback:
+          type: string
+          nullable: true
+          description: Stable fallback cover URL when coverPath is null.
+        playCount:
+          type: integer
+        likes:
+          type: integer
+        favorites:
+          type: integer
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        author:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            displayName:
+              type: string
+            handle:
+              type: string
+
+    GameRelatedList:
+      type: object
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameRelatedGame'
 
     GameActivity:
       type: object

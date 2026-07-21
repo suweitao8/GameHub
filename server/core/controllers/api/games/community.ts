@@ -1,5 +1,7 @@
 import { HttpStatusCode, UserRight } from '@peertube/peertube-models'
 import { sequelizeTypescript } from '@server/initializers/database.js'
+import { CONFIG } from '@server/initializers/config.js'
+import { generateGameCoverSignedUrl } from '@server/lib/games/game-cdn.js'
 import { JobQueue } from '@server/lib/job-queue/index.js'
 import { sendUndoFollow } from '@server/lib/activitypub/send/index.js'
 import { AccountModel } from '@server/models/account/account.js'
@@ -17,6 +19,7 @@ import type { MGame } from '@server/types/models/game/game.js'
 import { apiRateLimiter, asyncMiddleware, authenticate, gameCoinRateLimiter, gameCommentRateLimiter, gameFavoriteRateLimiter, gameRatingRateLimiter, gameReviewRateLimiter, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
+import { Op } from 'sequelize'
 import { canDeleteGameComment, isSupportedGameRating, normalizeGameRating } from '../../../lib/games/game-community-policy.js'
 import { createGameNotification } from '../../../lib/games/game-notifications.js'
 import { traceGameOperation } from '../../../lib/games/game-tracing.js'
@@ -30,6 +33,8 @@ const gameCommunityRouter = express.Router()
 gameCommunityRouter.use(apiRateLimiter)
 
 gameCommunityRouter.get('/:uuid/community', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommunity))
+gameCommunityRouter.get('/:uuid/rating-distribution', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getRatingDistribution))
+gameCommunityRouter.get('/:uuid/related', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listRelatedGames))
 gameCommunityRouter.get('/:uuid/reviews', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReviews))
 gameCommunityRouter.put('/:uuid/review', gameUUIDValidator, authenticate, gameReviewRateLimiter, asyncMiddleware(upsertReview))
 gameCommunityRouter.get('/:uuid/comments/featured', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listFeaturedComments))
@@ -142,6 +147,117 @@ async function listReviews (req: express.Request, res: express.Response) {
   ])
 
   return res.json({ total, data: formatReviews(reviews, game) })
+}
+
+/**
+ * 返回游戏评分分布：5 星到 1 星每个分数的评论数量与百分比
+ * 用于详情页评分柱状图
+ */
+async function getRatingDistribution (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const rows = await GameReviewModel.findAll({
+    where: { gameId: game.id },
+    attributes: [ 'score', [ GameReviewModel.sequelize.fn('COUNT', GameReviewModel.sequelize.col('id')), 'count' ] ],
+    group: [ 'score' ],
+    raw: true
+  }) as unknown as Array<{ score: number, count: number }>
+
+  const distribution = [ 5, 4, 3, 2, 1 ].map(star => {
+    const row = rows.find(r => Number(r.score) === star)
+    const count = Number(row?.count || 0)
+    return { star, count }
+  })
+  const total = distribution.reduce((sum, item) => sum + item.count, 0)
+  const withPercent = distribution.map(item => ({
+    star: item.star,
+    count: item.count,
+    percent: total > 0 ? Math.round((item.count / total) * 1000) / 10 : 0
+  }))
+
+  return res.json({ total, distribution: withPercent })
+}
+
+/**
+ * 返回相似游戏：优先同分类且标签重合多的游戏
+ * 用于详情页右侧栏「相关推荐」
+ */
+async function listRelatedGames (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const limit = Math.min(20, Math.max(1, Number(req.query.count) || 8))
+  const tags = Array.isArray(game.tags) ? game.tags.filter(t => typeof t === 'string') : []
+
+  // 1. Same category, overlap tags, exclude self, published only
+  const candidates = await GameModel.findAll<MGame>({
+    where: {
+      status: 'published',
+      id: { [Op.ne]: game.id },
+      category: game.category
+    },
+    attributes: { include: GameModel.getPublicStatsAttributes() },
+    include: [
+      { model: AccountModel, required: true },
+      { model: GameStatsSummaryModel, required: false }
+    ],
+    limit: 60
+  })
+
+  // 2. Score by tag overlap, then by play count
+  const scored = candidates.map(c => {
+    const candidateTags = Array.isArray(c.tags) ? c.tags.filter(t => typeof t === 'string') : []
+    const overlap = tags.filter(t => candidateTags.includes(t)).length
+    return { game: c, overlap, playCount: Number(c.playCount || 0) }
+  })
+  scored.sort((a, b) => (b.overlap - a.overlap) || (b.playCount - a.playCount))
+
+  // 3. If not enough same-category, fill from same author / popular
+  let result = scored.slice(0, limit)
+  if (result.length < limit) {
+    const existingIds = new Set(result.map(r => r.game.id).concat([ game.id ]))
+    const fillers = await GameModel.findAll<MGame>({
+      where: {
+        status: 'published',
+        id: { [Op.notIn]: Array.from(existingIds) },
+        [Op.or]: [
+          { ownerAccountId: game.ownerAccountId },
+          { playCount: { [Op.gte]: 1 } }
+        ]
+      },
+      attributes: { include: GameModel.getPublicStatsAttributes() },
+      include: [
+        { model: AccountModel, required: true },
+        { model: GameStatsSummaryModel, required: false }
+      ],
+      order: [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ],
+      limit: limit - result.length
+    })
+    result = result.concat(fillers.map(g => ({ game: g, overlap: 0, playCount: Number(g.playCount || 0) })))
+  }
+
+  const baseUrl = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
+  const data = result.slice(0, limit).map(({ game: g }) => {
+    const owner = (g as any).Owner
+    return {
+      uuid: g.uuid,
+      title: g.title,
+      category: g.category,
+      tags: Array.isArray(g.tags) ? g.tags.filter((t: unknown) => typeof t === 'string') : [],
+      coverPath: g.coverPath ? generateGameCoverSignedUrl({ uuid: g.uuid }) : null,
+      coverFallback: g.coverPath ? null : `${baseUrl}/api/v1/games/${g.uuid}/cover`,
+      playCount: Number(g.playCount || 0),
+      likes: Number(g.get?.('gameLikes') ?? 0),
+      favorites: Number(g.get?.('favoriteCount') ?? 0),
+      publishedAt: g.publishedAt,
+      author: owner?.Actor
+        ? { id: owner.id, name: owner.name, displayName: owner.getDisplayName(), handle: owner.Actor.getIdentifier() }
+        : null
+    }
+  })
+
+  return res.json({ total: data.length, data })
 }
 
 async function upsertReview (req: express.Request, res: express.Response) {

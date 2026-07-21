@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener,
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
-import { GamesService, Game, GameComment, GameCommunity, GameReview } from './games.service'
+import { GamesService, Game, GameComment, GameCommunity, GameRatingDistribution, GameRelatedGame, GameReview } from './games.service'
 import { GameCardComponent } from './game-card.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -53,8 +53,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly coinAmount = signal<1 | 2>(1)
   readonly coinMessage = signal('')
   readonly coinLoading = signal(false)
-  readonly related = signal<Game[]>([])
+  readonly related = signal<GameRelatedGame[]>([])
   readonly authorGames = signal<Game[]>([])
+  readonly ratingDistribution = signal<GameRatingDistribution | null>(null)
   readonly replies = signal<Record<number, GameComment[]>>({})
   readonly commentFeedback = signal('')
   readonly deleteTarget = signal<GameComment | null>(null)
@@ -63,7 +64,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
-  readonly commentSort = signal<'latest' | 'hot'>('latest')
+  readonly commentSort = signal<'new' | 'hot' | 'old'>('new')
   readonly activeScreenshot = signal<number>(0)
   readonly lightboxOpen = signal(false)
   private screenshotTimer: ReturnType<typeof setInterval> | undefined
@@ -86,6 +87,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly sortedComments = computed(() => {
     const comments = [ ...this.comments() ]
     if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
+    // 'new' and 'old' are handled by backend sort
     return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   })
   private currentUuid = ''
@@ -165,9 +167,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
             this.reviewsError.set('评价暂时无法加载，请稍后重试。')
           }
         })
+        this.gamesService.ratingDistribution(uuid).subscribe({
+          next: result => this.ratingDistribution.set(result),
+          error: () => this.ratingDistribution.set(null)
+        })
         this.startCommentsPolling()
-        this.gamesService.list({ category: game.category, count: 4, sort: 'popular' }).subscribe({
-          next: result => this.related.set(result.data.filter(item => item.uuid !== game.uuid))
+        this.gamesService.related(uuid, 8).subscribe({
+          next: result => this.related.set(result.data)
         })
         if (game.author?.name) {
           this.gamesService.list({ search: game.author.name, count: 3, sort: 'latest' }).subscribe({
@@ -272,21 +278,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
-  tripleAction () {
-    if (!this.requireLogin()) return
-    const current = this.community()
-    if (!current || current.isOwner) return
-    this.gamesService.triple(this.currentUuid).subscribe({
-      next: (value) => {
-        this.actionFeedback.set('一键三连成功！')
-        this.gamesService.community(this.currentUuid).subscribe({
-          next: state => this.community.set(state)
-        })
-      },
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
   startGame () {
     this.gameStarted.set(true)
     if (this.playRecordedFor !== this.currentUuid) {
@@ -304,7 +295,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.setGameVolume(Number((event.target as HTMLInputElement).value))
   }
 
-  setCommentSort (sort: 'hot' | 'latest') {
+  setCommentSort (sort: 'new' | 'hot' | 'old') {
     this.commentSort.set(sort)
     this.commentsLoading.set(true)
     this.gamesService.comments(this.currentUuid, sort).subscribe({
