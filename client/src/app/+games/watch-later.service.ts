@@ -12,12 +12,25 @@ export type WatchLaterItem = {
 const WATCH_LATER_KEY = 'gamehub_watch_later'
 const MAX_ITEMS = 200
 
+function isValidWatchLaterItem (item: unknown): item is WatchLaterItem {
+  if (!item || typeof item !== 'object') return false
+  const candidate = item as Record<string, unknown>
+  return (
+    typeof candidate.uuid === 'string' &&
+    typeof candidate.title === 'string' &&
+    (candidate.coverPath === null || typeof candidate.coverPath === 'string') &&
+    (candidate.authorName === null || typeof candidate.authorName === 'string') &&
+    typeof candidate.addedAt === 'string'
+  )
+}
+
 function getStored (): WatchLaterItem[] {
   try {
     const raw = localStorage.getItem(WATCH_LATER_KEY)
     if (!raw) return []
-    const parsed = JSON.parse(raw) as WatchLaterItem[]
-    return Array.isArray(parsed) ? parsed : []
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(isValidWatchLaterItem)
   } catch {
     return []
   }

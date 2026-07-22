@@ -2,14 +2,11 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { RouterLink } from '@angular/router'
 import { WatchLaterService, WatchLaterItem } from './watch-later.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { GameCardComponent } from './game-card.component'
-import { GameSkeletonComponent } from './game-skeleton.component'
-import { Game } from './games.service'
 
 @Component({
   selector: 'my-game-watch-later',
   standalone: true,
-  imports: [ RouterLink, GlobalIconComponent, GameCardComponent, GameSkeletonComponent ],
+  imports: [ RouterLink, GlobalIconComponent ],
   template: `
     <main class="game-community-page library-page">
       <div class="game-community-content">

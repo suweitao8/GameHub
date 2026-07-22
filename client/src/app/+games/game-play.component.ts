@@ -28,7 +28,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private reloadKey = 0
-  private recommendService = inject(GameRecommendService)
+  private readonly recommendService = inject(GameRecommendService)
 
   readonly game = signal<Game | null>(null)
   readonly loading = signal(true)

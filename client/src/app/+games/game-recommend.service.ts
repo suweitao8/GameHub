@@ -14,12 +14,27 @@ export type BrowseRecord = {
 const BROWSE_HISTORY_KEY = 'gamehub_browse_history'
 const MAX_HISTORY = 100
 
+function isValidBrowseRecord (item: unknown): item is BrowseRecord {
+  if (!item || typeof item !== 'object') return false
+  const candidate = item as Record<string, unknown>
+  return (
+    typeof candidate.uuid === 'string' &&
+    typeof candidate.title === 'string' &&
+    typeof candidate.category === 'string' &&
+    Array.isArray(candidate.tags) &&
+    (candidate.authorId === null || typeof candidate.authorId === 'number') &&
+    (candidate.authorName === null || typeof candidate.authorName === 'string') &&
+    typeof candidate.viewedAt === 'string'
+  )
+}
+
 function getStored (): BrowseRecord[] {
   try {
     const raw = localStorage.getItem(BROWSE_HISTORY_KEY)
     if (!raw) return []
-    const parsed = JSON.parse(raw) as BrowseRecord[]
-    return Array.isArray(parsed) ? parsed : []
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter(isValidBrowseRecord)
   } catch {
     return []
   }
@@ -79,7 +94,7 @@ export class GameRecommendService {
     return { categories, tags, authors }
   }
 
-  scoreRelevance (game: Game): number {
+  scoreRelevance (game: Game, history: BrowseRecord[]): number {
     const { categories, tags, authors } = this.getInterestWeights()
     let score = 0
 
@@ -97,20 +112,20 @@ export class GameRecommendService {
       score += authors[String(game.author.id)] * 3
     }
 
-    // Penalize already viewed games
-    const history = getStored()
+    // Penalize already viewed games mildly
     if (history.some(item => item.uuid === game.uuid)) {
-      score -= 10
+      score -= 5
     }
 
     return score
   }
 
   recommend (games: Game[], count = 6): Game[] {
-    if (getStored().length === 0) return []
+    const history = getStored()
+    if (history.length === 0) return []
 
     const scored = games
-      .map(game => ({ game, score: this.scoreRelevance(game) }))
+      .map(game => ({ game, score: this.scoreRelevance(game, history) }))
       .filter(item => item.score > 0)
       .sort((a, b) => b.score - a.score)
 
