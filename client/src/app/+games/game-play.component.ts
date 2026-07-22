@@ -8,6 +8,8 @@ import { GameCardComponent } from './game-card.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { WatchLaterService } from './watch-later.service'
+import { GameRecommendService } from './game-recommend.service'
 
 @Component({
   templateUrl: './game-play.component.html',
@@ -26,6 +28,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private reloadKey = 0
+  private recommendService = inject(GameRecommendService)
 
   readonly game = signal<Game | null>(null)
   readonly loading = signal(true)
@@ -81,6 +84,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly reportPredefined = signal<string[]>([])
   readonly reportSubmitting = signal(false)
   readonly reportFeedback = signal('')
+  readonly inWatchLater = signal(false)
+  readonly watchLaterFeedback = signal('')
+  readonly watchLaterService = inject(WatchLaterService)
   readonly reportReasons = [
     '色情低俗', '暴力血腥', '违法违规', '侵权抄袭',
     '恶意代码', '无法运行', '垃圾内容', '其他'
@@ -143,9 +149,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.commentFeedback.set('')
     this.coinMessage.set('')
     this.playRecordedFor = ''
+    this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
       next: game => {
         this.game.set(game)
+        this.recommendService.recordView(game)
         this.updateMetaTags(game)
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
@@ -770,5 +778,14 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.commentsError.set('')
       }
     })
+  }
+
+  toggleWatchLater () {
+    const currentGame = this.game()
+    if (!currentGame) return
+    const added = this.watchLaterService.toggle(currentGame)
+    this.inWatchLater.set(added)
+    this.watchLaterFeedback.set(added ? '已加入「稍后再玩」' : '已从「稍后再玩」移除')
+    setTimeout(() => this.watchLaterFeedback.set(''), 2000)
   }
 }

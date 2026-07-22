@@ -103,6 +103,9 @@
           <a ngbDropdownItem class="dropdown-item" routerLink="/games/library" [queryParams]="{ tab: 'recent' }">
             <ng-container>游玩历史</ng-container>
           </a>
+          <a ngbDropdownItem class="dropdown-item" routerLink="/games/watch-later">
+            <my-global-icon iconName="clock" aria-hidden="true"></my-global-icon> <ng-container>稍后再玩</ng-container>
+          </a>
 
           <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator">
             <my-global-icon iconName="upload" aria-hidden="true"></my-global-icon> <ng-container>创作中心</ng-container>

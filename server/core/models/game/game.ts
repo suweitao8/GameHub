@@ -198,7 +198,9 @@ export class GameModel extends SequelizeModel<GameModel> {
         ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
         : metric === 'latest' || metric === 'recommended'
           ? [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
-          : [ [ statsCol(metric), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+          : metric === 'updated'
+            ? [ [ 'updatedAt', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
+            : [ [ statsCol(metric), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
 
     return Promise.all([
       GameModel.count({ where }),

@@ -820,6 +820,7 @@ async function getRankings (req: express.Request, res: express.Response) {
     const sortMap: Record<string, string> = {
       hot: 'plays',
       newest: 'latest',
+      updated: 'updated',
       topRated: 'latest', // We'll sort by averageReviewScore after fetching
       favorites: 'favorites',
       coins: 'coins',

@@ -22,6 +22,7 @@ import { GameEventAdminComponent } from './game-event-admin.component'
 import { GameFollowingComponent } from './game-following.component'
 import { GameArticlesComponent } from './game-articles.component'
 import { GameTagsCloudComponent } from './game-tags-cloud.component'
+import { GameWatchLaterComponent } from './game-watch-later.component'
 
 export default [
   {
@@ -143,6 +144,11 @@ export default [
         component: GameFollowingComponent,
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My following` } }
+      },
+      {
+        path: 'watch-later',
+        component: GameWatchLaterComponent,
+        data: { meta: { title: $localize`Watch later` } }
       },
       {
         path: '',

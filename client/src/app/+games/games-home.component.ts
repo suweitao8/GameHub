@@ -9,6 +9,7 @@ import { GamesService, Game } from './games.service'
 import { GamesListParams } from './games-api'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { HttpClient } from '@angular/common/http'
+import { GameRecommendService } from './game-recommend.service'
 import { environment } from '../../environments/environment'
 
 @Component({
@@ -22,6 +23,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly authService = inject(AuthService)
   private readonly route = inject(ActivatedRoute)
   private readonly http = inject(HttpClient)
+  private readonly recommendService = inject(GameRecommendService)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
@@ -43,6 +45,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly featuredGradients = signal<Record<string, string>>({})
   readonly featured = signal<Game[]>([])
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
+  readonly personalized = signal<Game[]>([])
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private carouselProgressTimer: ReturnType<typeof setInterval> | undefined
   readonly carouselProgress = signal(0)
@@ -223,6 +226,10 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
         this.recommended.set(result.recommended.data)
         this.featured.set(result.featured.data)
         this.collections.set(result.collections.data)
+        // Compute personalized recommendations
+        const allGames = [...result.latest.data, ...result.popular.data, ...result.recommended.data]
+        const uniqueGames = allGames.filter((g, i, arr) => arr.findIndex(item => item.uuid === g.uuid) === i)
+        this.personalized.set(this.recommendService.recommend(uniqueGames, 6))
         this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)

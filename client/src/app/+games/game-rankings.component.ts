@@ -315,7 +315,7 @@ import { GamesService } from '../games.service'
 export class GameRankingsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   rankings = signal<GameRanking[]>([])
-  currentTab = signal<'hot' | 'newest' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
+  currentTab = signal<'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
   loading = signal(false)
   error = signal(false)
@@ -323,6 +323,7 @@ export class GameRankingsComponent implements OnInit {
   tabs: { id: typeof this.currentTab extends ReturnType<typeof signal<infer T>> ? T : never; label: string }[] = [
     { id: 'hot', label: '最热' },
     { id: 'newest', label: '最新' },
+    { id: 'updated', label: '最近更新' },
     { id: 'topRated', label: '评分最高' },
     { id: 'favorites', label: '最多收藏' },
     { id: 'coins', label: '最多投币' },

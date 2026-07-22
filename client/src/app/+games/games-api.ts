@@ -5,7 +5,7 @@ export type GamesListParams = {
   publishedAfter?: string
   count?: number
   start?: number
-  sort?: 'recommended' | 'latest' | 'popular' | 'likes' | 'coins' | 'favorites'
+  sort?: 'recommended' | 'latest' | 'updated' | 'popular' | 'likes' | 'coins' | 'favorites'
 }
 
 export type GameUploadMetadata = {
