@@ -88,6 +88,29 @@
             <button type="button" [class.active]="sort() === 'plays'" (click)="selectSort('plays')">最多游玩</button>
             <button type="button" [class.active]="sort() === 'favorites'" (click)="selectSort('favorites')">最多收藏</button>
           </div>
+          @if (author()!.data.length) {
+            <div class="author-pinned">
+              <span class="pinned-badge">置顶</span>
+              <a class="pinned-card" [routerLink]="['/games', author()!.data[0].uuid]">
+                <div class="pinned-cover">
+                  @if (author()!.data[0].coverPath) {
+                    <img [src]="author()!.data[0].coverPath" [alt]="author()!.data[0].title" loading="lazy">
+                  } @else {
+                    <span class="pinned-placeholder">{{ author()!.data[0].title.charAt(0) }}</span>
+                  }
+                </div>
+                <div class="pinned-info">
+                  <h3>{{ author()!.data[0].title }}</h3>
+                  <p>{{ author()!.data[0].description || '暂无简介' }}</p>
+                  <div class="pinned-stats">
+                    <span>{{ formatNumber(author()!.data[0].playCount || 0) }} 游玩</span>
+                    <span>{{ formatNumber(author()!.data[0].likes || 0) }} 点赞</span>
+                    <span>{{ formatNumber(author()!.data[0].favorites || 0) }} 收藏</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          }
           <div class="game-grid">@for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }</div>
         </section>
         <aside class="author-sidebar">

@@ -1628,3 +1628,25 @@
 .back-to-top my-global-icon { height: 1.25rem;
   width: 1.25rem; }
 
+/* Game tags */
+.game-tags-panel { margin-bottom: 1.5rem; }
+.game-tags-panel h2 { font-size: 1rem;
+  margin-bottom: 0.5rem; }
+.game-tags { display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; }
+.game-tag { background: rgb(0 174 236 / 8%);
+  border: 1px solid rgb(0 174 236 / 18%);
+  border-radius: 999px;
+  color: var(--game-brand);
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  text-decoration: none;
+  transition: all 160ms ease;
+  white-space: nowrap; }
+.game-tag:hover { background: var(--game-brand);
+  border-color: var(--game-brand);
+  color: #fff; }
+
