@@ -1,8 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import type { GameActivity } from '../games.service'
-import { GamesService } from '../games.service'
+import type { GameActivity } from './games.service'
+import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({

@@ -86,17 +86,31 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
 
     const row = results[0] as any
 
-    await GameStatsSummaryModel.upsert({
-      gameId,
-      plays: Number(row.plays) || 0,
-      likes: Number(row.likes) || 0,
-      dislikes: Number(row.dislikes) || 0,
-      favorites: Number(row.favorites) || 0,
-      coins: Number(row.coins) || 0,
-      comments: Number(row.comments) || 0,
-      reviews: Number(row.reviews) || 0,
-      averageReviewScore: Number(row.averageReviewScore) || 0
-    })
+    const existing = await GameStatsSummaryModel.findOne({ where: { gameId } })
+    if (existing) {
+      await existing.update({
+        plays: Number(row.plays) || 0,
+        likes: Number(row.likes) || 0,
+        dislikes: Number(row.dislikes) || 0,
+        favorites: Number(row.favorites) || 0,
+        coins: Number(row.coins) || 0,
+        comments: Number(row.comments) || 0,
+        reviews: Number(row.reviews) || 0,
+        averageReviewScore: Number(row.averageReviewScore) || 0
+      })
+    } else {
+      await GameStatsSummaryModel.create({
+        gameId,
+        plays: Number(row.plays) || 0,
+        likes: Number(row.likes) || 0,
+        dislikes: Number(row.dislikes) || 0,
+        favorites: Number(row.favorites) || 0,
+        coins: Number(row.coins) || 0,
+        comments: Number(row.comments) || 0,
+        reviews: Number(row.reviews) || 0,
+        averageReviewScore: Number(row.averageReviewScore) || 0
+      })
+    }
   }
 
   static async refreshAll () {

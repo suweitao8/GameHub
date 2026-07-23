@@ -205,11 +205,12 @@ export class GameModel extends SequelizeModel<GameModel> {
     return Promise.all([
       GameModel.count({ where }),
       GameModel.findAll<MGame>({
+        subQuery: false,
         where,
         attributes: { include: GameModel.getPublicStatsAttributes() },
         include: [
           { model: AccountModel, required: true },
-          { model: GameStatsSummaryModel, required: false }
+          { model: GameStatsSummaryModel, required: false, attributes: [] }
         ],
         order: order as any,
         limit: options.limit,

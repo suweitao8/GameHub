@@ -71,7 +71,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly activeScreenshot = signal<number>(0)
   readonly lightboxOpen = signal(false)
   private screenshotTimer: ReturnType<typeof setInterval> | undefined
-  private screenshotPaused = false
+  readonly screenshotPaused = signal(false)
   readonly tripleAnimating = signal(false)
   readonly tripleApplied = signal(false)
   readonly showBackToTop = signal(false)
@@ -87,6 +87,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly inWatchLater = signal(false)
   readonly watchLaterFeedback = signal('')
   readonly watchLaterService = inject(WatchLaterService)
+
+  encodeURIComponent = encodeURIComponent
   readonly reportReasons = [
     '色情低俗', '暴力血腥', '违法违规', '侵权抄袭',
     '恶意代码', '无法运行', '垃圾内容', '其他'
@@ -633,7 +635,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     const total = this.game()?.screenshots?.length || 0
     if (total <= 1) return
     this.screenshotTimer = setInterval(() => {
-      if (this.screenshotPaused || this.lightboxOpen()) return
+      if (this.screenshotPaused() || this.lightboxOpen()) return
       const count = this.game()?.screenshots?.length || 0
       if (count <= 1) return
       this.activeScreenshot.update(current => (current + 1) % count)

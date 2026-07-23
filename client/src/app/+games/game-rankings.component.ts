@@ -1,8 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import type { GameRanking } from '../games.service'
-import { GamesService } from '../games.service'
+import type { GameRanking } from './games.service'
+import { GamesService } from './games.service'
 
 @Component({
   selector: 'my-game-rankings',
@@ -320,7 +320,7 @@ export class GameRankingsComponent implements OnInit {
   loading = signal(false)
   error = signal(false)
 
-  tabs: { id: typeof this.currentTab extends ReturnType<typeof signal<infer T>> ? T : never; label: string }[] = [
+  tabs: { id: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
     { id: 'hot', label: '最热' },
     { id: 'newest', label: '最新' },
     { id: 'updated', label: '最近更新' },
@@ -354,7 +354,7 @@ export class GameRankingsComponent implements OnInit {
     this.loadRankings()
   }
 
-  setTab (tab: typeof this.currentTab extends ReturnType<typeof signal<infer T>> ? T : never) {
+  setTab (tab: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes') {
     this.currentTab.set(tab)
     this.rankings.set([])
     this.loadRankings()

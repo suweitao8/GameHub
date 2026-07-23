@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal }
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { Subscription } from 'rxjs'
 import { GameCardComponent } from './game-card.component'
+import { GameSkeletonComponent } from './game-skeleton.component'
 import { GamesService, Game } from './games.service'
 
 @Component({
   templateUrl: './game-library.component.html',
   styleUrl: './game-library.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink ]
+  imports: [ GameCardComponent, GameSkeletonComponent, RouterLink ]
 })
 export class GameLibraryComponent implements OnInit, OnDestroy {
   private readonly gamesService = inject(GamesService)

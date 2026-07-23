@@ -178,6 +178,7 @@ export type GameEventAdmin = {
   `]
 })
 export class GameEventAdminComponent implements OnInit {
+  Number = Number
   private readonly http = inject(HttpClient)
   events = signal<GameEventAdmin[]>([])
   loading = signal(false)

@@ -402,6 +402,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       recommended: '为你推荐',
       popular: '正在热门',
       latest: '最新发布',
+      updated: '最近更新',
       likes: '最多点赞',
       coins: '最多投币',
       favorites: '最多收藏'

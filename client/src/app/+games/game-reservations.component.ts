@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
-import { GamesService } from '../games.service'
-import type { Game } from '../games.service'
+import { GamesService } from './games.service'
+import type { Game } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({

@@ -58,8 +58,8 @@
 
       @if (game()!.screenshots?.length) {
         <section class="game-screenshots" aria-label="游戏截图"
-                 (mouseenter)="screenshotPaused = true"
-                 (mouseleave)="screenshotPaused = false">
+                 (mouseenter)="screenshotPaused.set(true)"
+                 (mouseleave)="screenshotPaused.set(false)">
           <div class="screenshot-gallery">
             <div class="screenshot-main">
               <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" loading="lazy" (click)="openLightbox()" style="cursor:zoom-in">

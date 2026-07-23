@@ -264,6 +264,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
       ? [ [ literal(statsCol('favorites')), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
       : [ [ 'publishedAt', 'DESC' ], [ 'createdAt', 'DESC' ] ]
   const games = await GameModel.findAll<MGame>({
+    subQuery: false,
     where: { ownerAccountId: accountId, status: 'published' },
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [
@@ -301,6 +302,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
 async function getCreatorOverview (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   const games = await GameModel.findAll<MGame>({
+    subQuery: false,
     where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } },
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [
@@ -458,6 +460,7 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
 
   const data = await GameModel.findAll<MGame>({
+    subQuery: false,
     where: { ownerAccountId: user.Account.id },
     attributes: { include: GameModel.getPublicStatsAttributes() },
     include: [
@@ -1020,6 +1023,7 @@ async function listFeaturedGames (req: express.Request, res: express.Response) {
     if (category) where.category = category
 
     const data = await GameModel.findAll<MGame>({
+      subQuery: false,
       where,
       attributes: { include: GameModel.getPublicStatsAttributes() },
       include: [

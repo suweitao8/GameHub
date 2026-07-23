@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, input } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { GamesService } from '../games.service'
+import { GamesService } from './games.service'
 
 @Component({
   selector: 'my-game-reserve-button',

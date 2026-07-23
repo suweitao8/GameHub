@@ -140,7 +140,7 @@ export class PageHtml {
       { cookie: req.cookies?.clientLanguage, paramLang, acceptLanguage: req.headers['accept-language'] }
     )
 
-    return join(root(), 'client', 'dist', buildFileLocale(lang), 'index.html')
+    return join(root(), 'client', 'dist', 'browser', buildFileLocale(lang), 'index.html')
   }
 
   // ---------------------------------------------------------------------------

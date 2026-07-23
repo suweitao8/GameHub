@@ -1,8 +1,8 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
-import type { GameAnalytics } from '../games.service'
-import { GamesService } from '../games.service'
+import type { GameAnalytics } from './games.service'
+import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 type TimeRange = '7d' | '30d' | '90d'

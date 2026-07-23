@@ -1,5 +1,5 @@
 import { Component, input, computed } from '@angular/core'
-import type { GameLevelInfo } from '../games.service.js'
+import type { GameLevelInfo } from './games.service'
 
 @Component({
   selector: 'my-game-level-badge',
@@ -7,8 +7,8 @@ import type { GameLevelInfo } from '../games.service.js'
   imports: [],
   template: `
     @if (levelInfo()) {
-      <div class="level-badge" [class.level-up="isLevelUp()"">
-        <span class="level-icon" [style.background-color]="levelColor()">{{ levelInfo().level }}</span>
+      <div class="level-badge" [class.level-up]="isLevelUp()">
+        <span class="level-icon" [style.background-color]="levelColor()">{{ levelInfo().levelInfo.level }}</span>
         <div class="level-text">
           <span class="level-title">{{ levelInfo().levelInfo.title }}</span>
           <span class="level-exp">{{ levelInfo().exp }} EXP</span>
