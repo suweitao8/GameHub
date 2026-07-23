@@ -20,7 +20,7 @@ const clientsRateLimiter = buildRateLimiter({
   max: CONFIG.RATES_LIMIT.CLIENT.MAX
 })
 
-const distPath = join(root(), 'client', 'dist')
+const distPath = join(root(), 'client', 'dist', 'browser')
 
 const gameHubLegacyPagePattern = /^\/(?:videos|video-channels|c|w|video-playlists|studio|stats\/videos|accounts|a|@[^/]+)(?:\/|$)/
 

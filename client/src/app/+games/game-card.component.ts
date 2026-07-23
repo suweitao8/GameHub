@@ -23,7 +23,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
   private readonly categoryLabels: Record<string, string> = {
     arcade: '动作', adventure: '冒险', shooter: '射击', puzzle: '解谜', casual: '休闲', rpg: '角色扮演', strategy: '策略',
-    simulation: '模拟', sandbox: '沙盒', racing: '竞速', sports: '体育', card: '卡牌', music: '音乐', horror: '恐怖', board: '桌游'
+    simulation: '模拟', sandbox: '沙盒', sports: '体育', card: '卡牌', music: '音乐', horror: '恐怖', board: '桌游'
   }
 
   ngOnInit () {

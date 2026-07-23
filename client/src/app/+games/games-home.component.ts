@@ -68,7 +68,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     { id: 'strategy', title: '策略', description: '规划资源，赢下更大的局。', query: { category: 'strategy' } },
     { id: 'simulation', title: '模拟', description: '在虚拟世界里体验另一种生活。', query: { category: 'simulation' } },
     { id: 'sandbox', title: '沙盒', description: '自由创造，按照自己的方式游玩。', query: { category: 'sandbox' } },
-    { id: 'racing', title: '竞速', description: '踩下油门，刷新你的最快记录。', query: { category: 'racing' } },
     { id: 'sports', title: '体育', description: '在轻量对局中享受竞技乐趣。', query: { category: 'sports' } },
     { id: 'card', title: '卡牌', description: '组合卡组，做出关键的选择。', query: { category: 'card' } },
     { id: 'music', title: '音乐', description: '跟随节奏，完成一场声音之旅。', query: { category: 'music' } },

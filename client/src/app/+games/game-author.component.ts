@@ -125,7 +125,6 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
       strategy: '策略',
       simulation: '模拟',
       sandbox: '沙盒',
-      racing: '竞速',
       sports: '体育',
       card: '卡牌',
       music: '音乐',

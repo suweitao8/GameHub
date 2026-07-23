@@ -342,7 +342,6 @@ export class GameRankingsComponent implements OnInit {
     { id: 'strategy', label: '策略' },
     { id: 'simulation', label: '模拟' },
     { id: 'sandbox', label: '沙盒' },
-    { id: 'racing', label: '竞速' },
     { id: 'sports', label: '体育' },
     { id: 'card', label: '卡牌' },
     { id: 'music', label: '音乐' },
