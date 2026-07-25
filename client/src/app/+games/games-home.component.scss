@@ -516,20 +516,31 @@
 }
 
 .featured-discovery-grid {
+  /* Match carousel bottom to the second-row card cover bottom:
+     2×16:9 covers of a card-width column + one body block + one row gap. */
+  --featured-card-body: 4.35rem;
+  --featured-gap: 1rem;
+  container-type: inline-size;
   display: grid;
-  gap: 1rem;
-  grid-auto-rows: minmax(150px, auto);
+  gap: var(--featured-gap);
+  grid-auto-rows: minmax(0, auto);
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .featured-carousel {
+  /* Carousel is 2/5 of the grid width (~2 card columns). Two stacked card covers
+     of half that width equal aspect 16/9 of full carousel width; plus first-row
+     body and inter-row gap reaches the second-row cover bottom edge. */
+  align-self: start;
   background: transparent;
   border-radius: var(--game-radius);
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   grid-column: span 2;
   grid-row: span 2;
-  height: 100%;
+  height: calc(100cqw * 9 / 16 + var(--featured-card-body) + var(--featured-gap));
+  max-height: 100%;
   min-width: 0;
   overflow: hidden;
   position: relative;
@@ -544,7 +555,7 @@
 .featured-carousel-link {
   color: inherit;
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   flex-direction: column;
   height: 100%;
   min-height: 0;
@@ -552,35 +563,18 @@
 }
 
 .featured-cover {
-  background: #bfeeff;
+  background: #e8eef3;
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
   position: relative;
 }
 
-.featured-cover::before {
-  background: linear-gradient(180deg, rgb(20 24 30 / 65%) 0%, rgb(20 24 30 / 0%) 100%);
-  content: '';
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-}
-
-.featured-cover::after {
-  background: linear-gradient(180deg, rgb(20 24 30 / 0%) 28%, rgb(20 24 30 / 10%) 58%, rgb(20 24 30 / 58%) 100%);
-  content: '';
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-}
-
 .featured-cover img {
   display: block;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   position: relative;
   width: 100%;
 }
@@ -597,11 +591,14 @@
 }
 
 .featured-caption {
+  background: linear-gradient(180deg, transparent 0%, rgb(30 36 48 / 62%) 100%);
+  bottom: 0;
   color: #fff;
-  flex: 0 0 auto;
-  margin-top: -2rem;
-  padding: 2.8rem 0.75rem 2rem;
-  position: relative;
+  left: 0;
+  margin: 0;
+  padding: 2.2rem 0.85rem 2.1rem;
+  position: absolute;
+  right: 0;
   z-index: 1;
 }
 
@@ -714,8 +711,10 @@
 }
 
 .featured-side-grid {
+  align-content: start;
+  align-self: start;
   display: grid;
-  gap: 1rem;
+  gap: var(--featured-gap, 1rem);
   grid-column: span 3;
   grid-row: span 2;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -817,18 +816,20 @@
   .featured-discovery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .featured-discovery-grid {
+    --featured-card-body: 3.6rem;
+  }
   .featured-carousel {
     grid-column: span 2;
     grid-row: auto;
-    height: auto;
+    height: calc(100cqw * 9 / 16 + var(--featured-card-body) + var(--featured-gap));
   }
   .featured-side-grid {
     grid-column: span 2;
     grid-row: auto;
   }
   .featured-caption {
-    min-height: 3.6rem;
-    padding: 0.65rem 0.65rem 2.4rem;
+    padding: 1.4rem 0.65rem 1.8rem;
   }
   .featured-caption h3 { font-size: 0.9rem; }
   .category-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -973,30 +974,6 @@
   display: inline-block;
   height: 1.1rem;
   width: 4px;
-}
-
-/* Homepage tags row */
-.home-tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.home-tag-link {
-  background: #f7f8f9;
-  border: 1px solid #e5e6e8;
-  border-radius: 999px;
-  color: var(--game-muted);
-  font-size: 0.78rem;
-  padding: 0.35rem 0.65rem;
-  text-decoration: none;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
-}
-
-.home-tag-link:hover {
-  background: var(--game-brand-soft);
-  border-color: var(--game-brand);
-  color: var(--game-brand-deep);
 }
 
 /* Load more button */

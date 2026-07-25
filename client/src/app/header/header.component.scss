@@ -28,8 +28,8 @@
 .root {
   --co-logo-size: 34px;
   --co-root-padding: 1.5rem;
-  --game-text-primary: rgb(30 30 30);
-  --game-text-secondary: rgb(100 100 100);
+  --game-text-primary: #4e5969;
+  --game-text-secondary: #61666d;
 
   position: relative;
   color: pvar(--header-fg-500);
@@ -46,7 +46,7 @@
   --co-root-padding: 0.65rem;
   --game-brand: #00aeec;
   --game-header-nav-gap: 0.2rem;
-  --game-header-nav-foreground: rgb(30 30 30);
+  --game-header-nav-foreground: #61666d;
 
   background-color: #fff;
   box-sizing: border-box;
@@ -69,12 +69,12 @@
 
 :host-context(.game-experience.game-header-scrolled) .root {
   --co-root-padding: 0.65rem;
-  --game-header-nav-foreground: rgb(30 30 30);
+  --game-header-nav-foreground: #61666d;
 
   background-color: #fff;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
-  color: rgb(30 30 30);
+  color: #4e5969;
 }
 
 :host-context(.game-experience) .root::before {

@@ -127,7 +127,7 @@
                   <div class="featured-cover">
                     @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
                   </div>
-                  <div class="featured-caption" [style.background]="featuredGradient(featuredGame)"><h3>{{ featuredGame.title }}</h3></div>
+                  <div class="featured-caption"><h3>{{ featuredGame.title }}</h3></div>
                 </a>
                 <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" [title]="game.title" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
                 <div class="carousel-progress-bar" aria-hidden="true">
@@ -170,19 +170,6 @@
         </section>
       }
 
-      @if (sort() === 'recommended' && !searchMode() && !category() && !publishedAfter() && view() !== 'following') {
-        <section class="game-section tags-section" aria-labelledby="home-tags-title">
-          <div class="game-section-heading compact-section-heading">
-            <h2 id="home-tags-title">热门标签</h2>
-            <a class="section-more-link" routerLink="/games/tags">查看全部 <my-global-icon iconName="chevron-right" /></a>
-          </div>
-          <div class="home-tags-row">
-            @for (cat of visibleCategories(); track cat.id) {
-              <a class="home-tag-link" routerLink="/games" [queryParams]="cat.query">{{ cat.title }}</a>
-            }
-          </div>
-        </section>
-      }
     </div>
   }
 </main>

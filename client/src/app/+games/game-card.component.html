@@ -18,12 +18,6 @@
           <div class="cover-placeholder-copy"><strong>{{ game.title }}</strong><small>{{ categoryLabel() }} · 单文件小游戏</small></div>
         </div>
       }
-      <div class="game-cover-hover" aria-hidden="true">
-        <span class="game-cover-play-btn">
-          <my-global-icon iconName="play" />
-          <small>试玩</small>
-        </span>
-      </div>
       <div class="game-card-meta" aria-label="游戏数据">
         <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game.playCount) }}</span></span>
         <span class="game-card-stat"><my-global-icon iconName="like" /><span>{{ formatCount(game.likes) }}</span></span>

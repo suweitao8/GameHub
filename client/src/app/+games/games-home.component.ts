@@ -372,10 +372,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     this.loadGames()
   }
 
-  visibleCategories () {
-    return this.categories.slice(0, 10)
-  }
-
   sortLabel () {
     const labels: Record<string, string> = {
       recommended: '综合排序',
