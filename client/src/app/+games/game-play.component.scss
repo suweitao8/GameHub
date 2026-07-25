@@ -44,7 +44,8 @@
   border: 1px solid rgb(0 174 236 / 20%);
   border-radius: 50%;
   height: 2.7rem;
-  image-rendering: pixelated;
+  image-rendering: auto;
+  object-fit: cover;
   width: 2.7rem; }
 .developer-identity div { display: grid;
   gap: 0.15rem;

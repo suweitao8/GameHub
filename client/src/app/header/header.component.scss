@@ -117,14 +117,15 @@
 
 .game-brand-wordmark {
   color: #00aeec;
-  font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  display: inline-block;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
   font-size: 1.35rem;
-  font-style: italic;
-  font-weight: 900;
-  letter-spacing: -0.08em;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: 1;
-  text-shadow: 0 1px 0 rgb(0 126 178 / 14%);
-  transform: skew(-6deg);
+  text-shadow: none;
+  transform: none;
 }
 
 .game-header-left {
@@ -387,7 +388,7 @@
   border-radius: 50%;
   flex: 0 0 1.7rem;
   height: 1.7rem;
-  image-rendering: pixelated;
+  image-rendering: auto;
   object-fit: cover;
   width: 1.7rem;
 }
@@ -697,7 +698,7 @@ my-actor-avatar {
   border-radius: 50%;
   display: block;
   height: 38px;
-  image-rendering: pixelated;
+  image-rendering: auto;
   object-fit: cover;
   width: 38px;
 }
@@ -783,7 +784,7 @@ my-actor-avatar {
   border-radius: 50%;
   box-shadow: 0 3px 10px rgb(25 30 40 / 12%);
   height: 4.75rem;
-  image-rendering: pixelated;
+  image-rendering: auto;
   object-fit: cover;
   width: 4.75rem; }
 .game-avatar-profile strong { color: var(--game-text-primary);
