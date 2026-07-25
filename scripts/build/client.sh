@@ -49,6 +49,28 @@ languages=(
     zh-Hant:zh-Hant-TW
 )
 
+# PeerTube server serves static files from client/dist/browser and HTML from
+# client/dist/browser/<locale>/index.html (see server/core/controllers/client.ts
+# and server/core/lib/html/shared/page-html.ts). Angular's application builder
+# nests an extra "browser/" directory under the output path — flatten it here.
+
+flatten_angular_browser_dir () {
+  local locale_dir="$1"
+
+  if [ -d "$locale_dir/browser" ]; then
+    # Move nested browser/* up into the locale folder.
+    shopt -s dotglob nullglob
+    for entry in "$locale_dir/browser"/*; do
+      base="$(basename "$entry")"
+      if [ -e "$locale_dir/$base" ]; then
+        rm -rf "$locale_dir/$base"
+      fi
+      mv "$entry" "$locale_dir/$base"
+    done
+    shopt -u dotglob nullglob
+    rmdir "$locale_dir/browser" 2>/dev/null || rm -rf "$locale_dir/browser"
+  fi
+}
 
 rm -rf ./client/dist
 
@@ -65,21 +87,36 @@ if [ -z ${1+x} ] || ([ "$1" != "--light" ] && [ "$1" != "--analyze-bundle" ]); t
 
     NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --configuration production --output-path "dist/build" $additionalParams
 
+    mkdir -p dist/browser
+
     for entry in "${languages[@]}"; do
         key="${entry%%:*}"
         lang="${entry#*:}"
 
-        mv "dist/build/browser/$key" "dist/$lang"
+        # Angular 22: dist/build/browser/<key> (locale key) or dist/build/browser for single
+        if [ -d "dist/build/browser/$key" ]; then
+          mv "dist/build/browser/$key" "dist/browser/$lang"
+        elif [ -d "dist/build/$key" ]; then
+          mv "dist/build/$key" "dist/browser/$lang"
+        else
+          echo "Missing build output for locale key '$key'" >&2
+          exit 1
+        fi
+
+        flatten_angular_browser_dir "dist/browser/$lang"
 
         if [ "$lang" != "en-US" ]; then
-            # Do not duplicate assets
-            rm -r "./dist/$lang/assets"
+            # Do not duplicate assets under every locale
+            rm -rf "./dist/browser/$lang/assets"
         fi
     done
 
-    mv "./dist/$defaultLanguage/assets" "./dist"
+    # Hoist default-locale assets so /client/assets maps to dist/browser/assets
+    if [ -d "./dist/browser/$defaultLanguage/assets" ]; then
+      mv "./dist/browser/$defaultLanguage/assets" "./dist/browser/assets"
+    fi
 
-    rm -r "dist/build"
+    rm -rf "dist/build"
 else
     additionalParams=""
     if [ ! -z ${1+x} ] && [ "$1" == "--analyze-bundle" ]; then
@@ -89,9 +126,15 @@ else
         export ANALYZE_BUNDLE=true
     fi
 
-    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --localize=false --output-path "dist/$defaultLanguage/" \
+    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --localize=false --output-path "dist/browser/$defaultLanguage" \
                                                               --configuration production --stats-json $additionalParams
+
+    flatten_angular_browser_dir "dist/browser/$defaultLanguage"
+
+    if [ -d "./dist/browser/$defaultLanguage/assets" ]; then
+      mv "./dist/browser/$defaultLanguage/assets" "./dist/browser/assets"
+    fi
 fi
 
-# Copy runtime locales
+# Copy runtime locales (i18n JSON for server translations endpoint)
 cp -r "./src/locale" "./dist/locale"

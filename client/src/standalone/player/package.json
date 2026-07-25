@@ -3,7 +3,7 @@
   "private": false,
   "version": "0.0.0",
   "scripts": {
-    "build": "rm -rf ./build && ../../../node_modules/.bin/vite build --mode production --config ./vite.config.mjs",
+    "build": "node -e \"try{require('fs').rmSync('./build',{recursive:true,force:true})}catch(e){}\" && ../../../node_modules/.bin/vite build --mode production --config ./vite.config.mjs",
     "dev": "../../../node_modules/.bin/vite build --mode dev --watch --config ./vite.config.mjs"
   },
   "repository": {
