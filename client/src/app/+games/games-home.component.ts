@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin, of } from 'rxjs'
@@ -24,6 +24,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly route = inject(ActivatedRoute)
   private readonly http = inject(HttpClient)
   private readonly recommendService = inject(GameRecommendService)
+  private readonly host = inject(ElementRef<HTMLElement>)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
@@ -46,8 +47,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly featured = signal<Game[]>([])
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
   readonly personalized = signal<Game[]>([])
+  /** Left carousel height = first full side card + gap + second-row cover. */
+  readonly featuredCarouselHeight = signal<number | null>(null)
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private carouselProgressTimer: ReturnType<typeof setInterval> | undefined
+  private featuredResizeObserver: ResizeObserver | undefined
+  private featuredSyncFrame = 0
   readonly carouselProgress = signal(0)
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly sortKinds = [
@@ -93,11 +98,13 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     })
     this.startCarousel()
     document.addEventListener('visibilitychange', this.onVisibilityChange)
+    afterNextRender(() => this.setupFeaturedCarouselSync())
   }
 
   ngOnDestroy () {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
     if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
+    this.teardownFeaturedCarouselSync()
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   }
 
@@ -232,6 +239,10 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
         this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)
+        // cards use viewport defer; remeasure after they expand to real height
+        this.scheduleFeaturedCarouselSync()
+        setTimeout(() => this.scheduleFeaturedCarouselSync(), 120)
+        setTimeout(() => this.scheduleFeaturedCarouselSync(), 480)
       },
       error: () => {
         this.error.set(true)
@@ -247,6 +258,66 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       : this.recommendedOffset() + 8
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
+  }
+
+  /**
+   * Left banner bottom = bottom of second-row side card covers.
+   * height = (one full side card) + row gap + (one cover image height).
+   */
+  private setupFeaturedCarouselSync () {
+    if (typeof ResizeObserver === 'undefined') {
+      this.scheduleFeaturedCarouselSync()
+      return
+    }
+
+    this.featuredResizeObserver = new ResizeObserver(() => this.scheduleFeaturedCarouselSync())
+    this.featuredResizeObserver.observe(this.host.nativeElement)
+    this.scheduleFeaturedCarouselSync()
+  }
+
+  private teardownFeaturedCarouselSync () {
+    this.featuredResizeObserver?.disconnect()
+    this.featuredResizeObserver = undefined
+    if (this.featuredSyncFrame) cancelAnimationFrame(this.featuredSyncFrame)
+    this.featuredSyncFrame = 0
+  }
+
+  private scheduleFeaturedCarouselSync () {
+    if (this.featuredSyncFrame) cancelAnimationFrame(this.featuredSyncFrame)
+    this.featuredSyncFrame = requestAnimationFrame(() => {
+      this.featuredSyncFrame = 0
+      this.syncFeaturedCarouselHeight()
+    })
+  }
+
+  private syncFeaturedCarouselHeight () {
+    const root = this.host.nativeElement
+    const side = root.querySelector('.featured-side-grid') as HTMLElement | null
+    const cards = side?.querySelectorAll<HTMLElement>('.game-card')
+    if (!side || !cards?.length) {
+      this.featuredCarouselHeight.set(null)
+      return
+    }
+
+    const firstCard = cards[0]
+    const cover = firstCard.querySelector('.game-cover') as HTMLElement | null
+    if (this.featuredResizeObserver) {
+      this.featuredResizeObserver.observe(side)
+      this.featuredResizeObserver.observe(firstCard)
+      if (cover) this.featuredResizeObserver.observe(cover)
+    }
+    if (!cover || firstCard.offsetHeight <= 0 || cover.offsetHeight <= 0) {
+      this.featuredCarouselHeight.set(null)
+      return
+    }
+
+    const styles = getComputedStyle(side)
+    const gap = Number.parseFloat(styles.rowGap || styles.gap || '0') || 0
+    // full first card (image + text) + gap + second-row cover only
+    const height = Math.round(firstCard.offsetHeight + gap + cover.offsetHeight)
+    if (height > 0 && this.featuredCarouselHeight() !== height) {
+      this.featuredCarouselHeight.set(height)
+    }
   }
 
   loadMoreRecommended () {

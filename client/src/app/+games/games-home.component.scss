@@ -516,11 +516,7 @@
 }
 
 .featured-discovery-grid {
-  /* Match carousel bottom to the second-row card cover bottom:
-     2×16:9 covers of a card-width column + one body block + one row gap. */
-  --featured-card-body: 4.35rem;
   --featured-gap: 1rem;
-  container-type: inline-size;
   display: grid;
   gap: var(--featured-gap);
   grid-auto-rows: minmax(0, auto);
@@ -528,19 +524,15 @@
 }
 
 .featured-carousel {
-  /* Carousel is 2/5 of the grid width (~2 card columns). Two stacked card covers
-     of half that width equal aspect 16/9 of full carousel width; plus first-row
-     body and inter-row gap reaches the second-row cover bottom edge. */
+  /* Height is measured in TS: full first side-card + gap + second-row cover. */
   align-self: start;
   background: transparent;
   border-radius: var(--game-radius);
-  container-type: inline-size;
   display: flex;
   flex-direction: column;
   grid-column: span 2;
   grid-row: span 2;
-  height: calc(100cqw * 9 / 16 + var(--featured-card-body) + var(--featured-gap));
-  max-height: 100%;
+  min-height: 12rem;
   min-width: 0;
   overflow: hidden;
   position: relative;
@@ -816,13 +808,9 @@
   .featured-discovery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .featured-discovery-grid {
-    --featured-card-body: 3.6rem;
-  }
   .featured-carousel {
     grid-column: span 2;
     grid-row: auto;
-    height: calc(100cqw * 9 / 16 + var(--featured-card-body) + var(--featured-gap));
   }
   .featured-side-grid {
     grid-column: span 2;
