@@ -22,10 +22,19 @@
   gap: 0.35rem 1rem; }
 .game-title-meta > span { align-items: center;
   display: inline-flex;
-  gap: 0.22rem; }
-.game-title-meta my-global-icon { color: inherit;
-  height: 0.85rem;
-  width: 0.85rem; }
+  gap: 0.28rem;
+  line-height: 1; }
+.game-title-meta my-global-icon {
+  color: inherit;
+  display: inline-flex;
+  flex: 0 0 0.9rem;
+  height: 0.9rem;
+  line-height: 0;
+  width: 0.9rem; }
+.game-title-meta my-global-icon ::ng-deep svg {
+  display: block;
+  height: 100%;
+  width: 100%; }
 .game-developer-card { align-items: center;
   align-self: start;
   background: #fff;
@@ -40,12 +49,17 @@
   display: flex;
   gap: 0.65rem;
   min-width: 0; }
-.developer-identity img { background: var(--game-brand-soft);
+.developer-identity img {
+  aspect-ratio: 1;
+  background: var(--game-brand-soft);
   border: 1px solid rgb(0 174 236 / 20%);
   border-radius: 50%;
+  display: block;
+  flex: 0 0 2.7rem;
   height: 2.7rem;
   image-rendering: auto;
   object-fit: cover;
+  object-position: center;
   width: 2.7rem; }
 .developer-identity div { display: grid;
   gap: 0.15rem;
