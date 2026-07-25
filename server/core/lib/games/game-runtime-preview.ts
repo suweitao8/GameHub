@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { join, resolve } from 'path'
+import { resolve } from 'path'
 import { rm } from 'fs/promises'
 import { readStoredGameRuntimeFile, storeGameRuntimePackage } from './game-runtime.js'
 
@@ -26,14 +26,6 @@ export async function createGameRuntimePreview (input: {
 
 export async function readGameRuntimePreviewFile (root: string, token: string, relativePath: string) {
   return readStoredGameRuntimeFile(getPreviewRoot(root), `${token}/${relativePath}`)
-}
-
-export async function removeGameRuntimePreview (root: string, token: string) {
-  await rm(join(getPreviewRoot(root), token), { recursive: true, force: true })
-}
-
-export function getPreviewRuntimePath (token: string, relativePath = 'index.html') {
-  return `${token}/${relativePath}`
 }
 
 function getPreviewRoot (root: string) {

@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from 'crypto'
+import { randomBytes } from 'crypto'
 import { Redis } from '@server/lib/redis.js'
 import { CONFIG } from '@server/initializers/config.js'
 
@@ -57,16 +57,4 @@ export async function resolveGameShareToken (token: string): Promise<string | nu
   } catch {
     return null
   }
-}
-
-/**
- * Generate a deterministic share hash for a game.
- * This provides a stable share identifier that doesn't require Redis storage.
- */
-export function getGameShareHash (uuid: string): string {
-  const secret = CONFIG.SECRETS.PEERTUBE
-  return createHash('sha256')
-    .update(`${secret}:game-share:${uuid}`)
-    .digest('hex')
-    .slice(0, 12)
 }
