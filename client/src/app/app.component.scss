@@ -36,13 +36,13 @@
 }
 
 .game-experience {
-  --header-height: 45px;
+  --header-height: 56px;
   --game-page-bg: #fff;
   --game-card-bg: #fff;
-  --game-text: rgb(30 30 30);
-  --game-text-button: rgb(100 100 100);
-  --game-text-hint: rgb(140 140 140);
-  --game-muted: rgb(100 100 100);
+  --game-text: #4e5969;
+  --game-text-button: #61666d;
+  --game-text-hint: #9499a0;
+  --game-muted: #61666d;
   --game-border: #e3e5e7;
   --game-brand: #00aeec;
   --game-brand-hover: #00a1d6;
@@ -62,11 +62,11 @@
 
   @media (min-width: 761px) {
     &.game-header-scrolled {
-      --header-height: 45px;
+      --header-height: 56px;
     }
 
     > .root-header {
-      position: absolute;
+      position: fixed;
       transition: height 180ms ease;
     }
 
@@ -77,7 +77,7 @@
 
   ::selection {
     background: rgb(0 174 236 / 32%);
-    color: rgb(30 30 30);
+    color: #4e5969;
   }
 
   #left-menu {

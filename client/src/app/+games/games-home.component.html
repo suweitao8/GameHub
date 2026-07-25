@@ -1,9 +1,4 @@
 <main class="game-community-page games-home" aria-label="游戏发现">
-  @if (!searchMode() && !search() && !category() && !publishedAfter()) {
-    <div class="game-home-banner" aria-hidden="true">
-      <img src="/client/assets/images/gamehub-header-banner-10x1.png" alt="" loading="eager">
-    </div>
-  }
   @if (communityRoute()) {
     <section class="game-community-content community-hub" aria-label="社区">
       <div class="game-section-heading community-hub-heading"><div><p class="game-eyebrow">社区</p><h2>社区活动与比赛</h2><p>和玩家一起参加活动、交流玩法，发现新的挑战。</p></div></div>
@@ -129,8 +124,18 @@
                 (touchend)="onCarouselTouchEnd($event)"
               >
                 <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
-                  <div class="featured-cover">
-                    @if (featuredGame.coverPath) { <img [src]="featuredGame.coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedImageLoad($event, featuredGame.uuid)"> } @else { <span>{{ featuredGame.title.charAt(0) || 'G' }}</span> }
+                  <div class="featured-cover" [class.is-placeholder]="!featuredCoverPath(featuredGame)">
+                    @if (featuredCoverPath(featuredGame); as coverPath) {
+                      <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)" (load)="onFeaturedImageLoad($event, featuredGame.uuid)">
+                    } @else {
+                      <div class="featured-cover-fallback" aria-hidden="true">
+                        <span class="featured-cover-letter">{{ featuredGame.title.charAt(0) || 'G' }}</span>
+                        <div class="featured-cover-copy">
+                          <strong>{{ featuredGame.title }}</strong>
+                          <small>推荐游戏</small>
+                        </div>
+                      </div>
+                    }
                   </div>
                   <div class="featured-caption"><h3>{{ featuredGame.title }}</h3></div>
                 </a>

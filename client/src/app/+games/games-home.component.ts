@@ -49,6 +49,8 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly personalized = signal<Game[]>([])
   /** Left carousel height = first full side card + gap + second-row cover. */
   readonly featuredCarouselHeight = signal<number | null>(null)
+  /** Cover URLs that failed to load → show colorful placeholder instead of gray empty box. */
+  readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private carouselProgressTimer: ReturnType<typeof setInterval> | undefined
   private featuredResizeObserver: ResizeObserver | undefined
@@ -365,6 +367,16 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   carouselGame () {
     const games = this.carouselGames()
     return games.length ? games[this.carouselIndex() % games.length] : null
+  }
+
+  featuredCoverPath (game: Game) {
+    if (!game.coverPath || this.brokenFeaturedCovers()[game.uuid]) return null
+    return game.coverPath
+  }
+
+  onFeaturedCoverError (uuid: string) {
+    if (this.brokenFeaturedCovers()[uuid]) return
+    this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
   featuredGradient (game: Game) {
