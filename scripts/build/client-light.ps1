@@ -41,7 +41,9 @@ try {
   $env:NODE_OPTIONS = '--max_old_space_size=8192'
   $ng = '.\node_modules\.bin\ng.cmd'
   if (-not (Test-Path $ng)) { $ng = Join-Path $repoRoot 'node_modules\.bin\ng.cmd' }
-  & $ng build --localize=false --output-path 'dist/browser/en-US' --configuration production --source-map=false
+  # --localize=false inherits angular.json baseHref "/" which breaks production
+  # static serving under /client/<locale>/. Force PeerTube client base href.
+  & $ng build --localize=false --base-href '/client/en-US/' --output-path 'dist/browser/en-US' --configuration production --source-map=false
   if ($LASTEXITCODE -ne 0) { throw "ng build failed ($LASTEXITCODE)" }
 } finally {
   Pop-Location

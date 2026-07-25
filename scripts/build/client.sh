@@ -126,7 +126,11 @@ else
         export ANALYZE_BUNDLE=true
     fi
 
-    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --localize=false --output-path "dist/browser/$defaultLanguage" \
+    # --localize=false would inherit baseHref "/" from angular.json; force /client/<locale>/
+    # so SPA scripts resolve under express.static('/client' -> dist/browser).
+    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --localize=false \
+                                                              --base-href "/client/$defaultLanguage/" \
+                                                              --output-path "dist/browser/$defaultLanguage" \
                                                               --configuration production --stats-json $additionalParams
 
     flatten_angular_browser_dir "dist/browser/$defaultLanguage"
