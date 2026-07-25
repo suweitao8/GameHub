@@ -13,6 +13,7 @@ import { CONFIG } from '@server/initializers/config.js'
 import { getDefaultRSSFeeds } from '@server/lib/rss.js'
 import { getServerActor } from '@server/models/application/application.js'
 import express from 'express'
+import { existsSync } from 'fs'
 import { pathExists } from 'fs-extra/esm'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
@@ -134,13 +135,32 @@ export class PageHtml {
       lang = req.acceptsLanguages(AVAILABLE_LOCALES) || getDefaultLocale()
     }
 
+    const fileLocale = buildFileLocale(lang)
+    const preferredPath = join(root(), 'client', 'dist', 'browser', fileLocale, 'index.html')
+
+    // Light client builds only ship en-US. Fall back instead of 500 when Accept-Language
+    // negotiates a locale that was never compiled (common for zh-Hans-CN browsers).
+    if (!existsSync(preferredPath)) {
+      const fallbackLocale = buildFileLocale(getDefaultLocale())
+      const fallbackPath = join(root(), 'client', 'dist', 'browser', fallbackLocale, 'index.html')
+
+      logger.warn(
+        'Client locale %s is missing, falling back to %s',
+        fileLocale,
+        fallbackLocale,
+        { cookie: req.cookies?.clientLanguage, paramLang, acceptLanguage: req.headers['accept-language'] }
+      )
+
+      return fallbackPath
+    }
+
     logger.debug(
       'Serving %s HTML language',
-      buildFileLocale(lang),
+      fileLocale,
       { cookie: req.cookies?.clientLanguage, paramLang, acceptLanguage: req.headers['accept-language'] }
     )
 
-    return join(root(), 'client', 'dist', 'browser', buildFileLocale(lang), 'index.html')
+    return preferredPath
   }
 
   // ---------------------------------------------------------------------------
