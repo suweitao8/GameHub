@@ -1,11 +1,10 @@
 import { CommonModule, getLocaleDirection, NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core'
 import { Params, RouterLink, RouterLinkActive } from '@angular/router'
-import { AuthService, AuthStatus, AuthUser, HooksService, MenuService, RedirectService, ServerService } from '@app/core'
+import { AuthService, AuthStatus, AuthUser, HooksService, MenuService, ServerService } from '@app/core'
 import { GlobalIconComponent, GlobalIconName } from '@app/shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '@app/shared/shared-main/buttons/button.component'
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
-import { UserRight } from '@peertube/peertube-models'
 import { Subscription } from 'rxjs'
 
 type MenuLink = {
@@ -50,7 +49,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   private serverService = inject(ServerService)
   private hooks = inject(HooksService)
   private menu = inject(MenuService)
-  private redirectService = inject(RedirectService)
 
   menuSections: MenuSection[] = []
   loggedIn: boolean
@@ -102,7 +100,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   private async buildMenuSections () {
     this.menuSections = []
 
-    for (const section of [ this.buildQuickLinks(), this.buildLibraryLinks(), this.buildVideoMakerLinks(), this.buildAdminLinks() ]) {
+    for (const section of [ this.buildQuickLinks(), this.buildPlayLinks(), this.buildCreateLinks() ]) {
       if (section.links.length !== 0) {
         this.menuSections.push(section)
       }
@@ -112,71 +110,90 @@ export class MenuComponent implements OnInit, OnDestroy {
   }
 
   private buildQuickLinks (): MenuSection {
-    const base: MenuSection = {
+    return {
       key: 'quick-access',
-      title: $localize`Quick access`,
+      title: $localize`发现`,
       links: [
         {
-          path: this.redirectService.getDefaultRoute(),
-          query: this.redirectService.getDefaultRouteQuery(),
+          path: '/games',
           icon: 'home',
-          label: $localize`Home`
+          label: $localize`发现游戏`
+        },
+        {
+          path: '/games/community',
+          icon: 'users',
+          label: $localize`社区`
+        },
+        {
+          path: '/games/rankings',
+          icon: 'history',
+          label: $localize`排行榜`
+        },
+        {
+          path: '/about',
+          icon: 'help',
+          label: $localize`关于 GameHub`
         }
       ]
     }
-
-    return base
   }
 
-  private buildLibraryLinks (): MenuSection {
-    return {
-      key: 'my-library',
-      title: $localize`My library`,
-      links: []
-    }
-  }
-
-  private buildVideoMakerLinks (): MenuSection {
-    return {
-      key: 'my-video-space',
-      title: $localize`My video space`,
-      links: []
-    }
-  }
-
-  private buildAdminLinks (): MenuSection {
-    const links: MenuLink[] = []
-
-    if (this.loggedIn) {
-      if (this.user.hasRight(UserRight.SEE_ALL_VIDEOS)) {
-        links.push({
-          path: '/admin/overview',
-          icon: 'overview',
-          label: $localize`Overview`
-        })
-      }
-
-      if (this.user.hasRight(UserRight.MANAGE_ABUSES)) {
-        links.push({
-          path: '/admin/moderation',
-          icon: 'moderation',
-          label: $localize`Moderation`
-        })
-      }
-
-      if (this.user.hasRight(UserRight.MANAGE_CONFIGURATION)) {
-        links.push({
-          path: '/admin/settings',
-          icon: 'config',
-          label: $localize`Settings`
-        })
-      }
+  private buildPlayLinks (): MenuSection {
+    if (!this.loggedIn) {
+      return { key: 'play', title: $localize`我的游戏`, links: [] }
     }
 
     return {
-      key: 'admin',
-      title: $localize`Administration`,
-      links
+      key: 'play',
+      title: $localize`我的游戏`,
+      links: [
+        {
+          path: '/games/library',
+          query: { tab: 'favorites' },
+          icon: 'star',
+          label: $localize`收藏`
+        },
+        {
+          path: '/games/library',
+          query: { tab: 'recent' },
+          icon: 'history',
+          label: $localize`游玩历史`
+        },
+        {
+          path: '/games/notifications',
+          icon: 'bell',
+          label: $localize`消息`
+        },
+        {
+          path: '/my-account',
+          icon: 'user',
+          label: $localize`个人中心`
+        }
+      ]
+    }
+  }
+
+  private buildCreateLinks (): MenuSection {
+    if (!this.loggedIn) {
+      return { key: 'create', title: $localize`创作`, links: [] }
+    }
+
+    return {
+      key: 'create',
+      title: $localize`创作`,
+      links: [
+        {
+          path: '/games/upload',
+          icon: 'upload',
+          label: $localize`投稿游戏`,
+          isPrimaryButton: true
+        },
+        {
+          path: '/games/creator',
+          icon: 'playlists',
+          label: $localize`创作中心`
+        }
+      ]
     }
   }
 

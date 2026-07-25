@@ -33,9 +33,11 @@ export class RedirectService {
 
   init () {
     const config = this.serverService.getHTMLConfig()
-    if (config.instance.defaultClientRoute) {
-      this.defaultRoute = config.instance.defaultClientRoute
-    }
+    // GameHub only serves /games* as homepage. Ignore PeerTube defaults like /videos/browse.
+    const configured = config.instance.defaultClientRoute || ''
+    this.defaultRoute = configured.startsWith('/games')
+      ? configured
+      : RedirectService.INIT_DEFAULT_ROUTE
     if (config.trending.videos.algorithms.default) {
       this.defaultTrendingAlgorithm = config.trending.videos.algorithms.default
     }

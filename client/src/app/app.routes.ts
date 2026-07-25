@@ -6,24 +6,31 @@ import { GameNotFoundComponent } from './game-not-found.component'
 import { GameAccountHomeComponent } from './game-account-home.component'
 import { GameAccountSettingsComponent } from './game-account-settings.component'
 import { GameAboutComponent } from './game-about.component'
-import { LegacyFeaturePlaceholderComponent } from './legacy-feature-placeholder.component'
 import { USER_USERNAME_REGEX_CHARACTERS } from './shared/form-validators/user-validators'
 
-const legacyVideoPrefixes = [ 'videos', 'video-channels', 'c', 'w', 'video-playlists', 'studio', 'stats/videos' ]
+/** PeerTube video/admin legacy paths — always bounce to GameHub games hub. */
+const legacyVideoPrefixes = [
+  'videos',
+  'video-channels',
+  'c',
+  'w',
+  'video-playlists',
+  'studio',
+  'stats/videos',
+  'home',
+  'search',
+  'admin',
+  'remote-interaction',
+  'my-library'
+]
 
-const legacyVideoMatcher: UrlMatcher = url => {
+const legacyPathMatcher: UrlMatcher = url => {
   if (!url.length) return null
 
   const path = url.map(segment => segment.path).join('/')
-  const isLegacyVideoPath = legacyVideoPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`))
+  const isLegacy = legacyVideoPrefixes.some(prefix => path === prefix || path.startsWith(`${prefix}/`))
 
-  return isLegacyVideoPath ? { consumed: url } : null
-}
-
-const legacyAdminMatcher: UrlMatcher = url => {
-  if (!url.length || url[0].path !== 'admin') return null
-
-  return { consumed: url }
+  return isLegacy ? { consumed: url } : null
 }
 
 const gameAboutMatcher: UrlMatcher = url => {
@@ -34,17 +41,10 @@ const gameAboutMatcher: UrlMatcher = url => {
 
 const routes: Routes = [
   {
-    matcher: legacyAdminMatcher,
-    component: LegacyFeaturePlaceholderComponent
-  },
-
-  {
     matcher: gameAboutMatcher,
     component: GameAboutComponent,
     data: { meta: { title: $localize`About GameHub` } }
   },
-
-  // ---------------------------------------------------------------------------
 
   {
     path: 'my-account/settings',
@@ -56,11 +56,7 @@ const routes: Routes = [
     component: GameAccountHomeComponent,
     pathMatch: 'full'
   },
-  {
-    path: 'my-library',
-    redirectTo: '/games',
-    pathMatch: 'prefix'
-  },
+
   {
     path: 'verify-account',
     loadChildren: () => import('./+signup/+verify-account/routes'),
@@ -78,30 +74,16 @@ const routes: Routes = [
     pathMatch: 'prefix'
   },
 
-  // ---------------------------------------------------------------------------
-
-  {
-    path: 'video-channels',
-    component: LegacyFeaturePlaceholderComponent
-  },
-  {
-    path: 'c',
-    component: LegacyFeaturePlaceholderComponent
-  },
-
   {
     path: 'manage/create',
     redirectTo: '/games/creator',
     pathMatch: 'full'
   },
-
   {
     path: 'manage/update/:channel',
     pathMatch: 'full',
     redirectTo: '/games/creator'
   },
-
-  // ---------------------------------------------------------------------------
 
   {
     path: 'p',
@@ -128,62 +110,28 @@ const routes: Routes = [
     canActivateChild: [ MetaGuard ]
   },
   {
-    path: 'search',
-    redirectTo: '/games',
-    pathMatch: 'full'
-  },
-  {
     path: 'games',
     loadChildren: () => import('./+games/routes'),
     canActivateChild: [ MetaGuard ]
   },
 
-  // ---------------------------------------------------------------------------
-
+  // All leftover PeerTube video/admin URLs → games (no legacy placeholder UI)
   {
-    matcher: legacyVideoMatcher,
-    component: LegacyFeaturePlaceholderComponent
-  },
-
-  // ---------------------------------------------------------------------------
-  // Legacy home and video routes are intentionally hidden in GameHub.
-  // ---------------------------------------------------------------------------
-  {
-    matcher: (url): UrlMatchResult => {
-      if (url.length < 1) return null
-
-      const matchResult = url[0].path === 'home' || url[0].path === 'videos'
-      if (!matchResult) return null
-
-      return { consumed: url }
-    },
+    matcher: legacyPathMatcher,
     redirectTo: '/games'
   },
 
-  // ---------------------------------------------------------------------------
-
-  {
-    path: 'remote-interaction',
-    component: LegacyFeaturePlaceholderComponent
-  },
-
-  // ---------------------------------------------------------------------------
-  // Legacy PeerTube actor profiles are replaced by GameHub author pages.
-  // ---------------------------------------------------------------------------
+  // Legacy PeerTube actor profiles → games hub
   {
     matcher: (url): UrlMatchResult => {
       const regex = new RegExp(`^@(${USER_USERNAME_REGEX_CHARACTERS}+)$`)
       if (url.length !== 1) return null
-
       if (!regex.test(url[0].path)) return null
-
       return { consumed: url }
     },
     pathMatch: 'full',
     redirectTo: '/games'
   },
-
-  // ---------------------------------------------------------------------------
 
   {
     path: '',
