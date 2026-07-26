@@ -51,6 +51,7 @@
   background-color: #fff;
   box-sizing: border-box;
   border-bottom: 1px solid #eceef0;
+  box-shadow: 0 2px 10px rgb(25 30 40 / 8%);
   color: var(--game-text-primary);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -74,7 +75,7 @@
 
   background-color: #fff;
   border-bottom: 1px solid #eceef0;
-  box-shadow: 0 1px 5px rgb(25 30 40 / 4%);
+  box-shadow: 0 4px 14px rgb(25 30 40 / 10%);
   color: #4e5969;
   height: 56px;
 }

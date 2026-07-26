@@ -321,11 +321,6 @@
     height: 0.6rem;
     width: 0.6rem;
   }
-
-  /* On very small screens, hide favorites stat to reduce clutter */
-  .game-card-stat:nth-child(4) {
-    display: none;
-  }
 }
 
 /* Search highlight */
