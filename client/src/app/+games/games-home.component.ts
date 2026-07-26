@@ -46,7 +46,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly featuredGradients = signal<Record<string, string>>({})
   readonly featured = signal<Game[]>([])
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
-  readonly personalized = signal<Game[]>([])
   /** Left carousel height = first full side card + gap + second-row cover. */
   readonly featuredCarouselHeight = signal<number | null>(null)
   /** Cover URLs that failed to load → show colorful placeholder instead of gray empty box. */
@@ -230,14 +229,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       next: result => {
         this.latest.set(result.latest.data)
         this.popular.set(result.popular.data)
-        this.recent.set(result.recent.data)
         this.recommended.set(result.recommended.data)
         this.featured.set(result.featured.data)
         this.collections.set(result.collections.data)
-        // Compute personalized recommendations
-        const allGames = [...result.latest.data, ...result.popular.data, ...result.recommended.data]
-        const uniqueGames = allGames.filter((g, i, arr) => arr.findIndex(item => item.uuid === g.uuid) === i)
-        this.personalized.set(this.recommendService.recommend(uniqueGames, 6))
+        // Prefer server recent plays; fall back to local browse history for guests
+        const allGames = [ ...result.recent.data, ...result.latest.data, ...result.popular.data, ...result.recommended.data, ...result.featured.data ]
+        this.recent.set(this.buildRecentPlayedList(result.recent.data, allGames))
         this.carouselIndex.set(0)
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)
@@ -358,6 +355,38 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   shuffleLatest () {
     this.latest.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
+  }
+
+  shuffleRecent () {
+    this.recent.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
+  }
+
+  private buildRecentPlayedList (serverRecent: Game[], pool: Game[]) {
+    if (serverRecent.length) {
+      return this.uniqueGamesByUuid(serverRecent)
+    }
+
+    const history = this.recommendService.getHistory()
+    if (!history.length) return []
+
+    const byUuid = new Map(this.uniqueGamesByUuid(pool).map(game => [ game.uuid, game ]))
+    const fromHistory: Game[] = []
+    for (const item of history) {
+      const game = byUuid.get(item.uuid)
+      if (game) fromHistory.push(game)
+    }
+    return fromHistory
+  }
+
+  private uniqueGamesByUuid (games: Game[]) {
+    const seen = new Set<string>()
+    const unique: Game[] = []
+    for (const game of games) {
+      if (seen.has(game.uuid)) continue
+      seen.add(game.uuid)
+      unique.push(game)
+    }
+    return unique
   }
 
   carouselGames () {
