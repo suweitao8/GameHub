@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, Input, OnDestroy, OnInit, signal, inject } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { Game } from './games.service'
 import { HighlightPipe } from './highlight.pipe'
@@ -58,10 +57,6 @@ export class GameCardComponent implements OnInit, OnDestroy {
     const date = new Date(value)
     if (Number.isNaN(date.getTime())) return '--'
     return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit' }).format(date).replaceAll('/', '-')
-  }
-
-  getAuthorAvatar (label: string | undefined) {
-    return buildGameAvatarDataUrl(label || '创')
   }
 
   categoryLabel () {

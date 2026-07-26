@@ -146,29 +146,27 @@
 }
 
 .game-card-author {
-  margin-top: 0.3rem;
+  margin-top: 0.35rem;
+  min-width: 0;
 }
 
-.game-card-tags { display: flex;
-  gap: 0.35rem;
-  margin-top: 0.25rem; }
-.game-card-category { background: rgb(0 174 236 / 8%);
-  border: 1px solid rgb(0 174 236 / 18%);
-  border-radius: 4px;
+.author-up-badge {
+  align-items: center;
+  background: rgb(0 174 236 / 10%);
+  border: 1px solid rgb(0 174 236 / 22%);
+  border-radius: 3px;
   color: var(--game-brand);
-  font-size: 0.68rem;
-  font-weight: 600;
-  line-height: 1.4;
-  padding: 0.08rem 0.35rem;
-  white-space: nowrap; }
-
-.author-avatar {
-  border: 1px solid rgb(0 0 0 / 8%);
-  border-radius: 50%;
-  height: 1.35rem;
-  image-rendering: auto;
-  object-fit: cover;
-  width: 1.35rem;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.58rem;
+  font-weight: 800;
+  height: 1rem;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  min-width: 1.35rem;
+  padding: 0 0.22rem;
+  user-select: none;
 }
 
 .author-name-link {
@@ -267,10 +265,10 @@
     white-space: nowrap;
   }
 
-  .author-avatar {
-    flex: 0 0 0.9rem;
+  .author-up-badge {
+    font-size: 0.52rem;
     height: 0.9rem;
-    width: 0.9rem;
+    min-width: 1.15rem;
   }
 
   .game-card-time {

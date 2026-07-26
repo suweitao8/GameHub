@@ -27,11 +27,8 @@
     </div>
     <div class="game-card-body">
       <h3>{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}</h3>
-      <div class="game-card-tags">
-        <span class="game-card-category">{{ categoryLabel() }}</span>
-      </div>
       <div class="game-card-author">
-        <img class="author-avatar" [src]="getAuthorAvatar(game.author?.displayName || game.author?.name)" alt="" loading="lazy">
+        <span class="author-up-badge" aria-hidden="true">UP</span>
         @if (game.author?.id) {
           <a class="author-name-link" [routerLink]="['/games/author', game.author.id]" (click)="$event.stopPropagation()">{{ game.author?.displayName || '独立创作者' }}</a>
         } @else {
