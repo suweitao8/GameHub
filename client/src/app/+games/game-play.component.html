@@ -111,132 +111,159 @@
           @if (watchLaterFeedback()) { <p class="feedback action-feedback" role="status">{{ watchLaterFeedback() }}</p> }
           @if (!state.isOwner) { <div class="coin-row"><strong>投币</strong><span>余额 {{ state.coinBalance }} · 本游戏已投 {{ state.coinsGiven }}/2</span><button type="button" [class.active]="coinAmount() === 1" (click)="coinAmount.set(1)">1 枚</button><button type="button" [class.active]="coinAmount() === 2" (click)="coinAmount.set(2)">2 枚</button><button type="button" [disabled]="coinLoading()" (click)="giveCoin()">{{ coinLoading() ? '处理中...' : '确认投币' }}</button></div> }
           @if (coinMessage()) { <p class="feedback" role="status">{{ coinMessage() }}</p> }
-          <section class="game-review-panel" aria-labelledby="review-title">
-            <div class="review-heading">
-              <div>
-                <p class="game-eyebrow">玩家评价</p>
-                <h2 id="review-title">评论与评分</h2>
-              </div>
-              <div class="review-heading-meta">
-                <span>{{ displayAverageScore() || '暂无' }} / 5 · {{ displayReviewCount() }} 条评价</span>
-                <div class="comment-sort" role="group" aria-label="评价排序">
-                  <button type="button" [class.active]="reviewSort() === 'hot'" (click)="setReviewSort('hot')">最热</button>
-                  <button type="button" [class.active]="reviewSort() === 'new'" (click)="setReviewSort('new')">最新</button>
+
+          <section class="game-description-panel" aria-labelledby="game-description-title">
+            <div class="description-heading">
+              <h2 id="game-description-title">简介</h2>
+              <div class="description-rating" aria-label="平均评分">
+                <div class="description-stars" aria-hidden="true">
+                  @for (score of reviewScores; track score) {
+                    <my-global-icon iconName="star" [class.active]="score <= roundedAverageScore()" />
+                  }
                 </div>
+                <strong>{{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }}</strong>
+                <span>{{ displayReviewCount() }} 条评价</span>
               </div>
             </div>
-            @if (ratingDistribution(); as dist) {
-              <div class="rating-distribution" aria-label="评分分布">
-                @for (bucket of dist.distribution; track bucket.star) {
-                  <div class="rating-row">
-                    <span class="rating-star-label">{{ bucket.star }} 星</span>
-                    <div class="rating-bar-track" role="progressbar" [attr.aria-valuenow]="bucket.percent" aria-valuemin="0" aria-valuemax="100">
-                      <span class="rating-bar-fill" [style.width.%]="bucket.percent"></span>
-                    </div>
-                    <span class="rating-count">{{ bucket.count }}</span>
-                    <span class="rating-percent">{{ bucket.percent }}%</span>
-                  </div>
+            <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
+            @if (game()!.tags?.length) {
+              <div class="game-tags description-tags">
+                @for (tag of game()!.tags; track tag) {
+                  <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
                 }
               </div>
             }
-            @if (!state.isOwner) {
-              <div class="review-score-picker" aria-label="选择评分">
-              @for (score of reviewScores; track score) { <button type="button" [class.active]="reviewScore() >= score" [attr.aria-label]="score + ' 分'" (click)="reviewScore.set(score)"><my-global-icon iconName="star" /></button> }
-              </div>
-              <form class="review-form" (submit)="$event.preventDefault(); submitReview()"><textarea aria-label="评价内容" [value]="reviewDraft()" (input)="reviewDraft.set($any($event.target).value)" placeholder="游玩后写下你的评价" maxlength="5000"></textarea><button type="submit">发布评价</button></form>
-            }
-            <div class="review-list">
-              @if (reviewsLoading()) { @for (i of [1,2,3]; track $index) { <div class="review-skeleton-row shimmer"><div class="review-skeleton-header"><div class="review-skeleton-avatar"></div><div class="review-skeleton-meta"><div class="review-skeleton-name"></div><div class="review-skeleton-date"></div></div></div><div class="review-skeleton-stars"></div><div class="review-skeleton-text"></div><div class="review-skeleton-text short"></div></div> } }
-              @else if (reviewsError()) { <p class="feedback" role="alert">{{ reviewsError() }}</p> }
-              @else {
-                @for (review of sortedReviews(); track review.id) {
-                  <article class="game-review-item"><div class="review-author"><strong>{{ review.account?.displayName || review.account?.name || '已注销用户' }}</strong>@if (review.isAuthor) { <span>作者</span> }<time>{{ review.createdAt | date:'yyyy-MM-dd HH:mm' }}</time></div><div class="review-score" [attr.aria-label]="review.score + ' 分'">@for (score of reviewScores; track score) { <my-global-icon [class.active]="score <= review.score" iconName="star" /> }</div><p>{{ review.text }}</p></article>
-                } @empty { <p class="empty-reviews">还没有评价，玩过之后留下第一条吧。</p> }
-              }
-              @if (hasMoreReviews()) { <div class="reviews-load-more"><button type="button" [disabled]="reviewsLoadingMore()" (click)="loadMoreReviews()">{{ reviewsLoadingMore() ? '加载中...' : '加载更多评价' }}</button></div> }
-            </div>
           </section>
         </section>
-      } @else if (communityError()) { <p class="feedback" role="alert">{{ communityError() }}</p> }
-
-      <section class="game-description-panel" aria-labelledby="game-description-title">
-        <div class="description-heading">
+      } @else if (communityError()) {
+        <p class="feedback" role="alert">{{ communityError() }}</p>
+        <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
           <h2 id="game-description-title">简介</h2>
-          <div class="description-rating" aria-label="平均评分">
-            <div class="description-stars" aria-hidden="true">
-              @for (score of reviewScores; track score) {
-                <my-global-icon iconName="star" [class.active]="score <= roundedAverageScore()" />
-              }
-            </div>
-            <strong>{{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }}</strong>
-            <span>{{ displayReviewCount() }} 条评价</span>
-          </div>
-        </div>
-        <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
-      </section>
-
-      @if (game()!.tags?.length) {
-        <section class="game-tags-panel" aria-labelledby="game-tags-title">
-          <h2 id="game-tags-title">标签</h2>
-          <div class="game-tags">
-            @for (tag of game()!.tags; track tag) {
-              <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
-            }
-          </div>
+          <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
+        </section>
+      } @else {
+        <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
+          <h2 id="game-description-title">简介</h2>
+          <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
         </section>
       }
 
-      <section class="game-comments game-chat-panel" aria-labelledby="chat-title">
-        <h2 id="chat-title">群聊</h2>
-        <div class="chat-message-list" #chatList>
+      <section class="game-comments bili-comment-panel" aria-labelledby="comments-title">
+        <div class="bili-comment-header">
+          <h2 id="comments-title">评论 <span class="bili-comment-count">{{ commentsTotal() || comments().length || 0 }}</span></h2>
+          <div class="bili-comment-sort" role="group" aria-label="评论排序">
+            <button type="button" [class.active]="commentSort() === 'hot'" (click)="setCommentSort('hot')">最热</button>
+            <span class="bili-sort-sep" aria-hidden="true">|</span>
+            <button type="button" [class.active]="commentSort() === 'new'" (click)="setCommentSort('new')">最新</button>
+          </div>
+        </div>
+
+        <form class="bili-comment-composer" (submit)="$event.preventDefault(); replyTo() ? submitReply() : submitComment()">
+          <img class="bili-composer-avatar" [src]="currentUserAvatar()" alt="" aria-hidden="true">
+          <div class="bili-composer-body">
+            <input
+              #commentInput
+              aria-label="评论内容"
+              [value]="commentDraft()"
+              (input)="commentDraft.set($any($event.target).value)"
+              [placeholder]="replyTo() ? '回复这条评论...' : '这里是评论区，不是无人区:-)'"
+              maxlength="5000"
+            >
+            <div class="bili-composer-actions">
+              @if (replyTo()) {
+                <button type="button" class="bili-cancel-reply" (click)="replyTo.set(null)">取消回复</button>
+              }
+              <button type="submit" class="bili-send-btn">{{ replyTo() ? '回复' : '发布' }}</button>
+            </div>
+          </div>
+        </form>
+        @if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }
+
+        <div class="bili-comment-list">
           @if (commentsLoading()) {
-            @for (i of [1,2,3,4]; track $index) {
-              <div class="chat-skeleton-row shimmer">
-                <div class="chat-skeleton-avatar"></div>
-                <div class="chat-skeleton-body"><div class="chat-skeleton-name"></div><div class="chat-skeleton-text"></div></div>
+            @for (i of [1,2,3]; track $index) {
+              <div class="bili-comment-skeleton shimmer">
+                <div class="bili-skeleton-avatar"></div>
+                <div class="bili-skeleton-body"><div class="bili-skeleton-line"></div><div class="bili-skeleton-line short"></div></div>
               </div>
             }
           } @else if (commentsError()) {
             <p class="feedback" role="alert">{{ commentsError() }}</p>
           } @else {
-            @for (comment of chatMessages(); track comment.id) {
-              <article class="chat-message" [class.is-self]="!!comment.canDelete">
-                <div class="comment-author">
-                  <strong>{{ comment.account?.displayName || comment.account?.name || '玩家' }}</strong>
-                  @if (comment.isAuthor) { <span>作者</span> }
-                  <time>{{ comment.createdAt | date:'MM-dd HH:mm' }}</time>
-                </div>
-                <p>{{ comment.text }}</p>
-                @if (comment.canDelete) {
-                  <div class="comment-actions">
-                    <button type="button" (click)="requestDeleteComment(comment)">删除</button>
+            @for (comment of sortedComments(); track comment.id) {
+              <article class="bili-comment-item">
+                <img class="bili-comment-avatar" [src]="commentAvatar(comment)" alt="" loading="lazy">
+                <div class="bili-comment-main">
+                  <div class="bili-comment-user">
+                    <strong>{{ comment.account?.displayName || comment.account?.name || '玩家' }}</strong>
+                    @if (comment.isAuthor) { <span class="bili-badge up">UP</span> }
                   </div>
-                }
+                  <p class="bili-comment-text">{{ comment.text }}</p>
+                  <div class="bili-comment-meta">
+                    <time>{{ comment.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
+                    <button type="button" class="bili-meta-btn" [class.active]="comment.liked" (click)="toggleCommentLike(comment)">
+                      <my-global-icon iconName="like" />
+                      <span>{{ comment.likes || 0 }}</span>
+                    </button>
+                    <button type="button" class="bili-meta-btn" (click)="replyTo.set(comment.id); focusCommentInput()">回复</button>
+                    @if (comment.canDelete) {
+                      <button type="button" class="bili-meta-btn danger" (click)="requestDeleteComment(comment)">删除</button>
+                    }
+                  </div>
+
+                  @if (replies()[comment.id]; as replyList) {
+                    <div class="bili-reply-list">
+                      @for (reply of replyList; track reply.id) {
+                        <article class="bili-reply-item">
+                          <img class="bili-reply-avatar" [src]="commentAvatar(reply)" alt="" loading="lazy">
+                          <div class="bili-reply-main">
+                            <div class="bili-comment-user">
+                              <strong>{{ reply.account?.displayName || reply.account?.name || '玩家' }}</strong>
+                              @if (reply.isAuthor) { <span class="bili-badge up">UP</span> }
+                            </div>
+                            <p class="bili-comment-text">{{ reply.text }}</p>
+                            <div class="bili-comment-meta">
+                              <time>{{ reply.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
+                              <button type="button" class="bili-meta-btn" [class.active]="reply.liked" (click)="toggleCommentLike(reply)">
+                                <my-global-icon iconName="like" />
+                                <span>{{ reply.likes || 0 }}</span>
+                              </button>
+                              @if (reply.canDelete) {
+                                <button type="button" class="bili-meta-btn danger" (click)="requestDeleteComment(reply)">删除</button>
+                              }
+                            </div>
+                          </div>
+                        </article>
+                      }
+                    </div>
+                  } @else if (comment.totalReplies) {
+                    <button type="button" class="bili-view-replies" (click)="toggleReplies(comment)">
+                      共{{ comment.totalReplies }}条回复，点击查看
+                    </button>
+                  }
+                </div>
               </article>
             } @empty {
               <div class="empty-comments">
                 <my-global-icon iconName="message-circle" />
-                <p>还没有人发言，来打个招呼吧</p>
-                <button type="button" (click)="focusCommentInput()">发送消息</button>
+                <p>还没有评论，来抢沙发吧</p>
+                <button type="button" (click)="focusCommentInput()">写评论</button>
               </div>
             }
           }
         </div>
-        <form class="chat-composer" (submit)="$event.preventDefault(); submitComment()">
-          <input
-            #commentInput
-            aria-label="群聊消息"
-            [value]="commentDraft()"
-            (input)="commentDraft.set($any($event.target).value)"
-            placeholder="说点什么..."
-            maxlength="5000"
-          >
-          <button type="submit">发送</button>
-        </form>
-        @if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }
+
+        @if (hasMoreComments()) {
+          <div class="comments-load-more">
+            <button type="button" [disabled]="commentsLoadingMore()" (click)="loadMoreComments()">
+              {{ commentsLoadingMore() ? '加载中...' : '加载更多评论' }}
+            </button>
+          </div>
+        }
+
         @if (deleteTarget(); as target) {
-          <div class="comment-dialog" role="dialog" aria-label="确认删除消息">
-            <p>确定删除这条消息吗？</p>
+          <div class="comment-dialog" role="dialog" aria-label="确认删除评论">
+            <p>确定删除这条评论吗？</p>
             <button type="button" (click)="deleteTarget.set(null)">取消</button>
             <button type="button" class="danger" (click)="confirmDeleteComment()">确认删除</button>
           </div>

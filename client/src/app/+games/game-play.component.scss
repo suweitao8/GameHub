@@ -534,18 +534,26 @@
   display: inline-block;
   margin-top: 0.8rem;
   text-decoration: none; }
-.game-description-panel { background: #fff;
+.game-description-panel {
+  border-top: 1px solid var(--game-border);
+  margin-top: 1rem;
+  padding-top: 0.95rem;
+}
+.game-description-fallback {
+  background: #fff;
   border-bottom: 1px solid var(--game-border);
   border-top: 1px solid var(--game-border);
   grid-column: 1;
-  grid-row: 4; }
+  grid-row: 3;
+  padding: 0.85rem 0;
+}
 .description-heading {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem 1rem;
   justify-content: space-between;
-  padding: 0.85rem 0 0.45rem;
+  margin-bottom: 0.45rem;
 }
 .game-description-panel h2 { font-size: 1rem;
   margin: 0; }
@@ -578,45 +586,262 @@
   font-size: 0.82rem;
   line-height: 1.7;
   margin: 0;
-  padding: 0 0 0.9rem;
   white-space: pre-wrap; }
-.review-heading-meta {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem 0.85rem;
-  justify-content: flex-end;
+.description-tags {
+  margin-top: 0.75rem;
 }
 .section-heading { align-items: end;
   display: flex;
   justify-content: space-between; }
 .game-play-page .game-comments,
-.game-play-page .game-chat-panel {
+.game-play-page .bili-comment-panel {
   background: #fff;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
   display: flex;
   flex-direction: column;
-  grid-column: 2;
-  grid-row: 2 / span 3;
-  max-height: min(70vh, 760px);
-  margin-top: 0;
-  padding: 1rem;
+  grid-column: 1 / -1;
+  grid-row: auto;
+  margin-top: 1rem;
+  max-height: none;
+  padding: 1rem 1.1rem 1.25rem;
 }
-.game-chat-panel > h2 {
-  font-size: 1rem;
-  margin: 0 0 0.75rem;
-}
-.chat-heading { align-items: end;
+
+/* Bilibili-like comment panel */
+.bili-comment-header {
+  align-items: baseline;
   display: flex;
-  justify-content: space-between; }
-.chat-heading h2 { margin: 0; }
-.chat-message.is-self {
-  background: rgb(0 174 236 / 6%);
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.bili-comment-header h2 {
+  color: #18191c;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+}
+.bili-comment-count {
+  color: #9499a0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-left: 0.35rem;
+}
+.bili-comment-sort {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.45rem;
+}
+.bili-comment-sort button {
+  background: transparent;
+  border: 0;
+  color: #9499a0;
+  cursor: pointer;
+  font-size: 0.88rem;
+  padding: 0;
+}
+.bili-comment-sort button.active {
+  color: #18191c;
+  font-weight: 600;
+}
+.bili-sort-sep {
+  color: #e3e5e7;
+}
+.bili-comment-composer {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+.bili-composer-avatar,
+.bili-comment-avatar,
+.bili-reply-avatar {
+  background: #e5f7ff;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+.bili-composer-avatar {
+  height: 2.75rem;
+  width: 2.75rem;
+}
+.bili-comment-avatar {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+.bili-reply-avatar {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+.bili-composer-body {
+  display: grid;
+  flex: 1;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.bili-composer-body input {
+  background: #f1f2f3;
+  border: 0;
   border-radius: 8px;
-  margin: 0.2rem 0;
-  padding-inline: 0.55rem;
+  color: #18191c;
+  font-size: 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  width: 100%;
+}
+.bili-composer-body input:focus {
+  background: #e3e5e7;
+  outline: 0;
+}
+.bili-composer-actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+.bili-cancel-reply {
+  background: transparent;
+  border: 0;
+  color: #00aeec;
+  font-size: 0.82rem;
+}
+.bili-send-btn {
+  background: #00aeec;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 4.5rem;
+  padding: 0.4rem 0.9rem;
+}
+.bili-comment-list {
+  display: flex;
+  flex-direction: column;
+}
+.bili-comment-item {
+  border-top: 1px solid #f1f2f3;
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+.bili-comment-item:first-child {
+  border-top: 0;
+  padding-top: 0.25rem;
+}
+.bili-comment-main,
+.bili-reply-main {
+  flex: 1;
+  min-width: 0;
+}
+.bili-comment-user {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+.bili-comment-user strong {
+  color: #61666d;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.bili-badge {
+  border-radius: 2px;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.14rem 0.28rem;
+}
+.bili-badge.up {
+  background: #fb7299;
+}
+.bili-comment-text {
+  color: #18191c;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0 0 0.4rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.bili-comment-meta {
+  align-items: center;
+  color: #9499a0;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  gap: 0.85rem;
+}
+.bili-comment-meta time {
+  color: #9499a0;
+}
+.bili-meta-btn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: #9499a0;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0;
+}
+.bili-meta-btn my-global-icon {
+  height: 0.85rem;
+  width: 0.85rem;
+}
+.bili-meta-btn.active,
+.bili-meta-btn:hover {
+  color: #00aeec;
+}
+.bili-meta-btn.danger:hover {
+  color: #f25d8e;
+}
+.bili-view-replies {
+  background: transparent;
+  border: 0;
+  color: #00aeec;
+  cursor: pointer;
+  font-size: 0.82rem;
+  margin-top: 0.45rem;
+  padding: 0;
+}
+.bili-reply-list {
+  background: #f6f7f8;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+  padding: 0.75rem 0.85rem;
+}
+.bili-reply-item {
+  display: flex;
+  gap: 0.5rem;
+}
+.bili-comment-skeleton {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.bili-skeleton-avatar {
+  background: #eceff3;
+  border-radius: 50%;
+  flex: 0 0 2.5rem;
+  height: 2.5rem;
+}
+.bili-skeleton-body {
+  display: grid;
+  flex: 1;
+  gap: 0.45rem;
+}
+.bili-skeleton-line {
+  background: #eceff3;
+  border-radius: 4px;
+  height: 0.85rem;
+}
+.bili-skeleton-line.short {
+  width: 45%;
 }
 .chat-live-status { align-items: center;
   color: var(--game-muted);
