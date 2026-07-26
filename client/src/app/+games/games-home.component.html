@@ -101,15 +101,15 @@
                         </div>
                       </div>
                     }
+                    <!-- Bottom 1/6: pure avg-color fade like game-card meta gradient -->
+                    <div class="featured-cover-fade" aria-hidden="true" [style.background]="featuredCoverFade(featuredGame)"></div>
                   </div>
-                  <div
-                    class="featured-caption"
-                    [style.background]="featuredCaptionBackground(featuredGame)"
-                  >
+                  <!-- Solid average-color title bar (above switch controls) -->
+                  <div class="featured-caption" [style.background-color]="featuredAvgColor(featuredGame)">
                     <h3>{{ featuredGame.title }}</h3>
                   </div>
                 </a>
-                <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" [title]="game.title" (click)="carouselIndex.set(index)"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1)"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1)"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
+                <div class="featured-controls"><div class="featured-dots">@for (game of carouselGames(); track game.uuid; let index = $index) { <button type="button" [class.active]="index === carouselIndex()" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" [title]="game.title" (click)="carouselIndex.set(index); $event.stopPropagation()"></button> }</div><div><button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button><button type="button" aria-label="下一个推荐" (click)="nextCarousel(1); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button></div></div>
               </article>
               <div class="featured-side-grid">@for (game of recommended().slice(1, 7); track game.uuid) { <my-game-card [game]="game" [searchTerm]="search()" /> }</div>
             </div>

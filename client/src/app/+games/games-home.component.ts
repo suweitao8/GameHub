@@ -43,7 +43,8 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly recommendedTotal = signal(0)
   readonly loadingMore = signal(false)
   readonly carouselIndex = signal(0)
-  readonly featuredGradients = signal<Record<string, string>>({})
+  /** Cover average RGB string "r, g, b" for solid caption + fade. */
+  readonly featuredAvgColors = signal<Record<string, string>>({})
   readonly featured = signal<Game[]>([])
   readonly collections = signal<{ id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]>([])
   /** Left carousel height = first full side card + gap + second-row cover. */
@@ -53,7 +54,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private featuredResizeObserver: ResizeObserver | undefined
   private featuredSyncFrame = 0
-  private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
+  private readonly featuredFallbackColors = [ '0, 174, 236', '108, 99, 255', '0, 192, 145', '251, 114, 153', '255, 159, 67' ]
   readonly sortKinds = [
     { id: 'recommended' as GamesListParams['sort'], label: '综合' },
     { id: 'latest' as GamesListParams['sort'], label: '最新' },
@@ -405,70 +406,56 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
-  featuredGradient (game: Game) {
-    const storedGradient = this.featuredGradients()[game.uuid]
-    if (storedGradient) return storedGradient
-
-    const seed = Array.from(game.uuid).reduce((total, character) => total + character.charCodeAt(0), 0)
-    const fallback = this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
-    return `linear-gradient(90deg, ${fallback} 0%, ${fallback} 100%)`
+  /** Solid average color of the full cover (fallback seeded palette). */
+  featuredAvgColor (game: Game) {
+    const stored = this.featuredAvgColors()[game.uuid]
+    if (stored) return `rgb(${stored})`
+    return `rgb(${this.fallbackAvgRgb(game.uuid)})`
   }
 
-  /** Bottom title strip: soft fade into orange / sampled cover colors. */
-  featuredCaptionBackground (game: Game) {
-    const stored = this.featuredGradients()[game.uuid]
-    if (stored) {
-      // Horizontal palette from image bottom, layered under a vertical orange fade
-      return `linear-gradient(180deg, transparent 0%, rgb(255 146 20 / 18%) 28%, rgb(255 146 20 / 72%) 72%, #ff9214 100%), ${stored}`
-    }
-    const seed = Array.from(game.uuid || 'G').reduce((total, character) => total + character.charCodeAt(0), 0)
-    const fallback = this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
-    return `linear-gradient(180deg, transparent 0%, rgb(255 146 20 / 12%) 30%, rgb(255 146 20 / 78%) 78%, #ff9214 100%), linear-gradient(90deg, ${fallback}, #ff9214)`
+  /** Bottom 1/6 of cover: same pure color with opacity fade (like game-card meta). */
+  featuredCoverFade (game: Game) {
+    const rgb = this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)
+    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 72%) 100%)`
+  }
+
+  private fallbackAvgRgb (uuid: string) {
+    const seed = Array.from(uuid || 'G').reduce((total, character) => total + character.charCodeAt(0), 0)
+    return this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
   }
 
   onFeaturedImageLoad (event: Event, uuid: string) {
-    if (this.featuredGradients()[uuid]) return
+    if (this.featuredAvgColors()[uuid]) return
 
     const image = event.target as HTMLImageElement
     if (!image.naturalWidth || !image.naturalHeight) return
 
     try {
       const canvas = document.createElement('canvas')
-      // Only sample the bottom tenth: it is the part visually adjacent to the title.
-      canvas.width = 50
-      canvas.height = 10
+      // Downsample whole cover for average color
+      canvas.width = 32
+      canvas.height = 32
       const context = canvas.getContext('2d', { willReadFrequently: true })
       if (!context) return
 
-      context.drawImage(
-        image, 0, image.naturalHeight * 0.9, image.naturalWidth, image.naturalHeight * 0.1, 0, 0, canvas.width, canvas.height
-      )
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
       const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
-      const colors = []
-      for (let segment = 0; segment < 5; segment++) {
-        let red = 0
-        let green = 0
-        let blue = 0
-        let count = 0
+      let red = 0
+      let green = 0
+      let blue = 0
+      let count = 0
 
-        for (let y = 0; y < canvas.height; y++) {
-          for (let x = segment * 10; x < (segment + 1) * 10; x++) {
-            const index = (y * canvas.width + x) * 4
-            if (pixels[index + 3] < 180) continue
-            red += pixels[index]
-            green += pixels[index + 1]
-            blue += pixels[index + 2]
-            count++
-          }
-        }
-
-        if (!count) return
-        colors.push(`rgb(${Math.round(red / count)} ${Math.round(green / count)} ${Math.round(blue / count)})`)
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (pixels[index + 3] < 128) continue
+        red += pixels[index]
+        green += pixels[index + 1]
+        blue += pixels[index + 2]
+        count++
       }
 
-      const gradientStops = colors.map((color, index) => `${color} ${index * 25}%`).join(', ')
-      const gradient = `linear-gradient(90deg, ${gradientStops}, ${colors[ 4 ]} 100%)`
-      this.featuredGradients.update(gradients => ({ ...gradients, [uuid]: gradient }))
+      if (!count) return
+      const avg = `${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)}`
+      this.featuredAvgColors.update(map => ({ ...map, [uuid]: avg }))
     } catch {
       // Cross-origin cover images may not be readable by canvas; use the fallback palette.
     }
