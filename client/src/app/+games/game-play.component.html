@@ -112,7 +112,19 @@
           @if (!state.isOwner) { <div class="coin-row"><strong>投币</strong><span>余额 {{ state.coinBalance }} · 本游戏已投 {{ state.coinsGiven }}/2</span><button type="button" [class.active]="coinAmount() === 1" (click)="coinAmount.set(1)">1 枚</button><button type="button" [class.active]="coinAmount() === 2" (click)="coinAmount.set(2)">2 枚</button><button type="button" [disabled]="coinLoading()" (click)="giveCoin()">{{ coinLoading() ? '处理中...' : '确认投币' }}</button></div> }
           @if (coinMessage()) { <p class="feedback" role="status">{{ coinMessage() }}</p> }
           <section class="game-review-panel" aria-labelledby="review-title">
-            <div class="review-heading"><div><p class="game-eyebrow">玩家评价</p><h2 id="review-title">评论与评分</h2></div><span>{{ state.averageReviewScore || '暂无' }} / 5 · {{ state.reviews }} 条评价</span></div>
+            <div class="review-heading">
+              <div>
+                <p class="game-eyebrow">玩家评价</p>
+                <h2 id="review-title">评论与评分</h2>
+              </div>
+              <div class="review-heading-meta">
+                <span>{{ displayAverageScore() || '暂无' }} / 5 · {{ displayReviewCount() }} 条评价</span>
+                <div class="comment-sort" role="group" aria-label="评价排序">
+                  <button type="button" [class.active]="reviewSort() === 'hot'" (click)="setReviewSort('hot')">最热</button>
+                  <button type="button" [class.active]="reviewSort() === 'new'" (click)="setReviewSort('new')">最新</button>
+                </div>
+              </div>
+            </div>
             @if (ratingDistribution(); as dist) {
               <div class="rating-distribution" aria-label="评分分布">
                 @for (bucket of dist.distribution; track bucket.star) {
@@ -137,7 +149,7 @@
               @if (reviewsLoading()) { @for (i of [1,2,3]; track $index) { <div class="review-skeleton-row shimmer"><div class="review-skeleton-header"><div class="review-skeleton-avatar"></div><div class="review-skeleton-meta"><div class="review-skeleton-name"></div><div class="review-skeleton-date"></div></div></div><div class="review-skeleton-stars"></div><div class="review-skeleton-text"></div><div class="review-skeleton-text short"></div></div> } }
               @else if (reviewsError()) { <p class="feedback" role="alert">{{ reviewsError() }}</p> }
               @else {
-                @for (review of reviews(); track review.id) {
+                @for (review of sortedReviews(); track review.id) {
                   <article class="game-review-item"><div class="review-author"><strong>{{ review.account?.displayName || review.account?.name || '已注销用户' }}</strong>@if (review.isAuthor) { <span>作者</span> }<time>{{ review.createdAt | date:'yyyy-MM-dd HH:mm' }}</time></div><div class="review-score" [attr.aria-label]="review.score + ' 分'">@for (score of reviewScores; track score) { <my-global-icon [class.active]="score <= review.score" iconName="star" /> }</div><p>{{ review.text }}</p></article>
                 } @empty { <p class="empty-reviews">还没有评价，玩过之后留下第一条吧。</p> }
               }
@@ -147,7 +159,21 @@
         </section>
       } @else if (communityError()) { <p class="feedback" role="alert">{{ communityError() }}</p> }
 
-      <section class="game-description-panel" aria-labelledby="game-description-title"><h2 id="game-description-title">简介</h2><p>{{ game()!.description || '作者还没有填写简介。' }}</p></section>
+      <section class="game-description-panel" aria-labelledby="game-description-title">
+        <div class="description-heading">
+          <h2 id="game-description-title">简介</h2>
+          <div class="description-rating" aria-label="平均评分">
+            <div class="description-stars" aria-hidden="true">
+              @for (score of reviewScores; track score) {
+                <my-global-icon iconName="star" [class.active]="score <= roundedAverageScore()" />
+              }
+            </div>
+            <strong>{{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }}</strong>
+            <span>{{ displayReviewCount() }} 条评价</span>
+          </div>
+        </div>
+        <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
+      </section>
 
       @if (game()!.tags?.length) {
         <section class="game-tags-panel" aria-labelledby="game-tags-title">
@@ -160,7 +186,62 @@
         </section>
       }
 
-      <section class="game-comments" aria-labelledby="comments-title"><div class="chat-heading"><div><p class="game-eyebrow">实时交流</p><h2 id="comments-title">讨论群</h2></div><div class="chat-controls"><span class="chat-live-status"><i></i>实时同步 · {{ comments().length }} 条消息</span><div class="comment-sort"><button type="button" [class.active]="commentSort() === 'hot'" (click)="setCommentSort('hot')">最热</button><button type="button" [class.active]="commentSort() === 'new'" (click)="setCommentSort('new')">最新</button></div></div></div><p class="chat-intro">这里用于和玩家、开发者实时交流玩法、反馈和更新，功能与群聊一致。</p><div class="chat-message-list">@if (commentsLoading()) { @for (i of [1,2,3,4,5]; track $index) { <div class="chat-skeleton-row shimmer"><div class="chat-skeleton-avatar"></div><div class="chat-skeleton-body"><div class="chat-skeleton-name"></div><div class="chat-skeleton-text"></div></div></div> } } @else if (commentsError()) { <p class="feedback" role="alert">{{ commentsError() }}</p> } @else { @for (comment of sortedComments(); track comment.id) { <article class="chat-message"><div class="comment-author"><strong>{{ comment.account?.displayName || comment.account?.name || '已注销用户' }}</strong>@if (comment.isAuthor) { <span>作者</span> }<time>{{ comment.createdAt | date:'MM-dd HH:mm' }}</time></div><p>{{ comment.text }}</p><div class="comment-actions"><button type="button" [class.active]="comment.liked" (click)="toggleCommentLike(comment)"><my-global-icon iconName="like" />{{ comment.likes || 0 }}</button><button type="button" (click)="replyTo.set(comment.id)">回复</button>@if (comment.totalReplies) { <button type="button" (click)="toggleReplies(comment)">{{ replies()[comment.id] ? '收起回复' : comment.totalReplies + ' 条回复' }}</button> }@if (comment.canDelete) { <button type="button" (click)="requestDeleteComment(comment)">删除</button> }</div>@if (replies()[comment.id]; as replyList) { <div class="comment-replies">@for (reply of replyList; track reply.id) { <article class="comment-reply"><div class="comment-author"><strong>{{ reply.account?.displayName || reply.account?.name || '已注销用户' }}</strong>@if (reply.isAuthor) { <span>作者</span> }<time>{{ reply.createdAt | date:'MM-dd HH:mm' }}</time></div><p>{{ reply.text }}</p><div class="comment-actions"><button type="button" [class.active]="reply.liked" (click)="toggleCommentLike(reply)"><my-global-icon iconName="like" />{{ reply.likes || 0 }}</button>@if (reply.canDelete) { <button type="button" (click)="requestDeleteComment(reply)">删除</button> }</div></article> }</div> }</article> } @empty { <div class="empty-comments"><my-global-icon iconName="message-circle" /><p>还没有群聊消息，来打个招呼吧</p><button type="button" (click)="focusCommentInput()">发送第一条消息</button></div> } }</div>@if (hasMoreComments()) { <div class="comments-load-more"><button type="button" [disabled]="commentsLoadingMore()" (click)="loadMoreComments()">{{ commentsLoadingMore() ? '加载中...' : '加载更多评论（' + (commentsTotal() - comments().length) + ' 条剩余）' }}</button></div> }<form class="chat-composer" (submit)="$event.preventDefault(); replyTo() ? submitReply() : submitComment()"><input aria-label="讨论群消息" [value]="commentDraft()" (input)="commentDraft.set($any($event.target).value)" placeholder="{{ replyTo() ? '回复这条消息' : '在讨论群里说点什么...' }}" maxlength="5000"><button type="submit">{{ replyTo() ? '回复' : '发送' }}</button></form>@if (replyTo()) { <button type="button" class="cancel-reply" (click)="replyTo.set(null)">取消回复</button> }@if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }@if (deleteTarget(); as target) { <div class="comment-dialog" role="dialog" aria-label="确认删除消息"><p>确定删除这条消息吗？</p><button type="button" (click)="deleteTarget.set(null)">取消</button><button type="button" class="danger" (click)="confirmDeleteComment()">确认删除</button></div> }</section>
+      <section class="game-comments game-chat-panel" aria-labelledby="chat-title">
+        <h2 id="chat-title">群聊</h2>
+        <div class="chat-message-list" #chatList>
+          @if (commentsLoading()) {
+            @for (i of [1,2,3,4]; track $index) {
+              <div class="chat-skeleton-row shimmer">
+                <div class="chat-skeleton-avatar"></div>
+                <div class="chat-skeleton-body"><div class="chat-skeleton-name"></div><div class="chat-skeleton-text"></div></div>
+              </div>
+            }
+          } @else if (commentsError()) {
+            <p class="feedback" role="alert">{{ commentsError() }}</p>
+          } @else {
+            @for (comment of chatMessages(); track comment.id) {
+              <article class="chat-message" [class.is-self]="!!comment.canDelete">
+                <div class="comment-author">
+                  <strong>{{ comment.account?.displayName || comment.account?.name || '玩家' }}</strong>
+                  @if (comment.isAuthor) { <span>作者</span> }
+                  <time>{{ comment.createdAt | date:'MM-dd HH:mm' }}</time>
+                </div>
+                <p>{{ comment.text }}</p>
+                @if (comment.canDelete) {
+                  <div class="comment-actions">
+                    <button type="button" (click)="requestDeleteComment(comment)">删除</button>
+                  </div>
+                }
+              </article>
+            } @empty {
+              <div class="empty-comments">
+                <my-global-icon iconName="message-circle" />
+                <p>还没有人发言，来打个招呼吧</p>
+                <button type="button" (click)="focusCommentInput()">发送消息</button>
+              </div>
+            }
+          }
+        </div>
+        <form class="chat-composer" (submit)="$event.preventDefault(); submitComment()">
+          <input
+            #commentInput
+            aria-label="群聊消息"
+            [value]="commentDraft()"
+            (input)="commentDraft.set($any($event.target).value)"
+            placeholder="说点什么..."
+            maxlength="5000"
+          >
+          <button type="submit">发送</button>
+        </form>
+        @if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }
+        @if (deleteTarget(); as target) {
+          <div class="comment-dialog" role="dialog" aria-label="确认删除消息">
+            <p>确定删除这条消息吗？</p>
+            <button type="button" (click)="deleteTarget.set(null)">取消</button>
+            <button type="button" class="danger" (click)="confirmDeleteComment()">确认删除</button>
+          </div>
+        }
+      </section>
 
       @if (shareDialog()) {
         <div class="share-dialog-overlay" (click)="closeShareDialog()">

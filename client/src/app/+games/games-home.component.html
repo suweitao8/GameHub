@@ -41,38 +41,27 @@
         <div class="home-feed-tabs">
           <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
           <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-          <a class="home-feed-tab" routerLink="/games/collections" routerLinkActive="active"><span>专题</span></a>
-          <a class="home-feed-tab" routerLink="/games/following" routerLinkActive="active"><span>关注</span></a>
         </div>
         <div class="home-category-links" aria-label="游戏分类">
           @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [style.letterSpacing]="item.title.length === 2 ? '0.5em' : item.title.length === 3 ? '0.2em' : 'normal'">{{ item.title }}</a> }
         </div>
       </nav>
-      @if (view() === 'following') { 
-        <div class="game-empty-feed" role="status">
-          <div class="empty-feed-icon" aria-hidden="true">👥</div>
-          <span class="empty-feed-title">关注列表暂无动态</span>
-          <p class="empty-feed-desc">去发现页浏览更多内容</p>
-          <a routerLink="/games">去发现</a>
-        </div>
-      } @else {
-        <div class="category-empty" aria-label="暂无游戏">
-          <div class="empty-icon" aria-hidden="true">🔍</div>
-          @if (search() || searchMode()) {
-            <span class="empty-title">未找到匹配结果</span>
-            <p class="empty-desc">试试换个关键词，或浏览其他分类</p>
-            <a routerLink="/games" class="empty-cta">返回发现</a>
-          } @else if (category()) {
-            <span class="empty-title">该分类暂无游戏</span>
-            <p class="empty-desc">去看看其他分类，或上传第一个作品</p>
-            <a routerLink="/games" class="empty-cta">浏览全部</a>
-          } @else {
-            <span class="empty-title">还没有游戏</span>
-            <p class="empty-desc">成为第一个分享作品的创作者</p>
-            <a routerLink="/games/upload" class="empty-cta">上传游戏</a>
-          }
-        </div>
-      }
+      <div class="category-empty" aria-label="暂无游戏">
+        <div class="empty-icon" aria-hidden="true">🔍</div>
+        @if (search() || searchMode()) {
+          <span class="empty-title">未找到匹配结果</span>
+          <p class="empty-desc">试试换个关键词，或浏览其他分类</p>
+          <a routerLink="/games" class="empty-cta">返回发现</a>
+        } @else if (category()) {
+          <span class="empty-title">该分类暂无游戏</span>
+          <p class="empty-desc">去看看其他分类，或上传第一个作品</p>
+          <a routerLink="/games" class="empty-cta">浏览全部</a>
+        } @else {
+          <span class="empty-title">还没有游戏</span>
+          <p class="empty-desc">成为第一个分享作品的创作者</p>
+          <a routerLink="/games/upload" class="empty-cta">上传游戏</a>
+        }
+      </div>
     </div>
   } @else {
     <div class="game-community-content">
@@ -80,36 +69,12 @@
         <div class="home-feed-tabs">
           <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
           <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-          <a class="home-feed-tab" routerLink="/games/collections" routerLinkActive="active"><span>专题</span></a>
-          <a class="home-feed-tab" routerLink="/games/following" routerLinkActive="active"><span>关注</span></a>
         </div>
         <div class="home-category-links" aria-label="游戏分类">
           @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id">{{ item.title }}</a> }
         </div>
       </nav>
 
-      @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !publishedAfter() && view() !== 'following') {
-        @if (collections().length) {
-          <section class="game-section collections-section" aria-labelledby="collections-title">
-            <div class="game-section-heading compact-section-heading">
-              <h2 id="collections-title">精选专题</h2>
-              <a class="section-more-link" routerLink="/games/collections">查看全部 <my-global-icon iconName="chevron-right" /></a>
-            </div>
-            <div class="collections-scroll">
-              @for (collection of collections().slice(0, 6); track collection.id) {
-                <a class="collection-pill" [routerLink]="['/games/collection', collection.slug]">
-                  @if (collection.coverPath) {
-                    <div class="collection-pill-cover"><img [src]="collection.coverPath" [alt]="collection.title" loading="lazy"></div>
-                  } @else {
-                    <div class="collection-pill-placeholder">{{ collection.title.charAt(0) }}</div>
-                  }
-                  <span class="collection-pill-title">{{ collection.title }}</span>
-                </a>
-              }
-            </div>
-          </section>
-        }
-      }
 
       @if (category() && recommended().length) {
         <section class="game-section category-results-section"><div class="game-section-heading"><div><h2>{{ categoryTitle() }}热门游戏</h2></div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" [searchTerm]="search()" /> }</div></section>

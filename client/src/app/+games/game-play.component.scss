@@ -539,19 +539,60 @@
   border-top: 1px solid var(--game-border);
   grid-column: 1;
   grid-row: 4; }
+.description-heading {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  justify-content: space-between;
+  padding: 0.85rem 0 0.45rem;
+}
 .game-description-panel h2 { font-size: 1rem;
-  margin: 0;
-  padding: 0.85rem 0 0.35rem; }
+  margin: 0; }
+.description-rating {
+  align-items: center;
+  color: var(--game-muted);
+  display: inline-flex;
+  font-size: 0.78rem;
+  gap: 0.4rem;
+}
+.description-stars {
+  align-items: center;
+  color: #d0d4da;
+  display: inline-flex;
+  gap: 0.08rem;
+}
+.description-stars my-global-icon {
+  height: 0.9rem;
+  width: 0.9rem;
+}
+.description-stars my-global-icon.active {
+  color: #ffb400;
+}
+.description-rating strong {
+  color: #ff9500;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
 .game-description-panel p { color: var(--game-muted);
   font-size: 0.82rem;
   line-height: 1.7;
   margin: 0;
   padding: 0 0 0.9rem;
   white-space: pre-wrap; }
+.review-heading-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  justify-content: flex-end;
+}
 .section-heading { align-items: end;
   display: flex;
   justify-content: space-between; }
-.game-play-page .game-comments { background: #fff;
+.game-play-page .game-comments,
+.game-play-page .game-chat-panel {
+  background: #fff;
   border: 0;
   border-radius: 6px;
   box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
@@ -561,11 +602,22 @@
   grid-row: 2 / span 3;
   max-height: min(70vh, 760px);
   margin-top: 0;
-  padding: 1rem; }
+  padding: 1rem;
+}
+.game-chat-panel > h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+}
 .chat-heading { align-items: end;
   display: flex;
   justify-content: space-between; }
 .chat-heading h2 { margin: 0; }
+.chat-message.is-self {
+  background: rgb(0 174 236 / 6%);
+  border-radius: 8px;
+  margin: 0.2rem 0;
+  padding-inline: 0.55rem;
+}
 .chat-live-status { align-items: center;
   color: var(--game-muted);
   display: inline-flex;

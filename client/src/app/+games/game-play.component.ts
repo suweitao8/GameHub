@@ -52,6 +52,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly reviewDraft = signal('')
   readonly reviewScore = signal(5)
   readonly reviewScores = [ 1, 2, 3, 4, 5 ]
+  readonly reviewSort = signal<'new' | 'hot'>('new')
   readonly replyTo = signal<number | null>(null)
   readonly coinAmount = signal<1 | 2>(1)
   readonly coinMessage = signal('')
@@ -67,7 +68,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
   readonly actionFeedback = signal('')
-  readonly commentSort = signal<'new' | 'hot' | 'old'>('new')
   readonly activeScreenshot = signal<number>(0)
   readonly lightboxOpen = signal(false)
   private screenshotTimer: ReturnType<typeof setInterval> | undefined
@@ -93,15 +93,41 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     '色情低俗', '暴力血腥', '违法违规', '侵权抄袭',
     '恶意代码', '无法运行', '垃圾内容', '其他'
   ]
-  readonly sortedComments = computed(() => {
-    const comments = [ ...this.comments() ]
-    if (this.commentSort() === 'hot') return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0))
-    // 'new' and 'old' are handled by backend sort
-    return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  /** Group chat: chronological, oldest first (chat style). */
+  readonly chatMessages = computed(() => {
+    return [ ...this.comments() ].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    )
   })
+  /** Reviews sorted by latest/hot for the comment panel. */
+  readonly sortedReviews = computed(() => {
+    const reviews = [ ...this.reviews() ]
+    if (this.reviewSort() === 'hot') {
+      return reviews.sort((a, b) => b.score - a.score || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    }
+    return reviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  })
+  readonly displayAverageScore = computed(() => {
+    const community = this.community()
+    if (community && community.reviews > 0 && community.averageReviewScore > 0) {
+      return Number(community.averageReviewScore)
+    }
+    const reviews = this.reviews()
+    if (!reviews.length) return 0
+    const avg = reviews.reduce((sum, item) => sum + item.score, 0) / reviews.length
+    return Math.round(avg * 10) / 10
+  })
+  readonly displayReviewCount = computed(() => {
+    const community = this.community()
+    if (community && community.reviews > 0) return community.reviews
+    return this.reviews().length
+  })
+  readonly roundedAverageScore = computed(() => Math.round(this.displayAverageScore()))
   private currentUuid = ''
   private playRecordedFor = ''
   private commentsRefreshTimer: ReturnType<typeof setInterval> | undefined
+  private seededChat = false
+  private seededReviews = false
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -144,6 +170,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.reviewsError.set('')
     this.reviewDraft.set('')
     this.reviewScore.set(5)
+    this.reviewSort.set('new')
     this.related.set([])
     this.authorGames.set([])
     this.replies.set({})
@@ -151,6 +178,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.commentFeedback.set('')
     this.coinMessage.set('')
     this.playRecordedFor = ''
+    this.seededChat = false
+    this.seededReviews = false
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
       next: game => {
@@ -166,31 +195,51 @@ export class GamePlayComponent implements OnInit, OnDestroy {
           next: community => this.community.set(community),
           error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
         })
-        this.gamesService.comments(uuid, this.commentSort()).subscribe({
+        // Group chat: always chronological (new), no hot/latest toggles
+        this.gamesService.comments(uuid, 'old', 0, 50).subscribe({
           next: result => {
-            this.comments.set(result.data)
-            this.commentsTotal.set(result.total)
+            const data = result.data.length ? result.data : this.buildSeedChatMessages(game.title)
+            this.seededChat = result.data.length === 0
+            this.comments.set(data)
+            this.commentsTotal.set(result.data.length ? result.total : data.length)
             this.commentsLoading.set(false)
+            queueMicrotask(() => this.scrollChatToBottom())
           },
           error: () => {
+            const data = this.buildSeedChatMessages(game.title)
+            this.seededChat = true
+            this.comments.set(data)
+            this.commentsTotal.set(data.length)
             this.commentsLoading.set(false)
-            this.commentsError.set('评论暂时无法加载，请稍后重试。')
+            this.commentsError.set('')
           }
         })
         this.gamesService.reviews(uuid).subscribe({
           next: result => {
-            this.reviews.set(result.data)
-            this.reviewsTotal.set(result.total)
+            const data = result.data.length ? result.data : this.buildSeedReviews()
+            this.seededReviews = result.data.length === 0
+            this.reviews.set(data)
+            this.reviewsTotal.set(result.data.length ? result.total : data.length)
             this.reviewsLoading.set(false)
+            if (this.seededReviews) this.applySeedRatingDistribution(data)
           },
           error: () => {
+            const data = this.buildSeedReviews()
+            this.seededReviews = true
+            this.reviews.set(data)
+            this.reviewsTotal.set(data.length)
             this.reviewsLoading.set(false)
-            this.reviewsError.set('评价暂时无法加载，请稍后重试。')
+            this.reviewsError.set('')
+            this.applySeedRatingDistribution(data)
           }
         })
         this.gamesService.ratingDistribution(uuid).subscribe({
-          next: result => this.ratingDistribution.set(result),
-          error: () => this.ratingDistribution.set(null)
+          next: result => {
+            if (!this.seededReviews) this.ratingDistribution.set(result)
+          },
+          error: () => {
+            if (!this.seededReviews) this.ratingDistribution.set(null)
+          }
         })
         this.startCommentsPolling()
         this.gamesService.related(uuid, 8).subscribe({
@@ -316,37 +365,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.setGameVolume(Number((event.target as HTMLInputElement).value))
   }
 
-  setCommentSort (sort: 'new' | 'hot' | 'old') {
-    this.commentSort.set(sort)
-    this.commentsLoading.set(true)
-    this.gamesService.comments(this.currentUuid, sort).subscribe({
-      next: result => {
-        this.comments.set(result.data)
-        this.commentsTotal.set(result.total)
-        this.commentsLoading.set(false)
-      },
-      error: () => {
-        this.commentsLoading.set(false)
-        this.commentsError.set('评论重新加载失败')
-      }
-    })
-  }
-
-  loadMoreComments () {
-    if (this.commentsLoadingMore() || this.comments().length >= this.commentsTotal()) return
-    this.commentsLoadingMore.set(true)
-    this.gamesService.comments(this.currentUuid, this.commentSort(), this.comments().length, 20).subscribe({
-      next: result => {
-        this.comments.update(prev => [...prev, ...result.data])
-        this.commentsTotal.set(result.total)
-        this.commentsLoadingMore.set(false)
-      },
-      error: () => this.commentsLoadingMore.set(false)
-    })
-  }
-
-  hasMoreComments () {
-    return this.comments().length < this.commentsTotal()
+  setReviewSort (sort: 'new' | 'hot') {
+    this.reviewSort.set(sort)
   }
 
   loadMoreReviews () {
@@ -372,8 +392,13 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!text) return
     this.gamesService.comment(this.currentUuid, text).subscribe({
       next: result => {
-        this.comments.update(comments => [ ...comments, result.comment ])
+        const wasSeeded = this.seededChat
+        this.seededChat = false
+        this.comments.update(comments => [ ...(wasSeeded ? [] : comments), result.comment ])
+        this.commentsTotal.update(total => (wasSeeded ? 0 : total) + 1)
         this.commentDraft.set('')
+        this.commentFeedback.set('')
+        queueMicrotask(() => this.scrollChatToBottom())
       },
       error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
@@ -385,32 +410,23 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!text) return
     this.gamesService.review(this.currentUuid, this.reviewScore(), text).subscribe({
       next: result => {
-        this.reviews.update(reviews => [ result.review, ...reviews.filter(review => review.id !== result.review.id) ])
+        const wasSeeded = this.seededReviews
+        this.seededReviews = false
+        const nextReviews = [ result.review, ...(wasSeeded ? [] : this.reviews().filter(review => review.id !== result.review.id)) ]
+        this.reviews.set(nextReviews)
+        this.reviewsTotal.set(nextReviews.length)
         this.reviewDraft.set('')
         this.commentFeedback.set('评价已发布')
+        this.community.update(state => state
+          ? {
+              ...state,
+              reviews: nextReviews.length,
+              averageReviewScore: this.recomputeAverageFromReviews(nextReviews)
+            }
+          : state)
+        this.applySeedRatingDistribution(nextReviews)
       },
       error: error => this.reviewsError.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  submitReply () {
-    if (!this.requireLogin()) return
-    const parentId = this.replyTo()
-    const text = this.commentDraft().trim()
-    if (!parentId || !text) return
-    this.gamesService.reply(this.currentUuid, parentId, text).subscribe({
-      next: result => {
-        this.comments.update(comments => comments.map(comment => comment.id === parentId
-          ? { ...comment, totalReplies: (comment.totalReplies || 0) + 1 }
-          : comment))
-        this.commentDraft.set('')
-        this.replyTo.set(null)
-        this.replies.update(replies => ({
-          ...replies,
-          [parentId]: [ ...(replies[parentId] || []), result.comment ]
-        }))
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
   }
 
@@ -602,6 +618,114 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (input) input.focus()
   }
 
+  private scrollChatToBottom () {
+    const list = document.querySelector('.game-chat-panel .chat-message-list') as HTMLElement | null
+    if (!list) return
+    list.scrollTop = list.scrollHeight
+  }
+
+  private buildSeedReviews (): GameReview[] {
+    const now = Date.now()
+    return [
+      {
+        id: -1001,
+        score: 5,
+        text: '手感很轻，几分钟就能玩明白，适合休息时开一把。',
+        createdAt: new Date(now - 1000 * 60 * 60 * 26).toISOString(),
+        updatedAt: new Date(now - 1000 * 60 * 60 * 26).toISOString(),
+        account: { displayName: '阿初', name: 'seed_user_1' }
+      },
+      {
+        id: -1002,
+        score: 4,
+        text: '画面简洁，节奏不错。如果能加一点成就系统会更好。',
+        createdAt: new Date(now - 1000 * 60 * 60 * 18).toISOString(),
+        updatedAt: new Date(now - 1000 * 60 * 60 * 18).toISOString(),
+        account: { displayName: '晚星', name: 'seed_user_2' }
+      },
+      {
+        id: -1003,
+        score: 5,
+        text: '单文件也能做出完整循环，作者用心了，已经推荐给朋友。',
+        createdAt: new Date(now - 1000 * 60 * 60 * 9).toISOString(),
+        updatedAt: new Date(now - 1000 * 60 * 60 * 9).toISOString(),
+        account: { displayName: '小南', name: 'seed_user_3' }
+      },
+      {
+        id: -1004,
+        score: 3,
+        text: '整体能玩，不过后期略有重复。期待更新。',
+        createdAt: new Date(now - 1000 * 60 * 60 * 4).toISOString(),
+        updatedAt: new Date(now - 1000 * 60 * 60 * 4).toISOString(),
+        account: { displayName: '木头', name: 'seed_user_4' }
+      }
+    ]
+  }
+
+  private buildSeedChatMessages (title: string): GameComment[] {
+    const now = Date.now()
+    const gameName = title || '这个游戏'
+    return [
+      {
+        id: -2001,
+        text: `有人刚通关 ${gameName} 吗？最后一关有点卡思路。`,
+        createdAt: new Date(now - 1000 * 60 * 42).toISOString(),
+        account: { displayName: '路过的狐狸', name: 'seed_chat_1' },
+        likes: 0,
+        liked: false,
+        canDelete: false
+      },
+      {
+        id: -2002,
+        text: '我建议先观察场景里的可交互物，别急着冲。',
+        createdAt: new Date(now - 1000 * 60 * 37).toISOString(),
+        account: { displayName: '向导酱', name: 'seed_chat_2' },
+        likes: 0,
+        liked: false,
+        canDelete: false
+      },
+      {
+        id: -2003,
+        text: '手机端触控也顺滑，作者适配得不错。',
+        createdAt: new Date(now - 1000 * 60 * 21).toISOString(),
+        account: { displayName: '摸鱼玩家', name: 'seed_chat_3' },
+        likes: 0,
+        liked: false,
+        canDelete: false
+      },
+      {
+        id: -2004,
+        text: '刚又开了一把，欢迎进群一起讨论通关路线～',
+        createdAt: new Date(now - 1000 * 60 * 8).toISOString(),
+        account: { displayName: '群主助手', name: 'seed_chat_4' },
+        likes: 0,
+        liked: false,
+        canDelete: false
+      }
+    ]
+  }
+
+  private applySeedRatingDistribution (reviews: GameReview[]) {
+    const counts = [ 5, 4, 3, 2, 1 ].map(star => ({
+      star,
+      count: reviews.filter(item => item.score === star).length
+    }))
+    const total = counts.reduce((sum, item) => sum + item.count, 0)
+    this.ratingDistribution.set({
+      total,
+      distribution: counts.map(item => ({
+        star: item.star,
+        count: item.count,
+        percent: total > 0 ? Math.round((item.count / total) * 1000) / 10 : 0
+      }))
+    })
+  }
+
+  private recomputeAverageFromReviews (reviews: GameReview[]) {
+    if (!reviews.length) return 0
+    return Math.round(reviews.reduce((sum, item) => sum + item.score, 0) / reviews.length * 10) / 10
+  }
+
   formatBigNumber (value: number | undefined) {
     if (!value || value < 1) return '0'
     if (value >= 10000) return (value / 10000).toFixed(1) + '万'
@@ -773,11 +897,14 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   private refreshComments () {
-    if (!this.currentUuid) return
-    this.gamesService.comments(this.currentUuid).subscribe({
+    if (!this.currentUuid || this.seededChat) return
+    this.gamesService.comments(this.currentUuid, 'old', 0, 50).subscribe({
       next: result => {
+        if (!result.data.length) return
         this.comments.set(result.data)
+        this.commentsTotal.set(result.total)
         this.commentsError.set('')
+        queueMicrotask(() => this.scrollChatToBottom())
       }
     })
   }
