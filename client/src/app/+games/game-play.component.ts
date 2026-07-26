@@ -44,6 +44,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly commentsTotal = signal(0)
   readonly commentsLoadingMore = signal(false)
   readonly commentDraft = signal('')
+  readonly chatDraft = signal('')
   readonly reviews = signal<GameReview[]>([])
   readonly reviewsLoading = signal(true)
   readonly reviewsError = signal('')
@@ -100,6 +101,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
     return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  })
+  /** Discussion group: chronological chat timeline. */
+  readonly chatMessages = computed(() => {
+    return [ ...this.comments() ].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    )
   })
   readonly displayAverageScore = computed(() => {
     const community = this.community()
@@ -393,6 +400,28 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       },
       error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
     })
+  }
+
+  submitChat () {
+    if (!this.requireLogin()) return
+    const text = this.chatDraft().trim()
+    if (!text) return
+    this.gamesService.comment(this.currentUuid, text).subscribe({
+      next: result => {
+        const wasSeeded = this.seededChat
+        this.seededChat = false
+        this.comments.update(comments => [ ...(wasSeeded ? [] : comments), result.comment ])
+        this.commentsTotal.update(total => (wasSeeded ? 0 : total) + 1)
+        this.chatDraft.set('')
+        queueMicrotask(() => this.scrollDiscussToBottom())
+      },
+      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
+    })
+  }
+
+  private scrollDiscussToBottom () {
+    const list = document.querySelector('.discuss-message-list') as HTMLElement | null
+    if (list) list.scrollTop = list.scrollHeight
   }
 
   submitReply () {

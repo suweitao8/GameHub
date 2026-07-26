@@ -28,33 +28,23 @@
       <button type="button" (click)="retryLoadGame()">重新加载</button>
     </div>
   } @else {
-    <div class="game-community-content">
+    <div class="game-community-content game-play-layout">
+      <div class="play-main">
       <section class="game-title-bar">
         <h1>{{ game()!.title }}</h1>
         <div class="game-title-meta" aria-label="游戏数据">
           <span aria-label="游玩次数"><my-global-icon iconName="play" />{{ formatBigNumber(game()!.playCount) }} 游玩</span>
-          <span aria-label="点赞数"><my-global-icon iconName="like" />{{ formatBigNumber(game()!.likes || 0) }} 点赞</span>
-          <span aria-label="收藏数"><my-global-icon iconName="star" />{{ formatBigNumber(game()!.favorites || 0) }} 收藏</span>
-          <span aria-label="评价数量"><my-global-icon iconName="message-circle" />{{ community()?.reviews ?? game()!.comments ?? 0 }} 评价</span>
+          <span aria-label="评论数"><my-global-icon iconName="message-circle" />{{ formatBigNumber(commentsTotal() || comments().length || game()!.comments || 0) }} 评论</span>
+          <span aria-label="评分" class="game-title-score">
+            <my-global-icon iconName="star" />
+            {{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }} 评分
+          </span>
           <time [attr.datetime]="game()!.updatedAt">{{ game()!.updatedAt | date:'yyyy-MM-dd HH:mm' }}</time>
           @if (!community()?.isOwner) {
             <button type="button" class="report-trigger-btn" (click)="openReportDialog()" aria-label="举报游戏">举报</button>
           }
         </div>
       </section>
-
-      <aside class="game-developer-card" aria-label="开发者信息">
-        @if (community()?.author; as author) {
-          <div class="developer-identity">
-            <img [src]="getDeveloperAvatar(author.displayName || author.handle)" alt="">
-            <div><a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a><span>&#64;{{ author.handle }}</span></div>
-          </div>
-          @if (!community()!.isOwner) { <button type="button" class="developer-follow-button" [class.active]="community()!.following" (click)="toggleFollow()">{{ community()!.following ? '已关注' : '+ 关注' }}</button> }
-          @if (community()!.isOwner) { <span class="developer-owner-label">这是你的游戏</span> }
-        } @else {
-          <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:#eceff3"></div>
-        }
-      </aside>
 
       @if (game()!.screenshots?.length) {
         <section class="game-screenshots" aria-label="游戏截图"
@@ -269,6 +259,85 @@
           </div>
         }
       </section>
+      </div><!-- /.play-main -->
+
+      <aside class="play-side" aria-label="侧栏">
+        <section class="game-developer-card" aria-label="开发者信息">
+          @if (community()?.author; as author) {
+            <div class="developer-identity">
+              <img [src]="getDeveloperAvatar(author.displayName || author.handle)" alt="">
+              <div>
+                <a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a>
+                <span>&#64;{{ author.handle }}</span>
+              </div>
+            </div>
+            @if (!community()!.isOwner) {
+              <button type="button" class="developer-follow-button" [class.active]="community()!.following" (click)="toggleFollow()">
+                {{ community()!.following ? '已关注' : '+ 关注' }}
+              </button>
+            }
+            @if (community()!.isOwner) { <span class="developer-owner-label">这是你的游戏</span> }
+          } @else {
+            <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:#eceff3"></div>
+          }
+        </section>
+
+        <section class="game-discuss-panel" aria-labelledby="discuss-title">
+          <h2 id="discuss-title">讨论群</h2>
+          <div class="discuss-message-list" #discussList>
+            @if (commentsLoading()) {
+              @for (i of [1,2,3]; track $index) {
+                <div class="discuss-skeleton shimmer"></div>
+              }
+            } @else {
+              @for (msg of chatMessages(); track msg.id) {
+                <article class="discuss-message">
+                  <strong>{{ msg.account?.displayName || msg.account?.name || '玩家' }}</strong>
+                  <p>{{ msg.text }}</p>
+                  <time>{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
+                </article>
+              } @empty {
+                <p class="discuss-empty">还没有人发言，来打个招呼吧</p>
+              }
+            }
+          </div>
+          <form class="discuss-composer" (submit)="$event.preventDefault(); submitChat()">
+            <input
+              aria-label="讨论群消息"
+              [value]="chatDraft()"
+              (input)="chatDraft.set($any($event.target).value)"
+              placeholder="在讨论群说点什么..."
+              maxlength="5000"
+            >
+            <button type="submit">发送</button>
+          </form>
+        </section>
+
+        @if (related().length) {
+          <section class="related-section" aria-labelledby="related-title">
+            <div class="game-section-heading compact-section-heading">
+              <h2 id="related-title">相关推荐</h2>
+            </div>
+            <div class="related-game-list">
+              @for (item of related(); track item.uuid) {
+                <a class="related-game-row" [routerLink]="['/games', item.uuid]">
+                  <div class="related-game-thumb">
+                    @if (item.coverPath || item.coverFallback) {
+                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy">
+                    } @else {
+                      <span>{{ item.title?.[0] || 'G' }}</span>
+                    }
+                  </div>
+                  <div class="related-game-copy">
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ formatBigNumber(item.playCount) }} 游玩 · {{ formatBigNumber(item.likes) }} 赞</span>
+                  </div>
+                </a>
+              }
+            </div>
+          </section>
+        }
+      </aside>
 
       @if (shareDialog()) {
         <div class="share-dialog-overlay" (click)="closeShareDialog()">
@@ -300,68 +369,6 @@
           </div>
         </div>
       }
-      @if (related().length) {
-        <section class="related-section" aria-labelledby="related-title">
-          <div class="game-section-heading">
-            <div>
-              <p class="game-eyebrow">继续游玩</p>
-              <h2 id="related-title">同类型推荐</h2>
-            </div>
-          </div>
-          <div class="related-game-grid">
-            @for (item of related(); track item.uuid) {
-              <a class="related-game-card" [routerLink]="['/games', item.uuid]" [style.background-image]="item.coverPath || item.coverFallback ? 'none' : 'none'">
-                <div class="related-game-cover">
-                  @if (item.coverPath || item.coverFallback) {
-                    <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy" />
-                  } @else {
-                    <span class="related-game-cover-placeholder">{{ item.title?.[0] || '?' }}</span>
-                  }
-                </div>
-                <div class="related-game-info">
-                  <strong class="related-game-title">{{ item.title }}</strong>
-                  <div class="related-game-meta">
-                    <span>{{ formatBigNumber(item.playCount) }} 游玩</span>
-                    <span class="dot">·</span>
-                    <span>{{ formatBigNumber(item.likes) }} 赞</span>
-                    @if (item.author?.displayName) { <span class="dot">·</span><span>{{ item.author.displayName }}</span> }
-                  </div>
-                </div>
-              </a>
-            }
-          </div>
-        </section>
-      }
-      @if (authorGames().length) {
-        <section class="author-games-section" aria-labelledby="author-games-title">
-          <div class="game-section-heading">
-            <div>
-              <p class="game-eyebrow">作者作品</p>
-              <h2 id="author-games-title">作者其他游戏</h2>
-            </div>
-          </div>
-          <div class="author-games-grid">
-            @for (item of authorGames(); track item.uuid) {
-              <my-game-card [game]="item" [searchTerm]="" />
-            }
-          </div>
-        </section>
-      }
-      @if (relatedArticles().length) {
-        <section class="related-articles-section" aria-labelledby="related-articles-title">
-          <div class="game-section-heading"><div><p class="game-eyebrow">相关内容</p><h2 id="related-articles-title">相关游戏推荐</h2></div></div>
-          <div class="related-articles-list">
-            @for (article of relatedArticles(); track article.slug) {
-              <a class="related-article-card" [routerLink]="['/games', article.slug]">
-                <strong>{{ article.title }}</strong>
-                <p>{{ article.summary }}</p>
-                <span class="article-category-tag">{{ article.category }}</span>
-              </a>
-            }
-          </div>
-        </section>
-      }
-
       @if (reportDialog()) {
         <div class="report-dialog-overlay" (click)="closeReportDialog()">
           <div class="report-dialog" (click)="$event.stopPropagation()">
