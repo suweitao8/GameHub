@@ -571,11 +571,16 @@
 }
 
 .featured-cover img {
+  /* Fill by width; crop height if needed — do not force full image visible */
   display: block;
   height: 100%;
+  left: 0;
+  max-width: none;
+  min-height: 100%;
   object-fit: cover;
-  object-position: center;
-  position: relative;
+  object-position: center top;
+  position: absolute;
+  top: 0;
   width: 100%;
 }
 
@@ -625,12 +630,14 @@
 }
 
 .featured-caption {
-  background: linear-gradient(180deg, transparent 0%, rgb(30 36 48 / 62%) 100%);
+  /* Default orange band under title; JS can layer sampled cover colors */
+  background: linear-gradient(180deg, transparent 0%, rgb(255 146 20 / 15%) 28%, rgb(255 146 20 / 82%) 78%, #ff9214 100%);
   bottom: 0;
   color: #fff;
   left: 0;
   margin: 0;
-  padding: 2.2rem 0.85rem 2.1rem;
+  min-height: 4.25rem;
+  padding: 2.4rem 0.9rem 0.85rem;
   position: absolute;
   right: 0;
   z-index: 1;
@@ -640,6 +647,7 @@
   font-size: 1.3rem;
   margin: 0;
   position: relative;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 28%);
   z-index: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -722,26 +730,6 @@
 
 .icon-flip-horizontal {
   transform: rotate(180deg);
-}
-
-/* Carousel progress bar */
-.carousel-progress-bar {
-  background: rgb(255 255 255 / 20%);
-  border-radius: 2px;
-  bottom: 0;
-  height: 3px;
-  left: 0;
-  overflow: hidden;
-  position: absolute;
-  right: 0;
-  z-index: 3;
-}
-
-.carousel-progress-fill {
-  background: var(--game-brand);
-  border-radius: 2px;
-  height: 100%;
-  transition: width 0.1s linear;
 }
 
 .featured-side-grid {

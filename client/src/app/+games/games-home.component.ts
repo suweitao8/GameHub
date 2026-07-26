@@ -51,10 +51,8 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   /** Cover URLs that failed to load → show colorful placeholder instead of gray empty box. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
-  private carouselProgressTimer: ReturnType<typeof setInterval> | undefined
   private featuredResizeObserver: ResizeObserver | undefined
   private featuredSyncFrame = 0
-  readonly carouselProgress = signal(0)
   private readonly featuredFallbackColors = [ '#00aeec', '#6c63ff', '#00c091', '#fb7299', '#ff9f43' ]
   readonly sortKinds = [
     { id: 'recommended' as GamesListParams['sort'], label: '综合' },
@@ -104,7 +102,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
 
   ngOnDestroy () {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
-    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
     this.teardownFeaturedCarouselSync()
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   }
@@ -417,6 +414,18 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     return `linear-gradient(90deg, ${fallback} 0%, ${fallback} 100%)`
   }
 
+  /** Bottom title strip: soft fade into orange / sampled cover colors. */
+  featuredCaptionBackground (game: Game) {
+    const stored = this.featuredGradients()[game.uuid]
+    if (stored) {
+      // Horizontal palette from image bottom, layered under a vertical orange fade
+      return `linear-gradient(180deg, transparent 0%, rgb(255 146 20 / 18%) 28%, rgb(255 146 20 / 72%) 72%, #ff9214 100%), ${stored}`
+    }
+    const seed = Array.from(game.uuid || 'G').reduce((total, character) => total + character.charCodeAt(0), 0)
+    const fallback = this.featuredFallbackColors[seed % this.featuredFallbackColors.length]
+    return `linear-gradient(180deg, transparent 0%, rgb(255 146 20 / 12%) 30%, rgb(255 146 20 / 78%) 78%, #ff9214 100%), linear-gradient(90deg, ${fallback}, #ff9214)`
+  }
+
   onFeaturedImageLoad (event: Event, uuid: string) {
     if (this.featuredGradients()[uuid]) return
 
@@ -469,7 +478,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     const total = this.carouselGames().length
     if (!total) return
     this.carouselIndex.set((this.carouselIndex() + step + total) % total)
-    this.carouselProgress.set(0)
   }
 
   onSortChange (event: Event) {
@@ -544,19 +552,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   }
 
   private startCarousel () {
+    if (this.carouselTimer) clearInterval(this.carouselTimer)
     this.carouselTimer = setInterval(() => this.nextCarousel(), 6000)
-
-    // Progress bar that fills over 6s then resets
-    this.carouselProgress.set(0)
-    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
-    this.carouselProgressTimer = setInterval(() => {
-      this.carouselProgress.update(value => value + 2)
-    }, 100)
   }
 
   private onVisibilityChange = () => {
     if (this.carouselTimer) clearInterval(this.carouselTimer)
-    if (this.carouselProgressTimer) clearInterval(this.carouselProgressTimer)
     if (!document.hidden) this.startCarousel()
   }
 }
