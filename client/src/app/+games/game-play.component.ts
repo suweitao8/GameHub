@@ -10,6 +10,7 @@ import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { WatchLaterService } from './watch-later.service'
 import { GameRecommendService } from './game-recommend.service'
+import { updateGameMetaTags } from './services/game-meta-tags'
 
 @Component({
   templateUrl: './game-play.component.html',
@@ -120,7 +121,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private currentUuid = ''
   private playRecordedFor = ''
   private commentsRefreshTimer: ReturnType<typeof setInterval> | undefined
-  private seededChat = false
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -171,7 +171,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.commentFeedback.set('')
     this.coinMessage.set('')
     this.playRecordedFor = ''
-    this.seededChat = false
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
       next: game => {
@@ -320,7 +319,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   loadMoreComments () {
-    if (this.commentsLoadingMore() || this.seededChat || this.comments().length >= this.commentsTotal()) return
+    if (this.commentsLoadingMore() || this.comments().length >= this.commentsTotal()) return
     this.commentsLoadingMore.set(true)
     this.gamesService.comments(this.currentUuid, this.commentSort(), this.comments().length, 20).subscribe({
       next: result => {
@@ -333,7 +332,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   hasMoreComments () {
-    return !this.seededChat && this.comments().length < this.commentsTotal()
+    return this.comments().length < this.commentsTotal()
   }
 
   currentUserAvatar () {
@@ -350,20 +349,16 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!uuid) return
     this.gamesService.comments(uuid, sort, 0, 20).subscribe({
       next: result => {
-        const data = result.data.length ? result.data : this.buildSeedComments(this.game()?.title || '')
-        this.seededChat = result.data.length === 0
-        this.comments.set(data)
-        this.commentsTotal.set(result.data.length ? result.total : data.length)
+        this.comments.set(result.data)
+        this.commentsTotal.set(result.total)
         this.commentsLoading.set(false)
         this.commentsError.set('')
       },
       error: () => {
-        const data = this.buildSeedComments(this.game()?.title || '')
-        this.seededChat = true
-        this.comments.set(data)
-        this.commentsTotal.set(data.length)
+        this.comments.set([])
+        this.commentsTotal.set(0)
         this.commentsLoading.set(false)
-        this.commentsError.set('')
+        this.commentsError.set('评论加载失败，请稍后重试')
       }
     })
   }
@@ -391,10 +386,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!text) return
     this.gamesService.comment(this.currentUuid, text).subscribe({
       next: result => {
-        const wasSeeded = this.seededChat
-        this.seededChat = false
-        this.comments.update(comments => [ result.comment, ...(wasSeeded ? [] : comments) ])
-        this.commentsTotal.update(total => (wasSeeded ? 0 : total) + 1)
+        this.comments.update(comments => [ result.comment, ...comments ])
+        this.commentsTotal.update(total => total + 1)
         this.commentDraft.set('')
         this.commentFeedback.set('')
       },
@@ -408,10 +401,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!text) return
     this.gamesService.comment(this.currentUuid, text).subscribe({
       next: result => {
-        const wasSeeded = this.seededChat
-        this.seededChat = false
-        this.comments.update(comments => [ ...(wasSeeded ? [] : comments), result.comment ])
-        this.commentsTotal.update(total => (wasSeeded ? 0 : total) + 1)
+        this.comments.update(comments => [ ...comments, result.comment ])
+        this.commentsTotal.update(total => total + 1)
         this.chatDraft.set('')
         queueMicrotask(() => this.scrollDiscussToBottom())
       },
@@ -460,14 +451,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         delete next[comment.id]
         return next
       })
-      return
-    }
-
-    if (this.seededChat || comment.id < 0) {
-      this.replies.update(replies => ({
-        ...replies,
-        [comment.id]: this.buildSeedReplies(comment)
-      }))
       return
     }
 
@@ -593,42 +576,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private updateMetaTags (game: Game) {
     if (!this.titleService || !this.meta) return
-
-    const title = `${game.title} - GameHub`
-    this.titleService.setTitle(title)
-
-    const baseUrl = window.location.origin
-    const gameUrl = `${baseUrl}/games/${game.uuid}`
-    const description = game.description?.slice(0, 200) || '试玩这个有趣的网页小游戏'
-
-    this.setMeta('description', description)
-    this.setMeta('og:title', title)
-    this.setMeta('og:description', description)
-    this.setMeta('og:url', gameUrl)
-    this.setMeta('og:type', 'article')
-    this.setMeta('og:site_name', 'GameHub')
-    this.setMeta('twitter:card', 'summary_large_image')
-    this.setMeta('twitter:title', title)
-    this.setMeta('twitter:description', description)
-    this.setMeta('twitter:url', gameUrl)
-
-    if (game.coverPath) {
-      this.setMeta('og:image', game.coverPath)
-      this.setMeta('twitter:image', game.coverPath)
-    }
-  }
-
-  private setMeta (name: string, content: string) {
-    if (!this.meta) return
-
-    const isProperty = name.startsWith('og:')
-    const key = isProperty ? 'property' : 'name'
-    const existing = this.meta.getTag(`${key}="${name}"`)
-    if (existing) {
-      this.meta.updateTag({ [key]: name, content })
-    } else {
-      this.meta.addTag({ [key]: name, content })
-    }
+    updateGameMetaTags(game, this.meta, this.titleService)
   }
 
   focusGame () {
@@ -639,134 +587,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   focusCommentInput () {
     const input = document.querySelector('.chat-composer input') as HTMLInputElement | null
     if (input) input.focus()
-  }
-
-  // 临时假评论数据，重构阶段四将整体删除
-  private buildSeedComments (title: string): GameComment[] {
-    const now = Date.now()
-    const gameName = title || '这个游戏'
-    const base: GameComment = {
-      id: 0,
-      url: null,
-      text: '',
-      threadId: 0,
-      inReplyToCommentId: null,
-      gameId: 0,
-      createdAt: new Date(now).toISOString(),
-      updatedAt: new Date(now).toISOString(),
-      deletedAt: null,
-      heldForReview: false,
-      isDeleted: false,
-      totalRepliesFromVideoAuthor: 0,
-      totalReplies: 0,
-      likeCount: 0,
-      isFeatured: false,
-      account: null,
-      likes: 0,
-      liked: false,
-      isAuthor: false,
-      canDelete: false
-    }
-    return [
-      {
-        ...base,
-        id: -2001,
-        text: `${gameName} 手感不错，几分钟就能上手，适合摸鱼开一把。`,
-        createdAt: new Date(now - 1000 * 60 * 60 * 30).toISOString(),
-        account: { displayName: '木石之惜', name: 'seed_c1' },
-        likes: 92,
-        liked: false,
-        isAuthor: false,
-        totalReplies: 2,
-        canDelete: false
-      },
-      {
-        ...base,
-        id: -2002,
-        text: '画面简洁，节奏也舒服。如果能再多一点关卡变化就更棒了。',
-        createdAt: new Date(now - 1000 * 60 * 60 * 18).toISOString(),
-        account: { displayName: '晚星旅人', name: 'seed_c2' },
-        likes: 66,
-        liked: false,
-        isAuthor: false,
-        totalReplies: 0,
-        canDelete: false
-      },
-      {
-        ...base,
-        id: -2003,
-        text: '手机端也顺滑，单文件能做成这样已经很强了，支持作者！',
-        createdAt: new Date(now - 1000 * 60 * 60 * 8).toISOString(),
-        account: { displayName: '快乐女孩小熊', name: 'seed_c3' },
-        likes: 25,
-        liked: false,
-        isAuthor: false,
-        totalReplies: 1,
-        canDelete: false
-      },
-      {
-        ...base,
-        id: -2004,
-        text: '刚通关，最后一关有点烧脑，欢迎一起讨论通关思路～',
-        createdAt: new Date(now - 1000 * 60 * 90).toISOString(),
-        account: { displayName: '随风而散', name: 'seed_c4' },
-        likes: 12,
-        liked: false,
-        isAuthor: false,
-        totalReplies: 0,
-        canDelete: false
-      }
-    ]
-  }
-
-  private buildSeedReplies (parent: GameComment): GameComment[] {
-    const now = Date.now()
-    const base: GameComment = {
-      id: 0,
-      url: null,
-      text: '',
-      threadId: parent.threadId,
-      inReplyToCommentId: parent.id,
-      gameId: parent.gameId,
-      createdAt: new Date(now).toISOString(),
-      updatedAt: new Date(now).toISOString(),
-      deletedAt: null,
-      heldForReview: false,
-      isDeleted: false,
-      totalRepliesFromVideoAuthor: 0,
-      totalReplies: 0,
-      likeCount: 0,
-      isFeatured: false,
-      account: null,
-      likes: 0,
-      liked: false,
-      isAuthor: false,
-      canDelete: false
-    }
-    return [
-      {
-        ...base,
-        id: parent.id * 10 - 1,
-        text: '同意，上手门槛很低，推荐给朋友了。',
-        createdAt: new Date(now - 1000 * 60 * 50).toISOString(),
-        account: { displayName: '据说昵称可以非常的长', name: 'seed_r1' },
-        likes: 16,
-        liked: false,
-        isAuthor: false,
-        canDelete: false
-      },
-      {
-        ...base,
-        id: parent.id * 10 - 2,
-        text: '我也卡在最后，有没有人出攻略？',
-        createdAt: new Date(now - 1000 * 60 * 20).toISOString(),
-        account: { displayName: '向导酱', name: 'seed_r2' },
-        likes: 6,
-        liked: false,
-        isAuthor: false,
-        canDelete: false
-      }
-    ].slice(0, Math.min(2, parent.totalReplies || 1)) as GameComment[]
   }
 
   formatBigNumber (value: number | undefined) {
@@ -940,7 +760,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   private refreshComments () {
-    if (!this.currentUuid || this.seededChat) return
+    if (!this.currentUuid) return
     this.gamesService.comments(this.currentUuid, this.commentSort(), 0, 20).subscribe({
       next: result => {
         if (!result.data.length) return
