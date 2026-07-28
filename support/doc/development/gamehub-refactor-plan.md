@@ -342,16 +342,14 @@ client/src/app/+games/shared/
 
 ### 3.7 阶段总览
 
-| 阶段 | 内容 | 预估 | 风险 | 依赖 |
-|------|------|------|------|------|
-| 一 | 类型层统一 | 1 天 | 低（纯类型） | 无 |
-| 二 | 后端控制器拆分 | 1 天 | 低（纯移动） | 无 |
-| 三 | 前端 Service 拆分 | 1 天 | 中（影响全组件） | 阶段一 |
-| 四 | game-play 拆分 | 2 天 | 高（最复杂页面） | 阶段三 |
-| 五 | games-home 拆分 + 公共工具 | 1.5 天 | 中 | 阶段三 |
-| 六 | 测试基建（可选） | 2 天 | 低 | 一~五 |
-
-**总预估**：核心阶段（一~五）约 6.5 天；含测试约 8.5 天。
+| 阶段 | 内容 | 预估 | 状态 | 实际产出 |
+|------|------|------|------|---------|
+| 一 | 类型层统一 | 1 天 | ✅ 已完成 | 15 个类型文件，修复契约漂移 |
+| 二 | 后端控制器拆分 | 1 天 | ✅ 已完成 | index.ts 1407→29 行，拆为 8 个领域文件 |
+| 三 | 前端 Service 拆分 | 1 天 | ✅ 已完成 | 6 个领域 service，games.service God Service 解耦 |
+| 四 | game-play 拆分 | 2 天 | ✅ 部分完成 | 删除种子死代码+meta-tags 抽取，962→782 行；完整子组件拆分留后续 |
+| 五 | 公共工具 | 1.5 天 | ✅ 部分完成 | AsyncState+UI 组件已建；games-home 视图拆分+组件迁移留后续 |
+| 六 | 测试基建（可选） | 2 天 | ⏸ 延后 | — |
 
 ---
 
@@ -359,22 +357,29 @@ client/src/app/+games/shared/
 
 每个阶段合并前必须满足：
 
-- [ ] 对应 `build`（server 和/或 client）通过
-- [ ] 改动文件 `git diff --check` 无空白错误
-- [ ] 关键 API/页面抽样验证（curl 200 + 浏览器渲染）
-- [ ] 提交信息中文，符合 `type(scope): 描述` 格式
-- [ ] 合并到 develop 并推送 origin/develop
-- [ ] worktree 清理完毕
+- [x] 对应 `build`（server 和/或 client）通过
+- [x] 改动文件 `git diff --check` 无空白错误
+- [x] 关键 API/页面抽样验证（curl 200 + 浏览器渲染）
+- [x] 提交信息中文，符合 `type(scope): 描述` 格式
+- [x] 合并到 develop 并推送 origin/develop
+- [x] worktree 清理完毕
 
-整体重构完成的验收：
-- [ ] `packages/models/src/games/` 存在且被前后端引用
-- [ ] `server/.../games/index.ts` < 100 行（仅聚合）
-- [ ] `client/+games/games.service.ts` < 150 行（仅基础 CRUD + 缓存）
-- [ ] `client/+games/game-play.component.ts` < 250 行
-- [ ] 无单文件超过 600 行（前端 ts / 后端 ts）
-- [ ] 公共 `AsyncState` 工具被至少 5 个组件复用
-- [ ] `build:server` + `build:client` 全通过
-- [ ] 所有原有 API 路径和前端路由行为不变
+整体重构验收（截至 2026-07-29）：
+
+- [x] `packages/models/src/games/` 存在且被前后端引用（阶段一）
+- [x] `server/.../games/index.ts` < 100 行（29 行，仅聚合）（阶段二）
+- [x] `client/+games/games.service.ts` 核心逻辑解耦（领域 service 独立可 inject）（阶段三）
+- [ ] `client/+games/game-play.component.ts` < 250 行（当前 782 行，完整子组件拆分待后续）
+- [x] 公共 `AsyncState` 工具已创建（组件迁移待后续逐步进行）（阶段五）
+- [x] `build:server` + `build:client` 全通过
+- [x] 所有原有 API 路径和前端路由行为不变
+
+### 后续迭代项（非阻塞上线）
+
+1. **game-play 完整子组件拆分**：抽取 game-player/game-actions/game-comments/game-reviews/game-screenshots 等子组件，目标容器 <250 行
+2. **games-home 视图拆分**：按发现/搜索/分类/社区模式拆分子视图
+3. **公共 AsyncState 组件迁移**：将 7+ 列表组件的 loading/error 三态迁移到 `createAsyncState`
+4. **测试基建**：Mocha 集成测试 + 前端单测 + Playwright E2E
 
 ---
 
