@@ -44,7 +44,13 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
   const errorMessage = signal('')
 
   const hasData = computed(() => data() !== null)
-  const isEmpty = computed(() => !loading() && !error() && (data() === null || (Array.isArray(data()) && data()!.length === 0)))
+  const isEmpty = computed(() => {
+    const current = data()
+    if (loading() || error()) return false
+    if (current === null) return true
+    if (Array.isArray(current)) return current.length === 0
+    return false
+  })
 
   const state: AsyncState<T> = {
     data,
