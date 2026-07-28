@@ -39,7 +39,7 @@ import { environment } from '../../environments/environment'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
 
 // Re-export 共享类型，供 +games 目录内组件沿用现有 import 路径（从 games.service 取类型）
-export {
+export type {
   Game,
   GameActivity,
   GameActivityList,

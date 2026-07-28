@@ -641,11 +641,35 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (input) input.focus()
   }
 
+  // 临时假评论数据，重构阶段四将整体删除
   private buildSeedComments (title: string): GameComment[] {
     const now = Date.now()
     const gameName = title || '这个游戏'
+    const base: GameComment = {
+      id: 0,
+      url: null,
+      text: '',
+      threadId: 0,
+      inReplyToCommentId: null,
+      gameId: 0,
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
+      deletedAt: null,
+      heldForReview: false,
+      isDeleted: false,
+      totalRepliesFromVideoAuthor: 0,
+      totalReplies: 0,
+      likeCount: 0,
+      isFeatured: false,
+      account: null,
+      likes: 0,
+      liked: false,
+      isAuthor: false,
+      canDelete: false
+    }
     return [
       {
+        ...base,
         id: -2001,
         text: `${gameName} 手感不错，几分钟就能上手，适合摸鱼开一把。`,
         createdAt: new Date(now - 1000 * 60 * 60 * 30).toISOString(),
@@ -657,32 +681,38 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         canDelete: false
       },
       {
+        ...base,
         id: -2002,
         text: '画面简洁，节奏也舒服。如果能再多一点关卡变化就更棒了。',
         createdAt: new Date(now - 1000 * 60 * 60 * 18).toISOString(),
         account: { displayName: '晚星旅人', name: 'seed_c2' },
         likes: 66,
         liked: false,
+        isAuthor: false,
         totalReplies: 0,
         canDelete: false
       },
       {
+        ...base,
         id: -2003,
         text: '手机端也顺滑，单文件能做成这样已经很强了，支持作者！',
         createdAt: new Date(now - 1000 * 60 * 60 * 8).toISOString(),
         account: { displayName: '快乐女孩小熊', name: 'seed_c3' },
         likes: 25,
         liked: false,
+        isAuthor: false,
         totalReplies: 1,
         canDelete: false
       },
       {
+        ...base,
         id: -2004,
         text: '刚通关，最后一关有点烧脑，欢迎一起讨论通关思路～',
         createdAt: new Date(now - 1000 * 60 * 90).toISOString(),
         account: { displayName: '随风而散', name: 'seed_c4' },
         likes: 12,
         liked: false,
+        isAuthor: false,
         totalReplies: 0,
         canDelete: false
       }
@@ -691,28 +721,52 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private buildSeedReplies (parent: GameComment): GameComment[] {
     const now = Date.now()
+    const base: GameComment = {
+      id: 0,
+      url: null,
+      text: '',
+      threadId: parent.threadId,
+      inReplyToCommentId: parent.id,
+      gameId: parent.gameId,
+      createdAt: new Date(now).toISOString(),
+      updatedAt: new Date(now).toISOString(),
+      deletedAt: null,
+      heldForReview: false,
+      isDeleted: false,
+      totalRepliesFromVideoAuthor: 0,
+      totalReplies: 0,
+      likeCount: 0,
+      isFeatured: false,
+      account: null,
+      likes: 0,
+      liked: false,
+      isAuthor: false,
+      canDelete: false
+    }
     return [
       {
+        ...base,
         id: parent.id * 10 - 1,
         text: '同意，上手门槛很低，推荐给朋友了。',
         createdAt: new Date(now - 1000 * 60 * 50).toISOString(),
         account: { displayName: '据说昵称可以非常的长', name: 'seed_r1' },
         likes: 16,
         liked: false,
-        inReplyToCommentId: parent.id,
+        isAuthor: false,
         canDelete: false
       },
       {
+        ...base,
         id: parent.id * 10 - 2,
         text: '我也卡在最后，有没有人出攻略？',
         createdAt: new Date(now - 1000 * 60 * 20).toISOString(),
         account: { displayName: '向导酱', name: 'seed_r2' },
         likes: 6,
         liked: false,
-        inReplyToCommentId: parent.id,
+        isAuthor: false,
         canDelete: false
       }
-    ].slice(0, Math.min(2, parent.totalReplies || 1))
+    ].slice(0, Math.min(2, parent.totalReplies || 1)) as GameComment[]
   }
 
   formatBigNumber (value: number | undefined) {
