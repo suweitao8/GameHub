@@ -1,176 +1,75 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import { RestExtractor } from '@app/core'
+import {
+  Game,
+  GameActivity,
+  GameActivityList,
+  GameAnalytics,
+  GameAuthor,
+  GameCollection,
+  GameCollectionDetail,
+  GameCollectionList,
+  GameComment,
+  GameCommentList,
+  GameCommunity,
+  GameCreatorOverview,
+  GameEvent,
+  GameEventList,
+  GameFollowedAuthor,
+  GameLevelInfo,
+  GameList,
+  GameNotification,
+  GameNotificationList,
+  GameRanking,
+  GameRankingList,
+  GameRatingDistribution,
+  GameRelatedGame,
+  GameReportResult,
+  GameReservation,
+  GameReservationList,
+  GameReview,
+  GameReviewList,
+  GameShareResult,
+  GameTripleResult
+} from '@peertube/peertube-models'
 import { catchError, map, shareReplay } from 'rxjs/operators'
 import { Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
 
-export type Game = {
-  uuid: string
-  title: string
-  description: string
-  instructions: string
-  category: string
-  tags: string[]
-  coverPath: string | null
-  screenshots: string[]
-  status: 'pending' | 'published' | 'rejected' | 'unlisted' | 'blocked'
-  fileSizeBytes: number
-  playCount: number
-  comments?: number
-  publishedAt: string | null
-  createdAt: string
-  updatedAt: string
-  runtimeUrl: string
-  ownerAccountId: number
-  likes?: number
-  coins?: number
-  favorites?: number
-  author?: { id: number, name: string, displayName: string, handle: string }
-}
-
-export type GameList = {
-  total: number
-  data: Game[]
-}
-
-export type GameAuthor = {
-  account: { id: number, name: string, displayName: string, description: string, handle: string, followers: number }
-  stats: { games: number, plays: number, likes: number, favorites: number, coins: number }
-  following: boolean
-  data: Game[]
-}
-
-export type GameCreatorOverview = {
-  gameCount: number
-  gameLimit: number
-  storageBytes: number
-  storageLimitBytes: number
-  plays: number
-  likes: number
-  coins: number
-  coinBalance: number
-  favorites: number
-  followers: number
-  games: Game[]
-}
-
-export type GameNotification = {
-  id: number
-  kind: 'comment' | 'reply' | 'like' | 'coin' | 'favorite' | 'follow' | 'moderation' | 'system'
-  message: string
-  read: boolean
-  createdAt: string
-  actor: { id: number, name: string, displayName: string } | null
-  game: { uuid: string, title: string, coverPath?: string | null } | null
-}
-
-export type GameCommunity = {
-  isOwner: boolean
-  likes: number
-  reviews: number
-  averageReviewScore: number
-  chatMessages: number
-  rating: 'like' | 'none'
-  favorite: boolean
-  following: boolean
-  coins: number
-  coinBalance: number
-  coinsGiven: number
-  author: { id: number, name: string, displayName: string, handle: string } | null
-}
-
-export type GameComment = {
-  id: number
-  text: string
-  createdAt: string
-  account: { displayName: string, name: string } | null
-  totalReplies?: number
-  inReplyToCommentId?: number | null
-  likes?: number
-  liked?: boolean
-  isAuthor?: boolean
-  canDelete?: boolean
-}
-
-export type GameReview = {
-  id: number
-  score: number
-  text: string
-  createdAt: string
-  updatedAt: string
-  account: { displayName: string, name: string } | null
-  isAuthor?: boolean
-}
-
-export type GameRatingBucket = {
-  star: number
-  count: number
-  percent: number
-}
-
-export type GameRatingDistribution = {
-  total: number
-  distribution: GameRatingBucket[]
-}
-
-export type GameRelatedGame = {
-  uuid: string
-  title: string
-  category: string
-  tags: string[]
-  coverPath: string | null
-  coverFallback: string | null
-  playCount: number
-  likes: number
-  favorites: number
-  publishedAt: string | null
-  author: { id: number, name: string, displayName: string, handle: string } | null
-}
-
-export type GameLevelInfo = {
-  exp: number
-  levelInfo: {
-    level: number
-    title: string
-    currentLevelExp: number
-    nextLevelExp: number | null
-    progress: number
-  }
-  dailyLoginAvailable: boolean
-}
-
-export type GameAnalytics = {
-  playTrend: { date: string; plays: number }[]
-  interactionBreakdown: { likes: number; coins: number; favorites: number; comments: number; reviews: number }
-  gameRanking: { gameId: number; title: string; plays: number; likes: number; coins: number }[]
-  followerTrend: { date: string; followers: number }[]
-}
-
-export type GameActivity = {
-  id: number
-  kind: string
-  message: string
-  createdAt: string
-  actor: { id: number; name: string; displayName: string | null } | null
-  game: { uuid: string; title: string; coverPath: string | null } | null
-}
-
-export type GameRanking = {
-  rank: number
-  uuid: string
-  title: string
-  coverPath: string | null
-  stats: {
-    plays: number
-    likes: number
-    favorites: number
-    coins: number
-    comments: number
-    reviews: number
-    averageReviewScore: number
-  }
+// Re-export 共享类型，供 +games 目录内组件沿用现有 import 路径（从 games.service 取类型）
+export {
+  Game,
+  GameActivity,
+  GameActivityList,
+  GameAnalytics,
+  GameAuthor,
+  GameCollection,
+  GameCollectionDetail,
+  GameCollectionList,
+  GameComment,
+  GameCommentList,
+  GameCommunity,
+  GameCreatorOverview,
+  GameEvent,
+  GameEventList,
+  GameFollowedAuthor,
+  GameLevelInfo,
+  GameList,
+  GameNotification,
+  GameNotificationList,
+  GameRanking,
+  GameRankingList,
+  GameRatingDistribution,
+  GameRelatedGame,
+  GameReportResult,
+  GameReservation,
+  GameReservationList,
+  GameReview,
+  GameReviewList,
+  GameShareResult,
+  GameTripleResult
 }
 
 @Injectable({ providedIn: 'root' })
@@ -420,18 +319,18 @@ export class GamesService {
   }
 
   // Following
-  listFollowing (): Observable<{ total: number; data: { id: number; name: string; displayName: string; description: string; handle: string; followers: number; games: number }[] }> {
-    return this.http.get<{ total: number; data: { id: number; name: string; displayName: string; description: string; handle: string; followers: number; games: number }[] }>(`${GamesService.BASE_URL}/me/following`)
+  listFollowing (): Observable<{ total: number; data: GameFollowedAuthor[] }> {
+    return this.http.get<{ total: number; data: GameFollowedAuthor[] }>(`${GamesService.BASE_URL}/me/following`)
   }
 
   // Share
-  share (uuid: string): Observable<{ url: string; shortUrl: string }> {
-    return this.http.post<{ url: string; shortUrl: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})
+  share (uuid: string): Observable<GameShareResult> {
+    return this.http.post<GameShareResult>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})
   }
 
   // Report
-  report (uuid: string, reason: string, predefinedReasons: string[] = []): Observable<{ id: number; state: string }> {
-    return this.http.post<{ id: number; state: string }>(
+  report (uuid: string, reason: string, predefinedReasons: string[] = []): Observable<GameReportResult> {
+    return this.http.post<GameReportResult>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/report`,
       { reason, predefinedReasons }
     )
