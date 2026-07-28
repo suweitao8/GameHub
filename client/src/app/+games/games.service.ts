@@ -37,6 +37,7 @@ import { catchError, map, shareReplay } from 'rxjs/operators'
 import { Observable } from 'rxjs'
 import { environment } from '../../environments/environment'
 import { buildGameRuntimeUrl, buildGamesListUrl, buildGameUploadFormData, GameUploadMetadata, GamesListParams } from './games-api'
+import { normalizeGame, normalizeGameList } from './services/game-helpers'
 
 // Re-export 共享类型，供 +games 目录内组件沿用现有 import 路径（从 games.service 取类型）
 export type {
@@ -72,6 +73,13 @@ export type {
   GameTripleResult
 }
 
+// Re-export 领域 service，便于组件按需 inject（向后兼容渐进迁移）
+export { GameCommunityService } from './services/game-community.service'
+export { GamePersonalService } from './services/game-personal.service'
+export { GameDiscoveryService } from './services/game-discovery.service'
+export { GameCreatorService } from './services/game-creator.service'
+export { GameReservationService } from './services/game-reservation.service'
+
 @Injectable({ providedIn: 'root' })
 export class GamesService {
   private readonly http = inject(HttpClient)
@@ -79,7 +87,18 @@ export class GamesService {
   private readonly listCache = new Map<string, Observable<GameList>>()
   private readonly detailCache = new Map<string, Observable<Game>>()
 
+  // 领域 service（通过 facade 暴露给现有组件，保持向后兼容）
+  readonly communityService = inject(GameCommunityService)
+  readonly personalService = inject(GamePersonalService)
+  readonly discoveryService = inject(GameDiscoveryService)
+  readonly creatorService = inject(GameCreatorService)
+  readonly reservationService = inject(GameReservationService)
+
   static readonly BASE_URL = `${environment.apiUrl}/api/v1/games`
+
+  // ---------------------------------------------------------------------------
+  // 核心 CRUD + 缓存
+  // ---------------------------------------------------------------------------
 
   list (params: GamesListParams = {}): Observable<GameList> {
     const cacheKey = JSON.stringify(params)
@@ -88,12 +107,11 @@ export class GamesService {
 
     const request$ = this.http
       .get<GameList>(buildGamesListUrl(environment.apiUrl, params))
-      .pipe(map(result => this.normalizeGameList(result)))
+      .pipe(map(normalizeGameList))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
       .pipe(shareReplay({ bufferSize: 1, refCount: false, windowTime: 5000 }))
 
     this.listCache.set(cacheKey, request$)
-    // Clean up cache entry after window time expires
     setTimeout(() => this.listCache.delete(cacheKey), 5500)
     return request$
   }
@@ -104,7 +122,7 @@ export class GamesService {
 
     const request$ = this.http
       .get<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`)
-      .pipe(map(game => this.normalizeGame(game)))
+      .pipe(map(normalizeGame))
       .pipe(catchError(err => this.restExtractor.handleError(err)))
       .pipe(shareReplay({ bufferSize: 1, refCount: false, windowTime: 5000 }))
 
@@ -119,88 +137,9 @@ export class GamesService {
       .pipe(catchError(err => this.restExtractor.handleError(err)))
   }
 
-  community (uuid: string): Observable<GameCommunity> {
-    return this.http.get<GameCommunity>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/community`)
-  }
-
-  comments (uuid: string, sort: 'hot' | 'new' | 'old' = 'hot', start = 0, count = 20): Observable<{ total: number, data: GameComment[] }> {
-    return this.http.get<{ total: number, data: GameComment[] }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments?sort=${sort}&start=${start}&count=${count}`
-    )
-  }
-
-  reviews (uuid: string, start = 0, count = 20): Observable<{ total: number, data: GameReview[] }> {
-    return this.http.get<{ total: number, data: GameReview[] }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reviews?start=${start}&count=${count}`)
-  }
-
-  ratingDistribution (uuid: string): Observable<GameRatingDistribution> {
-    return this.http.get<GameRatingDistribution>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rating-distribution`)
-  }
-
-  related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
-    return this.http.get<{ total: number, data: GameRelatedGame[] }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/related?count=${count}`
-    )
-  }
-
-  replies (uuid: string, commentId: number): Observable<{ total: number, data: GameComment[] }> {
-    return this.http.get<{ total: number, data: GameComment[] }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/replies`
-    )
-  }
-
-  rate (uuid: string, rating: 'like' | 'none'): Observable<unknown> {
-    return this.http.put<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rate`, { rating })
-  }
-
-  favorite (uuid: string, favorite: boolean): Observable<{ favorite: boolean }> {
-    return this.http.put<{ favorite: boolean }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/favorite`, { favorite })
-  }
-
-  follow (uuid: string, following: boolean): Observable<{ following: boolean }> {
-    return this.http.put<{ following: boolean }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/follow`, { following })
-  }
-
-  followAuthor (accountId: number, following: boolean): Observable<{ following: boolean }> {
-    return this.http.put<{ following: boolean }>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}/follow`, { following })
-  }
-
-  comment (uuid: string, text: string): Observable<{ comment: GameComment }> {
-    return this.http.post<{ comment: GameComment }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, { text })
-  }
-
-  review (uuid: string, score: number, text: string): Observable<{ review: GameReview }> {
-    return this.http.put<{ review: GameReview }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/review`, { score, text })
-  }
-
-  reply (uuid: string, commentId: number, text: string): Observable<{ comment: GameComment }> {
-    return this.http.post<{ comment: GameComment }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, { text })
-  }
-
-  likeComment (uuid: string, commentId: number, liked: boolean): Observable<{ liked: boolean, likes: number }> {
-    return this.http.put<{ liked: boolean, likes: number }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/like`, { liked }
-    )
-  }
-
-  deleteComment (uuid: string, commentId: number): Observable<unknown> {
-    return this.http.delete(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}`)
-  }
-
-  coin (uuid: string, amount: 1 | 2): Observable<{ coins: number, coinBalance: number, coinsGiven: number }> {
-    return this.http.post<{ coins: number, coinBalance: number, coinsGiven: number }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount })
-  }
-
-  triple (uuid: string): Observable<{ liked: boolean; coined: boolean; favorited: boolean }> {
-    return this.http.post<{ liked: boolean; coined: boolean; favorited: boolean }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/triple`, {})
-  }
-
   create (file: File, metadata: GameUploadMetadata): Observable<Game> {
     const body = buildGameUploadFormData(file, metadata)
-    return this.http.post<Game>(GamesService.BASE_URL, body).pipe(map(game => this.normalizeGame(game)))
+    return this.http.post<Game>(GamesService.BASE_URL, body).pipe(map(normalizeGame))
   }
 
   update (uuid: string, metadata: {
@@ -213,128 +152,16 @@ export class GamesService {
     }
     if (metadata.file) body.append('gamefile', metadata.file, metadata.file.name)
     if (metadata.cover) body.append('coverfile', metadata.cover, metadata.cover.name)
-    return this.http.put<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`, body).pipe(map(game => this.normalizeGame(game)))
+    return this.http.put<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`, body).pipe(map(normalizeGame))
   }
 
   remove (uuid: string): Observable<unknown> {
     return this.http.delete<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}`)
   }
 
-  listFavorites (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/favorites`).pipe(map(result => this.normalizeGameList(result)))
-  }
-
-  listRecent (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/recent`).pipe(map(result => this.normalizeGameList(result)))
-  }
-
-  listOwned (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/me/owned`).pipe(map(result => this.normalizeGameList(result)))
-  }
-
-  author (accountId: string, sort: 'latest' | 'plays' | 'favorites' = 'latest'): Observable<GameAuthor> {
-    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`).pipe(
-      map(result => ({ ...result, data: result.data.map(game => this.normalizeGame(game)) }))
-    )
-  }
-
-  creatorOverview (): Observable<GameCreatorOverview> {
-    return this.http.get<GameCreatorOverview>(`${GamesService.BASE_URL}/me/overview`).pipe(
-      map(result => ({ ...result, games: result.games.map(game => this.normalizeGame(game)) }))
-    )
-  }
-
-  notifications (): Observable<{ total: number, unread: number, data: GameNotification[] }> {
-    return this.http.get<{ total: number, unread: number, data: GameNotification[] }>(`${GamesService.BASE_URL}/me/notifications`)
-  }
-
-  markNotificationRead (id: number): Observable<unknown> {
-    return this.http.put(`${GamesService.BASE_URL}/me/notifications/${id}/read`, {})
-  }
-
-  markAllNotificationsRead (): Observable<unknown> {
-    return this.http.post(`${GamesService.BASE_URL}/me/notifications/read-all`, {})
-  }
-
-  deleteNotification (id: number): Observable<unknown> {
-    return this.http.delete(`${GamesService.BASE_URL}/me/notifications/${id}`)
-  }
-
-  listForModerators (): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/admin`)
-  }
-
-  moderate (uuid: string, action: 'approve' | 'reject' | 'block' | 'unlist', reason = ''): Observable<Game> {
-    return this.http.post<Game>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/moderate`, { action, reason })
-  }
-
-  // User Level
-  getUserLevel (): Observable<GameLevelInfo> {
-    return this.http.get<GameLevelInfo>(`${GamesService.BASE_URL}/me/level`)
-  }
-
-  claimDailyLogin (): Observable<{ claimed: boolean; exp: number; totalExp: number; levelInfo: GameLevelInfo['levelInfo'] }> {
-    return this.http.post<{ claimed: boolean; exp: number; totalExp: number; levelInfo: GameLevelInfo['levelInfo'] }>(
-      `${GamesService.BASE_URL}/me/level/daily-login`, {}
-    )
-  }
-
-  // Analytics
-  getAnalytics (): Observable<GameAnalytics> {
-    return this.http.get<GameAnalytics>(`${GamesService.BASE_URL}/me/analytics`)
-  }
-
-  // Rankings
-  getRankings (kind: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes', count = 50, category?: string): Observable<{ kind: string; total: number; data: GameRanking[] }> {
-    let url = `${GamesService.BASE_URL}/rankings?kind=${kind}&count=${count}`
-    if (category) url += `&category=${encodeURIComponent(category)}`
-    return this.http.get<{ kind: string; total: number; data: GameRanking[] }>(url)
-  }
-
-  // Feed
-  getFeed (start = 0, count = 20): Observable<{ total: number; data: GameActivity[] }> {
-    return this.http.get<{ total: number; data: GameActivity[] }>(`${GamesService.BASE_URL}/feed?start=${start}&count=${count}`)
-  }
-
-  getPublicFeed (start = 0, count = 20): Observable<{ total: number; data: GameActivity[] }> {
-    return this.http.get<{ total: number; data: GameActivity[] }>(`${GamesService.BASE_URL}/feed/public?start=${start}&count=${count}`)
-  }
-
-  // Reservation
-  reserve (uuid: string): Observable<{ id: number; gameId: number; createdAt: string }> {
-    return this.http.post<{ id: number; gameId: number; createdAt: string }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`, {})
-  }
-
-  cancelReserve (uuid: string): Observable<unknown> {
-    return this.http.delete<unknown>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`)
-  }
-
-  listReservations (): Observable<{ total: number; data: { id: number; notified: boolean; createdAt: string; game: Game }[] }> {
-    return this.http.get<{ total: number; data: { id: number; notified: boolean; createdAt: string; game: Game }[] }>(`${GamesService.BASE_URL}/me/reservations`)
-  }
-
-  // Featured
-  getFeaturedGames (count = 10): Observable<GameList> {
-    return this.http.get<GameList>(`${GamesService.BASE_URL}/featured?count=${count}`).pipe(map(result => this.normalizeGameList(result)))
-  }
-
-  // Following
-  listFollowing (): Observable<{ total: number; data: GameFollowedAuthor[] }> {
-    return this.http.get<{ total: number; data: GameFollowedAuthor[] }>(`${GamesService.BASE_URL}/me/following`)
-  }
-
-  // Share
-  share (uuid: string): Observable<GameShareResult> {
-    return this.http.post<GameShareResult>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/share`, {})
-  }
-
-  // Report
-  report (uuid: string, reason: string, predefinedReasons: string[] = []): Observable<GameReportResult> {
-    return this.http.post<GameReportResult>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/report`,
-      { reason, predefinedReasons }
-    )
-  }
+  // ---------------------------------------------------------------------------
+  // URL 构建辅助
+  // ---------------------------------------------------------------------------
 
   buildRuntimeUrl (runtimeOrigin: string, uuid: string) {
     return buildGameRuntimeUrl(runtimeOrigin, uuid)
@@ -344,22 +171,58 @@ export class GamesService {
     return `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/download`
   }
 
-  private normalizeGameList (result: GameList): GameList {
-    return { ...result, data: result.data.map(game => this.normalizeGame(game)) }
-  }
+  // ---------------------------------------------------------------------------
+  // 领域委托（facade）— 保持现有组件调用兼容，渐进迁移到领域 service
+  // ---------------------------------------------------------------------------
 
-  private normalizeGame (game: Game): Game {
-    if (!game.coverPath || typeof window === 'undefined') return game
+  // Community
+  community = this.communityService.community.bind(this.communityService)
+  comments = this.communityService.comments.bind(this.communityService)
+  reviews = this.communityService.reviews.bind(this.communityService)
+  ratingDistribution = this.communityService.ratingDistribution.bind(this.communityService)
+  related = this.communityService.related.bind(this.communityService)
+  replies = this.communityService.replies.bind(this.communityService)
+  rate = this.communityService.rate.bind(this.communityService)
+  favorite = this.communityService.favorite.bind(this.communityService)
+  follow = this.communityService.follow.bind(this.communityService)
+  followAuthor = this.communityService.followAuthor.bind(this.communityService)
+  comment = this.communityService.comment.bind(this.communityService)
+  review = this.communityService.review.bind(this.communityService)
+  reply = this.communityService.reply.bind(this.communityService)
+  likeComment = this.communityService.likeComment.bind(this.communityService)
+  deleteComment = this.communityService.deleteComment.bind(this.communityService)
+  coin = this.communityService.coin.bind(this.communityService)
+  triple = this.communityService.triple.bind(this.communityService)
+  share = this.communityService.share.bind(this.communityService)
+  report = this.communityService.report.bind(this.communityService)
 
-    try {
-      const coverUrl = new URL(game.coverPath, window.location.origin)
-      if (coverUrl.pathname.startsWith('/api/v1/games/')) {
-        return { ...game, coverPath: `${coverUrl.pathname}${coverUrl.search}` }
-      }
-    } catch {
-      // Keep the server-provided path if it is not a valid URL.
-    }
+  // Personal
+  listFavorites = this.personalService.listFavorites.bind(this.personalService)
+  listRecent = this.personalService.listRecent.bind(this.personalService)
+  listOwned = this.personalService.listOwned.bind(this.personalService)
+  notifications = this.personalService.notifications.bind(this.personalService)
+  markNotificationRead = this.personalService.markNotificationRead.bind(this.personalService)
+  markAllNotificationsRead = this.personalService.markAllNotificationsRead.bind(this.personalService)
+  deleteNotification = this.personalService.deleteNotification.bind(this.personalService)
+  listFollowing = this.personalService.listFollowing.bind(this.personalService)
+  getUserLevel = this.personalService.getUserLevel.bind(this.personalService)
+  claimDailyLogin = this.personalService.claimDailyLogin.bind(this.personalService)
 
-    return game
-  }
+  // Discovery
+  getRankings = this.discoveryService.getRankings.bind(this.discoveryService)
+  getFeed = this.discoveryService.getFeed.bind(this.discoveryService)
+  getPublicFeed = this.discoveryService.getPublicFeed.bind(this.discoveryService)
+  getFeaturedGames = this.discoveryService.getFeaturedGames.bind(this.discoveryService)
+
+  // Creator
+  author = this.creatorService.author.bind(this.creatorService)
+  creatorOverview = this.creatorService.creatorOverview.bind(this.creatorService)
+  getAnalytics = this.creatorService.getAnalytics.bind(this.creatorService)
+  listForModerators = this.creatorService.listForModerators.bind(this.creatorService)
+  moderate = this.creatorService.moderate.bind(this.creatorService)
+
+  // Reservation
+  reserve = this.reservationService.reserve.bind(this.reservationService)
+  cancelReserve = this.reservationService.cancelReserve.bind(this.reservationService)
+  listReservations = this.reservationService.listReservations.bind(this.reservationService)
 }
