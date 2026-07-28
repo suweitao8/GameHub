@@ -1,11 +1,11 @@
-import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
+import { createReqFiles } from '@server/helpers/express-utils.js'
 import { generateGameCoverSignedUrl, generateGameRuntimeSignedUrl } from '@server/lib/games/game-cdn.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import express from 'express'
 
-export const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile', 'screenshots' ], {
+const gameFileUpload = createReqFiles([ 'gamefile', 'coverfile', 'screenshots' ], {
   'text/html': '.html',
   'application/xhtml+xml': '.html',
   'image/png': '.png',

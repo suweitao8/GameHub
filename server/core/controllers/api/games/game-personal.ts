@@ -1,43 +1,25 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
-import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
-import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
-import { sanitizeGameDescription } from '@server/helpers/game-sanitization.js'
-import { generateGameCoverSignedUrl, generateGameRuntimeSignedUrl } from '@server/lib/games/game-cdn.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
-import { getRecommendedGames, invalidateRecommendationCache } from '@server/lib/games/game-recommendations.js'
+import { getRecommendedGames } from '@server/lib/games/game-recommendations.js'
 import { getCreatorPlayTrend, getCreatorInteractionBreakdown, getCreatorGameRanking, getCreatorFollowerTrend } from '@server/lib/games/game-analytics.js'
-import { awardExp, claimDailyLogin, getUserLevelInfo } from '@server/lib/games/game-exp.js'
-import { getFollowingFeed, getPublicFeed as getPublicGameFeed } from '@server/lib/games/game-feed.js'
-import { createGameShareToken, resolveGameShareToken } from '@server/lib/games/game-share.js'
-import { GameRuntimeValidationError, MAX_SCREENSHOTS, readStoredGameHtml, storeGameCover, storeGameRuntimePackage, storeGameScreenshot } from '@server/lib/games/game-runtime.js'
-import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
-import { createGameNotification } from '@server/lib/games/game-notifications.js'
-import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
+import { claimDailyLogin, getUserLevelInfo } from '@server/lib/games/game-exp.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
-import { Redis } from '@server/lib/redis.js'
 import { GameModel } from '@server/models/game/game.js'
 import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
-import { GameCollectionModel, GameCollectionItemModel } from '@server/models/game/game-collection.js'
-import { GameReserveModel } from '@server/models/game/game-reserve.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
 import { GameNotificationModel } from '@server/models/game/game-notification.js'
-import { GameReportModel } from '@server/models/game/game-report.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
-import { GameActivityModel } from '@server/models/game/game-activity.js'
 import type { MGame } from '@server/types/models/game/game.js'
-import { apiRateLimiter, asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
-import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
+import { asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
-import { readFile, rm } from 'fs/promises'
 import express from 'express'
 import { literal, Op } from 'sequelize'
-import { gameFile, gameFileUpload, MAX_GAMES_PER_ACCOUNT, gamesAuditLogger, getUser, formatGame, formatGameTags, formatGameNotification } from './game-shared.js'
-import express from 'express'
+import { MAX_GAMES_PER_ACCOUNT, getUser, formatGame, formatGameNotification } from './game-shared.js'
 
 const personalRouter = express.Router()
 
@@ -57,7 +39,6 @@ personalRouter.get('/author/:accountId', optionalAuthenticate, cacheRoute(ROUTE_
 personalRouter.get('/me/following', authenticate, asyncMiddleware(listFollowing))
 
 export { personalRouter }
-
 
 async function listGameNotifications (_req: express.Request, res: express.Response) {
   const user = getUser(res)
@@ -79,7 +60,6 @@ async function listGameNotifications (_req: express.Request, res: express.Respon
   return res.json({ total, unread, data: data.map(formatGameNotification) })
 }
 
-
 async function markGameNotificationRead (req: express.Request, res: express.Response) {
   const user = getUser(res)
   const notification = await GameNotificationModel.findOne({
@@ -92,7 +72,6 @@ async function markGameNotificationRead (req: express.Request, res: express.Resp
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
-
 async function markAllGameNotificationsRead (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   await GameNotificationModel.update(
@@ -101,7 +80,6 @@ async function markAllGameNotificationsRead (_req: express.Request, res: express
   )
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
-
 
 /**
  * 删除单条游戏通知
@@ -116,7 +94,6 @@ async function deleteGameNotification (req: express.Request, res: express.Respon
   await notification.destroy()
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
-
 
 async function getAuthor (req: express.Request, res: express.Response) {
   const accountId = Number(req.params.accountId)
@@ -166,7 +143,6 @@ async function getAuthor (req: express.Request, res: express.Response) {
   })
 }
 
-
 async function getCreatorOverview (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   const games = await GameModel.findAll<MGame>({
@@ -200,7 +176,6 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
   })
 }
 
-
 async function listFavoriteGames (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
@@ -223,7 +198,6 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
 
   return res.json({ total: rows.length, data: rows.map(row => formatGame(row.Game)) })
 }
-
 
 async function listRecentGames (_req: express.Request, res: express.Response) {
   const user = getUser(res)
@@ -248,7 +222,6 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
   return res.json({ total: rows.length, data: rows.map(row => formatGame(row.Game)) })
 }
 
-
 async function listOwnedGames (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
@@ -268,7 +241,6 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
   return res.json({ total: data.length, data: data.map(formatGame) })
 }
 
-
 async function listRecommendedGames (_req: express.Request, res: express.Response) {
   return traceGameOperation('listRecommendedGames', async () => {
     const user = getUser(res)
@@ -278,7 +250,6 @@ async function listRecommendedGames (_req: express.Request, res: express.Respons
     return res.json({ total: result.total, data: result.data.map(formatGame) })
   })
 }
-
 
 /**
  * 获取用户等级信息
@@ -291,7 +262,6 @@ async function getUserLevel (_req: express.Request, res: express.Response) {
   })
 }
 
-
 /**
  * 每日登录签到
  */
@@ -302,7 +272,6 @@ async function claimDailyLoginHandler (_req: express.Request, res: express.Respo
     return res.json(result)
   })
 }
-
 
 /**
  * 创作者数据分析 — 播放趋势/互动分布/游戏排行/粉丝增长
@@ -327,7 +296,6 @@ async function getCreatorAnalytics (_req: express.Request, res: express.Response
     })
   })
 }
-
 
 /**
  * 获取当前用户关注的作者列表

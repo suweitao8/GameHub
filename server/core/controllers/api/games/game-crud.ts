@@ -1,48 +1,36 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
-import { cleanUpReqFiles, createReqFiles } from '@server/helpers/express-utils.js'
+import { cleanUpReqFiles } from '@server/helpers/express-utils.js'
 import { sanitizeGameDescription } from '@server/helpers/game-sanitization.js'
 import { generateGameCoverSignedUrl, generateGameRuntimeSignedUrl } from '@server/lib/games/game-cdn.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
-import { getRecommendedGames, invalidateRecommendationCache } from '@server/lib/games/game-recommendations.js'
-import { getCreatorPlayTrend, getCreatorInteractionBreakdown, getCreatorGameRanking, getCreatorFollowerTrend } from '@server/lib/games/game-analytics.js'
-import { awardExp, claimDailyLogin, getUserLevelInfo } from '@server/lib/games/game-exp.js'
-import { getFollowingFeed, getPublicFeed as getPublicGameFeed } from '@server/lib/games/game-feed.js'
-import { createGameShareToken, resolveGameShareToken } from '@server/lib/games/game-share.js'
+import { invalidateRecommendationCache } from '@server/lib/games/game-recommendations.js'
+import { awardExp } from '@server/lib/games/game-exp.js'
 import { GameRuntimeValidationError, MAX_SCREENSHOTS, readStoredGameHtml, storeGameCover, storeGameRuntimePackage, storeGameScreenshot } from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
-import { createGameNotification } from '@server/lib/games/game-notifications.js'
-import { canManageGame, getModerationStatus, isGameModerator } from '@server/lib/games/game-policy.js'
+import { canManageGame, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
-import { Redis } from '@server/lib/redis.js'
 import { GameModel } from '@server/models/game/game.js'
 import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
-import { GameCollectionModel, GameCollectionItemModel } from '@server/models/game/game-collection.js'
-import { GameReserveModel } from '@server/models/game/game-reserve.js'
-import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
-import { GameCoinLedgerModel } from '@server/models/game/game-coin-ledger.js'
-import { GameNotificationModel } from '@server/models/game/game-notification.js'
-import { GameReportModel } from '@server/models/game/game-report.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
 import { GameActivityModel } from '@server/models/game/game-activity.js'
 import type { MGame } from '@server/types/models/game/game.js'
-import { apiRateLimiter, asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
-import { gameCreateValidator, gameListValidator, gameModerationValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
+import { asyncMiddleware, authenticate, gamePlayRateLimiter, gameUploadRateLimiter, optionalAuthenticate, paginationValidator, setDefaultPagination } from '@server/middlewares/index.js'
+import { gameCreateValidator, gameListValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import { readFile, rm } from 'fs/promises'
 import express from 'express'
-import { literal, Op } from 'sequelize'
-import { gameFile, gameFileUpload, MAX_GAMES_PER_ACCOUNT, gamesAuditLogger, getUser, formatGame, formatGameTags, formatGameNotification } from './game-shared.js'
-import express from 'express'
+import { Op } from 'sequelize'
+import { gameFile, MAX_GAMES_PER_ACCOUNT, getUser, formatGame } from './game-shared.js'
+
+const auditLogger = auditLoggerFactory('games')
 
 const crudRouter = express.Router()
 
-crudRouter.use('/', runtimeRouter)
-crudRouter.use('/', gameCommunityRouter)
 crudRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listGames))
 crudRouter.get('/admin', authenticate, asyncMiddleware(listGamesForModerators))
 crudRouter.post('/preview', authenticate, gameUploadRateLimiter, gameFile, asyncMiddleware(previewGame))
@@ -56,11 +44,9 @@ crudRouter.post('/:uuid/play', gameUUIDValidator, gamePlayRateLimiter, optionalA
 
 export { crudRouter }
 
-
 function getPreviewRuntimeUrl (token: string) {
   return new URL(`/api/v1/games/preview/${token}/runtime/`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
 }
-
 
 function getGameRuntimeErrorMessage (error: GameRuntimeValidationError) {
   const messages: Record<string, string> = {
@@ -76,7 +62,6 @@ function getGameRuntimeErrorMessage (error: GameRuntimeValidationError) {
 
   return messages[error.message] || '游戏文件未通过安全检查，请检查文件格式和资源引用。'
 }
-
 
 async function listGames (req: express.Request, res: express.Response) {
   return traceGameOperation('listGames', async () => {
@@ -105,7 +90,6 @@ async function listGames (req: express.Request, res: express.Response) {
   })
 }
 
-
 async function getFollowedAccountIds (actorId: number | undefined) {
   if (!actorId) return []
 
@@ -125,7 +109,6 @@ async function getFollowedAccountIds (actorId: number | undefined) {
   return [ ...new Set(accounts.map(account => account.accountId)) ]
 }
 
-
 async function listGamesForModerators (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   if (!user || !isGameModerator(user)) return res.sendStatus(HttpStatusCode.FORBIDDEN_403)
@@ -137,7 +120,6 @@ async function listGamesForModerators (_req: express.Request, res: express.Respo
   })
   return res.json({ total: data.length, data: data.map(formatGame) })
 }
-
 
 async function getGame (req: express.Request, res: express.Response) {
   return traceGameOperation('getGame', async () => {
@@ -151,7 +133,6 @@ async function getGame (req: express.Request, res: express.Response) {
     return res.json(formatGame(game))
   })
 }
-
 
 async function downloadGame (req: express.Request, res: express.Response) {
   const game = await GameModel.loadByUUID(req.params.uuid)
@@ -168,7 +149,6 @@ async function downloadGame (req: express.Request, res: express.Response) {
     .setHeader('Cache-Control', 'private, no-store')
     .send(content)
 }
-
 
 async function previewGame (req: express.Request, res: express.Response) {
   const file = req.files?.['gamefile']?.[0]
@@ -197,7 +177,6 @@ async function previewGame (req: express.Request, res: express.Response) {
     cleanUpReqFiles(req)
   }
 }
-
 
 async function createGame (req: express.Request, res: express.Response) {
   return traceGameOperation('createGame', async () => {
@@ -301,7 +280,6 @@ async function createGame (req: express.Request, res: express.Response) {
   })
 }
 
-
 async function updateGame (req: express.Request, res: express.Response) {
   return traceGameOperation('updateGame', async () => {
     const user = getUser(res)
@@ -382,7 +360,6 @@ async function updateGame (req: express.Request, res: express.Response) {
   })
 }
 
-
 async function removeGame (req: express.Request, res: express.Response) {
   return traceGameOperation('removeGame', async () => {
     const user = getUser(res)
@@ -398,7 +375,6 @@ async function removeGame (req: express.Request, res: express.Response) {
     return res.status(HttpStatusCode.NO_CONTENT_204).end()
   })
 }
-
 
 async function recordPlay (req: express.Request, res: express.Response) {
   return traceGameOperation('recordPlay', async () => {
@@ -421,7 +397,6 @@ async function recordPlay (req: express.Request, res: express.Response) {
     return res.json({ runtimeUrl: generateGameRuntimeSignedUrl({ uuid: game.uuid }) })
   })
 }
-
 
 /**
  * 游戏详情页 SEO 元数据 — Open Graph + Twitter Card
