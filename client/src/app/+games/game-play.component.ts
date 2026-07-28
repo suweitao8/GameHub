@@ -3,20 +3,30 @@ import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener,
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
-import { GamesService, Game, GameComment, GameCommunity, GameRatingDistribution, GameRelatedGame, GameReview } from './games.service'
-import { GameCardComponent } from './game-card.component'
-import { getGameActionErrorMessage } from './game-action-feedback'
+import { GamesService, Game, GameCommunity, GameRelatedGame } from './games.service'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { WatchLaterService } from './watch-later.service'
 import { GameRecommendService } from './game-recommend.service'
 import { updateGameMetaTags } from './services/game-meta-tags'
+import { GameScreenshotsComponent } from './game-screenshots.component'
+import { GameReportDialogComponent } from './game-report-dialog.component'
+import { GameShareDialogComponent } from './game-share-dialog.component'
+import { GameCommentsComponent } from './game-comments.component'
+import { GameDiscussComponent } from './game-discuss.component'
+import { GameCommunityPanelComponent } from './game-community-panel.component'
+import { GameCommentsStore } from './game-comments-store'
 
 @Component({
   templateUrl: './game-play.component.html',
   styleUrl: './game-play.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ DatePipe, GameCardComponent, GlobalIconComponent, RouterLink ]
+  providers: [ GameCommentsStore ],
+  imports: [
+    DatePipe, GlobalIconComponent, RouterLink,
+    GameScreenshotsComponent, GameReportDialogComponent, GameShareDialogComponent,
+    GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent
+  ]
 })
 export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)
@@ -27,100 +37,40 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly meta = inject(Meta, { optional: true })
   private readonly titleService = inject(Title, { optional: true })
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
+  private readonly shareDialog = viewChild(GameShareDialogComponent)
   private readonly subscriptions: { unsubscribe: () => void }[] = []
-  private reloadKey = 0
   private readonly recommendService = inject(GameRecommendService)
+  readonly commentsStore = inject(GameCommentsStore)
+  readonly watchLaterService = inject(WatchLaterService)
+  private reloadKey = 0
+  private playRecordedFor = ''
+  /** Current game uuid, exposed read-only for child component bindings. */
+  currentUuid = ''
 
   readonly game = signal<Game | null>(null)
   readonly loading = signal(true)
   readonly loadingError = signal(false)
-  readonly skeletonPulse = signal(true)
   readonly frameLoading = signal(true)
   readonly runtimeUrl = signal<SafeResourceUrl | null>(null)
   readonly community = signal<GameCommunity | null>(null)
   readonly communityError = signal('')
-  readonly comments = signal<GameComment[]>([])
-  readonly commentsLoading = signal(true)
-  readonly commentsError = signal('')
-  readonly commentsTotal = signal(0)
-  readonly commentsLoadingMore = signal(false)
-  readonly commentDraft = signal('')
-  readonly chatDraft = signal('')
-  readonly reviews = signal<GameReview[]>([])
-  readonly reviewsLoading = signal(true)
-  readonly reviewsError = signal('')
-  readonly reviewsTotal = signal(0)
-  readonly reviewsLoadingMore = signal(false)
-  readonly reviewDraft = signal('')
-  readonly reviewScore = signal(5)
-  readonly reviewScores = [ 1, 2, 3, 4, 5 ]
-  readonly commentSort = signal<'new' | 'hot'>('hot')
-  readonly replyTo = signal<number | null>(null)
-  readonly coinAmount = signal<1 | 2>(1)
-  readonly coinMessage = signal('')
-  readonly coinLoading = signal(false)
   readonly related = signal<GameRelatedGame[]>([])
-  readonly authorGames = signal<Game[]>([])
-  readonly ratingDistribution = signal<GameRatingDistribution | null>(null)
-  readonly replies = signal<Record<number, GameComment[]>>({})
-  readonly commentFeedback = signal('')
-  readonly deleteTarget = signal<GameComment | null>(null)
-  readonly mutedHint = signal(false)
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
-  readonly actionFeedback = signal('')
-  readonly activeScreenshot = signal<number>(0)
-  readonly lightboxOpen = signal(false)
-  private screenshotTimer: ReturnType<typeof setInterval> | undefined
-  readonly screenshotPaused = signal(false)
-  readonly tripleAnimating = signal(false)
-  readonly tripleApplied = signal(false)
   readonly showBackToTop = signal(false)
-  readonly shareDialog = signal(false)
-  readonly shareUrl = signal('')
-  readonly shareCopied = signal(false)
-  readonly relatedArticles = signal<{ id: number; title: string; slug: string; summary: string; category: string }[]>([])
-  readonly reportDialog = signal(false)
-  readonly reportReason = signal('')
-  readonly reportPredefined = signal<string[]>([])
-  readonly reportSubmitting = signal(false)
-  readonly reportFeedback = signal('')
+  readonly shareOpen = signal(false)
+  readonly reportOpen = signal(false)
   readonly inWatchLater = signal(false)
   readonly watchLaterFeedback = signal('')
-  readonly watchLaterService = inject(WatchLaterService)
 
-  encodeURIComponent = encodeURIComponent
-  readonly reportReasons = [
-    '色情低俗', '暴力血腥', '违法违规', '侵权抄袭',
-    '恶意代码', '无法运行', '垃圾内容', '其他'
-  ]
-  /** Bilibili-style comments: hottest first, or latest first. */
-  readonly sortedComments = computed(() => {
-    const comments = [ ...this.comments() ]
-    if (this.commentSort() === 'hot') {
-      return comments.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    }
-    return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  })
-  /** Discussion group: chronological chat timeline. */
-  readonly chatMessages = computed(() => {
-    return [ ...this.comments() ].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )
-  })
+  /** Comment count badge in the title bar (driven by the comment store). */
+  readonly commentCount = computed(() => this.commentsStore.total() || this.commentsStore.comments().length || 0)
+  /** Title-bar average score derived from community stats. */
   readonly displayAverageScore = computed(() => {
-    const community = this.community()
-    if (community && community.reviews > 0 && community.averageReviewScore > 0) {
-      return Number(community.averageReviewScore)
-    }
-    return 0
+    const c = this.community()
+    return c && c.reviews > 0 && c.averageReviewScore > 0 ? Number(c.averageReviewScore) : 0
   })
-  readonly displayReviewCount = computed(() => this.community()?.reviews || 0)
-  readonly roundedAverageScore = computed(() => Math.round(this.displayAverageScore()))
-  private currentUuid = ''
-  private playRecordedFor = ''
-  private commentsRefreshTimer: ReturnType<typeof setInterval> | undefined
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -129,47 +79,25 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy () {
-    this.stopCommentsPolling()
-    this.stopScreenshotCarousel()
-    this.subscriptions.forEach(subscription => subscription.unsubscribe())
+    this.subscriptions.forEach(s => s.unsubscribe())
     window.removeEventListener('scroll', this.onScroll)
   }
 
-  onScroll = () => {
-    this.showBackToTop.set(window.scrollY > 600)
-  }
+  onScroll = () => { this.showBackToTop.set(window.scrollY > 600) }
 
-  scrollToTop () {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  scrollToTop () { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
   loadGame (uuid: string) {
     if (!uuid) return
-
     this.currentUuid = uuid
-    this.stopCommentsPolling()
-
+    this.commentsStore.setUuid(uuid)
     this.loading.set(true)
     this.loadingError.set(false)
     this.frameLoading.set(true)
     this.runtimeUrl.set(null)
     this.community.set(null)
     this.communityError.set('')
-    this.comments.set([])
-    this.commentsLoading.set(true)
-    this.commentsError.set('')
-    this.reviews.set([])
-    this.reviewsLoading.set(false)
-    this.reviewsError.set('')
-    this.reviewDraft.set('')
-    this.reviewScore.set(5)
-    this.commentSort.set('hot')
     this.related.set([])
-    this.authorGames.set([])
-    this.replies.set({})
-    this.actionFeedback.set('')
-    this.commentFeedback.set('')
-    this.coinMessage.set('')
     this.playRecordedFor = ''
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
@@ -180,42 +108,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gameStarted.set(false)
         this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
         this.loading.set(false)
-        this.activeScreenshot.set(0)
-        this.startScreenshotCarousel()
+        this.commentsStore.init(uuid)
         this.gamesService.community(uuid).subscribe({
-          next: community => this.community.set(community),
+          next: value => this.community.set(value),
           error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
         })
-        this.loadComments(uuid, this.commentSort())
-        this.startCommentsPolling()
-        this.gamesService.related(uuid, 8).subscribe({
-          next: result => this.related.set(result.data)
-        })
-        if (game.author?.name) {
-          this.gamesService.list({ search: game.author.name, count: 3, sort: 'latest' }).subscribe({
-            next: result => this.authorGames.set(result.data.filter(item =>
-              item.ownerAccountId === game.ownerAccountId && item.uuid !== game.uuid
-            ))
-          })
-        }
-        // Load related articles based on tags (uses tag-based search as articles API not yet available)
-        if (game.tags?.length) {
-          const firstTag = game.tags[0]
-          this.gamesService.list({ search: firstTag, count: 3, sort: 'likes' }).subscribe({
-            next: result => this.relatedArticles.set(
-              result.data
-                .filter(item => item.uuid !== game.uuid)
-                .slice(0, 3)
-                .map(item => ({
-                  id: 0,
-                  title: item.title,
-                  slug: item.uuid,
-                  summary: item.description || '查看这个相关游戏',
-                  category: item.category
-                }))
-            )
-          })
-        }
+        this.gamesService.related(uuid, 8).subscribe({ next: result => this.related.set(result.data) })
       },
       error: () => {
         this.loading.set(false)
@@ -224,73 +122,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
-  toggleRate (rating: 'like') {
-    if (!this.requireLogin()) return
-    const current = this.community()
-    if (!current) return
-    const next = current.rating === rating ? 'none' : rating
-    this.gamesService.rate(this.currentUuid, next).subscribe({
-      next: () => this.gamesService.community(this.currentUuid).subscribe({
-        next: value => {
-          this.community.set(value)
-          this.actionFeedback.set(next === 'like' ? '点赞成功' : next === 'none' ? '已取消点赞' : '已记录你的反馈')
-        }
-      }),
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  toggleFavorite () {
-    if (!this.requireLogin()) return
-    const current = this.community()
-    if (!current) return
-    this.gamesService.favorite(this.currentUuid, !current.favorite).subscribe({
-      next: value => {
-        this.community.update(state => state ? { ...state, favorite: value.favorite } : state)
-        this.actionFeedback.set(value.favorite ? '已加入收藏' : '已取消收藏')
-      },
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
   toggleFollow () {
     if (!this.requireLogin()) return
     const current = this.community()
     if (!current) return
     this.gamesService.follow(this.currentUuid, !current.following).subscribe({
-      next: value => {
-        this.community.update(state => state ? { ...state, following: value.following } : state)
-        this.actionFeedback.set(value.following ? '已关注作者' : '已取消关注')
-      },
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  tripleAction () {
-    if (!this.requireLogin()) return
-    if (this.tripleAnimating() || this.tripleApplied()) return
-    this.tripleAnimating.set(true)
-    this.actionFeedback.set('')
-    this.gamesService.triple(this.currentUuid).subscribe({
-      next: result => {
-        this.tripleAnimating.set(false)
-        this.tripleApplied.set(result.liked || result.coined || result.favorited)
-
-        const messages: string[] = []
-        if (result.liked) messages.push('点赞')
-        if (result.coined) messages.push('投币')
-        if (result.favorited) messages.push('收藏')
-        this.actionFeedback.set('一键三连' + (messages.length ? '：' + messages.join(' + ') : '已完成'))
-
-        // Refresh community stats
-        this.gamesService.community(this.currentUuid).subscribe({
-          next: value => this.community.set(value)
-        })
-      },
-      error: error => {
-        this.tripleAnimating.set(false)
-        this.actionFeedback.set(getGameActionErrorMessage(error))
-      }
+      next: value => this.community.update(state => state ? { ...state, following: value.following } : state)
     })
   }
 
@@ -298,296 +135,33 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gameStarted.set(true)
     if (this.playRecordedFor !== this.currentUuid) {
       this.playRecordedFor = this.currentUuid
-      this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => this.playRecordedFor = '' })
+      this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => { this.playRecordedFor = '' } })
     }
     this.focusGame()
   }
 
-  toggleGameSound () {
-    this.setGameVolume(this.gameVolume() > 0 ? 0 : 1)
-  }
+  toggleGameSound () { this.setGameVolume(this.gameVolume() > 0 ? 0 : 1) }
 
-  onGameVolumeChange (event: Event) {
-    this.setGameVolume(Number((event.target as HTMLInputElement).value))
-  }
-
-  setCommentSort (sort: 'new' | 'hot') {
-    if (this.commentSort() === sort) return
-    this.commentSort.set(sort)
-    this.commentsLoading.set(true)
-    this.loadComments(this.currentUuid, sort)
-  }
-
-  loadMoreComments () {
-    if (this.commentsLoadingMore() || this.comments().length >= this.commentsTotal()) return
-    this.commentsLoadingMore.set(true)
-    this.gamesService.comments(this.currentUuid, this.commentSort(), this.comments().length, 20).subscribe({
-      next: result => {
-        this.comments.update(prev => [ ...prev, ...result.data ])
-        this.commentsTotal.set(result.total)
-        this.commentsLoadingMore.set(false)
-      },
-      error: () => this.commentsLoadingMore.set(false)
-    })
-  }
-
-  hasMoreComments () {
-    return this.comments().length < this.commentsTotal()
-  }
-
-  currentUserAvatar () {
-    const user = this.authService.getUser()
-    const label = user?.account?.displayName || user?.account?.name || user?.username || '我'
-    return buildGameAvatarDataUrl(label)
-  }
-
-  commentAvatar (comment: GameComment) {
-    return buildGameAvatarDataUrl(comment.account?.displayName || comment.account?.name || '玩家')
-  }
-
-  private loadComments (uuid: string, sort: 'new' | 'hot') {
-    if (!uuid) return
-    this.gamesService.comments(uuid, sort, 0, 20).subscribe({
-      next: result => {
-        this.comments.set(result.data)
-        this.commentsTotal.set(result.total)
-        this.commentsLoading.set(false)
-        this.commentsError.set('')
-      },
-      error: () => {
-        this.comments.set([])
-        this.commentsTotal.set(0)
-        this.commentsLoading.set(false)
-        this.commentsError.set('评论加载失败，请稍后重试')
-      }
-    })
-  }
-
-  loadMoreReviews () {
-    if (this.reviewsLoadingMore() || this.reviews().length >= this.reviewsTotal()) return
-    this.reviewsLoadingMore.set(true)
-    this.gamesService.reviews(this.currentUuid, this.reviews().length, 20).subscribe({
-      next: result => {
-        this.reviews.update(prev => [...prev, ...result.data])
-        this.reviewsTotal.set(result.total)
-        this.reviewsLoadingMore.set(false)
-      },
-      error: () => this.reviewsLoadingMore.set(false)
-    })
-  }
-
-  hasMoreReviews () {
-    return this.reviews().length < this.reviewsTotal()
-  }
-
-  submitComment () {
-    if (!this.requireLogin()) return
-    const text = this.commentDraft().trim()
-    if (!text) return
-    this.gamesService.comment(this.currentUuid, text).subscribe({
-      next: result => {
-        this.comments.update(comments => [ result.comment, ...comments ])
-        this.commentsTotal.update(total => total + 1)
-        this.commentDraft.set('')
-        this.commentFeedback.set('')
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  submitChat () {
-    if (!this.requireLogin()) return
-    const text = this.chatDraft().trim()
-    if (!text) return
-    this.gamesService.comment(this.currentUuid, text).subscribe({
-      next: result => {
-        this.comments.update(comments => [ ...comments, result.comment ])
-        this.commentsTotal.update(total => total + 1)
-        this.chatDraft.set('')
-        queueMicrotask(() => this.scrollDiscussToBottom())
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  private scrollDiscussToBottom () {
-    const list = document.querySelector('.discuss-message-list') as HTMLElement | null
-    if (list) list.scrollTop = list.scrollHeight
-  }
-
-  submitReply () {
-    if (!this.requireLogin()) return
-    const parentId = this.replyTo()
-    const text = this.commentDraft().trim()
-    if (!parentId || !text) return
-    this.gamesService.reply(this.currentUuid, parentId, text).subscribe({
-      next: result => {
-        this.comments.update(comments => comments.map(comment => comment.id === parentId
-          ? { ...comment, totalReplies: (comment.totalReplies || 0) + 1 }
-          : comment))
-        this.commentDraft.set('')
-        this.replyTo.set(null)
-        this.replies.update(replies => ({
-          ...replies,
-          [parentId]: [ ...(replies[parentId] || []), result.comment ]
-        }))
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  toggleCommentLike (comment: GameComment) {
-    if (!this.requireLogin()) return
-    this.gamesService.likeComment(this.currentUuid, comment.id, !comment.liked).subscribe({
-      next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes }),
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  toggleReplies (comment: GameComment) {
-    if (this.replies()[comment.id]) {
-      this.replies.update(replies => {
-        const next = { ...replies }
-        delete next[comment.id]
-        return next
-      })
-      return
-    }
-
-    this.gamesService.replies(this.currentUuid, comment.id).subscribe({
-      next: result => this.replies.update(replies => ({ ...replies, [comment.id]: result.data })),
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  requestDeleteComment (comment: GameComment) {
-    if (comment.canDelete) this.deleteTarget.set(comment)
-  }
-
-  confirmDeleteComment () {
-    if (!this.requireLogin()) return
-    const comment = this.deleteTarget()
-    if (!comment) return
-    this.gamesService.deleteComment(this.currentUuid, comment.id).subscribe({
-      next: () => {
-        this.comments.update(comments => comments.filter(item => item.id !== comment.id))
-        this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
-          id, items.filter(item => item.id !== comment.id)
-        ])))
-        this.commentFeedback.set('评论已删除')
-        this.deleteTarget.set(null)
-      },
-      error: error => this.commentFeedback.set(getGameActionErrorMessage(error))
-    })
-  }
-
-  giveCoin () {
-    if (!this.requireLogin()) return
-    const state = this.community()
-    if (!state || this.coinLoading()) return
-    this.coinLoading.set(true)
-    this.coinMessage.set('')
-    this.gamesService.coin(this.currentUuid, this.coinAmount()).subscribe({
-      next: value => {
-        this.coinLoading.set(false)
-        this.coinMessage.set(`投币成功，已投入 ${value.coinsGiven} 枚，余额 ${value.coinBalance} 枚`)
-        this.community.update(current => current
-          ? { ...current, coins: current.coins + this.coinAmount(), coinBalance: value.coinBalance, coinsGiven: value.coinsGiven }
-          : current)
-      },
-      error: error => {
-        this.coinLoading.set(false)
-        this.coinMessage.set(getGameActionErrorMessage(error))
-      }
-    })
-  }
+  onGameVolumeChange (event: Event) { this.setGameVolume(Number((event.target as HTMLInputElement).value)) }
 
   async shareGame () {
+    if (!this.requireLogin()) return
+    const dialog = this.shareDialog()
+    if (dialog && await dialog.share()) this.shareOpen.set(true)
+  }
+
+  openReportDialog () { if (this.requireLogin()) this.reportOpen.set(true) }
+
+  toggleWatchLater () {
     const currentGame = this.game()
     if (!currentGame) return
-    try {
-      const result = await this.gamesService.share(currentGame.uuid).toPromise()
-      const url = result?.shortUrl || window.location.href
-      if (navigator.share) {
-        await navigator.share({ title: currentGame.title, url })
-      } else {
-        this.shareUrl.set(url)
-        this.shareDialog.set(true)
-      }
-    } catch {
-      this.actionFeedback.set('分享未完成')
-    }
+    const added = this.watchLaterService.toggle(currentGame)
+    this.inWatchLater.set(added)
+    this.watchLaterFeedback.set(added ? '已加入「稍后再玩」' : '已从「稍后再玩」移除')
+    setTimeout(() => this.watchLaterFeedback.set(''), 2000)
   }
 
-  copyShareUrl () {
-    navigator.clipboard?.writeText(this.shareUrl()).then(() => {
-      this.shareCopied.set(true)
-      setTimeout(() => this.shareCopied.set(false), 2000)
-    })
-  }
-
-  closeShareDialog () {
-    this.shareDialog.set(false)
-    this.shareCopied.set(false)
-  }
-
-  openReportDialog () {
-    if (!this.requireLogin()) return
-    this.reportDialog.set(true)
-    this.reportReason.set('')
-    this.reportPredefined.set([])
-    this.reportFeedback.set('')
-  }
-
-  toggleReportPredefined (reason: string) {
-    this.reportPredefined.update(list =>
-      list.includes(reason) ? list.filter(r => r !== reason) : [...list, reason]
-    )
-  }
-
-  submitReport () {
-    const reason = this.reportReason().trim()
-    if (!reason && this.reportPredefined().length === 0) {
-      this.reportFeedback.set('请选择或填写举报原因')
-      return
-    }
-    this.reportSubmitting.set(true)
-    this.gamesService.report(
-      this.currentUuid,
-      reason || this.reportPredefined().join(', '),
-      this.reportPredefined()
-    ).subscribe({
-      next: () => {
-        this.reportSubmitting.set(false)
-        this.reportFeedback.set('举报已提交，我们会尽快处理')
-        setTimeout(() => this.reportDialog.set(false), 2000)
-      },
-      error: error => {
-        this.reportSubmitting.set(false)
-        this.reportFeedback.set(getGameActionErrorMessage(error))
-      }
-    })
-  }
-
-  closeReportDialog () {
-    this.reportDialog.set(false)
-    this.reportFeedback.set('')
-  }
-
-  private updateMetaTags (game: Game) {
-    if (!this.titleService || !this.meta) return
-    updateGameMetaTags(game, this.meta, this.titleService)
-  }
-
-  focusGame () {
-    this.iframe()?.nativeElement.focus()
-    this.mutedHint.set(true)
-  }
-
-  focusCommentInput () {
-    const input = document.querySelector('.chat-composer input') as HTMLInputElement | null
-    if (input) input.focus()
-  }
+  focusGame () { this.iframe()?.nativeElement.focus() }
 
   formatBigNumber (value: number | undefined) {
     if (!value || value < 1) return '0'
@@ -595,68 +169,17 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     return String(value)
   }
 
-  openLightbox () {
-    this.lightboxOpen.set(true)
-    this.stopScreenshotCarousel()
-  }
-
-  closeLightbox () {
-    this.lightboxOpen.set(false)
-    this.startScreenshotCarousel()
-  }
-
-  lightboxPrev () {
-    const total = this.game()?.screenshots?.length || 0
-    if (!total) return
-    this.activeScreenshot.set((this.activeScreenshot() - 1 + total) % total)
-  }
-
-  lightboxNext () {
-    const total = this.game()?.screenshots?.length || 0
-    if (!total) return
-    this.activeScreenshot.set((this.activeScreenshot() + 1) % total)
-  }
-
-  private startScreenshotCarousel () {
-    this.stopScreenshotCarousel()
-    const total = this.game()?.screenshots?.length || 0
-    if (total <= 1) return
-    this.screenshotTimer = setInterval(() => {
-      if (this.screenshotPaused() || this.lightboxOpen()) return
-      const count = this.game()?.screenshots?.length || 0
-      if (count <= 1) return
-      this.activeScreenshot.update(current => (current + 1) % count)
-    }, 5000)
-  }
-
-  private stopScreenshotCarousel () {
-    if (this.screenshotTimer) {
-      clearInterval(this.screenshotTimer)
-      this.screenshotTimer = undefined
-    }
-  }
+  getDeveloperAvatar (label: string) { return buildGameAvatarDataUrl(label) }
 
   @HostListener('document:keydown', [ '$event' ])
   onKeydown (event: KeyboardEvent) {
-    // Lightbox ESC/arrow keys take priority
-    if (this.lightboxOpen()) {
-      if (event.key === 'Escape') { event.preventDefault(); this.closeLightbox(); return }
-      if (event.key === 'ArrowLeft') { event.preventDefault(); this.lightboxPrev(); return }
-      if (event.key === 'ArrowRight') { event.preventDefault(); this.lightboxNext(); return }
-    }
-
-    // Only handle when game is loaded and user is not typing in an input
+    // Lightbox ESC/arrows are handled by the screenshots component.
     const target = event.target as HTMLElement
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
     if (!this.game() || this.loading()) return
-
     if (event.code === 'Space') {
       event.preventDefault()
-      if (this.gameStarted()) {
-        this.reloadGame()
-      } else {
-        this.startGame()
-      }
+      this.gameStarted() ? this.reloadGame() : this.startGame()
     } else if (event.key === 'f' || event.key === 'F') {
       event.preventDefault()
       this.enterFullscreen()
@@ -669,7 +192,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   reloadGame () {
     const currentGame = this.game()
     if (!currentGame) return
-
     this.reloadKey++
     this.frameLoading.set(true)
     this.gameStarted.set(false)
@@ -677,33 +199,21 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
   }
 
-  retryLoadGame () {
-    this.loadGame(this.currentUuid)
-  }
+  retryLoadGame () { this.loadGame(this.currentUuid) }
 
-  downloadGame () {
-    window.location.assign(this.gamesService.buildDownloadUrl(this.currentUuid))
-  }
+  downloadGame () { window.location.assign(this.gamesService.buildDownloadUrl(this.currentUuid)) }
 
-  getDeveloperAvatar (label: string) {
-    return buildGameAvatarDataUrl(label)
-  }
+  onFrameLoaded () { this.frameLoading.set(false); this.syncGameVolume() }
 
-  onFrameLoaded () {
-    this.frameLoading.set(false)
-    this.syncGameVolume()
-  }
-
-  onFrameError () {
-    this.frameLoading.set(false)
-    this.loadingError.set(true)
-  }
+  onFrameError () { this.frameLoading.set(false); this.loadingError.set(true) }
 
   async enterFullscreen () {
     const frame = this.iframe()?.nativeElement
-    if (!frame) return
+    if (frame) await frame.requestFullscreen?.()
+  }
 
-    await frame.requestFullscreen?.()
+  private updateMetaTags (game: Game) {
+    if (this.titleService && this.meta) updateGameMetaTags(game, this.meta, this.titleService)
   }
 
   private withReloadKey (url: string) {
@@ -711,17 +221,15 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   private setGameVolume (volume: number) {
-    const nextVolume = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1
-    this.gameVolume.set(nextVolume)
-    this.soundEnabled.set(nextVolume > 0)
+    const next = Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 1
+    this.gameVolume.set(next)
+    this.soundEnabled.set(next > 0)
     this.syncGameVolume()
   }
 
   private syncGameVolume () {
     this.iframe()?.nativeElement.contentWindow?.postMessage({
-      type: 'gamehub:set-volume',
-      enabled: this.gameVolume() > 0,
-      volume: this.gameVolume()
+      type: 'gamehub:set-volume', enabled: this.gameVolume() > 0, volume: this.gameVolume()
     }, '*')
   }
 
@@ -729,54 +237,5 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (this.authService.isLoggedIn()) return true
     void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
     return false
-  }
-
-  private updateComment (commentId: number, patch: Partial<GameComment>) {
-    this.comments.update(comments => comments.map(comment => comment.id === commentId ? { ...comment, ...patch } : comment))
-    this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
-      id, items.map(item => item.id === commentId ? { ...item, ...patch } : item)
-    ])))
-  }
-
-  private startCommentsPolling () {
-    this.stopCommentsPolling()
-    this.commentsRefreshTimer = setInterval(() => this.refreshComments(), 4000)
-    document.addEventListener('visibilitychange', this.onVisibilityChange)
-  }
-
-  private stopCommentsPolling () {
-    if (!this.commentsRefreshTimer) return
-    clearInterval(this.commentsRefreshTimer)
-    this.commentsRefreshTimer = undefined
-    document.removeEventListener('visibilitychange', this.onVisibilityChange)
-  }
-
-  private onVisibilityChange = () => {
-    if (document.hidden) {
-      this.stopCommentsPolling()
-    } else {
-      this.startCommentsPolling()
-    }
-  }
-
-  private refreshComments () {
-    if (!this.currentUuid) return
-    this.gamesService.comments(this.currentUuid, this.commentSort(), 0, 20).subscribe({
-      next: result => {
-        if (!result.data.length) return
-        this.comments.set(result.data)
-        this.commentsTotal.set(result.total)
-        this.commentsError.set('')
-      }
-    })
-  }
-
-  toggleWatchLater () {
-    const currentGame = this.game()
-    if (!currentGame) return
-    const added = this.watchLaterService.toggle(currentGame)
-    this.inWatchLater.set(added)
-    this.watchLaterFeedback.set(added ? '已加入「稍后再玩」' : '已从「稍后再玩」移除')
-    setTimeout(() => this.watchLaterFeedback.set(''), 2000)
   }
 }

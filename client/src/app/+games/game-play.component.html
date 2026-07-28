@@ -34,7 +34,7 @@
         <h1>{{ game()!.title }}</h1>
         <div class="game-title-meta" aria-label="游戏数据">
           <span aria-label="游玩次数"><my-global-icon iconName="play" />{{ formatBigNumber(game()!.playCount) }} 游玩</span>
-          <span aria-label="评论数"><my-global-icon iconName="message-circle" />{{ formatBigNumber(commentsTotal() || comments().length || game()!.comments || 0) }} 评论</span>
+          <span aria-label="评论数"><my-global-icon iconName="message-circle" />{{ formatBigNumber(commentCount() || game()!.comments || 0) }} 评论</span>
           <span aria-label="评分" class="game-title-score">
             <my-global-icon iconName="star" />
             {{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }} 评分
@@ -46,38 +46,7 @@
         </div>
       </section>
 
-      @if (game()!.screenshots?.length) {
-        <section class="game-screenshots" aria-label="游戏截图"
-                 (mouseenter)="screenshotPaused.set(true)"
-                 (mouseleave)="screenshotPaused.set(false)">
-          <div class="screenshot-gallery">
-            <div class="screenshot-main">
-              <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" loading="lazy" (click)="openLightbox()" style="cursor:zoom-in">
-            </div>
-            <div class="screenshot-thumbs">
-              @for (url of game()!.screenshots; track $index) {
-                <button type="button" [class.active]="activeScreenshot() === $index" (click)="activeScreenshot.set($index)" [attr.aria-label]="'截图 ' + ($index + 1)">
-                  <img [src]="url" alt="" loading="lazy">
-                </button>
-              }
-            </div>
-          </div>
-        </section>
-      }
-
-      @if (lightboxOpen()) {
-        <div class="screenshot-lightbox" (click)="closeLightbox()" role="dialog" aria-label="截图查看">
-          <button type="button" class="lightbox-close" (click)="closeLightbox()">&times;</button>
-          @if (game()!.screenshots!.length > 1) {
-            <button type="button" class="lightbox-nav lightbox-prev" (click)="lightboxPrev(); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button>
-          }
-          <img [src]="game()!.screenshots[activeScreenshot()]" alt="游戏截图" (click)="$event.stopPropagation()">
-          @if (game()!.screenshots!.length > 1) {
-            <button type="button" class="lightbox-nav lightbox-next" (click)="lightboxNext(); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button>
-          }
-          <span class="lightbox-counter">{{ activeScreenshot() + 1 }} / {{ game()!.screenshots!.length }}</span>
-        </div>
-      }
+      <my-game-screenshots [screenshotsInput]="game()!.screenshots" />
 
       <section class="game-stage" aria-label="游戏运行区域">
         @if (frameLoading()) { <div class="frame-loading" role="status"><div class="frame-skeleton shimmer" style="height:100%;width:100%;border-radius:8px;background:#eceff3"></div><div class="frame-loading-bar" aria-hidden="true"><div class="frame-loading-fill"></div></div></div> }
@@ -94,171 +63,18 @@
         </div>
       </section>
 
-      @if (community(); as state) {
-        <section class="game-community-panel" aria-label="游戏互动操作">
-          <div class="interaction-row"><button class="game-action-button" type="button" [class.active]="state.rating === 'like'" (click)="toggleRate('like')"><my-global-icon iconName="like" /><strong>{{ state.likes }}</strong><small>点赞</small></button><button class="game-action-button" type="button" (click)="coinAmount.set(1)"><my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong><small>投币</small></button><button class="game-action-button" type="button" [class.active]="state.favorite" (click)="toggleFavorite()"><my-global-icon iconName="star" /><strong>{{ state.favorite ? '已' : '' }}</strong><small>收藏</small></button><button class="game-action-button" type="button" [class.active]="inWatchLater()" (click)="toggleWatchLater()"><my-global-icon iconName="clock" /><strong>{{ inWatchLater() ? '已' : '' }}</strong><small>稍后再玩</small></button>@if (!state.isOwner) { <button class="game-action-button triple-action" type="button" [class.animating]="tripleAnimating()" [class.applied]="tripleApplied()" [disabled]="tripleAnimating()" (click)="tripleAction()"><my-global-icon iconName="thumbs-up" /><strong></strong><small>一键三连</small></button> }<button class="game-action-button" type="button" (click)="shareGame()"><my-global-icon iconName="share" /><strong></strong><small>分享</small></button></div>
-          @if (actionFeedback()) { <p class="feedback action-feedback" role="status">{{ actionFeedback() }}</p> }
-          @if (watchLaterFeedback()) { <p class="feedback action-feedback" role="status">{{ watchLaterFeedback() }}</p> }
-          @if (!state.isOwner) { <div class="coin-row"><strong>投币</strong><span>余额 {{ state.coinBalance }} · 本游戏已投 {{ state.coinsGiven }}/2</span><button type="button" [class.active]="coinAmount() === 1" (click)="coinAmount.set(1)">1 枚</button><button type="button" [class.active]="coinAmount() === 2" (click)="coinAmount.set(2)">2 枚</button><button type="button" [disabled]="coinLoading()" (click)="giveCoin()">{{ coinLoading() ? '处理中...' : '确认投币' }}</button></div> }
-          @if (coinMessage()) { <p class="feedback" role="status">{{ coinMessage() }}</p> }
+      <my-game-community-panel
+        [community]="community"
+        [uuid]="currentUuid"
+        [game]="game()"
+        [communityError]="communityError()"
+        [inWatchLater]="inWatchLater()"
+        [watchLaterFeedback]="watchLaterFeedback()"
+        (share)="shareGame()"
+        (toggleWatchLater)="toggleWatchLater()"
+      />
 
-          <section class="game-description-panel" aria-labelledby="game-description-title">
-            <div class="description-heading">
-              <h2 id="game-description-title">简介</h2>
-              <div class="description-rating" aria-label="平均评分">
-                <div class="description-stars" aria-hidden="true">
-                  @for (score of reviewScores; track score) {
-                    <my-global-icon iconName="star" [class.active]="score <= roundedAverageScore()" />
-                  }
-                </div>
-                <strong>{{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }}</strong>
-                <span>{{ displayReviewCount() }} 条评价</span>
-              </div>
-            </div>
-            <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
-            @if (game()!.tags?.length) {
-              <div class="game-tags description-tags">
-                @for (tag of game()!.tags; track tag) {
-                  <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
-                }
-              </div>
-            }
-          </section>
-        </section>
-      } @else if (communityError()) {
-        <p class="feedback" role="alert">{{ communityError() }}</p>
-        <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
-          <h2 id="game-description-title">简介</h2>
-          <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
-        </section>
-      } @else {
-        <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
-          <h2 id="game-description-title">简介</h2>
-          <p>{{ game()!.description || '作者还没有填写简介。' }}</p>
-        </section>
-      }
-
-      <section class="game-comments bili-comment-panel" aria-labelledby="comments-title">
-        <div class="bili-comment-header">
-          <h2 id="comments-title">评论 <span class="bili-comment-count">{{ commentsTotal() || comments().length || 0 }}</span></h2>
-          <div class="bili-comment-sort" role="group" aria-label="评论排序">
-            <button type="button" [class.active]="commentSort() === 'hot'" (click)="setCommentSort('hot')">最热</button>
-            <span class="bili-sort-sep" aria-hidden="true">|</span>
-            <button type="button" [class.active]="commentSort() === 'new'" (click)="setCommentSort('new')">最新</button>
-          </div>
-        </div>
-
-        <form class="bili-comment-composer" (submit)="$event.preventDefault(); replyTo() ? submitReply() : submitComment()">
-          <img class="bili-composer-avatar" [src]="currentUserAvatar()" alt="" aria-hidden="true">
-          <div class="bili-composer-body">
-            <input
-              #commentInput
-              aria-label="评论内容"
-              [value]="commentDraft()"
-              (input)="commentDraft.set($any($event.target).value)"
-              [placeholder]="replyTo() ? '回复这条评论...' : '这里是评论区，不是无人区:-)'"
-              maxlength="5000"
-            >
-            <div class="bili-composer-actions">
-              @if (replyTo()) {
-                <button type="button" class="bili-cancel-reply" (click)="replyTo.set(null)">取消回复</button>
-              }
-              <button type="submit" class="bili-send-btn">{{ replyTo() ? '回复' : '发布' }}</button>
-            </div>
-          </div>
-        </form>
-        @if (commentFeedback()) { <p class="feedback" role="status">{{ commentFeedback() }}</p> }
-
-        <div class="bili-comment-list">
-          @if (commentsLoading()) {
-            @for (i of [1,2,3]; track $index) {
-              <div class="bili-comment-skeleton shimmer">
-                <div class="bili-skeleton-avatar"></div>
-                <div class="bili-skeleton-body"><div class="bili-skeleton-line"></div><div class="bili-skeleton-line short"></div></div>
-              </div>
-            }
-          } @else if (commentsError()) {
-            <p class="feedback" role="alert">{{ commentsError() }}</p>
-          } @else {
-            @for (comment of sortedComments(); track comment.id) {
-              <article class="bili-comment-item">
-                <img class="bili-comment-avatar" [src]="commentAvatar(comment)" alt="" loading="lazy">
-                <div class="bili-comment-main">
-                  <div class="bili-comment-user">
-                    <strong>{{ comment.account?.displayName || comment.account?.name || '玩家' }}</strong>
-                    @if (comment.isAuthor) { <span class="bili-badge up">UP</span> }
-                  </div>
-                  <p class="bili-comment-text">{{ comment.text }}</p>
-                  <div class="bili-comment-meta">
-                    <time>{{ comment.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
-                    <button type="button" class="bili-meta-btn" [class.active]="comment.liked" (click)="toggleCommentLike(comment)">
-                      <my-global-icon iconName="like" />
-                      <span>{{ comment.likes || 0 }}</span>
-                    </button>
-                    <button type="button" class="bili-meta-btn" (click)="replyTo.set(comment.id); focusCommentInput()">回复</button>
-                    @if (comment.canDelete) {
-                      <button type="button" class="bili-meta-btn danger" (click)="requestDeleteComment(comment)">删除</button>
-                    }
-                  </div>
-
-                  @if (replies()[comment.id]; as replyList) {
-                    <div class="bili-reply-list">
-                      @for (reply of replyList; track reply.id) {
-                        <article class="bili-reply-item">
-                          <img class="bili-reply-avatar" [src]="commentAvatar(reply)" alt="" loading="lazy">
-                          <div class="bili-reply-main">
-                            <div class="bili-comment-user">
-                              <strong>{{ reply.account?.displayName || reply.account?.name || '玩家' }}</strong>
-                              @if (reply.isAuthor) { <span class="bili-badge up">UP</span> }
-                            </div>
-                            <p class="bili-comment-text">{{ reply.text }}</p>
-                            <div class="bili-comment-meta">
-                              <time>{{ reply.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
-                              <button type="button" class="bili-meta-btn" [class.active]="reply.liked" (click)="toggleCommentLike(reply)">
-                                <my-global-icon iconName="like" />
-                                <span>{{ reply.likes || 0 }}</span>
-                              </button>
-                              @if (reply.canDelete) {
-                                <button type="button" class="bili-meta-btn danger" (click)="requestDeleteComment(reply)">删除</button>
-                              }
-                            </div>
-                          </div>
-                        </article>
-                      }
-                    </div>
-                  } @else if (comment.totalReplies) {
-                    <button type="button" class="bili-view-replies" (click)="toggleReplies(comment)">
-                      共{{ comment.totalReplies }}条回复，点击查看
-                    </button>
-                  }
-                </div>
-              </article>
-            } @empty {
-              <div class="empty-comments">
-                <my-global-icon iconName="message-circle" />
-                <p>还没有评论，来抢沙发吧</p>
-                <button type="button" (click)="focusCommentInput()">写评论</button>
-              </div>
-            }
-          }
-        </div>
-
-        @if (hasMoreComments()) {
-          <div class="comments-load-more">
-            <button type="button" [disabled]="commentsLoadingMore()" (click)="loadMoreComments()">
-              {{ commentsLoadingMore() ? '加载中...' : '加载更多评论' }}
-            </button>
-          </div>
-        }
-
-        @if (deleteTarget(); as target) {
-          <div class="comment-dialog" role="dialog" aria-label="确认删除评论">
-            <p>确定删除这条评论吗？</p>
-            <button type="button" (click)="deleteTarget.set(null)">取消</button>
-            <button type="button" class="danger" (click)="confirmDeleteComment()">确认删除</button>
-          </div>
-        }
-      </section>
+      <my-game-comments />
       </div><!-- /.play-main -->
 
       <aside class="play-side" aria-label="侧栏">
@@ -282,36 +98,7 @@
           }
         </section>
 
-        <section class="game-discuss-panel" aria-labelledby="discuss-title">
-          <h2 id="discuss-title">讨论群</h2>
-          <div class="discuss-message-list" #discussList>
-            @if (commentsLoading()) {
-              @for (i of [1,2,3]; track $index) {
-                <div class="discuss-skeleton shimmer"></div>
-              }
-            } @else {
-              @for (msg of chatMessages(); track msg.id) {
-                <article class="discuss-message">
-                  <strong>{{ msg.account?.displayName || msg.account?.name || '玩家' }}</strong>
-                  <p>{{ msg.text }}</p>
-                  <time>{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
-                </article>
-              } @empty {
-                <p class="discuss-empty">还没有人发言，来打个招呼吧</p>
-              }
-            }
-          </div>
-          <form class="discuss-composer" (submit)="$event.preventDefault(); submitChat()">
-            <input
-              aria-label="讨论群消息"
-              [value]="chatDraft()"
-              (input)="chatDraft.set($any($event.target).value)"
-              placeholder="在讨论群说点什么..."
-              maxlength="5000"
-            >
-            <button type="submit">发送</button>
-          </form>
-        </section>
+        <my-game-discuss />
 
         @if (related().length) {
           <section class="related-section" aria-labelledby="related-title">
@@ -339,70 +126,8 @@
         }
       </aside>
 
-      @if (shareDialog()) {
-        <div class="share-dialog-overlay" (click)="closeShareDialog()">
-          <div class="share-dialog" (click)="$event.stopPropagation()">
-            <div class="share-dialog-header">
-              <h3>分享游戏</h3>
-              <button type="button" class="share-close-btn" (click)="closeShareDialog()">&times;</button>
-            </div>
-            <div class="share-dialog-body">
-              <p class="share-game-title">{{ game()?.title }}</p>
-              <div class="share-url-box">
-                <input type="text" [value]="shareUrl()" readonly (click)="$event.target.select()">
-                <button type="button" [class.copied]="shareCopied()" (click)="copyShareUrl()">
-                  {{ shareCopied() ? '已复制' : '复制链接' }}
-                </button>
-              </div>
-              <div class="share-actions">
-                <a [href]="'https://service.weibo.com/share/share.php?url=' + encodeURIComponent(shareUrl()) + '&title=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn weibo">
-                  <span>微博</span>
-                </a>
-                <a [href]="'https://connect.qq.com/widget/shareqq/index.html?url=' + encodeURIComponent(shareUrl()) + '&title=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn qq">
-                  <span>QQ</span>
-                </a>
-                <a [href]="'https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl()) + '&text=' + encodeURIComponent(game()?.title || '')" target="_blank" class="share-btn twitter">
-                  <span>X</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-      @if (reportDialog()) {
-        <div class="report-dialog-overlay" (click)="closeReportDialog()">
-          <div class="report-dialog" (click)="$event.stopPropagation()">
-            <div class="report-dialog-header">
-              <h3>举报游戏</h3>
-              <button type="button" class="report-close-btn" (click)="closeReportDialog()">&times;</button>
-            </div>
-            <div class="report-dialog-body">
-              <div class="report-predefined">
-                <p>选择举报原因（可多选）</p>
-                <div class="report-reasons-grid">
-                  @for (reason of reportReasons; track reason) {
-                    <button type="button"
-                            [class.selected]="reportPredefined().includes(reason)"
-                            (click)="toggleReportPredefined(reason)">{{ reason }}</button>
-                  }
-                </div>
-              </div>
-              <label class="report-text-label">
-                补充说明
-                <textarea [value]="reportReason()" (input)="reportReason.set($any($event.target).value)"
-                          rows="3" placeholder="详细描述问题..." maxlength="1000"></textarea>
-              </label>
-              @if (reportFeedback()) { <p class="report-feedback" role="status">{{ reportFeedback() }}</p> }
-              <div class="report-actions">
-                <button type="button" (click)="closeReportDialog()">取消</button>
-                <button type="button" class="primary" [disabled]="reportSubmitting()" (click)="submitReport()">
-                  {{ reportSubmitting() ? '提交中...' : '提交举报' }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
+      <my-game-share-dialog [(open)]="shareOpen" [game]="game()" />
+      <my-game-report-dialog [(open)]="reportOpen" [uuid]="currentUuid" />
     </div>
   }
 </main>
