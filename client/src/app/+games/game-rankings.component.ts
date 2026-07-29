@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router'
 import type { GameRanking } from './games.service'
 import { GamesService } from './games.service'
 import { createAsyncState } from './shared'
+import { map } from 'rxjs/operators'
 
 @Component({
   selector: 'my-game-rankings',
@@ -369,7 +370,10 @@ export class GameRankingsComponent implements OnInit {
   }
 
   loadRankings () {
-    this.rankingsState.load(this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined))
+    this.rankingsState.load(
+      this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined)
+        .pipe(map(res => res.data))
+    )
   }
 
   getScoreDisplay (game: GameRanking): string {

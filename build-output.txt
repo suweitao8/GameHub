@@ -1,0 +1,36 @@
+﻿鉂?Building...
+node.exe : One or more browsers which are configured in the project's Browserslist configuration fall outside Angular's
+ browser support for this version.
+所在位置 C:\Users\su\AppData\Local\Temp\verify-build3.ps1:4 字符: 8
++ $out = & node $ngJs build --configuration production --localize=false ...
++        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (One or more bro...r this version.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Unsupported browsers:
+ios_saf 16.3, ios_saf 16.2, ios_saf 16.1, ios_saf 16.0, ios_saf 15.6-15.8, ios_saf 15.5, ios_saf 15.4, ios_saf 15.2-15.
+3, ios_saf 15.0-15.1
+鉁?Building...
+Application bundle generation failed. [10.694 seconds] - 2026-07-29T02:51:09.860Z
+
+[33m鈻?[43;33m[[43;30mWARNING[43;33m][0m [1mNG8113: GameEmptyStateComponent is not used within the template of Gam
+esHomeComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/+games/games-home.component.ts:23:113:
+[37m      23 鈹?...rrorRetryComponent, [32mGameEmptyStateComponent[37m, FeaturedCarouselCo...
+         鈺?                       [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of type 'Observable<{ kind: string; total: number; data
+: GameRanking[]; }>' is not assignable to parameter of type 'Observable<GameRanking[]>'.
+  Types of property 'operator' are incompatible.
+    Type 'Operator<any, { kind: string; total: number; data: GameRanking[]; }>' is not assignable to type 'Operator<any
+, GameRanking[]>'.
+      Type '{ kind: string; total: number; data: GameRanking[]; }' is missing the following properties from type 'GameR
+anking[]': length, pop, push, concat, and 29 more.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/+games/game-rankings.component.ts:372:28:
+[37m      372 鈹?...tate.load([32mthis.gamesService.getRankings(this.currentTab(), 50,[37m...
+          鈺?             [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
