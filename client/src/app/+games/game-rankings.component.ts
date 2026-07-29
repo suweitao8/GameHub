@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { Component, inject, signal, computed, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import type { GameRanking } from './games.service'
 import { GamesService } from './games.service'
+import { createAsyncState } from './shared'
 
 @Component({
   selector: 'my-game-rankings',
@@ -54,10 +55,10 @@ import { GamesService } from './games.service'
             </div>
           </a>
         } @empty {
-          @if (error()) {
+          @if (hasError()) {
             <div class="rankings-error">
               <span>加载失败</span>
-              <p>数据加载失败，请稍后重试</p>
+              <p>{{ rankingsState.error() || '数据加载失败，请稍后重试' }}</p>
               <button type="button" (click)="loadRankings()">重试</button>
             </div>
           } @else if (!loading()) {
@@ -314,11 +315,13 @@ import { GamesService } from './games.service'
 })
 export class GameRankingsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
-  rankings = signal<GameRanking[]>([])
+  rankingsState = createAsyncState<GameRanking[]>([])
+  /** 模板兼容 */
+  rankings = computed(() => this.rankingsState.data() ?? [])
+  loading = this.rankingsState.loading
+  hasError = this.rankingsState.hasError
   currentTab = signal<'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
-  loading = signal(false)
-  error = signal(false)
 
   tabs: { id: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
     { id: 'hot', label: '最热' },
@@ -355,29 +358,18 @@ export class GameRankingsComponent implements OnInit {
 
   setTab (tab: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes') {
     this.currentTab.set(tab)
-    this.rankings.set([])
+    this.rankingsState.reset()
     this.loadRankings()
   }
 
   setCategory (category: string) {
     this.selectedCategory.set(category)
-    this.rankings.set([])
+    this.rankingsState.reset()
     this.loadRankings()
   }
 
   loadRankings () {
-    this.loading.set(true)
-    this.error.set(false)
-    this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined).subscribe({
-      next: (result) => {
-        this.rankings.set(result.data)
-        this.loading.set(false)
-      },
-      error: () => {
-        this.loading.set(false)
-        this.error.set(true)
-      }
-    })
+    this.rankingsState.load(this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined))
   }
 
   getScoreDisplay (game: GameRanking): string {

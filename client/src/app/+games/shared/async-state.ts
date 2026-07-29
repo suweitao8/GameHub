@@ -1,5 +1,8 @@
-import { Injectable, signal, computed, inject } from '@angular/core'
+import { signal, computed } from '@angular/core'
 import { Observable } from 'rxjs'
+import { forkJoin } from 'rxjs'
+import { map } from 'rxjs/operators'
+import { getGameActionErrorMessage } from '../game-action-feedback'
 
 /**
  * 异步资源状态管理工具
@@ -9,26 +12,54 @@ import { Observable } from 'rxjs'
  * 用法：
  *   const state = createAsyncState<Game[]>()
  *   state.load(this.gamesService.list())
- *   // 模板：state.loading() / state.error() / state.data()
+ *   // 模板：state.loading() / state.hasError() / state.data() / state.isEmpty()
+ *
+ * 多源并发：
+ *   const state = createAsyncState<{ latest: Game[]; popular: Game[] }>()
+ *   state.loadMulti({ latest: ..., popular: ... })
+ *
+ * 分页追加：
+ *   state.loadMore(this.gamesService.list({ start: offset }))
  */
 export interface AsyncState<T> {
   /** 当前数据 */
   readonly data: ReturnType<typeof signal<T | null>>
   /** 加载中标志 */
   readonly loading: ReturnType<typeof signal<boolean>>
-  /** 错误标志（true 表示加载失败） */
-  readonly error: ReturnType<typeof signal<boolean>>
-  /** 错误消息（可选） */
-  readonly errorMessage: ReturnType<typeof signal<string>>
+  /** 错误消息（空字符串 = 无错误）；保留为可写信号便于直接设置自定义消息 */
+  readonly error: ReturnType<typeof signal<string>>
+  /** 是否处于错误态（error 非空） */
+  readonly hasError: ReturnType<typeof computed<boolean>>
   /** 是否有数据 */
   readonly hasData: ReturnType<typeof computed<boolean>>
   /** 是否为空（加载完成但无数据） */
   readonly isEmpty: ReturnType<typeof computed<boolean>>
+  /** 加载更多分页标志 */
+  readonly loadingMore: ReturnType<typeof signal<boolean>>
 
-  /** 从 Observable 加载数据，自动管理三态 */
+  /** 从单个 Observable 加载数据，自动管理三态 */
   load (source$: Observable<T>): void
+  /** 从多个 Observable 并发加载并合并为对象 data；forkJoin 语义，全部完成才写入 */
+  loadMulti<T2 extends Record<string, Observable<any>>> (sources: T2): void
+  /** 加载更多：将 Observable<T[]> 的结果拼接到现有数组 data 末尾 */
+  loadMore (source$: Observable<T extends Array<infer U> ? U[] : never>): void
   /** 重置为初始状态 */
   reset (): void
+}
+
+/** 从 Observable<T> 中解包出 T */
+type Unpacked<O> = O extends Observable<infer R> ? R : never
+
+/** 解析错误为展示消息：优先 getGameActionErrorMessage，其次 err.message，最后兜底 */
+function resolveErrorMessage (err: unknown): string {
+  const fromHelper = getGameActionErrorMessage(err)
+  if (fromHelper) return fromHelper
+  if (err && typeof err === 'object' && 'message' in err) {
+    const message = (err as { message?: unknown }).message
+    if (typeof message === 'string' && message.trim()) return message
+  }
+  if (typeof err === 'string' && err.trim()) return err
+  return '加载失败'
 }
 
 /**
@@ -40,13 +71,14 @@ export interface AsyncState<T> {
 export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
   const data = signal<T | null>(initial)
   const loading = signal(false)
-  const error = signal(false)
-  const errorMessage = signal('')
+  const error = signal('')
+  const loadingMore = signal(false)
 
+  const hasError = computed(() => error().length > 0)
   const hasData = computed(() => data() !== null)
   const isEmpty = computed(() => {
     const current = data()
-    if (loading() || error()) return false
+    if (loading() || hasError()) return false
     if (current === null) return true
     if (Array.isArray(current)) return current.length === 0
     return false
@@ -56,13 +88,13 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
     data,
     loading,
     error,
-    errorMessage,
+    hasError,
     hasData,
     isEmpty,
+    loadingMore,
     load (source$: Observable<T>) {
       loading.set(true)
-      error.set(false)
-      errorMessage.set('')
+      error.set('')
       source$.subscribe({
         next: result => {
           data.set(result)
@@ -70,16 +102,51 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
         },
         error: err => {
           loading.set(false)
-          error.set(true)
-          errorMessage.set(typeof err === 'string' ? err : (err?.message || '加载失败'))
+          error.set(resolveErrorMessage(err))
+        }
+      })
+    },
+    loadMulti<T2 extends Record<string, Observable<any>>> (sources: T2) {
+      loading.set(true)
+      error.set('')
+      const merged = forkJoin(sources).pipe(
+        map(result => result as unknown as T)
+      )
+      merged.subscribe({
+        next: result => {
+          data.set(result)
+          loading.set(false)
+        },
+        error: err => {
+          loading.set(false)
+          error.set(resolveErrorMessage(err))
+        }
+      })
+    },
+    loadMore (source$: Observable<T extends Array<infer U> ? U[] : never>) {
+      loadingMore.set(true)
+      source$.subscribe({
+        next: result => {
+          const current = data()
+          const arr = Array.isArray(current) ? (current as unknown[]) : []
+          // result 是数组；拼接后写回 data
+          const next = [...arr, ...(result as unknown[])] as unknown as T
+          data.set(next)
+          loadingMore.set(false)
+        },
+        error: err => {
+          loadingMore.set(false)
+          // 加载更多失败只回写 loadingMore，不覆盖主 data 与 error
+          // 避免已加载列表被清空；上层可据 loadingMore=false 自行提示
+          void err
         }
       })
     },
     reset () {
       data.set(initial)
       loading.set(false)
-      error.set(false)
-      errorMessage.set('')
+      error.set('')
+      loadingMore.set(false)
     }
   }
 

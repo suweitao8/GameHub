@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="game-error-state">
-      <span class="game-error-icon" aria-hidden="true">⚠</span>
+      <span class="game-error-icon" aria-hidden="true">{{ icon }}</span>
       <p class="game-error-text">{{ message }}</p>
       <button type="button" class="game-error-retry-btn" (click)="retry.emit()">
         重试
@@ -54,5 +54,6 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
 })
 export class GameErrorRetryComponent {
   @Input() message = '加载失败，请稍后重试'
+  @Input() icon = '⚠'
   @Output() retry = new EventEmitter<void>()
 }

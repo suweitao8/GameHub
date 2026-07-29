@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
+import { createAsyncState } from './shared'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { Game, GameAuthor, GamesService } from './games.service'
 import { combineLatest, Subscription } from 'rxjs'
@@ -24,9 +25,11 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router)
   private routeSubscription: Subscription | undefined
   private currentAccountId = ''
-  readonly author = signal<GameAuthor | null>(null)
-  readonly loading = signal(true)
-  readonly error = signal(false)
+  readonly authorState = createAsyncState<GameAuthor>()
+  /** 模板兼容：直接返回 data，避免大量 author() 引用改写 */
+  readonly author = computed(() => this.authorState.data())
+  readonly loading = this.authorState.loading
+  readonly hasError = this.authorState.hasError
   readonly followLoading = signal(false)
   readonly actionFeedback = signal('')
   readonly sort = signal<'latest' | 'plays' | 'favorites'>('latest')
@@ -40,6 +43,11 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
 
     return [ ...groups.entries() ].map(([ category, games ]) => ({ category, games }))
   })
+
+  constructor () {
+    // 初始即处于加载态（对齐原 signal(true)），避免首帧渲染错误占位
+    this.authorState.loading.set(true)
+  }
 
   ngOnInit () {
     this.routeSubscription = combineLatest([ this.route.paramMap, this.route.queryParamMap ]).subscribe(([ params, query ]) => {
@@ -89,7 +97,7 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
     this.followLoading.set(true)
     this.gamesService.followAuthor(current.account.id, !current.following).subscribe({
       next: result => {
-        this.author.update(value => value ? { ...value, following: result.following } : value)
+        this.authorState.data.update(value => value ? { ...value, following: result.following } : value)
         this.followLoading.set(false)
       },
       error: error => {
@@ -140,11 +148,6 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   }
 
   private loadAuthor (accountId: string) {
-    this.loading.set(true)
-    this.error.set(false)
-    this.gamesService.author(accountId, this.sort()).subscribe({
-      next: value => { this.author.set(value); this.loading.set(false) },
-      error: () => { this.error.set(true); this.loading.set(false) }
-    })
+    this.authorState.load(this.gamesService.author(accountId, this.sort()))
   }
 }

@@ -10,10 +10,10 @@
       </div>
       <div class="game-grid">@for (i of [1,2,3,4,5,6]; track $index) { <my-game-skeleton /> }</div>
     </div>
-  } @else if (error() || !author()) {
+  } @else if (hasError() || !author()) {
     <div class="game-community-content author-state">
       <h1>作者空间暂时不可用</h1>
-      <p>网络或服务短暂异常，请重试。</p>
+      <p>{{ authorState.error() || '网络或服务短暂异常，请重试。' }}</p>
       <button type="button" (click)="retryLoad()">重新加载</button>
     </div>
   } @else {
