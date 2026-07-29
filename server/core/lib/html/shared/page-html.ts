@@ -94,7 +94,9 @@ export class PageHtml {
 
   static async getIndexHTML (req: express.Request, res: express.Response, paramLang?: string) {
     const path = this.getIndexHTMLPath(req, res, paramLang)
-    if (this.htmlCache[path]) return this.htmlCache[path]
+    // The development server rebuilds client assets in place. Reusing the
+    // cached index would keep pointing the browser at an obsolete bundle.
+    if (!isTestOrDevInstance() && this.htmlCache[path]) return this.htmlCache[path]
 
     const buffer = await readFile(path)
     const serverConfig = await ServerConfigManager.Instance.getHTMLServerConfig()
@@ -107,7 +109,7 @@ export class PageHtml {
     html = this.addServerConfig(html, serverConfig)
     html = await this.addAsyncPluginCSS(html)
 
-    this.htmlCache[path] = html
+    if (!isTestOrDevInstance()) this.htmlCache[path] = html
 
     return html
   }

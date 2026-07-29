@@ -70,10 +70,21 @@ assert(
 )
 
 const pageHtml = read('server/core/lib/html/shared/page-html.ts')
+const indexHtmlStart = pageHtml.indexOf('static async getIndexHTML')
+const indexHtmlEnd = pageHtml.indexOf('static getIndexHTMLPath', indexHtmlStart)
+const indexHtmlSection = pageHtml.slice(indexHtmlStart, indexHtmlEnd)
 assert(
   pageHtml.includes("join(root(), 'client', 'dist', 'browser', fileLocale, 'index.html')") ||
     pageHtml.includes("join(root(), 'client', 'dist', 'browser', fallbackLocale, 'index.html')"),
   'page-html.ts must load index from client/dist/browser/<locale>/index.html'
+)
+assert(
+  indexHtmlSection.includes('if (!isTestOrDevInstance() && this.htmlCache[path])'),
+  'page-html.ts must not reuse stale index HTML in development'
+)
+assert(
+  indexHtmlSection.includes('if (!isTestOrDevInstance()) this.htmlCache[path] = html'),
+  'page-html.ts must only cache generated index HTML outside development'
 )
 
 // 3) High-priority feature presence (source + routes)
