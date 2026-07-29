@@ -13,6 +13,321 @@ import { GameCommentsStore } from './game-comments-store'
   selector: 'my-game-comments',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ DatePipe, GlobalIconComponent ],
+  styles: [`
+    .feedback { color: var(--game-success);
+      margin: 0.7rem 0 0; }
+
+    .empty-comments { align-items: center;
+      color: var(--game-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 2.5rem 1rem;
+      text-align: center; }
+    .empty-comments my-global-icon { color: #d0d4da;
+      height: 2.5rem;
+      width: 2.5rem; }
+    .empty-comments p { margin: 0;
+      font-size: 0.9rem; }
+    .empty-comments button { background: var(--game-brand);
+      border: 0;
+      border-radius: 999px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      transition: opacity 160ms ease; }
+    .empty-comments button:hover { opacity: 0.9; }
+
+    /* Bilibili-like comment panel */
+    .bili-comment-header {
+      align-items: baseline;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .bili-comment-header h2 {
+      color: #18191c;
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .bili-comment-count {
+      color: #9499a0;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-left: 0.35rem;
+    }
+    .bili-comment-sort {
+      align-items: center;
+      display: inline-flex;
+      gap: 0.45rem;
+    }
+    .bili-comment-sort button {
+      background: transparent;
+      border: 0;
+      color: #9499a0;
+      cursor: pointer;
+      font-size: 0.88rem;
+      padding: 0;
+    }
+    .bili-comment-sort button.active {
+      color: #18191c;
+      font-weight: 600;
+    }
+    .bili-sort-sep {
+      color: #e3e5e7;
+    }
+    .bili-comment-composer {
+      align-items: flex-start;
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+    .bili-composer-avatar,
+    .bili-comment-avatar,
+    .bili-reply-avatar {
+      background: #e5f7ff;
+      border-radius: 50%;
+      flex: 0 0 auto;
+      object-fit: cover;
+    }
+    .bili-composer-avatar {
+      height: 2.75rem;
+      width: 2.75rem;
+    }
+    .bili-comment-avatar {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
+    .bili-reply-avatar {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
+    .bili-composer-body {
+      display: grid;
+      flex: 1;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+    .bili-composer-body input {
+      background: #f1f2f3;
+      border: 0;
+      border-radius: 8px;
+      color: #18191c;
+      font-size: 0.9rem;
+      min-height: 2.75rem;
+      padding: 0.65rem 0.9rem;
+      width: 100%;
+    }
+    .bili-composer-body input:focus {
+      background: #e3e5e7;
+      outline: 0;
+    }
+    .bili-composer-actions {
+      display: flex;
+      gap: 0.65rem;
+      justify-content: flex-end;
+    }
+    .bili-cancel-reply {
+      background: transparent;
+      border: 0;
+      color: #00aeec;
+      font-size: 0.82rem;
+    }
+    .bili-send-btn {
+      background: #00aeec;
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 600;
+      min-width: 4.5rem;
+      padding: 0.4rem 0.9rem;
+    }
+    .bili-comment-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .bili-comment-item {
+      border-top: 1px solid #f1f2f3;
+      display: flex;
+      gap: 0.75rem;
+      padding: 1rem 0;
+    }
+    .bili-comment-item:first-child {
+      border-top: 0;
+      padding-top: 0.25rem;
+    }
+    .bili-comment-main,
+    .bili-reply-main {
+      flex: 1;
+      min-width: 0;
+    }
+    .bili-comment-user {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.25rem;
+    }
+    .bili-comment-user strong {
+      color: #61666d;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+    .bili-badge {
+      border-radius: 2px;
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      line-height: 1;
+      padding: 0.14rem 0.28rem;
+    }
+    .bili-badge.up {
+      background: #fb7299;
+    }
+    .bili-comment-text {
+      color: #18191c;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      margin: 0 0 0.4rem;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+    .bili-comment-meta {
+      align-items: center;
+      color: #9499a0;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      gap: 0.85rem;
+    }
+    .bili-comment-meta time {
+      color: #9499a0;
+    }
+    .bili-meta-btn {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: #9499a0;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 0.2rem;
+      padding: 0;
+    }
+    .bili-meta-btn my-global-icon {
+      height: 0.85rem;
+      width: 0.85rem;
+    }
+    .bili-meta-btn.active,
+    .bili-meta-btn:hover {
+      color: #00aeec;
+    }
+    .bili-meta-btn.danger:hover {
+      color: #f25d8e;
+    }
+    .bili-view-replies {
+      background: transparent;
+      border: 0;
+      color: #00aeec;
+      cursor: pointer;
+      font-size: 0.82rem;
+      margin-top: 0.45rem;
+      padding: 0;
+    }
+    .bili-reply-list {
+      background: #f6f7f8;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.65rem;
+      padding: 0.75rem 0.85rem;
+    }
+    .bili-reply-item {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .bili-comment-skeleton {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .bili-skeleton-avatar {
+      background: #eceff3;
+      border-radius: 50%;
+      flex: 0 0 2.5rem;
+      height: 2.5rem;
+    }
+    .bili-skeleton-body {
+      display: grid;
+      flex: 1;
+      gap: 0.45rem;
+    }
+    .bili-skeleton-line {
+      background: #eceff3;
+      border-radius: 4px;
+      height: 0.85rem;
+    }
+    .bili-skeleton-line.short {
+      width: 45%;
+    }
+
+    .comment-dialog { align-items: center;
+      background: var(--game-brand-soft);
+      border: 1px solid var(--game-border);
+      border-radius: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+      padding: 0.8rem; }
+    .comment-dialog p { flex-basis: 100%;
+      margin: 0; }
+    .comment-dialog input { border: 1px solid var(--game-border);
+      border-radius: 6px;
+      flex: 1;
+      min-width: 180px;
+      padding: 0.55rem; }
+    .comment-dialog button { border: 0;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem; }
+    .comment-dialog .danger { background: var(--game-danger);
+      color: #fff; }
+
+    /* Comments load more */
+    .comments-load-more {
+      display: flex;
+      justify-content: center;
+      padding: 0.75rem 0;
+    }
+
+    .comments-load-more button {
+      background: #fff;
+      border: 1px solid var(--game-border);
+      border-radius: 6px;
+      color: var(--game-text);
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 1.25rem;
+      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+
+    .comments-load-more button:hover:not(:disabled) {
+      background: var(--game-brand-soft);
+      border-color: var(--game-brand);
+      color: var(--game-brand-deep);
+    }
+
+    .comments-load-more button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  `],
   template: `
     <section class="game-comments bili-comment-panel" aria-labelledby="comments-title">
       <div class="bili-comment-header">

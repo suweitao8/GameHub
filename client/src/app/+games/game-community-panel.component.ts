@@ -19,6 +19,203 @@ import { getGameActionErrorMessage } from './game-action-feedback'
   selector: 'my-game-community-panel',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ RouterLink, GlobalIconComponent ],
+  styles: [`
+    /* On the game-play page the panel is transparent & full-width. */
+    .game-community-panel { background: transparent;
+      border: 0;
+      border-radius: 0;
+      padding: 0;
+      width: 100%; }
+
+    .feedback { color: var(--game-success);
+      margin: 0.7rem 0 0; }
+    .action-feedback { animation: game-action-pop 180ms ease-out; }
+
+    .interaction-row { align-items: center;
+      border-bottom: 1px solid var(--game-border);
+      gap: 1.7rem;
+      padding: 0.45rem 0 0.8rem; }
+    .interaction-row button { align-items: center;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      color: var(--game-muted);
+      display: inline-flex;
+      font-weight: 600;
+      gap: 0.35rem;
+      padding: 0.35rem 0.15rem;
+      transition: color 160ms ease; }
+    .interaction-row button:hover,
+    .interaction-row button:focus-visible,
+    .interaction-row button.active { background: transparent;
+      color: var(--game-brand); }
+    .interaction-row button:first-child { font-size: 1rem; }
+    .game-action-button { flex-direction: column;
+      gap: 0.12rem !important;
+      min-width: 3.5rem;
+      padding: 0.1rem 0 !important; }
+    .game-action-button > span {
+      font-size: 1.35rem;
+      line-height: 1;
+    }
+    .game-action-button > my-global-icon { color: inherit;
+      height: 1.35rem;
+      width: 1.35rem; }
+    .game-action-button > my-global-icon ::ng-deep svg { stroke-width: 2.1; }
+    .game-action-button strong {
+      color: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1;
+      min-height: 0.8rem;
+    }
+    .game-action-button small {
+      color: var(--game-muted);
+      font-size: 0.72rem;
+      line-height: 1;
+    }
+    .game-action-button.active > span,
+    .game-action-button.active > my-global-icon,
+    .game-action-button.active strong,
+    .game-action-button.active small { color: var(--game-brand); }
+    .coin-row button.active { background: var(--game-accent-soft);
+      border-color: rgb(251 114 153 / 48%);
+      color: var(--game-accent-deep); }
+    .coin-row { align-items: center;
+      border-top: 1px solid var(--game-border);
+      margin-top: 1rem;
+      padding-top: 1rem; }
+    .coin-row span { color: var(--game-muted);
+      font-size: 0.82rem;
+      margin-right: auto; }
+    .coin-row button:last-child { background: var(--game-brand);
+      border-color: var(--game-brand);
+      color: #fff;
+      font-weight: 700; }
+
+    /* Triple Action Button */
+    .triple-action {
+      position: relative;
+      transition: transform 0.3s ease, background-color 0.2s ease;
+    }
+
+    .triple-action:not(:disabled) {
+      animation: triplePulse 2s ease-in-out infinite;
+    }
+
+    .triple-action.animating my-global-icon {
+      animation: tripleSpin 0.6s ease-in-out;
+    }
+
+    .triple-action.applied {
+      background: linear-gradient(135deg, var(--game-brand), #f59e0b) !important;
+      border-color: var(--game-brand) !important;
+      color: #fff !important;
+    }
+
+    .triple-action.applied > span,
+    .triple-action.applied > my-global-icon { color: #fff; }
+    .triple-action.applied small { color: rgb(255 255 255 / 85%); }
+
+    @keyframes triplePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgb(0 174 236 / 30%); }
+      50% { box-shadow: 0 0 0 6px rgb(0 174 236 / 0%); }
+    }
+
+    @keyframes tripleSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.3); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes game-action-pop { from { opacity: 0;
+        transform: translateY(-3px); } to { opacity: 1;
+        transform: translateY(0); } }
+
+    .game-description-panel {
+      border-top: 1px solid var(--game-border);
+      margin-top: 1rem;
+      padding-top: 0.95rem;
+    }
+    .game-description-fallback {
+      background: #fff;
+      border-bottom: 1px solid var(--game-border);
+      border-top: 1px solid var(--game-border);
+      padding: 0.85rem 0;
+      width: 100%;
+    }
+    .description-heading {
+      align-items: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1rem;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+    }
+    .game-description-panel h2 { font-size: 1rem;
+      margin: 0; }
+    .description-rating {
+      align-items: center;
+      color: var(--game-muted);
+      display: inline-flex;
+      font-size: 0.78rem;
+      gap: 0.4rem;
+    }
+    .description-stars {
+      align-items: center;
+      color: #d0d4da;
+      display: inline-flex;
+      gap: 0.08rem;
+    }
+    .description-stars my-global-icon {
+      height: 0.9rem;
+      width: 0.9rem;
+    }
+    .description-stars my-global-icon.active {
+      color: #ffb400;
+    }
+    .description-rating strong {
+      color: #ff9500;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .game-description-panel p { color: var(--game-muted);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      margin: 0;
+      white-space: pre-wrap; }
+    .description-tags {
+      margin-top: 0.75rem;
+    }
+
+    /* Game tags */
+    .game-tags { display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem; }
+    .game-tag { background: rgb(0 174 236 / 8%);
+      border: 1px solid rgb(0 174 236 / 18%);
+      border-radius: 999px;
+      color: var(--game-brand);
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.25rem 0.7rem;
+      text-decoration: none;
+      transition: all 160ms ease;
+      white-space: nowrap; }
+    .game-tag:hover { background: var(--game-brand);
+      border-color: var(--game-brand);
+      color: #fff; }
+
+    @media (max-width: 600px) {
+      .game-action-button { min-width: 2.8rem; padding: 0.05rem 0.2rem !important; }
+      .game-action-button > my-global-icon { height: 1.1rem; width: 1.1rem; }
+      .game-action-button strong { font-size: 0.7rem; }
+      .game-action-button small { font-size: 0.65rem; }
+      .coin-row { flex-wrap: wrap; gap: 0.5rem; }
+      .coin-row span { font-size: 0.75rem; }
+    }
+  `],
   template: `
     @if (community(); as state) {
       <section class="game-community-panel" aria-label="游戏互动操作">
