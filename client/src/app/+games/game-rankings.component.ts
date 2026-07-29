@@ -39,7 +39,7 @@ import { map } from 'rxjs/operators'
               @if (game.coverPath) {
                 <img [src]="game.coverPath" [alt]="game.title" loading="lazy">
               } @else {
-                <div class="cover-placeholder">{{ game.title.charAt(0).toUpperCase() }}</div>
+                <div class="cover-placeholder">G</div>
               }
             </div>
             <div class="ranking-info">
@@ -187,7 +187,7 @@ import { map } from 'rxjs/operators'
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, var(--game-brand), #34d399);
+      background: linear-gradient(135deg, var(--game-cover-fallback-deep), var(--game-cover-fallback));
       color: #fff;
       font-size: 1.25rem;
       font-weight: 700;

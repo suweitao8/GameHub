@@ -1,7 +1,17 @@
 import { asyncMiddleware } from '@server/middlewares/async.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
-import { getGameRuntimeHeaders, getGameRuntimeMimeType, injectGameRuntimeBridge, readStoredGameCover, readStoredGameScreenshot, readStoredGameHtml, readStoredGameRuntimeFile, verifyGameRuntimeHash } from '@server/lib/games/game-runtime.js'
+import {
+  getGameRuntimeHeaders,
+  getGameRuntimeMimeType,
+  injectGameDefaultBackground,
+  injectGameRuntimeBridge,
+  readStoredGameCover,
+  readStoredGameScreenshot,
+  readStoredGameHtml,
+  readStoredGameRuntimeFile,
+  verifyGameRuntimeHash
+} from '@server/lib/games/game-runtime.js'
 import { readGameRuntimePreviewFile } from '@server/lib/games/game-runtime-preview.js'
 import { generateGameAssetETag, getGameCoverCacheHeaders, getGameRuntimeAssetCacheHeaders, verifyGameSignedUrl } from '@server/lib/games/game-cdn.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
@@ -92,7 +102,7 @@ async function sendPreviewFile (req: express.Request, res: express.Response, rel
     res.removeHeader('X-Frame-Options')
     return res
       .set({ ...getGameRuntimeHeaders(developmentOrigins), 'Content-Type': getGameRuntimeMimeType(relativePath) })
-      .send(relativePath === 'index.html' ? injectPreviewProbe(content.toString('utf8'), req.params.token) : content)
+      .send(relativePath === 'index.html' ? injectPreviewProbe(injectGameDefaultBackground(content.toString('utf8')), req.params.token) : content)
   } catch {
     return res.sendStatus(404)
   }

@@ -4,6 +4,7 @@ import { basename, extname, join, relative, resolve, sep, posix } from 'path'
 import { parse } from 'node-html-parser'
 
 export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
+export const DEFAULT_GAME_BACKGROUND_COLOR = '#8f6a52'
 
 const ALLOWED_RUNTIME_EXTENSIONS = new Set([
   '.html', '.htm', '.css', '.js', '.mjs', '.json',
@@ -243,7 +244,19 @@ export function getGameRuntimeHeaders (parentOrigin: string | string[]): Record<
   }
 }
 
+export function injectGameDefaultBackground (source: string) {
+  const hasGlobalBackground = /(?:^|[{};>\s])(?:html|body|:root)(?:\s*,\s*(?:html|body|:root))*\s*\{[^}]*background(?:-color)?\s*:/is.test(source) ||
+    /<body\b[^>]*\bstyle\s*=\s*["'][^"']*background(?:-color)?\s*:/i.test(source)
+  if (hasGlobalBackground) return source
+
+  const style = '<style data-gamehub-default-background>html,body{background-color:' + DEFAULT_GAME_BACKGROUND_COLOR + ';min-height:100%;}</style>'
+  if (/<\/head>/i.test(source)) return source.replace(/<\/head>/i, style + '</head>')
+  if (/<\/body>/i.test(source)) return source.replace(/<\/body>/i, style + '</body>')
+  return style + source
+}
+
 export function injectGameRuntimeBridge (source: string) {
+  source = injectGameDefaultBackground(source)
   const bridge = `<script>
     (() => {
       let volume = 1

@@ -5,6 +5,7 @@ import { tmpdir } from 'os'
 import { join, resolve } from 'path'
 import {
   getGameRuntimeHeaders,
+  injectGameDefaultBackground,
   injectGameRuntimeBridge,
   storeGameRuntimePackage,
   storeSingleHtmlGame,
@@ -124,5 +125,20 @@ describe('Game runtime security', function () {
     expect(bridged).to.contain('gamehub:set-volume')
     expect(bridged.indexOf('gamehub:set-volume')).to.be.lessThan(bridged.indexOf('</body>'))
     expect(bridged.match(/gamehub:set-volume/g)).to.have.length(1)
+  })
+
+  it('adds a visible fallback background when a game does not define one', function () {
+    const source = '<!doctype html><html><head></head><body>game</body></html>'
+    const withFallback = injectGameDefaultBackground(source)
+
+    expect(withFallback).to.contain('data-gamehub-default-background')
+    expect(withFallback).to.contain('#8f6a52')
+  })
+
+  it('preserves an explicit game background', function () {
+    const source = '<!doctype html><html><head><style>body { background: #fff; }</style></head><body>game</body></html>'
+    const unchanged = injectGameDefaultBackground(source)
+
+    expect(unchanged).to.equal(source)
   })
 })

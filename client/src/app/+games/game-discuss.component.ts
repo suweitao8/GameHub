@@ -13,6 +13,12 @@ import { GameCommentsStore } from './game-comments-store'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ DatePipe ],
   styles: [`
+    :host {
+      display: block;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
     /* Discussion group sidebar */
     .game-discuss-panel {
       background: #fff;
@@ -20,8 +26,9 @@ import { GameCommentsStore } from './game-comments-store'
       border-radius: var(--game-radius);
       display: flex;
       flex-direction: column;
-      max-height: 380px;
-      min-height: 260px;
+      height: 100%;
+      max-height: none;
+      min-height: 0;
       padding: 0.75rem;
     }
     .game-discuss-panel > h2 {
@@ -98,6 +105,8 @@ import { GameCommentsStore } from './game-comments-store'
     }
 
     @media (max-width: 900px) {
+      :host { flex: 0 0 auto; }
+      .game-discuss-panel { height: auto; min-height: 260px; }
       .discuss-composer { align-items: stretch; flex-direction: column; }
     }
   `],

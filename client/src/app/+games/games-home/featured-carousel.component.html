@@ -13,7 +13,7 @@
                 <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)" (load)="onFeaturedImageLoad($event, featuredGame.uuid)">
               } @else {
                 <div class="featured-cover-fallback" aria-hidden="true">
-                  <span class="featured-cover-letter">{{ featuredGame.title.charAt(0) || 'G' }}</span>
+                  <span class="featured-cover-letter">G</span>
                   <div class="featured-cover-copy">
                     <strong>{{ featuredGame.title }}</strong>
                     <small>推荐游戏</small>

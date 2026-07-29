@@ -14,7 +14,7 @@
         >
       } @else {
         <div class="cover-placeholder-content">
-          <span class="cover-letter" aria-hidden="true">{{ game.title.charAt(0) || 'G' }}</span>
+          <span class="cover-letter" aria-hidden="true">G</span>
           <div class="cover-placeholder-copy"><strong>{{ game.title }}</strong><small>{{ categoryLabel() }} · 单文件小游戏</small></div>
         </div>
       }
@@ -38,7 +38,7 @@
   </a>
 } @else {
   <div class="game-card-placeholder" aria-hidden="true">
-    <div class="game-cover" style="background:#eceff3"></div>
+    <div class="game-cover" style="background:var(--game-cover-fallback)"></div>
     <div class="game-card-body" style="padding:0.75rem">
       <div style="height:1rem;background:#e2e8f0;border-radius:4px;margin-bottom:0.5rem;width:70%"></div>
       <div style="height:0.875rem;background:#e2e8f0;border-radius:4px;width:50%"></div>

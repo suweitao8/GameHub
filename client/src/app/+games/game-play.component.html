@@ -112,7 +112,7 @@
                     @if (item.coverPath || item.coverFallback) {
                       <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy">
                     } @else {
-                      <span>{{ item.title?.[0] || 'G' }}</span>
+                      <span>G</span>
                     }
                   </div>
                   <div class="related-game-copy">

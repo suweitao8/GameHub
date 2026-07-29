@@ -127,7 +127,7 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, #00aeec 0%, #367fc4 48%, #c36f9e 100%);
+  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, #b48a68 100%);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
