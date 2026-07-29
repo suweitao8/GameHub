@@ -145,6 +145,12 @@ const featuredScss = read('client/src/app/+games/games-home/featured-carousel.co
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
 assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
+const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
+const gamePlayScss = read('client/src/app/+games/game-play.component.scss')
+assert(gamePlayHtml.includes('class="game-stage-row"'), 'game play must share a row between the game stage and discussion sidebar')
+assert(gamePlayHtml.includes('game-title-developer'), 'developer information must stay in the title row above the discussion sidebar')
+assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
+assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'

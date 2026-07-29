@@ -4,11 +4,7 @@
   padding: 1rem 0 4rem; }
 .game-play-page .game-community-content,
 .game-play-page .game-play-layout {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
-  grid-template-rows: auto;
-  align-items: start;
+  display: block;
   max-width: none;
   width: 90%;
 }
@@ -23,13 +19,26 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  height: calc(max(520px, min(70vh, 760px)) + 5.6rem);
   min-width: 0;
-  position: sticky;
-  top: 72px;
+}
+.game-stage-row {
+  align-items: start;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+}
+.stage-column {
+  min-width: 0;
 }
 .game-title-bar {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 320px);
   padding: 0.35rem 0 0.75rem;
+}
+.game-title-copy {
+  min-width: 0;
 }
 .game-title-score my-global-icon {
   color: #ffb400;
@@ -60,30 +69,37 @@
   width: 100%; }
 .game-developer-card { align-items: center;
   align-self: start;
-  background: #fff;
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   display: grid;
-  gap: 0.85rem;
-  padding: 0.75rem; }
+  gap: 0.45rem 0.65rem;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  padding: 0; }
+.game-title-developer {
+  align-self: start;
+}
 .developer-identity { align-items: center;
-  display: flex;
-  gap: 0.65rem;
+  display: contents;
   min-width: 0; }
 .developer-identity img {
   aspect-ratio: 1;
   background: var(--game-brand-soft);
-  border: 1px solid rgb(0 174 236 / 20%);
+  border: 0;
   border-radius: 50%;
   display: block;
-  flex: 0 0 2.7rem;
-  height: 2.7rem;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  height: 3rem;
   image-rendering: auto;
   object-fit: cover;
   object-position: center;
-  width: 2.7rem; }
+  width: 3rem; }
 .developer-identity div { display: grid;
   gap: 0.15rem;
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0; }
 .developer-identity a { color: var(--game-text);
   font-weight: 700;
@@ -100,10 +116,17 @@
   border-radius: 6px;
   color: #fff;
   font-weight: 700;
+  grid-column: 2;
+  grid-row: 2;
   min-height: 2rem;
-  padding: 0.35rem 0.8rem; }
+  padding: 0.35rem 0.8rem;
+  width: 100%; }
 .developer-follow-button.active { background: var(--game-brand-soft);
   color: var(--game-brand-deep); }
+.developer-owner-label {
+  grid-column: 2;
+  grid-row: 2;
+}
 .game-play-header { align-items: center;
   display: flex;
   justify-content: flex-start;
@@ -348,6 +371,7 @@
 .rating-percent { color: var(--game-text, #1f2329);
   font-weight: 600;
   text-align: right; }
+
 @media (max-width: 600px) {
   .rating-row { grid-template-columns: 2.2rem 1fr 1.75rem 2.6rem; }
 }
@@ -527,7 +551,10 @@
 }
 
 @media (max-width: 980px) {
-  .game-play-page .game-play-layout {
+  .game-stage-row {
+    grid-template-columns: 1fr;
+  }
+  .game-title-bar {
     grid-template-columns: 1fr;
   }
   .play-side {
@@ -677,8 +704,14 @@
 }
 
 @keyframes messageSlideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 .comment { border-top: 1px solid #f0f1f2;
   padding: 1rem 0; }
@@ -777,6 +810,7 @@
   font-size: 0.75rem;
   gap: 0.3rem; }
 .related-game-meta .dot { color: var(--game-border, #d0d4da); }
+
 @media (max-width: 600px) {
   .related-game-grid { grid-template-columns: 1fr; }
 }
@@ -786,9 +820,11 @@
   gap: 0.8rem;
   grid-template-columns: repeat(3, 1fr);
   margin-top: 0.65rem; }
+
 @media (max-width: 900px) {
   .author-games-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
 @media (max-width: 600px) {
   .author-games-grid { grid-template-columns: 1fr; }
 }
@@ -807,19 +843,38 @@
   font-weight: 700;
   padding: 0.65rem 1rem; }
 .game-play-state a { color: var(--game-brand); }
+
 @media (max-width: 1050px) {
   .game-play-page .game-community-content,
   .game-play-page .game-play-layout { width: 94%; }
 }
 
 @media (max-width: 900px) {
-  .game-details { align-items: flex-start; flex-direction: column; }
-  .game-details-tools { align-items: stretch; width: 100%; }
-  .game-stage { height: max(420px, 62vh); min-height: 420px; }
-  .game-stage iframe { height: 100%; min-height: 0; }
-  .game-stats { flex-direction: row; text-align: left; }
+  .game-details {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .game-details-tools {
+    align-items: stretch;
+    width: 100%;
+  }
+  .game-stage {
+    height: max(420px, 62vh);
+    min-height: 420px;
+  }
+  .game-stage iframe {
+    height: 100%;
+    min-height: 0;
+  }
+  .game-stats {
+    flex-direction: row;
+    text-align: left;
+  }
   .review-form,
-  .chat-composer { align-items: stretch; flex-direction: column; }
+  .chat-composer {
+    align-items: stretch;
+    flex-direction: column;
+  }
   .game-play-page .game-play-layout {
     display: flex;
     flex-direction: column;
@@ -827,9 +882,8 @@
   }
   .play-side {
     height: auto;
-    order: 2;
+    width: 100%;
   }
-  .play-main { order: 1; }
 }
 
 /* Skeleton loading styles */
@@ -951,11 +1005,24 @@
     gap: 0.25rem 0.6rem;
   }
   .game-title-meta > span { font-size: 0.72rem; }
-  .game-developer-card { padding: 0.6rem; }
-  .developer-identity img { height: 2.2rem; width: 2.2rem; }
-  .review-score-picker button { padding: 0.1rem; }
-  .review-score-picker my-global-icon { height: 1.1rem; width: 1.1rem; }
-  .chat-composer { flex-direction: column; gap: 0.4rem; }
+  .game-developer-card {
+    padding: 0.6rem;
+  }
+  .developer-identity img {
+    height: 2.2rem;
+    width: 2.2rem;
+  }
+  .review-score-picker button {
+    padding: 0.1rem;
+  }
+  .review-score-picker my-global-icon {
+    height: 1.1rem;
+    width: 1.1rem;
+  }
+  .chat-composer {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
   .chat-composer input { width: 100%; }
   .chat-composer button { width: 100%; }
   .keyboard-shortcuts-hint { display: none; }
