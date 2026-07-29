@@ -50,10 +50,10 @@
         <section class="game-developer-card game-title-developer" aria-label="开发者信息">
           @if (community()?.author; as author) {
             <div class="developer-identity">
-              <img [src]="getDeveloperAvatar(author.displayName || author.handle)" alt="">
+              <img [src]="getDeveloperAvatar(author.displayName || game()!.title)" alt="">
               <div>
                 <a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a>
-                <span>&#64;{{ author.handle }}</span>
+                <span class="developer-title">{{ game()!.title }}</span>
               </div>
             </div>
             @if (!community()!.isOwner) {

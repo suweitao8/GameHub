@@ -149,6 +149,8 @@ const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
 const gamePlayScss = read('client/src/app/+games/game-play.component.scss')
 assert(gamePlayHtml.includes('class="game-stage-row"'), 'game play must share a row between the game stage and discussion sidebar')
 assert(gamePlayHtml.includes('game-title-developer'), 'developer information must stay in the title row above the discussion sidebar')
+assert(gamePlayHtml.includes('class="developer-title"'), 'developer card must show the game title below the developer name')
+assert(!gamePlayHtml.includes('author.handle'), 'developer card must not render the account handle')
 assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
 assert(
