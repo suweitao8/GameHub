@@ -13,14 +13,6 @@
   overflow: hidden;
   cursor: pointer;
   text-decoration: none;
-  will-change: transform;
-  transition: transform 180ms ease, box-shadow 180ms ease;
-}
-
-.game-card:hover {
-  outline: none;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgb(25 30 40 / 10%);
 }
 
 .game-cover {
@@ -33,12 +25,7 @@
 .game-cover img {
   height: 100%;
   object-fit: cover;
-  transition: transform 180ms ease;
   width: 100%;
-}
-
-.game-card:hover .game-cover img {
-  transform: scale(1.035);
 }
 
 .game-cover.placeholder {
@@ -205,12 +192,7 @@
   font-size: 0.75rem;
   gap: 0.28rem;
   line-height: 1;
-  transition: transform 200ms ease, font-size 200ms ease;
   white-space: nowrap;
-}
-
-.game-card:hover .game-card-stat {
-  transform: scale(1.08);
 }
 
 .game-card-stat my-global-icon {

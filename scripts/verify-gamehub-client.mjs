@@ -142,6 +142,9 @@ assert(
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+const gameCardScss = read('client/src/app/+games/game-card.component.scss')
+assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
+assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'
