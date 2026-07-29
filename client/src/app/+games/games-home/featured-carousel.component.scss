@@ -178,7 +178,7 @@
   width: 100%;
 }
 
-/* Bottom 1/6 of cover: pure avg-color fade (same idea as .game-card-meta) */
+/* Bottom 1/6 of cover: charcoal fade (same idea as .game-card-meta) */
 .featured-cover-fade {
   bottom: 0;
   height: 16.666%;
@@ -234,9 +234,9 @@
   font-size: 0.85rem;
 }
 
-/* Pure solid avg-color footer: title row + switch controls stacked (no overlay) */
+/* Charcoal footer: title row + switch controls stacked below the cover. */
 .featured-footer {
-  background-color: #ff9214;
+  background-color: #1e1e1e;
   color: #fff;
   display: flex;
   flex: 0 0 auto;

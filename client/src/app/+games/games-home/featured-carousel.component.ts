@@ -95,10 +95,9 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return `rgb(${this.fallbackAvgRgb(game.uuid)})`
   }
 
-  /** Bottom 1/6 of cover: same pure color with opacity fade (like game-card meta). */
-  featuredCoverFade (game: Game) {
-    const rgb = this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)
-    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 72%) 100%)`
+  /** Bottom 1/6 of cover: the same charcoal fade used by game-card metadata. */
+  featuredCoverFade (_game: Game) {
+    return 'linear-gradient(180deg, rgb(30 30 30 / 0%) 0%, rgb(30 30 30 / 72%) 100%)'
   }
 
   private fallbackAvgRgb (uuid: string) {
