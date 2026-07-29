@@ -1,5 +1,6 @@
 import { createReqFiles } from '@server/helpers/express-utils.js'
 import { generateGameCoverSignedUrl, generateGameRuntimeSignedUrl } from '@server/lib/games/game-cdn.js'
+import { GameRuntimeValidationError } from '@server/lib/games/game-runtime.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameNotificationModel } from '@server/models/game/game-notification.js'
 import type { MGame } from '@server/types/models/game/game.js'
@@ -104,4 +105,19 @@ export function formatGameNotification (notification: GameNotificationModel) {
         }
       : null
   }
+}
+
+export function getGameRuntimeErrorMessage (error: GameRuntimeValidationError) {
+  const messages: Record<string, string> = {
+    'Only a single HTML file is supported': '请上传单个 .html 或 .htm 文件，大小不能超过 20MB。',
+    'Game file cannot be empty': '游戏文件不能为空。',
+    'Game file is too large': 'HTML 文件不能超过 20MB。',
+    'External resources are not supported': '游戏只能使用包内资源，不能引用外部网络资源。',
+    'Game resource path is missing or unsafe': '游戏引用了不存在或不安全的资源路径。',
+    'Network and top-level navigation APIs are not supported': '游戏不能联网或跳转到顶层页面。',
+    'Navigation and forms are not supported': '游戏不能包含页面跳转或表单提交。',
+    'Game file contains an invalid character': '游戏文件包含无效字符。',
+  }
+
+  return messages[error.message] || '游戏文件未通过安全检查，请检查文件格式和资源引用。'
 }
