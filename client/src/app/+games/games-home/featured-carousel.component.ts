@@ -97,7 +97,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
   /** Bottom 1/6 of cover: fade into the cover average color at full opacity. */
   featuredCoverFade (game: Game) {
-    const rgb = this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)
+    const rgb = (this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)).replace(/,\s*/g, ' ')
     return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 100%) 100%)`
   }
 
