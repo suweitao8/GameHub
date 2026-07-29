@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { afterNextRender, ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin, of } from 'rxjs'
@@ -11,12 +11,13 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 import { HttpClient } from '@angular/common/http'
 import { GameRecommendService } from './game-recommend.service'
 import { environment } from '../../environments/environment'
+import { GameErrorRetryComponent, GameEmptyStateComponent } from './shared'
 
 @Component({
   templateUrl: './games-home.component.html',
   styleUrl: './games-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, GameSkeletonComponent, GlobalIconComponent, RouterLink ]
+  imports: [ GameCardComponent, GameSkeletonComponent, GlobalIconComponent, RouterLink, GameErrorRetryComponent, GameEmptyStateComponent ]
 })
 export class GamesHomeComponent implements OnDestroy, OnInit {
   private readonly gamesService = inject(GamesService)
@@ -31,7 +32,9 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly recent = signal<Game[]>([])
   readonly recommended = signal<Game[]>([])
   readonly loading = signal(true)
-  readonly error = signal(false)
+  /** 错误消息（空字符串 = 无错误），与 createAsyncState 规范一致 */
+  readonly error = signal('')
+  readonly hasError = computed(() => this.error().length > 0)
   readonly search = signal('')
   readonly view = signal('')
   readonly searchMode = signal(false)
@@ -129,7 +132,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     }
 
     this.loading.set(true)
-    this.error.set(false)
+    this.error.set('')
     const common: GamesListParams = {
       search: this.search() || undefined,
       category: this.category() || undefined,
@@ -150,7 +153,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.loading.set(false)
         },
         error: () => {
-          this.error.set(true)
+          this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
       })
@@ -169,7 +172,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.loading.set(false)
         },
         error: () => {
-          this.error.set(true)
+          this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
       })
@@ -188,7 +191,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.loading.set(false)
         },
         error: () => {
-          this.error.set(true)
+          this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
       })
@@ -207,7 +210,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
           this.loading.set(false)
         },
         error: () => {
-          this.error.set(true)
+          this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
       })
@@ -242,7 +245,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
         setTimeout(() => this.scheduleFeaturedCarouselSync(), 480)
       },
       error: () => {
-        this.error.set(true)
+        this.error.set('加载失败，请稍后重试')
         this.loading.set(false)
       }
     })
