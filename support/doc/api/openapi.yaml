@@ -9106,6 +9106,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GameList'
+    post:
+      tags:
+        - Games
+      summary: Upload a game
+      description: Uploads a new HTML game package with metadata. Requires authentication.
+      operationId: createGame
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, category, gamefile]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                instructions:
+                  type: string
+                category:
+                  type: string
+                tags:
+                  type: string
+                  description: Comma-separated list of tags
+                gamefile:
+                  description: The HTML game package to upload.
+                  type: string
+                  format: binary
+            encoding:
+              gamefile:
+                contentType: text/html
+      responses:
+        '201':
+          description: game created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '401':
+          description: authentication required
+        '422':
+          description: validation error
+        '413':
+          description: game file too large
 
   /api/v1/games/{uuid}:
     get:
@@ -9123,6 +9170,72 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Game'
+    put:
+      tags:
+        - Games
+      summary: Update a game
+      description: Updates the metadata and/or game package of an existing game. Requires authentication and ownership.
+      operationId: updateGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                instructions:
+                  type: string
+                category:
+                  type: string
+                tags:
+                  type: string
+                  description: Comma-separated list of tags
+                gamefile:
+                  description: Optional replacement HTML game package.
+                  type: string
+                  format: binary
+            encoding:
+              gamefile:
+                contentType: text/html
+      responses:
+        '200':
+          description: game updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '401':
+          description: authentication required
+        '403':
+          description: not allowed to manage this game
+        '404':
+          description: game not found
+    delete:
+      tags:
+        - Games
+      summary: Delete a game
+      description: Deletes a game and its associated assets. Requires authentication and ownership.
+      operationId: deleteGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '204':
+          description: game deleted
+        '401':
+          description: authentication required
+        '403':
+          description: not allowed to manage this game
+        '404':
+          description: game not found
 
   /api/v1/games/{uuid}/community:
     get:
@@ -9157,6 +9270,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GameCommentList'
+    post:
+      tags:
+        - Games
+      summary: Post a comment
+      description: Posts a new top-level comment on a game.
+      operationId: addGameComment
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+      responses:
+        '201':
+          description: comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameComment'
 
   /api/v1/games/{uuid}/reviews:
     get:
@@ -9548,6 +9688,1132 @@ paths:
       responses:
         '204':
           description: successfully left
+
+  /api/v1/games/tags:
+    get:
+      tags:
+        - Games
+      summary: List aggregated tags
+      description: Returns aggregated tag counts used for discovery and filtering.
+      operationId: listGameTags
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    count:
+                      type: integer
+
+  /api/v1/games/categories:
+    get:
+      tags:
+        - Games
+      summary: List aggregated categories
+      description: Returns aggregated category counts used for discovery and filtering.
+      operationId: listGameCategories
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    count:
+                      type: integer
+
+  /api/v1/games/collections:
+    get:
+      tags:
+        - Games
+      summary: List game collections
+      description: Returns a paginated list of curated game collections.
+      operationId: listGameCollections
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        title:
+                          type: string
+                        description:
+                          type: string
+
+  /api/v1/games/collections/{slug}:
+    get:
+      tags:
+        - Games
+      summary: Get a game collection
+      description: Returns the details of a single game collection, including its games.
+      operationId: getGameCollection
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slug:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+        '404':
+          description: collection not found
+
+  /api/v1/games/admin:
+    get:
+      tags:
+        - Games
+      summary: List games for moderators
+      description: Returns a paginated list of games across all states for moderator review.
+      operationId: listGamesForModerators
+      security:
+        - OAuth2:
+          - admin
+          - moderator
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+        - name: state
+          in: query
+          schema:
+            type: string
+            enum: [pending, published, rejected, unlisted, blocked]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+
+  /api/v1/games/preview:
+    post:
+      tags:
+        - Games
+      summary: Preview a game upload
+      description: Validates and stores an uploaded HTML game package temporarily, returning a preview token. Requires authentication.
+      operationId: previewGame
+      security:
+        - OAuth2: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                gamefile:
+                  description: The HTML game package to preview.
+                  type: string
+                  format: binary
+            encoding:
+              gamefile:
+                contentType: text/html
+      responses:
+        '201':
+          description: preview created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  runtimeUrl:
+                    type: string
+                    format: uri
+        '422':
+          description: game file failed validation
+
+  /api/v1/games/s/{token}:
+    get:
+      tags:
+        - Games
+      summary: Resolve a share link
+      description: Resolves a share token to the target game and optional context (collection, event, etc.).
+      operationId: resolveGameShare
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  game:
+                    $ref: '#/components/schemas/Game'
+                  context:
+                    type: object
+        '404':
+          description: share token not found or expired
+
+  /api/v1/games/author/{accountId}:
+    get:
+      tags:
+        - Games
+      summary: Get an author profile
+      description: Returns the public profile and published game list for a game author.
+      operationId: getGameAuthor
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account:
+                    type: object
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+        '404':
+          description: author not found
+
+  /api/v1/games/me/favorites:
+    get:
+      tags:
+        - Games
+      summary: List my favorite games
+      description: Returns the games favorited by the authenticated user.
+      operationId: listMyFavoriteGames
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameList'
+
+  /api/v1/games/me/recent:
+    get:
+      tags:
+        - Games
+      summary: List my recently played games
+      description: Returns the games recently played by the authenticated user.
+      operationId: listMyRecentGames
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameList'
+
+  /api/v1/games/me/recommendations:
+    get:
+      tags:
+        - Games
+      summary: List recommended games
+      description: Returns personalized game recommendations for the authenticated user.
+      operationId: listMyRecommendedGames
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameList'
+
+  /api/v1/games/me/owned:
+    get:
+      tags:
+        - Games
+      summary: List my owned games
+      description: Returns the games uploaded by the authenticated user (any state).
+      operationId: listMyOwnedGames
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+
+  /api/v1/games/me/overview:
+    get:
+      tags:
+        - Games
+      summary: Get creator overview
+      description: Returns aggregate statistics for the authenticated user as a game creator.
+      operationId: getMyCreatorOverview
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalGames:
+                    type: integer
+                  totalPlays:
+                    type: integer
+                  totalLikes:
+                    type: integer
+                  totalCoins:
+                    type: integer
+                  totalFollowers:
+                    type: integer
+
+  /api/v1/games/me/analytics:
+    get:
+      tags:
+        - Games
+      summary: Get creator analytics
+      description: Returns time-series analytics for the authenticated user's games.
+      operationId: getMyCreatorAnalytics
+      security:
+        - OAuth2: []
+      parameters:
+        - name: range
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d, 1y]
+            default: 30d
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  plays:
+                    type: array
+                    items:
+                      type: object
+                  likes:
+                    type: array
+                    items:
+                      type: object
+                  coins:
+                    type: array
+                    items:
+                      type: object
+
+  /api/v1/games/me/notifications:
+    get:
+      tags:
+        - Games
+      summary: List my notifications
+      description: Returns game-related notifications for the authenticated user.
+      operationId: listMyGameNotifications
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  unread:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        type:
+                          type: string
+                        content:
+                          type: string
+                        read:
+                          type: boolean
+                        createdAt:
+                          type: string
+                          format: date-time
+
+  /api/v1/games/me/notifications/{notificationId}/read:
+    put:
+      tags:
+        - Games
+      summary: Mark a notification as read
+      description: Marks a single game notification as read for the authenticated user.
+      operationId: markMyGameNotificationRead
+      security:
+        - OAuth2: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: successfully marked as read
+        '404':
+          description: notification not found
+
+  /api/v1/games/me/notifications/read-all:
+    post:
+      tags:
+        - Games
+      summary: Mark all notifications as read
+      description: Marks every unread game notification as read for the authenticated user.
+      operationId: markAllMyGameNotificationsRead
+      security:
+        - OAuth2: []
+      responses:
+        '204':
+          description: successfully marked all as read
+
+  /api/v1/games/me/notifications/{notificationId}:
+    delete:
+      tags:
+        - Games
+      summary: Delete a notification
+      description: Deletes a single game notification for the authenticated user.
+      operationId: deleteMyGameNotification
+      security:
+        - OAuth2: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: successfully deleted
+        '404':
+          description: notification not found
+
+  /api/v1/games/me/level:
+    get:
+      tags:
+        - Games
+      summary: Get my user level
+      description: Returns the level, experience and progression state for the authenticated user.
+      operationId: getMyUserLevel
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  level:
+                    type: integer
+                  exp:
+                    type: integer
+                  nextLevelExp:
+                    type: integer
+                  streak:
+                    type: integer
+
+  /api/v1/games/me/level/daily-login:
+    post:
+      tags:
+        - Games
+      summary: Claim daily login reward
+      description: Claims the daily login experience reward for the authenticated user, if eligible today.
+      operationId: claimDailyLogin
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: reward claimed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  awardedExp:
+                    type: integer
+                  streak:
+                    type: integer
+        '409':
+          description: already claimed today
+
+  /api/v1/games/me/following:
+    get:
+      tags:
+        - Games
+      summary: List my followed authors
+      description: Returns the authors followed by the authenticated user.
+      operationId: listMyFollowing
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+  /api/v1/games/me/reservations:
+    get:
+      tags:
+        - Games
+      summary: List my reservations
+      description: Returns the games reserved by the authenticated user.
+      operationId: listMyReservations
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameReservation'
+
+  /api/v1/games/author/{accountId}/follow:
+    put:
+      tags:
+        - Games
+      summary: Follow or unfollow an account
+      description: Toggles the authenticated user's follow relationship with an account.
+      operationId: followAccount
+      security:
+        - OAuth2: []
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  following:
+                    type: boolean
+
+  /api/v1/games/{uuid}/play:
+    post:
+      tags:
+        - Games
+      summary: Record a play
+      description: Records a play event for a game. Authentication is optional and enriches the recorded stats.
+      operationId: recordGamePlay
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: play recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recorded:
+                    type: boolean
+        '404':
+          description: game not found
+
+  /api/v1/games/{uuid}/seo:
+    get:
+      tags:
+        - Games
+      summary: Get SEO metadata
+      description: Returns metadata optimized for crawlers and social sharing for a game.
+      operationId: getGameSEO
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  image:
+                    type: string
+                    format: uri
+                  url:
+                    type: string
+                    format: uri
+        '404':
+          description: game not found
+
+  /api/v1/games/{uuid}/download:
+    get:
+      tags:
+        - Games
+      summary: Download a game
+      description: Streams the HTML game package for download. May require authentication depending on the game.
+      operationId: downloadGame
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: game package
+          content:
+            text/html:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: game not found
+
+  /api/v1/games/{uuid}/share:
+    post:
+      tags:
+        - Games
+      summary: Create a share link
+      description: Creates (or returns an existing) share token for a game, optionally with context.
+      operationId: shareGame
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  type: object
+      responses:
+        '200':
+          description: share link created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+        '404':
+          description: game not found
+
+  /api/v1/games/{uuid}/comments/featured:
+    get:
+      tags:
+        - Games
+      summary: List featured comments
+      description: Returns the featured/pinned comments for a game.
+      operationId: listFeaturedGameComments
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCommentList'
+
+  /api/v1/games/{uuid}/comments/{commentId}/replies:
+    get:
+      tags:
+        - Games
+      summary: List comment replies
+      description: Returns the replies to a specific comment on a game.
+      operationId: listGameCommentReplies
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameCommentList'
+        '404':
+          description: comment not found
+
+  /api/v1/games/{uuid}/comments/{commentId}:
+    delete:
+      tags:
+        - Games
+      summary: Delete a comment
+      description: Deletes a comment authored by the authenticated user (or by a moderator).
+      operationId: deleteGameComment
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: comment deleted
+        '401':
+          description: authentication required
+        '403':
+          description: not allowed to delete this comment
+        '404':
+          description: comment not found
+
+  /api/v1/games/{uuid}/comments/{commentId}/like:
+    put:
+      tags:
+        - Games
+      summary: Like or unlike a comment
+      description: Toggles the authenticated user's like on a comment.
+      operationId: likeGameComment
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liked:
+                    type: boolean
+                  likes:
+                    type: integer
+
+  /api/v1/games/{uuid}/comments/{commentId}/reply:
+    post:
+      tags:
+        - Games
+      summary: Reply to a comment
+      description: Posts a reply to an existing comment on a game.
+      operationId: replyToGameComment
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+      responses:
+        '201':
+          description: reply created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameComment'
+        '404':
+          description: parent comment not found
+
+  /api/v1/games/{uuid}/rate:
+    put:
+      tags:
+        - Games
+      summary: Like or unlike a game
+      description: Toggles the authenticated user's like on a game.
+      operationId: rateGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liked:
+                    type: boolean
+                  likes:
+                    type: integer
+
+  /api/v1/games/{uuid}/favorite:
+    put:
+      tags:
+        - Games
+      summary: Favorite or unfavorite a game
+      description: Toggles the authenticated user's favorite on a game.
+      operationId: favoriteGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  favorited:
+                    type: boolean
+                  favorites:
+                    type: integer
+
+  /api/v1/games/{uuid}/follow:
+    put:
+      tags:
+        - Games
+      summary: Follow or unfollow the game author
+      description: Toggles the authenticated user's follow relationship with the author of a game.
+      operationId: followGameAuthor
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  following:
+                    type: boolean
+
+  /api/v1/games/{uuid}/coin:
+    post:
+      tags:
+        - Games
+      summary: Coin a game
+      description: Spends a coin (token) from the authenticated user to support a game.
+      operationId: coinGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: integer
+                  minimum: 1
+                  maximum: 2
+      responses:
+        '200':
+          description: coin awarded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  awarded:
+                    type: integer
+                  total:
+                    type: integer
+        '403':
+          description: not enough coins
+
+  /api/v1/games/{uuid}/triple:
+    post:
+      tags:
+        - Games
+      summary: Triple-action a game
+      description: Performs the combined like + coin + favorite (triple) action on a game.
+      operationId: tripleGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: triple action applied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liked:
+                    type: boolean
+                  favorited:
+                    type: boolean
+                  coins:
+                    type: integer
+
+  /api/v1/games/{uuid}/review:
+    put:
+      tags:
+        - Games
+      summary: Upsert a review
+      description: Creates or updates the authenticated user's review and star rating for a game.
+      operationId: upsertGameReview
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                title:
+                  type: string
+                text:
+                  type: string
+      responses:
+        '200':
+          description: review saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameReview'
+
+  /api/v1/games/{uuid}/moderate:
+    post:
+      tags:
+        - Games
+      summary: Moderate a game
+      description: Applies a moderation action (approve, reject, unlist or block) to a game. Requires moderator privileges.
+      operationId: moderateGame
+      security:
+        - OAuth2:
+          - admin
+          - moderator
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action:
+                  type: string
+                  enum: [approve, reject, unlist, block]
+                reason:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '200':
+          description: moderation applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '403':
+          description: not allowed to moderate
+
+  /api/v1/games/{uuid}/featured:
+    put:
+      tags:
+        - Games
+      summary: Set featured state
+      description: Promotes or demotes a game in the featured listing. Requires moderator privileges.
+      operationId: setGameFeatured
+      security:
+        - OAuth2:
+          - admin
+          - moderator
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [featured]
+              properties:
+                featured:
+                  type: boolean
+      responses:
+        '200':
+          description: featured state updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '403':
+          description: not allowed to feature games
+
+  /api/v1/games/{uuid}/report:
+    post:
+      tags:
+        - Games
+      summary: Report a game
+      description: Submits a user report against a game for moderator review. Requires authentication.
+      operationId: reportGame
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                  maxLength: 2000
+      responses:
+        '201':
+          description: report submitted
+        '404':
+          description: game not found
 
 servers:
   - url: 'https://peertube2.cpy.re'
