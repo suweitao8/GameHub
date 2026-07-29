@@ -151,8 +151,8 @@ assert(
   'featured carousel footer must bind the calculated five-segment average-color gradient'
 )
 assert(
-  featuredScss.includes('background-color: #9a8274'),
-  'featured carousel footer must use a visible taupe fallback instead of black'
+  featuredScss.includes('background-color: #8f6a51'),
+  'featured carousel footer must use the calculated brown placeholder fallback instead of black'
 )
 assert(
   !featuredScss.includes('background-color: #1e1e1e'),
