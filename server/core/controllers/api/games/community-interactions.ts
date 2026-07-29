@@ -26,8 +26,6 @@ communityInteractionsRouter.put('/author/:accountId/follow', authenticate, async
 communityInteractionsRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, gameCoinRateLimiter, asyncMiddleware(coinGame))
 communityInteractionsRouter.post('/:uuid/triple', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(tripleAction))
 
-export { communityInteractionsRouter, userRating, getCoinState }
-
 async function rateGame (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
@@ -346,3 +344,5 @@ async function tripleAction (req: express.Request, res: express.Response) {
   invalidateRecommendationCache(user.Account.id).catch(() => undefined)
   return res.json(results)
 }
+
+export { communityInteractionsRouter, userRating, getCoinState }

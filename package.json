@@ -76,6 +76,7 @@
     "resolve-tspaths:server": "npm run resolve-tspaths -- --project server/tsconfig.json --src server --out dist",
     "resolve-tspaths:tests": "npm run resolve-tspaths -- --project packages/tests/tsconfig.json --src packages/tests/src --out packages/tests/dist",
     "resolve-tspaths": "resolve-tspaths",
+    "self-test:gamehub": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/self-test-gamehub.ps1",
     "simulate-many-viewers": "tsx --conditions=peertube:tsx ./scripts/simulate-many-viewers.ts",
     "start:server": "node dist/server --no-client",
     "start": "node dist/server",

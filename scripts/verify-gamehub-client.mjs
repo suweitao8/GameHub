@@ -8,7 +8,7 @@
  *
  * Exit 0 on success; non-zero with printed failures otherwise.
  */
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -30,27 +30,49 @@ function assert (cond, msg) {
   if (!cond) failures.push(msg)
 }
 
-// 1) Banner absolute path in homepage template
+function collectFiles (dir, suffix) {
+  if (!existsSync(dir)) return []
+
+  const result = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const absolutePath = join(dir, entry.name)
+    if (entry.isDirectory()) result.push(...collectFiles(absolutePath, suffix))
+    else if (entry.isFile() && entry.name.endsWith(suffix)) result.push(absolutePath)
+  }
+  return result
+}
+
+function assertBundleContract (body, label) {
+  // The old compiled implementation lacked this normalization and emitted
+  // invalid comma RGB slash-alpha CSS. Require the fix wherever the carousel
+  // method is present instead of matching its valid template literal.
+  if (body.includes('featuredCoverFade')) {
+    assert(
+      body.includes('replace(/,\\s*/g'),
+      `${label} contains the old invalid comma RGB slash-alpha gradient implementation`
+    )
+  }
+}
+
+// 1) GameHub home and banner asset contracts
 const homeHtml = read('client/src/app/+games/games-home.component.html')
+const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')
 assert(
-  homeHtml.includes('src="/client/assets/images/gamehub-header-banner-10x1.png"'),
-  'games-home banner must use absolute /client/assets/... path'
-)
-assert(
-  !/src=["']assets\/images\/gamehub-header-banner/.test(homeHtml),
-  'games-home banner must not use relative assets/... path'
+  existsSync(bannerAssetPath),
+  'GameHub header banner source asset must exist'
 )
 
 // 2) Server dist layout contracts
 const clientCtrl = read('server/core/controllers/client.ts')
 assert(
-  /const distPath = join\(root\(\),\s*'client',\s*'dist',\s*'browser'\)/.test(clientCtrl),
+  clientCtrl.includes("const distPath = join(root(), 'client', 'dist', 'browser')"),
   'client.ts must serve static files from client/dist/browser'
 )
 
 const pageHtml = read('server/core/lib/html/shared/page-html.ts')
 assert(
-  /join\(root\(\),\s*'client',\s*'dist',\s*'browser',\s*buildFileLocale\(lang\),\s*'index\.html'\)/.test(pageHtml),
+  pageHtml.includes("join(root(), 'client', 'dist', 'browser', fileLocale, 'index.html')") ||
+    pageHtml.includes("join(root(), 'client', 'dist', 'browser', fallbackLocale, 'index.html')"),
   'page-html.ts must load index from client/dist/browser/<locale>/index.html'
 )
 
@@ -76,7 +98,7 @@ assert(rankings.includes("'updated'") || rankings.includes('"updated"'), 'rankin
 assert(rankings.includes('最近更新'), 'rankings must label 最近更新')
 
 const playHtml = read('client/src/app/+games/game-play.component.html')
-assert(playHtml.includes('game-tags') || playHtml.includes('game-tag'), 'game-play must render tag cloud')
+assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-play must render the HTML game stage')
 assert(
   playHtml.includes('watchLater') || playHtml.includes('toggleWatchLater') || playHtml.includes('稍后再玩'),
   'game-play must expose watch-later control'
@@ -86,8 +108,24 @@ const authorHtml = read('client/src/app/+games/game-author.component.html')
 assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')
 
 const homeTs = read('client/src/app/+games/games-home.component.ts')
-assert(homeTs.includes('GameRecommendService') && homeTs.includes('personalized'), 'games-home must wire GameRecommendService personalization')
-assert(homeHtml.includes('猜你喜欢'), 'games-home must render 猜你喜欢 section title')
+assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
+assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')
+assert(homeHtml.includes('我玩过的') && homeHtml.includes('最新发布') && homeHtml.includes('热门游戏'), 'games-home must render the required feed sections')
+
+const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
+assert(
+  featuredTs.includes(".replace(/,\\s*/g, ' ')") || featuredTs.includes('.replace(/,\\s*/g, " ")'),
+  'featured carousel must normalize comma RGB values before slash-alpha gradients'
+)
+const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
+assert(
+  featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
+  'featured carousel must bind the average-color fade to the cover'
+)
+assert(
+  featuredHtml.includes('[style.background-color]="featuredAvgColor(featuredGame)"'),
+  'featured carousel footer must bind the calculated average color'
+)
 
 // 4) Light-build scripts must force PeerTube base href (not "/")
 const lightPs1 = read('scripts/build/client-light.ps1')
@@ -155,6 +193,16 @@ if (existsSync(join(root, 'client/dist/browser'))) {
       'dist browser assets should include gamehub header banner'
     )
   }
+
+  const builtJs = collectFiles(join(root, 'client/dist/browser'), '.js')
+  const builtBodies = builtJs.map(file => readFileSync(file, 'utf8'))
+  for (const [index, body] of builtBodies.entries()) {
+    assertBundleContract(body, `built bundle ${builtJs[index]}`)
+  }
+  assert(
+    builtBodies.some(body => body.includes('replace(/,\\s*/g')),
+    'built bundles must contain the RGB normalization used by the carousel fade'
+  )
 }
 
 // 6) Optional live HTTP: entry scripts must be application/javascript (not SPA HTML fallback)
@@ -180,7 +228,12 @@ if (verifyBase) {
     const liveScripts = [ ...liveHtml.matchAll(/<script[^>]+src=["']([^"']+)["']/gi) ].map(m => m[1])
     assert(liveScripts.length > 0, 'served /games HTML must include script tags')
 
-    for (const src of liveScripts) {
+    const pendingScripts = [ ...liveScripts ]
+    const visitedScripts = new Set()
+    let liveBundleHasRgbNormalization = false
+
+    while (pendingScripts.length) {
+      const src = pendingScripts.shift()
       let absUrl
       if (/^https?:\/\//i.test(src)) {
         absUrl = src
@@ -191,6 +244,9 @@ if (verifyBase) {
         absUrl = new URL(src, `${base}${b}`).href
       }
 
+      if (visitedScripts.has(absUrl)) continue
+      visitedScripts.add(absUrl)
+
       const res = await fetch(absUrl, { method: 'GET' })
       const ct = (res.headers.get('content-type') || '').toLowerCase()
       assert(res.status === 200, `SPA script ${absUrl} must return 200, got ${res.status}`)
@@ -199,13 +255,22 @@ if (verifyBase) {
         `SPA script ${absUrl} must be JS Content-Type, got ${ct || '(missing)'}`
       )
       // Extra guard: body must not look like the HTML shell
-      const bodyStart = (await res.text()).slice(0, 64).toLowerCase()
+      const body = await res.text()
+      const bodyStart = body.slice(0, 64).toLowerCase()
       assert(
         !bodyStart.includes('<!doctype html') && !bodyStart.includes('<html'),
         `SPA script ${absUrl} body must not be HTML fallback`
       )
+      assertBundleContract(body, `live bundle ${absUrl}`)
+      if (body.includes('replace(/,\\s*/g')) liveBundleHasRgbNormalization = true
+
+      for (const match of body.matchAll(/(?:from|import\()\s*["'](\.\/[^"']+\.js)["']/g)) {
+        pendingScripts.push(new URL(match[1], absUrl).href)
+      }
       console.log(`live script OK ${absUrl} CT=${ct}`)
     }
+
+    assert(liveBundleHasRgbNormalization, 'live bundles must include the RGB normalization used by the carousel fade')
 
     // Banner still required on live path
     const bannerUrl = `${base}/client/assets/images/gamehub-header-banner-10x1.png`
@@ -223,7 +288,7 @@ if (failures.length) {
 }
 
 console.log('verify-gamehub-client OK')
-console.log(' - banner absolute path')
+console.log(' - GameHub source asset contracts')
 console.log(' - server dist/browser contracts')
 console.log(' - high-priority feature sources/routes')
 console.log(' - light build forces /client/en-US/ base href')

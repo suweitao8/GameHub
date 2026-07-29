@@ -8,7 +8,7 @@ import {
   setAccessTokensToServers
 } from '@peertube/peertube-server-commands'
 import { expect } from 'chai'
-import { readFileSync } from 'fs'
+import { writeFileSync } from 'fs'
 import { join } from 'path'
 
 describe('Test games API', function () {
@@ -21,7 +21,7 @@ describe('Test games API', function () {
 
   async function uploadGame (server: PeerTubeServer, token: string, title: string) {
     const filePath = join(server.storePath, 'test-game.html')
-    require('fs').writeFileSync(filePath, sampleHtml)
+    writeFileSync(filePath, sampleHtml)
 
     const body = new FormData()
     body.append('gamefile', new Blob([ sampleHtml ]), 'test-game.html')
@@ -77,7 +77,7 @@ describe('Test games API', function () {
       const res = await uploadGame(server, userAccessToken, 'Test Game')
 
       expect(res.status).to.equal(HttpStatusCode.CREATED_201)
-      const game = await res.json() as any
+      const game = await res.json()
       expect(game.uuid).to.be.a('string')
       expect(game.title).to.equal('Test Game')
       expect(game.status).to.be.oneOf([ 'pending', 'published' ])
@@ -94,7 +94,7 @@ describe('Test games API', function () {
     it('should list games', async function () {
       const res = await fetch(`${server.url}/api/v1/games`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.total).to.be.a('number')
       expect(result.data).to.be.an('array')
     })
@@ -104,7 +104,7 @@ describe('Test games API', function () {
 
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const game = await res.json() as any
+      const game = await res.json()
       expect(game.uuid).to.equal(publishedGameUuid)
       expect(game.title).to.equal('Test Game')
       expect(game.runtimeUrl).to.be.a('string')
@@ -118,17 +118,13 @@ describe('Test games API', function () {
     it('should record a play', async function () {
       if (!publishedGameUuid) this.skip()
 
-      const initialRes = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}`)
-      const initialGame = await initialRes.json() as any
-      const initialPlays = initialGame.playCount
-
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/play`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${userAccessToken}` }
       })
 
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.runtimeUrl).to.be.a('string')
     })
 
@@ -150,7 +146,7 @@ describe('Test games API', function () {
 
       // Update may reset to pending for non-moderators
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const game = await res.json() as any
+      const game = await res.json()
       expect(game.title).to.equal('Updated Title')
     })
   })
@@ -165,7 +161,7 @@ describe('Test games API', function () {
 
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/community`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const community = await res.json() as any
+      const community = await res.json()
       expect(community.likes).to.be.a('number')
       expect(community.favorite).to.be.a('boolean')
       expect(community.following).to.be.a('boolean')
@@ -200,7 +196,7 @@ describe('Test games API', function () {
       })
 
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.favorite).to.equal(true)
     })
 
@@ -209,7 +205,7 @@ describe('Test games API', function () {
 
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/comments`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.total).to.be.a('number')
       expect(result.data).to.be.an('array')
     })
@@ -227,7 +223,7 @@ describe('Test games API', function () {
       })
 
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.comment).to.be.an('object')
       expect(result.comment.text).to.equal('Great game!')
     })
@@ -237,7 +233,7 @@ describe('Test games API', function () {
 
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/rating-distribution`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.total).to.be.a('number')
       expect(result.distribution).to.be.an('array')
     })
@@ -251,7 +247,7 @@ describe('Test games API', function () {
     it('should get rankings', async function () {
       const res = await fetch(`${server.url}/api/v1/games/rankings?kind=hot&count=10`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.kind).to.equal('hot')
       expect(result.data).to.be.an('array')
     })
@@ -273,7 +269,7 @@ describe('Test games API', function () {
     it('should list featured games', async function () {
       const res = await fetch(`${server.url}/api/v1/games/featured`)
       expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json() as any
+      const result = await res.json()
       expect(result.data).to.be.an('array')
     })
   })

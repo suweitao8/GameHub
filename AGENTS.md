@@ -442,6 +442,9 @@ pnpm install --frozen-lockfile
 
 ### 提交前验证
 
+- 交付前必须运行 `pnpm run self-test:gamehub`。该门禁会构建 server/client、运行完整 server/schema lint、检查本次变更的 client 文件、检查 GameHub 源码与全部构建 bundle，并验证 `http://127.0.0.1:9000/api/v1/ping`、SPA 入口和懒加载脚本；只有全部通过才允许向用户交付。
+- `-SkipBuild`、`-SkipLint`、`-SkipLive` 只允许用于定位失败原因，不能作为最终交付结果；跳过的步骤必须在交付前补跑。
+- 需要审计整个 client 时运行 `pnpm run self-test:gamehub -- -FullLint`；默认门禁不因历史遗留的 client lint 基线阻塞无关交付，但本次变更涉及的 client 文件必须通过 lint。
 - 所有后端或共享代码改动：`pnpm run build:server`。
 - 需要完整仓库质量检查时：`pnpm run lint`。
 - API 改动：`pnpm run swagger-cli -- validate support/doc/api/openapi.yaml`。
