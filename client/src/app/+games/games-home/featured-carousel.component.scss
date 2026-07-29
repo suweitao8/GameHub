@@ -95,8 +95,8 @@
 }
 
 .featured-carousel {
-  /* Fill the two desktop grid rows; the side card grid defines their height. */
-  align-self: stretch;
+  /* Stop at the second-row cover; the card metadata below it stays outside. */
+  align-self: start;
   background: transparent;
   border-radius: var(--game-radius);
   display: flex;
@@ -239,11 +239,11 @@
   background-color: #ff9214;
   color: #fff;
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-end;
   margin: 0;
-  min-height: 4.7rem;
+  min-height: 4.55rem;
   width: 100%;
   z-index: 2;
 }
@@ -271,7 +271,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 0.2rem 0.75rem 0.45rem;
+  padding: 0.2rem 0.75rem 0.3rem;
   position: relative;
 }
 
