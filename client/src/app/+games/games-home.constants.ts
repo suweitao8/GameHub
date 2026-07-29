@@ -1,6 +1,6 @@
 import { GamesListParams } from './games-api'
 
-export const SORT_KINDS: ReadonlyArray<{ id: GamesListParams['sort']; label: string }> = [
+export const SORT_KINDS: readonly { id: GamesListParams['sort']; label: string }[] = [
   { id: 'recommended', label: '综合' },
   { id: 'latest', label: '最新' },
   { id: 'popular', label: '最热' },
@@ -9,12 +9,12 @@ export const SORT_KINDS: ReadonlyArray<{ id: GamesListParams['sort']; label: str
   { id: 'favorites', label: '收藏' }
 ]
 
-export const HOME_CATEGORIES: ReadonlyArray<{
+export const HOME_CATEGORIES: readonly {
   id: string
   title: string
   description: string
   query: { category: string }
-}> = [
+}[] = [
   { id: 'arcade', title: '动作', description: '快速反应，马上开始一局。', query: { category: 'arcade' } },
   { id: 'adventure', title: '冒险', description: '探索地图，发现隐藏的故事。', query: { category: 'adventure' } },
   { id: 'shooter', title: '射击', description: '瞄准目标，挑战你的反应速度。', query: { category: 'shooter' } },
@@ -31,11 +31,5 @@ export const HOME_CATEGORIES: ReadonlyArray<{
   { id: 'board', title: '桌游', description: '熟悉的规则，适合短时游玩。', query: { category: 'board' } }
 ]
 
-/** Seeded fallback palette for featured covers whose average color is unknown. */
-export const FEATURED_FALLBACK_COLORS = [
-  '0, 174, 236',
-  '108, 99, 255',
-  '0, 192, 145',
-  '251, 114, 153',
-  '255, 159, 67'
-]
+/** Average color of the CSS placeholder cover used when a game has no image. */
+export const FEATURED_PLACEHOLDER_AVG_RGB = '154, 130, 116'

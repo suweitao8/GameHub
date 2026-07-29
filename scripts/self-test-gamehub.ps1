@@ -106,11 +106,13 @@ function Invoke-RepositoryLint {
   Push-Location client
   try {
     if ($changedClientTs.Count -gt 0) {
-      pnpm exec eslint -- $changedClientTs
+      $eslintArgs = @('--') + $changedClientTs
+      pnpm exec eslint @eslintArgs
       if ($LASTEXITCODE -ne 0) { return }
     }
     if ($changedClientScss.Count -gt 0) {
-      pnpm exec stylelint -- $changedClientScss
+      $stylelintArgs = @('--') + $changedClientScss
+      pnpm exec stylelint @stylelintArgs
     }
   } finally { Pop-Location }
 }

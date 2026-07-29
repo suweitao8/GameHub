@@ -128,6 +128,18 @@ assert(
   featuredTs.includes(".replace(/,\\s*/g, ' ')") || featuredTs.includes('.replace(/,\\s*/g, " ")'),
   'featured carousel must normalize comma RGB values before slash-alpha gradients'
 )
+assert(
+  featuredTs.includes('sampleHeight = Math.max(1, Math.round(canvas.height * 0.1))'),
+  'featured carousel must sample the bottom tenth of a cover instead of the whole image'
+)
+assert(
+  featuredTs.includes('const segmentCount = 5'),
+  'featured carousel must calculate five horizontal bottom-cover color segments'
+)
+assert(
+  featuredTs.includes('FEATURED_PLACEHOLDER_AVG_RGB'),
+  'featured carousel must use the visible brown placeholder average as its no-cover fallback'
+)
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 assert(
@@ -135,8 +147,8 @@ assert(
   'featured carousel must bind the average-color fade to the cover'
 )
 assert(
-  featuredHtml.includes('[style.background-color]="featuredAvgColor(featuredGame)"'),
-  'featured carousel footer must bind the calculated average color'
+  featuredHtml.includes('[style.background]="featuredAvgColor(featuredGame)"'),
+  'featured carousel footer must bind the calculated five-segment average-color gradient'
 )
 assert(
   featuredScss.includes('background-color: #9a8274'),

@@ -11,13 +11,13 @@ import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
-import { FEATURED_FALLBACK_COLORS } from '../games-home.constants'
+import { FEATURED_PLACEHOLDER_AVG_RGB } from '../games-home.constants'
 
 /**
  * Big featured carousel + side card grid on the games home page.
  *
  * Self-manages: carousel index, touch swipe, auto-rotation, and per-cover
- * average color canvas sampling with a seeded fallback palette. Driven entirely
+ * average color canvas sampling with a visible placeholder fallback. Driven entirely
  * by the `games` input (the recommended list from the parent); the first 6
  * entries drive the carousel.
  */
@@ -35,15 +35,14 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Cover average RGB string "r, g, b" for the solid footer and matching fade. */
-  readonly featuredAvgColors = signal<Record<string, string>>({})
-  /** Cover URLs that failed to load → show colorful placeholder. */
+  /** Five bottom-cover segment RGB strings for the footer and matching fade. */
+  readonly featuredAvgColors = signal<Record<string, string[]>>({})
+  /** Cover URLs that failed to load -> show the same brown placeholder as no-cover games. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private touchStartX = 0
   private touchStartY = 0
   private readonly swipeThreshold = 50
-  private readonly fallbackColors = FEATURED_FALLBACK_COLORS
 
   constructor () {
     this.startCarousel()
@@ -88,22 +87,41 @@ export class FeaturedCarouselComponent implements OnDestroy {
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
-  /** Solid average color of the full cover (fallback seeded palette). */
+  /** Five-segment average-color gradient from the bottom tenth of the cover. */
   featuredAvgColor (game: Game) {
-    const stored = this.featuredAvgColors()[game.uuid]
-    if (stored) return `rgb(${stored})`
-    return `rgb(${this.fallbackAvgRgb(game.uuid)})`
+    return `linear-gradient(90deg, ${this.gradientStops(this.featuredColors(game))})`
   }
 
-  /** Bottom 1/6 of cover: fade into the cover average color at full opacity. */
+  /** Fade the bottom of the cover into the average of its five sampled segments. */
   featuredCoverFade (game: Game) {
-    const rgb = (this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)).replace(/,\s*/g, ' ')
+    const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
     return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 100%) 100%)`
   }
 
-  private fallbackAvgRgb (uuid: string) {
-    const seed = Array.from(uuid || 'G').reduce((total, character) => total + character.charCodeAt(0), 0)
-    return this.fallbackColors[seed % this.fallbackColors.length]
+  private featuredColors (game: Game) {
+    return this.featuredAvgColors()[game.uuid] || Array.from({ length: 5 }, () => FEATURED_PLACEHOLDER_AVG_RGB)
+  }
+
+  private gradientStops (colors: string[]) {
+    return colors
+      .map((color, index) => {
+        const start = index * 20
+        const end = (index + 1) * 20
+        return `rgb(${color}) ${start}%, rgb(${color}) ${end}%`
+      })
+      .join(', ')
+  }
+
+  private averageRgb (colors: string[]) {
+    const totals = colors.reduce((result, color) => {
+      const [ red, green, blue ] = color.split(',').map(value => Number(value.trim()))
+      result[0] += red
+      result[1] += green
+      result[2] += blue
+      return result
+    }, [ 0, 0, 0 ])
+
+    return totals.map(value => Math.round(value / colors.length)).join(', ')
   }
 
   onFeaturedImageLoad (event: Event, uuid: string) {
@@ -114,7 +132,9 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
     try {
       const canvas = document.createElement('canvas')
-      // Downsample whole cover for average color
+      // Read only the bottom tenth of a small downsampled cover. The footer is
+      // split into five horizontal segments so its color follows the visible
+      // lower edge instead of an unrelated seeded color.
       canvas.width = 32
       canvas.height = 32
       const context = canvas.getContext('2d', { willReadFrequently: true })
@@ -122,24 +142,37 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
       context.drawImage(image, 0, 0, canvas.width, canvas.height)
       const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
-      let red = 0
-      let green = 0
-      let blue = 0
-      let count = 0
+      const sampleHeight = Math.max(1, Math.round(canvas.height * 0.1))
+      const segmentCount = 5
+      const segmentWidth = canvas.width / segmentCount
+      const colors: string[] = []
 
-      for (let index = 0; index < pixels.length; index += 4) {
-        if (pixels[index + 3] < 128) continue
-        red += pixels[index]
-        green += pixels[index + 1]
-        blue += pixels[index + 2]
-        count++
+      for (let segment = 0; segment < segmentCount; segment++) {
+        const startX = Math.floor(segment * segmentWidth)
+        const endX = Math.max(startX + 1, Math.floor((segment + 1) * segmentWidth))
+        let red = 0
+        let green = 0
+        let blue = 0
+        let count = 0
+
+        for (let y = canvas.height - sampleHeight; y < canvas.height; y++) {
+          for (let x = startX; x < endX; x++) {
+            const index = (y * canvas.width + x) * 4
+            if (pixels[index + 3] < 128) continue
+            red += pixels[index]
+            green += pixels[index + 1]
+            blue += pixels[index + 2]
+            count++
+          }
+        }
+
+        if (!count) return
+        colors.push(`${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)}`)
       }
 
-      if (!count) return
-      const avg = `${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)}`
-      this.featuredAvgColors.update(map => ({ ...map, [uuid]: avg }))
+      this.featuredAvgColors.update(map => ({ ...map, [uuid]: colors }))
     } catch {
-      // Cross-origin cover images may not be readable by canvas; use the fallback palette.
+      // Cross-origin cover images may not be readable by canvas; keep the brown placeholder fallback.
     }
   }
 
