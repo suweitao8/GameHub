@@ -187,7 +187,7 @@ import { map } from 'rxjs/operators'
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, var(--game-cover-fallback-deep), var(--game-cover-fallback));
+      background: linear-gradient(135deg, #6e4d3b, #8f6a52);
       color: #fff;
       font-size: 1.25rem;
       font-weight: 700;

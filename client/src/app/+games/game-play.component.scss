@@ -129,14 +129,14 @@
   border-color: var(--game-brand);
   color: #fff;
   font-weight: 700; }
-.game-stage { background: var(--game-cover-fallback-deep);
+.game-stage { background: #6e4d3b;
   border-radius: var(--game-radius);
   height: max(520px, min(70vh, 760px));
   min-height: min(70vh, 760px);
   overflow: hidden;
   position: relative; }
 .game-play-page .game-stage { width: 100%; }
-.game-stage iframe { background: var(--game-cover-fallback);
+.game-stage iframe { background: #8f6a52;
   border: 0;
   display: block;
   height: 100%;
@@ -488,7 +488,7 @@
 }
 .related-game-thumb {
   aspect-ratio: 16 / 10;
-  background: var(--game-cover-fallback);
+  background: #8f6a52;
   border-radius: 6px;
   flex: 0 0 5.5rem;
   overflow: hidden;

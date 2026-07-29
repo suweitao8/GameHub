@@ -25,7 +25,7 @@
 
 .game-cover {
   aspect-ratio: 16 / 9;
-  background: var(--game-cover-fallback);
+  background: #8f6a52;
   overflow: hidden;
   position: relative;
 }
@@ -42,7 +42,7 @@
 }
 
 .game-cover.placeholder {
-  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, #b48a68 100%);
+  background: linear-gradient(135deg, #6e4d3b 0%, #8f6a52 52%, #b48a68 100%);
   display: flex;
   justify-content: center;
   isolation: isolate;
