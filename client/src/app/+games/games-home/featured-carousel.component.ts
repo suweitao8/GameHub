@@ -35,7 +35,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Cover average RGB string "r, g, b" for solid caption + fade. */
+  /** Cover average RGB string "r, g, b" for the solid footer and matching fade. */
   readonly featuredAvgColors = signal<Record<string, string>>({})
   /** Cover URLs that failed to load → show colorful placeholder. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
@@ -95,9 +95,10 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return `rgb(${this.fallbackAvgRgb(game.uuid)})`
   }
 
-  /** Bottom 1/6 of cover: the same charcoal fade used by game-card metadata. */
-  featuredCoverFade (_game: Game) {
-    return 'linear-gradient(180deg, rgb(30 30 30 / 0%) 0%, rgb(30 30 30 / 72%) 100%)'
+  /** Bottom 1/6 of cover: fade into the cover average color at full opacity. */
+  featuredCoverFade (game: Game) {
+    const rgb = this.featuredAvgColors()[game.uuid] || this.fallbackAvgRgb(game.uuid)
+    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 100%) 100%)`
   }
 
   private fallbackAvgRgb (uuid: string) {

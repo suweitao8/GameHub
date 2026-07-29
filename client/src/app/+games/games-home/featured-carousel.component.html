@@ -20,12 +20,12 @@
                   </div>
                 </div>
               }
-              <!-- Cover bottom 1/6: avg-color opacity fade (same idea as .game-card-meta) -->
+              <!-- Cover bottom 1/6: average-color fade that joins the footer without a transparent seam -->
               <div class="featured-cover-fade" aria-hidden="true" [style.background]="featuredCoverFade(featuredGame)"></div>
             </div>
           </a>
           <!-- Charcoal footer: title above, switch controls below — never overlap -->
-          <div class="featured-footer">
+          <div class="featured-footer" [style.background-color]="featuredAvgColor(featuredGame)">
             <a class="featured-caption" [routerLink]="['/games', featuredGame.uuid]">
               <h3>{{ featuredGame.title }}</h3>
             </a>
