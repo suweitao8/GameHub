@@ -118,6 +118,7 @@ assert(
   'featured carousel must normalize comma RGB values before slash-alpha gradients'
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
+const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'
@@ -125,6 +126,14 @@ assert(
 assert(
   featuredHtml.includes('[style.background-color]="featuredAvgColor(featuredGame)"'),
   'featured carousel footer must bind the calculated average color'
+)
+assert(
+  featuredScss.includes('background-color: #9a8274'),
+  'featured carousel footer must use a visible taupe fallback instead of black'
+)
+assert(
+  !featuredScss.includes('background-color: #1e1e1e'),
+  'featured carousel footer must not use the dark global text color as its fallback'
 )
 
 // 4) Light-build scripts must force PeerTube base href (not "/")
