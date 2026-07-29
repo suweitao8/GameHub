@@ -4,7 +4,6 @@
       @if (carouselGame(); as featuredGame) {
         <article
           class="featured-carousel"
-          [style.height.px]="featuredCarouselHeight() || null"
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >

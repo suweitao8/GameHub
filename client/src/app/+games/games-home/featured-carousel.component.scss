@@ -87,6 +87,7 @@
 
 .featured-discovery-grid {
   --featured-gap: 1rem;
+
   display: grid;
   gap: var(--featured-gap);
   grid-auto-rows: minmax(0, auto);
@@ -94,14 +95,15 @@
 }
 
 .featured-carousel {
-  /* Height is measured in TS: full first side-card + gap + second-row cover. */
-  align-self: start;
+  /* Fill the two desktop grid rows; the side card grid defines their height. */
+  align-self: stretch;
   background: transparent;
   border-radius: var(--game-radius);
   display: flex;
   flex-direction: column;
   grid-column: span 2;
   grid-row: span 2;
+  height: auto;
   min-height: 12rem;
   min-width: 0;
   overflow: hidden;
@@ -117,16 +119,17 @@
 .featured-carousel-link {
   color: inherit;
   display: flex;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   min-height: 0;
   text-decoration: none;
 }
 
 .featured-cover {
+  aspect-ratio: 16 / 9;
   background: linear-gradient(135deg, #00aeec 0%, #367fc4 48%, #c36f9e 100%);
-  flex: 1 1 auto;
-  height: 100%;
+  flex: 0 0 auto;
+  height: auto;
   min-height: 0;
   overflow: hidden;
   position: relative;
@@ -236,9 +239,11 @@
   background-color: #ff9214;
   color: #fff;
   display: flex;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   flex-direction: column;
+  justify-content: flex-end;
   margin: 0;
+  min-height: 4.7rem;
   width: 100%;
   z-index: 2;
 }
