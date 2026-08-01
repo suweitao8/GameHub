@@ -10363,26 +10363,6 @@ paths:
         '404':
           description: game not found
 
-  /api/v1/games/{uuid}/download:
-    get:
-      tags:
-        - Games
-      summary: Download a game
-      description: Streams the HTML game package for download. May require authentication depending on the game.
-      operationId: downloadGame
-      parameters:
-        - $ref: '#/components/parameters/idOrUUID'
-      responses:
-        '200':
-          description: game package
-          content:
-            text/html:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: game not found
-
   /api/v1/games/{uuid}/share:
     post:
       tags:

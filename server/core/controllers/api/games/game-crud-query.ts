@@ -3,7 +3,6 @@ import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { invalidateRecommendationCache } from '@server/lib/games/game-recommendations.js'
 import { awardExp } from '@server/lib/games/game-exp.js'
 import { generateGameCoverSignedUrl, generateGameRuntimeSignedUrl } from '@server/lib/games/game-cdn.js'
-import { readStoredGameHtml } from '@server/lib/games/game-runtime.js'
 import { canManageGame, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
@@ -24,7 +23,6 @@ const queryRouter = express.Router()
 
 queryRouter.get('/', paginationValidator, setDefaultPagination, gameListValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_LIST), asyncMiddleware(listGames))
 queryRouter.get('/admin', authenticate, asyncMiddleware(listGamesForModerators))
-queryRouter.get('/:uuid/download', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(downloadGame))
 queryRouter.get('/:uuid', gameUUIDValidator, optionalAuthenticate, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_DETAIL), asyncMiddleware(getGame))
 queryRouter.get('/:uuid/seo', gameUUIDValidator, cacheRoute(ROUTE_CACHE_LIFETIME.GAMES_DETAIL), asyncMiddleware(getGameSEO))
 queryRouter.post('/:uuid/play', gameUUIDValidator, gamePlayRateLimiter, optionalAuthenticate, asyncMiddleware(recordPlay))
@@ -100,22 +98,6 @@ async function getGame (req: express.Request, res: express.Response) {
 
     return res.json(formatGame(game))
   })
-}
-
-async function downloadGame (req: express.Request, res: express.Response) {
-  const game = await GameModel.loadByUUID(req.params.uuid)
-  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-
-  const user = getUser(res)
-  const visible = game.status === 'published' || (user && (canManageGame(game, user) || isGameModerator(user)))
-  if (!visible) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-
-  const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)
-  res.status(HttpStatusCode.OK_200)
-    .setHeader('Content-Type', 'text/html; charset=utf-8')
-    .setHeader('Content-Disposition', `attachment; filename="gamehub-${game.uuid}.html"`)
-    .setHeader('Cache-Control', 'private, no-store')
-    .send(content)
 }
 
 async function recordPlay (req: express.Request, res: express.Response) {

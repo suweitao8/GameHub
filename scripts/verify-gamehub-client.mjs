@@ -128,6 +128,13 @@ assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-pl
 assert(playHtml.includes('developer-profile'), 'game-play developer card must group identity text and follow action for vertical centering')
 assert(playHtml.includes('onRelatedCoverError'), 'game-play related covers must fall back when an image request fails')
 const gameOverviewCtrl = read('server/core/controllers/api/games/community-overview.ts')
+const gameCrudQueryTs = read('server/core/controllers/api/games/game-crud-query.ts')
+const openapi = read('support/doc/api/openapi.yaml')
+assert(
+  !gameCrudQueryTs.includes("/:uuid/download") && !gameCrudQueryTs.includes('downloadGame') &&
+    !openapi.includes('/api/v1/games/{uuid}/download'),
+  'GameHub must not expose a game download API route or OpenAPI contract'
+)
 assert(
   gameOverviewCtrl.includes('coverFallback: null'),
   'related games must not advertise a cover fallback URL when the game has no cover'
