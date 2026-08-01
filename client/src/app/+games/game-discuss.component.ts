@@ -102,8 +102,8 @@ import { GameDiscussStore } from './game-discuss-store'
       white-space: pre-wrap;
     }
     .wechat-message.own .wechat-bubble {
-      background: var(--game-success);
-      border-color: var(--game-success);
+      background: #95ec69;
+      border-color: #95ec69;
       border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
       color: #303133;
     }
