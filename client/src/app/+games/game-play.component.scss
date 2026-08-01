@@ -1259,7 +1259,7 @@
   --game-stage-height: clamp(360px, 44vw, 680px);
 
   box-sizing: border-box;
-  padding: 24px 0 64px;
+  padding: 16px 0 56px;
 }
 
 .game-play-page *,
@@ -1275,13 +1275,13 @@
 .game-play-page .game-title-bar {
   gap: var(--game-detail-gap);
   grid-template-columns: minmax(0, 4fr) minmax(240px, 1fr);
-  padding: 0 0 var(--game-detail-gap);
+  padding: 0 0 8px;
 }
 
 .game-play-page .game-title-copy {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .game-play-page .game-title-bar h1 {
@@ -1290,7 +1290,7 @@
 }
 
 .game-play-page .game-title-meta {
-  gap: 8px 16px;
+  gap: 4px 12px;
   min-height: 20px;
 }
 
@@ -1312,7 +1312,7 @@
 
 .game-play-page .game-title-developer {
   align-items: start;
-  gap: 6px 12px;
+  gap: 4px 10px;
   grid-template-columns: 48px minmax(0, 1fr);
   grid-template-rows: auto auto;
 }
@@ -1338,10 +1338,26 @@
 }
 
 .game-play-page .developer-follow-button {
+  background: #fff;
+  border: 1px solid var(--game-brand);
   border-radius: 4px;
+  color: var(--game-brand);
+  font-size: 0.78rem;
   line-height: 20px;
-  min-height: 32px;
-  padding: 6px 12px;
+  min-height: 28px;
+  padding: 3px 10px;
+  width: max-content;
+  min-width: 80px;
+}
+
+.game-play-page .developer-follow-button:hover,
+.game-play-page .developer-follow-button:focus-visible {
+  background: var(--game-brand-soft);
+}
+
+.game-play-page .developer-follow-button.active {
+  background: var(--game-brand-soft);
+  color: var(--game-brand-deep);
 }
 
 .game-play-page .game-stage-row {

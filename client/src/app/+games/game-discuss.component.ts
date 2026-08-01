@@ -39,18 +39,19 @@ import { GameDiscussStore } from './game-discuss-store'
       background: #fff;
       border-bottom: 1px solid #e3e5e7;
       display: flex;
-      justify-content: space-between;
-      min-height: 48px;
+      height: 36px;
+      justify-content: flex-start;
+      min-height: 36px;
       padding: 0 12px;
     }
     .discuss-header h2 {
       color: #1e1e1e;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      line-height: 20px;
       margin: 0;
     }
     .discuss-member-count {
-      color: #9499a0;
-      font-size: 0.72rem;
+      display: none;
     }
     .wechat-message-list {
       display: flex;
@@ -168,7 +169,6 @@ import { GameDiscussStore } from './game-discuss-store'
     <section class="game-discuss-panel" aria-labelledby="discuss-title">
       <header class="discuss-header">
         <h2 id="discuss-title">讨论群</h2>
-        <span class="discuss-member-count">实时交流</span>
       </header>
       <div class="wechat-message-list">
         @if (store.loading()) {

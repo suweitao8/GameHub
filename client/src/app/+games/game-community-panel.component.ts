@@ -32,8 +32,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 
     .interaction-row { align-items: center;
       border-bottom: 1px solid var(--game-border);
-      gap: 1.5rem;
-      padding: 0.7rem 0 0.85rem; }
+      gap: 1.25rem;
+      padding: 0.55rem 0 0.65rem; }
     .interaction-row button { align-items: center;
       background: transparent;
       border: 0;
@@ -42,6 +42,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       display: inline-flex;
       font-weight: 600;
       gap: 0.35rem;
+      line-height: 20px;
       padding: 0.35rem 0.15rem;
       transition: color 160ms ease; }
     .interaction-row button:hover,
@@ -49,21 +50,34 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .interaction-row button.active { background: transparent;
       color: var(--game-brand); }
     .interaction-row button:first-child { font-size: 1rem; }
-    .game-action-button { flex-direction: row;
-      gap: 0.4rem !important;
-      min-height: 2rem;
+    .game-action-button { align-items: center;
+      flex-direction: row;
+      gap: 0.35rem !important;
+      height: 28px;
+      justify-content: center;
+      line-height: 20px;
+      min-height: 28px;
       min-width: 3rem;
       padding: 0.1rem 0 !important; }
     .game-action-button > my-global-icon { color: inherit;
+      align-items: center;
+      display: inline-flex;
+      flex: 0 0 1.45rem;
       height: 1.45rem;
+      justify-content: center;
+      line-height: 0;
       width: 1.45rem; }
     .game-action-button > my-global-icon ::ng-deep svg { stroke-width: 2.1; }
     .game-action-button strong {
       color: inherit;
+      align-items: center;
       font-size: 0.82rem;
       font-weight: 600;
-      line-height: 1.2;
+      display: inline-flex;
+      height: 1.45rem;
+      line-height: 1;
       min-height: 0.8rem;
+      white-space: nowrap;
     }
     .game-action-button small {
       color: var(--game-muted);

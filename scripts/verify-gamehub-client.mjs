@@ -188,6 +188,7 @@ const discussTs = read('client/src/app/+games/game-discuss.component.ts')
 const discussStoreTs = read('client/src/app/+games/game-discuss-store.ts')
 const gameCommunityServiceTs = read('client/src/app/+games/services/game-community.service.ts')
 const communityPanelTs = read('client/src/app/+games/game-community-panel.component.ts')
+const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 assert(existsSync(join(root, 'server/core/models/game/game-chat-message.ts')), 'discussion chat must have an independent server model')
 assert(existsSync(join(root, 'server/core/controllers/api/games/community-chat.ts')), 'discussion chat must have an independent API controller')
@@ -215,6 +216,10 @@ assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a sta
 assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must use border-box sizing for aligned dimensions')
 assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
 assert(!communityPanelTs.includes('<small>点赞</small>') && !communityPanelTs.includes('<small>投币</small>'), 'game actions must not add a second text row under each icon')
+assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1.45rem'), 'game action icons and numbers must share a centered baseline')
+assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
+assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
+assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #6b6f75'), 'game colors must use softened charcoal primary and gray secondary text')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'
