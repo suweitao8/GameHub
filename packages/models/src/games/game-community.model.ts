@@ -13,6 +13,8 @@ export interface GameCommunity {
   favorite: boolean
   following: boolean
   coins: number
+  favorites: number
+  shares: number
   coinBalance: number
   coinsGiven: number
   author: GameAuthorSummary | null

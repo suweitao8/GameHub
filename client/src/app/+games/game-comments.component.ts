@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angular/core'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { GameCommentsStore } from './game-comments-store'
 
@@ -13,7 +13,7 @@ import { GameCommentsStore } from './game-comments-store'
   selector: 'my-game-comments',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ DatePipe, GlobalIconComponent ],
-  styles: [`
+  styles: [ `
     .feedback { color: var(--game-success);
       margin: 0.7rem 0 0; }
 
@@ -127,9 +127,85 @@ import { GameCommentsStore } from './game-comments-store'
       outline: 0;
     }
     .bili-composer-actions {
+      align-items: center;
       display: flex;
       gap: 0.65rem;
       justify-content: flex-end;
+    }
+    .bili-composer-tools {
+      align-items: center;
+      display: inline-flex;
+      gap: 0.3rem;
+      margin-right: auto;
+    }
+    .bili-composer-tool {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      border-radius: 4px;
+      color: #61666d;
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 1.15rem;
+      height: 2rem;
+      justify-content: center;
+      line-height: 1;
+      padding: 0 0.35rem;
+      width: 2rem;
+    }
+    .bili-composer-tool:hover,
+    .bili-composer-tool:focus-visible {
+      background: #f1f2f3;
+      color: #00aeec;
+      outline: 0;
+    }
+    .bili-composer-tool my-global-icon {
+      height: 1.05rem;
+      width: 1.05rem;
+    }
+    .bili-composer-tool input {
+      display: none;
+    }
+    .bili-composer-image {
+      align-items: center;
+      background: #f6f7f8;
+      border: 1px solid #e3e5e7;
+      border-radius: 6px;
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.35rem 0.5rem;
+    }
+    .bili-composer-image img {
+      border-radius: 4px;
+      height: 3rem;
+      object-fit: cover;
+      width: 3rem;
+    }
+    .bili-composer-image span {
+      color: #61666d;
+      flex: 1;
+      font-size: 0.78rem;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bili-composer-image button {
+      background: transparent;
+      border: 0;
+      color: #9499a0;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0.25rem;
+    }
+    .bili-comment-image {
+      border-radius: 6px;
+      display: block;
+      margin: 0 0 0.5rem;
+      max-height: 220px;
+      max-width: min(360px, 100%);
+      object-fit: contain;
     }
     .bili-cancel-reply {
       background: transparent;
@@ -216,12 +292,21 @@ import { GameCommentsStore } from './game-comments-store'
       cursor: pointer;
       display: inline-flex;
       gap: 0.2rem;
+      height: 20px;
+      justify-content: center;
+      line-height: 20px;
       padding: 0;
+      vertical-align: middle;
     }
     .bili-meta-btn my-global-icon {
+      align-items: center;
+      display: inline-flex;
       height: 0.85rem;
+      justify-content: center;
+      line-height: 0;
       width: 0.85rem;
     }
+    .bili-meta-btn my-global-icon ::ng-deep svg { display: block; }
     .bili-meta-btn.active,
     .bili-meta-btn:hover {
       color: #00aeec;
@@ -327,7 +412,7 @@ import { GameCommentsStore } from './game-comments-store'
       cursor: not-allowed;
       opacity: 0.6;
     }
-  `],
+  ` ],
   template: `
     <section class="game-comments bili-comment-panel" aria-labelledby="comments-title">
       <div class="bili-comment-header">
@@ -339,7 +424,7 @@ import { GameCommentsStore } from './game-comments-store'
         </div>
       </div>
 
-      <form class="bili-comment-composer" (submit)="$event.preventDefault(); store.replyTo() ? store.submitReply() : store.submit()">
+      <form class="bili-comment-composer" (submit)="submitComment($event)">
         <img class="bili-composer-avatar" [src]="store.currentUserAvatar()" alt="" aria-hidden="true">
         <div class="bili-composer-body">
           <input
@@ -350,7 +435,21 @@ import { GameCommentsStore } from './game-comments-store'
             [placeholder]="store.replyTo() ? '回复这条评论...' : '这里是评论区，不是无人区:-)'"
             maxlength="5000"
           >
+          @if (store.commentImage(); as image) {
+            <div class="bili-composer-image">
+              <img [src]="imageDataUrl()" [alt]="image.name">
+              <span>{{ image.name }}</span>
+              <button type="button" aria-label="移除图片" (click)="clearImage()">×</button>
+            </div>
+          }
           <div class="bili-composer-actions">
+            <div class="bili-composer-tools">
+              <button type="button" class="bili-composer-tool" aria-label="添加表情" title="添加表情" (click)="insertEmoji(commentInput)">☺</button>
+              <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
+                <my-global-icon iconName="upload" />
+                <input type="file" accept="image/*" (change)="selectImage($event)">
+              </label>
+            </div>
             @if (store.replyTo()) {
               <button type="button" class="bili-cancel-reply" (click)="store.replyTo.set(null)">取消回复</button>
             }
@@ -380,13 +479,15 @@ import { GameCommentsStore } from './game-comments-store'
                   @if (comment.isAuthor) { <span class="bili-badge up">UP</span> }
                 </div>
                 <p class="bili-comment-text">{{ comment.text }}</p>
+                @if (comment.imageUrl) { <img class="bili-comment-image" [src]="comment.imageUrl" alt="评论图片" loading="lazy"> }
                 <div class="bili-comment-meta">
                   <time>{{ comment.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
                   <button type="button" class="bili-meta-btn" [class.active]="comment.liked" (click)="store.toggleLike(comment)">
                     <my-global-icon iconName="like" />
                     <span>{{ comment.likes || 0 }}</span>
                   </button>
-                  <button type="button" class="bili-meta-btn" (click)="store.replyTo.set(comment.id); store.focusComposerInput()">回复</button>
+                  <button type="button" class="bili-meta-btn"
+                    (click)="store.replyTo.set(comment.id); store.focusComposerInput()">回复</button>
                   @if (comment.canDelete) {
                     <button type="button" class="bili-meta-btn danger" (click)="store.requestDelete(comment)">删除</button>
                   }
@@ -403,6 +504,7 @@ import { GameCommentsStore } from './game-comments-store'
                             @if (reply.isAuthor) { <span class="bili-badge up">UP</span> }
                           </div>
                           <p class="bili-comment-text">{{ reply.text }}</p>
+                          @if (reply.imageUrl) { <img class="bili-comment-image" [src]="reply.imageUrl" alt="回复图片" loading="lazy"> }
                           <div class="bili-comment-meta">
                             <time>{{ reply.createdAt | date:'yyyy-MM-dd HH:mm' }}</time>
                             <button type="button" class="bili-meta-btn" [class.active]="reply.liked" (click)="store.toggleLike(reply)">
@@ -454,7 +556,55 @@ import { GameCommentsStore } from './game-comments-store'
 })
 export class GameCommentsComponent {
   readonly store = inject(GameCommentsStore)
+  readonly imageDataUrl = signal('')
 
   /** Kept for API symmetry; the host wires the store directly. */
   @Input() gameTitle = ''
+
+  insertEmoji (input: HTMLInputElement) {
+    const value = this.store.draft()
+    const start = input.selectionStart ?? value.length
+    const end = input.selectionEnd ?? start
+    const prefix = start > 0 && !/\s$/.test(value.slice(0, start)) ? ' ' : ''
+    const next = `${value.slice(0, start)}${prefix}🙂${value.slice(end)}`
+    this.store.draft.set(next)
+    queueMicrotask(() => {
+      input.focus()
+      const cursor = start + prefix.length + 2
+      input.setSelectionRange(cursor, cursor)
+    })
+  }
+
+  selectImage (event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    if (!file) return
+    const allowedTypes = [ 'image/png', 'image/jpeg', 'image/webp', 'image/gif' ]
+    if (!allowedTypes.includes(file.type)) {
+      this.store.feedback.set('图片仅支持 PNG、JPG、WEBP 或 GIF')
+      input.value = ''
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.store.feedback.set('图片不能超过 5MB')
+      input.value = ''
+      return
+    }
+    this.store.setCommentImage(file)
+    const reader = new FileReader()
+    reader.onload = () => this.imageDataUrl.set(String(reader.result || ''))
+    reader.readAsDataURL(file)
+  }
+
+  clearImage () {
+    this.store.clearCommentImage()
+    this.imageDataUrl.set('')
+  }
+
+  submitComment (event: Event) {
+    event.preventDefault()
+    const image = this.store.commentImage()
+    if (this.store.replyTo()) this.store.submitReply(image)
+    else this.store.submit(image)
+  }
 }

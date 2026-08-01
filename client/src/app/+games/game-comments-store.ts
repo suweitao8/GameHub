@@ -25,6 +25,7 @@ export class GameCommentsStore implements OnDestroy {
   readonly total = signal(0)
   readonly loadingMore = signal(false)
   readonly draft = signal('')
+  readonly commentImage = signal<File | null>(null)
   readonly chatDraft = signal('')
   readonly sort = signal<'new' | 'hot'>('hot')
   readonly replyTo = signal<number | null>(null)
@@ -65,6 +66,7 @@ export class GameCommentsStore implements OnDestroy {
     this.loading.set(true)
     this.error.set('')
     this.draft.set('')
+    this.commentImage.set(null)
     this.chatDraft.set('')
     this.sort.set('hot')
     this.replyTo.set(null)
@@ -97,15 +99,16 @@ export class GameCommentsStore implements OnDestroy {
     return this.comments().length < this.total()
   }
 
-  submit () {
+  submit (image = this.commentImage()) {
     if (!this.requireLogin()) return
     const text = this.draft().trim()
     if (!text) return
-    this.gamesService.comment(this.uuid, text).subscribe({
+    this.gamesService.comment(this.uuid, text, image).subscribe({
       next: result => {
         this.comments.update(comments => [ result.comment, ...comments ])
         this.total.update(value => value + 1)
         this.draft.set('')
+        this.commentImage.set(null)
         this.feedback.set('')
       },
       error: err => this.feedback.set(getGameActionErrorMessage(err))
@@ -127,17 +130,18 @@ export class GameCommentsStore implements OnDestroy {
     })
   }
 
-  submitReply () {
+  submitReply (image = this.commentImage()) {
     if (!this.requireLogin()) return
     const parentId = this.replyTo()
     const text = this.draft().trim()
     if (!parentId || !text) return
-    this.gamesService.reply(this.uuid, parentId, text).subscribe({
+    this.gamesService.reply(this.uuid, parentId, text, image).subscribe({
       next: result => {
         this.comments.update(comments => comments.map(comment => comment.id === parentId
           ? { ...comment, totalReplies: (comment.totalReplies || 0) + 1 }
           : comment))
         this.draft.set('')
+        this.commentImage.set(null)
         this.replyTo.set(null)
         this.replies.update(replies => ({
           ...replies,
@@ -204,12 +208,16 @@ export class GameCommentsStore implements OnDestroy {
   }
 
   focusComposerInput () {
-    const input = document.querySelector('.chat-composer input') as HTMLInputElement | null
+    const input = document.querySelector<HTMLInputElement>('.bili-comment-composer input')
     if (input) input.focus()
   }
 
+  setCommentImage (image: File | null) { this.commentImage.set(image) }
+
+  clearCommentImage () { this.commentImage.set(null) }
+
   private scrollDiscussToBottom () {
-    const list = document.querySelector('.discuss-message-list') as HTMLElement | null
+    const list = document.querySelector<HTMLElement>('.discuss-message-list')
     if (list) list.scrollTop = list.scrollHeight
   }
 

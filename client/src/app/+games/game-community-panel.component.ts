@@ -32,7 +32,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 
     .interaction-row { align-items: center;
       border-bottom: 1px solid var(--game-border);
-      gap: 1.25rem;
+      gap: 2rem;
       padding: 0.55rem 0 0.65rem; }
     .interaction-row button { align-items: center;
       background: transparent;
@@ -144,6 +144,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       color: #fff; }
 
     @media (max-width: 600px) {
+      .interaction-row { gap: 1.25rem; }
       .game-action-button { min-width: 2.8rem; padding: 0.05rem 0.2rem !important; }
       .game-action-button > my-global-icon { height: 1.1rem; width: 1.1rem; }
       .game-action-button strong { font-size: 0.7rem; }
@@ -162,11 +163,12 @@ import { getGameActionErrorMessage } from './game-action-feedback'
             [attr.aria-label]="'投币 ' + state.coins" [disabled]="coinLoading()" (click)="giveCoin()">
             <my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong>
           </button>
-          <button class="game-action-button" type="button" aria-label="收藏" [class.active]="state.favorite" (click)="toggleFavorite()">
-            <my-global-icon iconName="star" /><strong>{{ state.favorite ? '已收藏' : '收藏' }}</strong>
+          <button class="game-action-button" type="button"
+            [attr.aria-label]="'收藏 ' + state.favorites" [class.active]="state.favorite" (click)="toggleFavorite()">
+            <my-global-icon iconName="star" /><strong>{{ state.favorites }}</strong>
           </button>
-          <button class="game-action-button" type="button" aria-label="分享" (click)="share.emit()">
-            <my-global-icon iconName="share" /><strong>分享</strong>
+          <button class="game-action-button" type="button" [attr.aria-label]="'分享 ' + state.shares" (click)="share.emit()">
+            <my-global-icon iconName="share" /><strong>{{ state.shares }}</strong>
           </button>
         </div>
         @if (actionFeedback()) { <p class="feedback action-feedback" role="status">{{ actionFeedback() }}</p> }
@@ -237,7 +239,13 @@ export class GameCommunityPanelComponent {
     if (!current) return
     this.gamesService.favorite(this.uuid, !current.favorite).subscribe({
       next: value => {
-        this.community.update(state => state ? { ...state, favorite: value.favorite } : state)
+        this.community.update(state => state
+          ? {
+              ...state,
+              favorite: value.favorite,
+              favorites: Math.max(0, state.favorites + (value.favorite ? 1 : -1))
+            }
+          : state)
         this.actionFeedback.set(value.favorite ? '已加入收藏' : '已取消收藏')
       },
       error: error => this.actionFeedback.set(getGameActionErrorMessage(error))

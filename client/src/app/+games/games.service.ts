@@ -214,17 +214,23 @@ export class GamesService {
     return this.http.put<{ following: boolean }>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}/follow`, { following })
   }
 
-  comment (uuid: string, text: string): Observable<{ comment: GameComment }> {
-    return this.http.post<{ comment: GameComment }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, { text })
+  comment (uuid: string, text: string, image?: File | null): Observable<{ comment: GameComment }> {
+    const body = new FormData()
+    body.append('text', text)
+    if (image) body.append('image', image, image.name)
+    return this.http.post<{ comment: GameComment }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, body)
   }
 
   review (uuid: string, score: number, text: string): Observable<{ review: GameReview }> {
     return this.http.put<{ review: GameReview }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/review`, { score, text })
   }
 
-  reply (uuid: string, commentId: number, text: string): Observable<{ comment: GameComment }> {
+  reply (uuid: string, commentId: number, text: string, image?: File | null): Observable<{ comment: GameComment }> {
+    const body = new FormData()
+    body.append('text', text)
+    if (image) body.append('image', image, image.name)
     return this.http.post<{ comment: GameComment }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, { text })
+      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, body)
   }
 
   likeComment (uuid: string, commentId: number, liked: boolean): Observable<{ liked: boolean, likes: number }> {

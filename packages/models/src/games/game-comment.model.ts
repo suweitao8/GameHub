@@ -12,6 +12,7 @@ export interface GameComment {
   id: number
   url: null
   text: string
+  imageUrl: string | null
   threadId: number
   inReplyToCommentId: number | null
   gameId: number

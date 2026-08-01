@@ -1285,6 +1285,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+  top: 4px;
 }
 
 .game-play-page .game-title-bar h1 {
@@ -1314,14 +1316,16 @@
 }
 
 .game-play-page .game-title-developer {
-  align-items: start;
+  align-items: center;
   gap: 4px 10px;
   grid-template-columns: 48px minmax(0, 1fr);
   grid-template-rows: auto auto;
+  justify-self: end;
+  width: 100%;
 }
 
 .game-play-page .developer-identity img {
-  align-self: start;
+  align-self: center;
   height: 48px;
   width: 48px;
 }

@@ -1,8 +1,12 @@
 import { HttpStatusCode, UserRight } from '@peertube/peertube-models'
+import { mkdir, readFile, rename, unlink } from 'fs/promises'
+import { basename, dirname, extname, join, resolve } from 'path'
 import { awardExp } from '@server/lib/games/game-exp.js'
 import { canDeleteGameComment } from '@server/lib/games/game-community-policy.js'
 import { createGameNotification } from '@server/lib/games/game-notifications.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
+import { CONFIG } from '@server/initializers/config.js'
+import { createReqFiles } from '@server/helpers/express-utils.js'
 import { GameActivityModel } from '@server/models/game/game-activity.js'
 import { GameCommentReactionModel } from '@server/models/game/game-comment-reaction.js'
 import { GameCommentModel } from '@server/models/game/game-comment.js'
@@ -15,12 +19,20 @@ import { commentAccountInclude, type CommentSortOption, getPublishedGame, getUse
 type OrderItem = [ string, string ] | [ string, string, string ]
 
 const communityCommentsRouter = express.Router()
+const commentImageUpload = createReqFiles([ 'image' ], {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/webp': '.webp',
+  'image/gif': '.gif'
+})
+const MAX_COMMENT_IMAGE_BYTES = 5 * 1024 * 1024
 
 communityCommentsRouter.get('/:uuid/comments/featured', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listFeaturedComments))
 communityCommentsRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
+communityCommentsRouter.get('/:uuid/comments/:commentId/image', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(getCommentImage))
 communityCommentsRouter.get('/:uuid/comments/:commentId/replies', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listReplies))
-communityCommentsRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, gameCommentRateLimiter, asyncMiddleware(addComment))
-communityCommentsRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, gameCommentRateLimiter, asyncMiddleware(replyToComment))
+communityCommentsRouter.post('/:uuid/comments', gameUUIDValidator, authenticate, commentImageUpload, gameCommentRateLimiter, asyncMiddleware(addComment))
+communityCommentsRouter.post('/:uuid/comments/:commentId/reply', gameUUIDValidator, authenticate, commentImageUpload, gameCommentRateLimiter, asyncMiddleware(replyToComment))
 communityCommentsRouter.put('/:uuid/comments/:commentId/like', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(likeComment))
 communityCommentsRouter.delete('/:uuid/comments/:commentId', gameUUIDValidator, authenticate, asyncMiddleware(deleteComment))
 
@@ -36,6 +48,39 @@ async function getCommentForGame (game: MGame | null, commentId: number, include
     where,
     include: [ commentAccountInclude ]
   })
+}
+
+async function storeCommentImage (game: MGame, req: express.Request) {
+  const file = req.files?.['image']?.[0]
+  if (!file) return null
+  if (file.size > MAX_COMMENT_IMAGE_BYTES) {
+    await unlink(file.path).catch(() => undefined)
+    throw new Error('评论图片不能超过 5MB')
+  }
+
+  const extension = extname(file.filename).toLowerCase()
+  const relativePath = join('comments', game.uuid, `${basename(file.filename, extension)}${extension}`).replaceAll('\\', '/')
+  const targetPath = join(CONFIG.STORAGE.GAMES_DIR, relativePath)
+  await mkdir(dirname(targetPath), { recursive: true })
+  await rename(file.path, targetPath)
+  return relativePath
+}
+
+async function getCommentImage (req: express.Request, res: express.Response) {
+  const game = await getPublishedGame(req)
+  const comment = await getCommentForGame(game, Number(req.params.commentId))
+  if (!game || !comment?.imagePath) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  const root = resolve(CONFIG.STORAGE.GAMES_DIR)
+  const imagePath = resolve(root, comment.imagePath)
+  if (imagePath !== root && !imagePath.startsWith(root + '\\')) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+  try {
+    const content = await readFile(imagePath)
+    return res.type(extname(imagePath)).send(content)
+  } catch {
+    return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+  }
 }
 
 async function listComments (req: express.Request, res: express.Response) {
@@ -99,11 +144,19 @@ async function addComment (req: express.Request, res: express.Response) {
     return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'text must contain 1-5000 characters' })
   }
 
+  let imagePath: string | null
+  try {
+    imagePath = await storeCommentImage(game, req)
+  } catch (error) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: error instanceof Error ? error.message : '评论图片上传失败' })
+  }
+
   const comment = await GameCommentModel.create({
     gameId: game.id,
     accountId: user.Account.id,
     inReplyToCommentId: null,
     text: req.body.text.trim(),
+    imagePath,
     deletedAt: null
   })
 
@@ -141,11 +194,19 @@ async function replyToComment (req: express.Request, res: express.Response) {
   const parent = await getCommentForGame(game, commentId)
   if (!parent) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
+  let imagePath: string | null
+  try {
+    imagePath = await storeCommentImage(game, req)
+  } catch (error) {
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: error instanceof Error ? error.message : '评论图片上传失败' })
+  }
+
   const comment = await GameCommentModel.create({
     gameId: game.id,
     accountId: user.Account.id,
     inReplyToCommentId: parent.id,
     text,
+    imagePath,
     deletedAt: null
   })
   const hydratedComment = await getCommentForGame(game, comment.id)
@@ -233,6 +294,7 @@ async function formatComments (comments: GameCommentModel[], game: MGame, user: 
     const formatted = comment.toFormattedJSON({ totalReplies: replyCounts[index] })
     return {
       ...formatted,
+      imageUrl: comment.imagePath ? `/api/v1/games/${game.uuid}/comments/${comment.id}/image` : null,
       likes: comment.likeCount,
       liked: !!user && likedCommentIds.has(comment.id),
       isFeatured: comment.isFeatured,

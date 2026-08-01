@@ -82,10 +82,12 @@ export class GameCommunityService {
     )
   }
 
-  comment (uuid: string, text: string): Observable<{ comment: GameComment }> {
+  comment (uuid: string, text: string, image?: File | null): Observable<{ comment: GameComment }> {
+    const body = new FormData()
+    body.append('text', text)
+    if (image) body.append('image', image, image.name)
     return this.http.post<{ comment: GameComment }>(
-      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, { text }
-    )
+      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, body)
   }
 
   review (uuid: string, score: number, text: string): Observable<{ review: GameReview }> {
@@ -94,10 +96,12 @@ export class GameCommunityService {
     )
   }
 
-  reply (uuid: string, commentId: number, text: string): Observable<{ comment: GameComment }> {
+  reply (uuid: string, commentId: number, text: string, image?: File | null): Observable<{ comment: GameComment }> {
+    const body = new FormData()
+    body.append('text', text)
+    if (image) body.append('image', image, image.name)
     return this.http.post<{ comment: GameComment }>(
-      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, { text }
-    )
+      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments/${commentId}/reply`, body)
   }
 
   likeComment (uuid: string, commentId: number, liked: boolean): Observable<{ liked: boolean, likes: number }> {

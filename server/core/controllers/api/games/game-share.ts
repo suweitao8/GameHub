@@ -1,6 +1,7 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { createGameShareToken, resolveGameShareToken } from '@server/lib/games/game-share.js'
 import { GameModel } from '@server/models/game/game.js'
+import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
 import { asyncMiddleware, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
@@ -17,6 +18,11 @@ async function shareGame (req: express.Request, res: express.Response) {
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
   const shareInfo = await createGameShareToken(game.uuid)
+  const [ stats ] = await GameStatsSummaryModel.findOrCreate({
+    where: { gameId: game.id },
+    defaults: { gameId: game.id }
+  })
+  await stats.increment('shares')
   return res.json(shareInfo)
 }
 

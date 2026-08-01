@@ -53,6 +53,8 @@ async function getCommunity (req: express.Request, res: express.Response) {
       favorite,
       following,
       coins: Math.max(0, stats?.coins || 0),
+      favorites: Number(stats?.favorites) || 0,
+      shares: Number(stats?.shares) || 0,
       coinBalance: coinState.balance,
       coinsGiven: coinState.given,
       author: author

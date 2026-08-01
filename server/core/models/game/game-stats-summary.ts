@@ -8,6 +8,7 @@ import { SequelizeModel } from '../shared/index.js'
     { fields: [ 'gameId' ], unique: true },
     { fields: [ 'likes' ] },
     { fields: [ 'favorites' ] },
+    { fields: [ 'shares' ] },
     { fields: [ 'coins' ] },
     { fields: [ 'comments' ] },
     { fields: [ 'plays' ] },
@@ -42,6 +43,11 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
   @Default(0)
   @Column
   declare favorites: number
+
+  @AllowNull(false)
+  @Default(0)
+  @Column
+  declare shares: number
 
   @AllowNull(false)
   @Default(0)

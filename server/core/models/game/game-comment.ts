@@ -44,6 +44,10 @@ export class GameCommentModel extends SequelizeModel<GameCommentModel> {
   declare text: string
 
   @AllowNull(true)
+  @Column(DataType.TEXT)
+  declare imagePath: string | null
+
+  @AllowNull(true)
   @Column(DataType.DATE)
   declare deletedAt: Date | null
 
@@ -88,6 +92,7 @@ export class GameCommentModel extends SequelizeModel<GameCommentModel> {
       id: this.id,
       url: null,
       text: this.text,
+      imageUrl: null,
       threadId: this.inReplyToCommentId || this.id,
       inReplyToCommentId: this.inReplyToCommentId,
       gameId: this.gameId,
