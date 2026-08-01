@@ -1257,6 +1257,9 @@
 .game-play-page {
   --game-detail-gap: 16px;
   --game-stage-height: clamp(360px, 44vw, 680px);
+  --game-text: #303133;
+  --game-text-button: #6b6f75;
+  --game-muted: #6b6f75;
 
   box-sizing: border-box;
   padding: 16px 0 56px;
