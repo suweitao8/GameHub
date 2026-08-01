@@ -130,6 +130,7 @@ assert(
 
 const authorHtml = read('client/src/app/+games/game-author.component.html')
 assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')
+assert(!authorHtml.includes('account.handle'), 'author page must not render an account handle in the visible profile')
 
 const homeTs = read('client/src/app/+games/games-home.component.ts')
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
@@ -218,7 +219,7 @@ assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a sta
 assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must use border-box sizing for aligned dimensions')
 assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
 assert(!communityPanelTs.includes('<small>点赞</small>') && !communityPanelTs.includes('<small>投币</small>'), 'game actions must not add a second text row under each icon')
-assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1.1rem') && communityPanelTs.includes('width: 1.1rem'), 'game action icons and numbers must share a compact centered baseline')
+assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1rem') && communityPanelTs.includes('width: 1rem'), 'game action icons and numbers must share a compact centered baseline')
 assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game?.instructions'), 'game description must expose separate overview and controls tabs')
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
@@ -257,8 +258,10 @@ assert(
   'comment composer must expose a selectable emoji picker instead of inserting a fixed emoji directly'
 )
 assert(
-  commentsTs.includes('height: 1.75rem;') && commentsTs.includes('width: 1.75rem;') &&
-    commentsTs.includes('height: 0.5rem;') && commentsTs.includes('width: 0.5rem;') &&
+    commentsTs.includes('height: 1.5rem;') && commentsTs.includes('width: 1.5rem;') &&
+    commentsTs.includes('flex: 0 0 1.5rem;') &&
+  commentsTs.includes('height: 0.625rem;') && commentsTs.includes('width: 0.625rem;') &&
+    commentsTs.includes('my-global-icon ::ng-deep tabler-icon') &&
     commentsTs.includes('align-items: center;') && commentsTs.includes('justify-content: center;') &&
     commentsTs.includes('.bili-composer-tool-wrap:hover .bili-composer-tool') &&
     /\.bili-composer-tool\s*\{[^}]*margin: 0;/.test(commentsTs) &&
@@ -269,12 +272,16 @@ assert(
   communityPanelTs.includes('class="game-description-content"') &&
     communityPanelTs.includes('height: 200px;') &&
     communityPanelTs.includes('max-height: 200px;') &&
+    communityPanelTs.includes('min-height: 200px;') &&
+    communityPanelTs.includes('.game-description-fallback') &&
+    communityPanelTs.includes('min-height: 200px;') &&
     communityPanelTs.includes('overflow-y: auto;'),
-  'game overview and controls must share a fixed 200px content area'
+  'game overview and controls must share a fixed 200px content area, including fallback state'
 )
 assert(
-  /\.game-header-actions my-global-icon \{[\s\S]*height: 0\.75rem;[\s\S]*width: 0\.75rem;/.test(headerScss) &&
-    /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100%;[\s\S]*width: 100%;/.test(headerScss),
+  /\.game-header-actions my-global-icon \{[\s\S]*height: 0\.625rem;[\s\S]*width: 0\.625rem;/.test(headerScss) &&
+    headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
+    /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a smaller normalized icon box'
 )
 assert(

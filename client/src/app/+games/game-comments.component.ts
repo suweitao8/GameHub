@@ -141,10 +141,10 @@ import { GameCommentsStore } from './game-comments-store'
     .bili-composer-tool-wrap {
       align-items: center;
       display: inline-flex;
-      height: 1.75rem;
+      height: 1.5rem;
       justify-content: center;
       position: relative;
-      width: 1.75rem;
+      width: 1.5rem;
     }
     .bili-composer-tool {
       align-items: center;
@@ -155,15 +155,15 @@ import { GameCommentsStore } from './game-comments-store'
       color: #61666d;
       cursor: pointer;
       display: inline-flex;
-      flex: 0 0 1.75rem;
+      flex: 0 0 1.5rem;
       font-size: 0;
-      height: 1.75rem;
+      height: 1.5rem;
       justify-content: center;
       line-height: 0;
       margin: 0;
       padding: 0;
       vertical-align: middle;
-      width: 1.75rem;
+      width: 1.5rem;
     }
     .bili-composer-tool-wrap:hover .bili-composer-tool,
     .bili-composer-tool:hover,
@@ -174,14 +174,19 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-composer-tool my-global-icon {
       display: inline-flex;
-      flex: 0 0 0.5rem;
-      height: 0.5rem;
-      width: 0.5rem;
+      flex: 0 0 0.625rem;
+      height: 0.625rem;
+      width: 0.625rem;
     }
     .bili-composer-tool my-global-icon ::ng-deep svg {
       display: block;
-      height: 100%;
-      width: 100%;
+      height: 100% !important;
+      width: 100% !important;
+    }
+    .bili-composer-tool my-global-icon ::ng-deep tabler-icon {
+      display: block;
+      height: 100% !important;
+      width: 100% !important;
     }
     .bili-composer-tool input {
       display: none;

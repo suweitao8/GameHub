@@ -96,6 +96,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private routerEventsSub: Subscription
   private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
   private gameNavHoverTimer: ReturnType<typeof setTimeout> | undefined
+  private gameNavCloseTimer: ReturnType<typeof setTimeout> | undefined
   private gameCoinBalanceRequested = false
   private gameNavLoaded = new Set<GameHeaderPopup>()
 
@@ -368,6 +369,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!this.isGameExperience()) return
 
     this.cancelGameNavHover(false)
+    if (this.gameNavHoverTimer) {
+      clearTimeout(this.gameNavHoverTimer)
+      this.gameNavHoverTimer = undefined
+    }
     this.gameNavHoverTimer = setTimeout(() => {
       this.gameNavHover.set(popup)
       this.loadGameNavData(popup)
@@ -380,7 +385,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameNavHoverTimer = undefined
     }
 
-    if (close) this.gameNavHover.set(null)
+    if (!close) return
+
+    // 延迟关闭，给鼠标从按钮移动到弹窗的时间
+    if (this.gameNavCloseTimer) clearTimeout(this.gameNavCloseTimer)
+    this.gameNavCloseTimer = setTimeout(() => {
+      this.gameNavHover.set(null)
+      this.gameNavCloseTimer = undefined
+    }, 250)
+  }
+
+  /** 鼠标进入弹窗区域时取消关闭（配合延迟关闭使用） */
+  retainGameNavHover () {
+    if (this.gameNavCloseTimer) {
+      clearTimeout(this.gameNavCloseTimer)
+      this.gameNavCloseTimer = undefined
+    }
   }
 
   onGameNavFocusOut (event: FocusEvent) {

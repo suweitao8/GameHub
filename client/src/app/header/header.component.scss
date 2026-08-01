@@ -262,16 +262,39 @@
 .game-header-actions my-global-icon {
   align-items: center;
   display: inline-flex;
-  flex: 0 0 0.75rem;
+  flex: 0 0 0.625rem;
   justify-content: center;
-  height: 0.75rem;
-  width: 0.75rem;
+  height: 0.625rem;
+  width: 0.625rem;
 }
 
 .game-header-actions my-global-icon ::ng-deep svg {
   display: block;
-  height: 100%;
-  width: 100%;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.game-header-actions my-global-icon ::ng-deep tabler-icon {
+  display: block;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+/* 弹窗出现时轻微淡入，保持导航项位置不跳动。 */
+.game-header-popover-anim {
+  animation: game-popover-fade-in 200ms ease-out forwards;
+}
+
+@keyframes game-popover-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .game-header-action-wrap {

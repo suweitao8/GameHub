@@ -62,11 +62,17 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .game-action-button > my-global-icon { color: inherit;
       align-items: center;
       display: inline-flex;
-      flex: 0 0 1.1rem;
-      height: 1.1rem;
+      flex: 0 0 1rem;
+      height: 1rem;
       justify-content: center;
       line-height: 0;
-      width: 1.1rem; }
+      width: 1rem; }
+    .game-action-button > my-global-icon ::ng-deep tabler-icon,
+    .game-action-button > my-global-icon ::ng-deep svg {
+      display: block;
+      height: 100% !important;
+      width: 100% !important;
+    }
     .game-action-button > my-global-icon ::ng-deep svg { stroke-width: 2.1; }
     .game-action-button strong {
       color: inherit;
@@ -74,9 +80,9 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       font-size: 0.82rem;
       font-weight: 600;
       display: inline-flex;
-      height: 1.1rem;
+      height: 1rem;
       line-height: 1;
-      min-height: 1.1rem;
+      min-height: 1rem;
       white-space: nowrap;
     }
     .game-action-button small {
@@ -102,6 +108,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       background: #fff;
       border-bottom: 1px solid var(--game-border);
       border-top: 1px solid var(--game-border);
+      box-sizing: border-box;
+      min-height: 200px;
       padding: 0.85rem 0;
       width: 100%;
     }
@@ -127,8 +135,10 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       margin-bottom: 0.85rem;
     }
     .game-description-content {
+      box-sizing: border-box;
       height: 200px;
       max-height: 200px;
+      min-height: 200px;
       overflow-y: auto;
       padding-right: 0.35rem;
     }
@@ -202,7 +212,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     @media (max-width: 600px) {
       .interaction-row { gap: 1.25rem; }
       .game-action-button { min-width: 2.8rem; padding: 0.05rem 0.2rem !important; }
-      .game-action-button > my-global-icon { height: 1.1rem; width: 1.1rem; }
+      .game-action-button > my-global-icon { height: 1rem; width: 1rem; }
       .game-action-button strong { font-size: 0.7rem; }
       .game-action-button small { font-size: 0.65rem; }
     }

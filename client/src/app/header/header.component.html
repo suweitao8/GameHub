@@ -152,7 +152,7 @@
             @if (gameNotificationBadge.unread()) { <span class="game-header-unread" aria-hidden="true">{{ gameNotificationBadge.unread() > 99 ? '99+' : gameNotificationBadge.unread() }}</span> }
           </a>
           @if (gameNavHover() === 'notifications') {
-            <section class="game-header-popover game-header-notification-popover" aria-label="动态预览">
+            <section class="game-header-popover game-header-notification-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="动态预览">
               @if (gameNavLoading() && !gameNavNotifications().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (notification of gameNavNotifications().slice(0, 3); track notification.id) {
                 <a class="game-notification-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
@@ -170,7 +170,7 @@
             <span>收藏</span>
           </a>
           @if (gameNavHover() === 'favorites') {
-            <section class="game-header-popover game-header-list-popover" aria-label="收藏预览">
+            <section class="game-header-popover game-header-list-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="收藏预览">
               @if (gameNavLoading() && !gameNavFavorites().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>已收藏</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
@@ -184,7 +184,7 @@
             <span>历史</span>
           </a>
           @if (gameNavHover() === 'history') {
-            <section class="game-header-popover game-header-list-popover game-header-history-popover" aria-label="游玩历史预览">
+            <section class="game-header-popover game-header-list-popover game-header-history-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="游玩历史预览">
               @if (gameNavLoading() && !gameNavRecent().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>最近游玩</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
@@ -198,7 +198,7 @@
             <span>创作中心</span>
           </a>
           @if (gameNavHover() === 'creator') {
-            <section class="game-header-popover game-header-creator-popover" aria-label="创作中心预览">
+            <section class="game-header-popover game-header-creator-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="创作中心预览">
               <div class="game-prompt-list">
                 <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 2D 游戏，使用 Canvas 和原生 JavaScript，不依赖外部资源，包含开始、暂停、重新开始和移动端触控操作。')">2D 游戏提示词</button>
                 <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 3D 游戏，使用 CSS 3D 或内嵌实现，不依赖外部网络资源，包含清晰的操作说明、开始和重新开始。')">3D 游戏提示词</button>

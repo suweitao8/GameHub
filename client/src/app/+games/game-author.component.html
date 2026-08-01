@@ -24,7 +24,7 @@
           <img class="author-large-avatar" [src]="getAvatarUrl()" [alt]="author()!.account.displayName + '头像'">
           <div class="author-profile">
             <h1>{{ author()!.account.displayName }}</h1>
-            <p>&#64;{{ author()!.account.handle }} · {{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
+            <p>{{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
           </div>
         </div>
         @if (!isOwnAuthor()) { <div class="follow-action"> <button type="button" class="follow-button" [class.following]="author()!.following" [disabled]="followLoading()" (click)="toggleFollow()">{{ followLoading() ? '处理中…' : author()!.following ? '已关注' : '+ 关注' }}</button> @if (actionFeedback()) { <p class="author-feedback" role="alert">{{ actionFeedback() }}</p> } </div> }
@@ -114,7 +114,7 @@
           <div class="game-grid">@for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }</div>
         </section>
         <aside class="author-sidebar">
-          <section class="author-side-card"><h2>个人资料</h2><dl><div><dt>账号</dt><dd>&#64;{{ author()!.account.handle }}</dd></div><div><dt>粉丝</dt><dd>{{ author()!.account.followers }}</dd></div></dl></section>
+          <section class="author-side-card"><h2>个人资料</h2><dl><div><dt>昵称</dt><dd>{{ author()!.account.displayName }}</dd></div><div><dt>粉丝</dt><dd>{{ author()!.account.followers }}</dd></div></dl></section>
           <section class="author-side-card"><h2>创作数据</h2><dl><div><dt>总游玩</dt><dd>{{ author()!.stats.plays }}</dd></div><div><dt>获赞</dt><dd>{{ author()!.stats.likes }}</dd></div><div><dt>投币</dt><dd>{{ author()!.stats.coins }}</dd></div></dl></section>
         </aside>
       </div>
