@@ -304,7 +304,7 @@ assert(
 assert(
     commentsTs.includes('height: 1.5rem;') && commentsTs.includes('width: 1.5rem;') &&
     commentsTs.includes('flex: 0 0 1.5rem;') &&
-  commentsTs.includes('height: 0.625rem;') && commentsTs.includes('width: 0.625rem;') &&
+  commentsTs.includes('height: 0.5rem !important;') && commentsTs.includes('width: 0.5rem !important;') &&
     commentsTs.includes('my-global-icon ::ng-deep tabler-icon') &&
     commentsTs.includes('align-items: center;') && commentsTs.includes('justify-content: center;') &&
     commentsTs.includes('.bili-composer-tool-wrap:hover .bili-composer-tool') &&
@@ -314,16 +314,14 @@ assert(
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
-    communityPanelTs.includes('height: 200px;') &&
-    communityPanelTs.includes('max-height: 200px;') &&
+    /\.game-description-content\s*\{[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
     communityPanelTs.includes('min-height: 200px;') &&
-    communityPanelTs.includes('.game-description-fallback') &&
-    communityPanelTs.includes('min-height: 200px;') &&
-    communityPanelTs.includes('overflow-y: auto;'),
+    /\.game-description-fallback\s*\{[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs),
   'game overview and controls must share a fixed 200px content area, including fallback state'
 )
 assert(
-  /\.game-header-actions my-global-icon \{[\s\S]*height: 0\.625rem;[\s\S]*width: 0\.625rem;/.test(headerScss) &&
+  headerScss.includes('--game-header-icon-size: 0.5rem;') &&
+    /\.game-header-actions my-global-icon \{[\s\S]*height: var\(--game-header-icon-size\) !important;[\s\S]*width: var\(--game-header-icon-size\) !important;/.test(headerScss) &&
     headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a smaller normalized icon box'

@@ -109,7 +109,10 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       border-bottom: 1px solid var(--game-border);
       border-top: 1px solid var(--game-border);
       box-sizing: border-box;
+      height: 200px;
+      max-height: 200px;
       min-height: 200px;
+      overflow-y: auto;
       padding: 0.85rem 0;
       width: 100%;
     }

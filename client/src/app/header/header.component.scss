@@ -188,6 +188,8 @@
 }
 
 .game-header-actions {
+  --game-header-icon-size: 0.5rem;
+
   align-items: center;
   display: flex;
   gap: 0.15rem;
@@ -261,20 +263,17 @@
 
 .game-header-actions my-global-icon {
   align-items: center;
+  box-sizing: border-box;
   display: inline-flex;
-  flex: 0 0 0.625rem;
+  flex: 0 0 var(--game-header-icon-size);
   justify-content: center;
-  height: 0.625rem;
-  width: 0.625rem;
+  height: var(--game-header-icon-size) !important;
+  width: var(--game-header-icon-size) !important;
 }
 
+.game-header-actions my-global-icon ::ng-deep tabler-icon,
+.game-header-actions my-global-icon ::ng-deep .tabler-icon,
 .game-header-actions my-global-icon ::ng-deep svg {
-  display: block;
-  height: 100% !important;
-  width: 100% !important;
-}
-
-.game-header-actions my-global-icon ::ng-deep tabler-icon {
   display: block;
   height: 100% !important;
   width: 100% !important;
