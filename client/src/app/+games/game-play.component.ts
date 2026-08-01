@@ -1,5 +1,7 @@
 import { DatePipe } from '@angular/common'
-import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import {
+  ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild
+} from '@angular/core'
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
@@ -16,12 +18,13 @@ import { GameCommentsComponent } from './game-comments.component'
 import { GameDiscussComponent } from './game-discuss.component'
 import { GameCommunityPanelComponent } from './game-community-panel.component'
 import { GameCommentsStore } from './game-comments-store'
+import { GameDiscussStore } from './game-discuss-store'
 
 @Component({
   templateUrl: './game-play.component.html',
   styleUrl: './game-play.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ GameCommentsStore ],
+  providers: [ GameCommentsStore, GameDiscussStore ],
   imports: [
     DatePipe, GlobalIconComponent, RouterLink,
     GameScreenshotsComponent, GameReportDialogComponent, GameShareDialogComponent,
@@ -41,6 +44,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private readonly recommendService = inject(GameRecommendService)
   readonly commentsStore = inject(GameCommentsStore)
+  readonly discussStore = inject(GameDiscussStore)
   readonly watchLaterService = inject(WatchLaterService)
   private reloadKey = 0
   private playRecordedFor = ''
@@ -66,11 +70,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   /** Comment count badge in the title bar (driven by the comment store). */
   readonly commentCount = computed(() => this.commentsStore.total() || this.commentsStore.comments().length || 0)
-  /** Title-bar average score derived from community stats. */
-  readonly displayAverageScore = computed(() => {
-    const c = this.community()
-    return c && c.reviews > 0 && c.averageReviewScore > 0 ? Number(c.averageReviewScore) : 0
-  })
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
@@ -91,6 +90,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!uuid) return
     this.currentUuid = uuid
     this.commentsStore.setUuid(uuid)
+    this.discussStore.init(uuid)
     this.loading.set(true)
     this.loadingError.set(false)
     this.frameLoading.set(true)

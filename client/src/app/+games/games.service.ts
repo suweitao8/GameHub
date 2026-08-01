@@ -11,6 +11,7 @@ import {
   GameCollectionDetail,
   GameCollectionList,
   GameComment,
+  GameChatMessage,
   GameCommentList,
   GameCommunity,
   GameCreatorOverview,
@@ -50,6 +51,7 @@ export type {
   GameCollectionDetail,
   GameCollectionList,
   GameComment,
+  GameChatMessage,
   GameCommentList,
   GameCommunity,
   GameCreatorOverview,
@@ -305,7 +307,11 @@ export class GamesService {
   // 发现（委托 GameDiscoveryService）
   // ---------------------------------------------------------------------------
 
-  getRankings (kind: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes', count = 50, category?: string): Observable<{ kind: string; total: number; data: GameRanking[] }> {
+  getRankings (
+    kind: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes',
+    count = 50,
+    category?: string
+  ): Observable<{ kind: string; total: number; data: GameRanking[] }> {
     let url = `${GamesService.BASE_URL}/rankings?kind=${kind}&count=${count}`
     if (category) url += `&category=${encodeURIComponent(category)}`
     return this.http.get<{ kind: string; total: number; data: GameRanking[] }>(url)

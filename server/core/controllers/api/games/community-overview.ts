@@ -5,6 +5,7 @@ import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { AccountModel } from '@server/models/account/account.js'
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
+import { GameChatMessageModel } from '@server/models/game/game-chat-message.js'
 import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
 import { GameModel } from '@server/models/game/game.js'
 import type { MGame } from '@server/types/models/game/game.js'
@@ -29,7 +30,7 @@ async function getCommunity (req: express.Request, res: express.Response) {
 
     const author = await getGameAuthor(game)
     const user = getUser(res)
-    const [ following, favorite, rating, coinState, stats ] = await Promise.all([
+    const [ following, favorite, rating, coinState, stats, chatMessages ] = await Promise.all([
       author?.Actor && user
         ? ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, author.Actor.id).then(r => !!r)
         : Promise.resolve(false),
@@ -38,7 +39,8 @@ async function getCommunity (req: express.Request, res: express.Response) {
         : Promise.resolve(false),
       user ? userRating(user.Account.id, game.id) : Promise.resolve(null),
       user ? getCoinState(game.id, user.Account.id) : Promise.resolve({ balance: 0, given: 0 }),
-      GameStatsSummaryModel.findOne({ where: { gameId: game.id }, raw: true })
+      GameStatsSummaryModel.findOne({ where: { gameId: game.id }, raw: true }),
+      GameChatMessageModel.count({ where: { gameId: game.id } })
     ])
 
     return res.json({
@@ -46,7 +48,7 @@ async function getCommunity (req: express.Request, res: express.Response) {
       likes: stats?.likes || 0,
       reviews: stats?.reviews || 0,
       averageReviewScore: Number(Number(stats?.averageReviewScore || 0).toFixed(1)),
-      chatMessages: stats?.comments || 0,
+      chatMessages: chatMessages || 0,
       rating,
       favorite,
       following,

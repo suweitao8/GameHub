@@ -92,6 +92,7 @@ import { GameUserLevelModel } from '../models/game/game-user-level.js'
 import { GameReserveModel } from '../models/game/game-reserve.js'
 import { GameUserPreferenceModel } from '../models/game/game-user-preference.js'
 import { GameActivityModel } from '../models/game/game-activity.js'
+import { GameChatMessageModel } from '../models/game/game-chat-message.js'
 import { CONFIG } from './config.js'
 
 pg.defaults.parseInt8 = true // Avoid BIGINT to be converted to string
@@ -193,6 +194,7 @@ export async function initDatabaseModels (silent: boolean) {
     GameReserveModel,
     GameUserPreferenceModel,
     GameActivityModel,
+    GameChatMessageModel,
     ChangeOwnershipModel,
     VideoChannelModel,
     VideoShareModel,

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
 import {
   GameComment,
+  GameChatMessage,
   GameCommunity,
   GameRatingDistribution,
   GameRelatedGame,
@@ -26,6 +27,18 @@ export class GameCommunityService {
   comments (uuid: string, sort: 'hot' | 'new' | 'old' = 'hot', start = 0, count = 20): Observable<{ total: number, data: GameComment[] }> {
     return this.http.get<{ total: number, data: GameComment[] }>(
       `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments?sort=${sort}&start=${start}&count=${count}`
+    )
+  }
+
+  discussion (uuid: string, start = 0, count = 50): Observable<{ total: number, data: GameChatMessage[] }> {
+    return this.http.get<{ total: number, data: GameChatMessage[] }>(
+      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/discussion?start=${start}&count=${count}`
+    )
+  }
+
+  sendDiscussion (uuid: string, text: string): Observable<{ message: GameChatMessage }> {
+    return this.http.post<{ message: GameChatMessage }>(
+      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/discussion`, { text }
     )
   }
 

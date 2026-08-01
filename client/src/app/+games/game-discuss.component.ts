@@ -1,72 +1,113 @@
 import { DatePipe } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
-import { GameCommentsStore } from './game-comments-store'
+import { GameDiscussStore } from './game-discuss-store'
 
 /**
  * Discuss sidebar (chronological chat timeline).
  *
- * Shares the `GameCommentsStore` with the comment panel so posting in either
- * place updates both views.
+ * WeChat-style group chat. Its data source is deliberately separate from
+ * the review/comment panel.
  */
 @Component({
   selector: 'my-game-discuss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ DatePipe ],
-  styles: [`
+  styles: [ `
     :host {
       display: block;
       flex: 1 1 auto;
       min-height: 0;
     }
 
-    /* Discussion group sidebar */
+    /* WeChat-style discussion group */
     .game-discuss-panel {
-      background: #fff;
-      border: 1px solid var(--game-border);
-      border-radius: var(--game-radius);
+      background: #f5f6f7;
+      border: 1px solid #e3e5e7;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       height: 100%;
       max-height: none;
       min-height: 0;
-      padding: 0.75rem;
+      overflow: hidden;
+      padding: 0;
     }
-    .game-discuss-panel > h2 {
+    .discuss-header {
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #e3e5e7;
+      display: flex;
+      justify-content: space-between;
+      min-height: 3.1rem;
+      padding: 0 0.85rem;
+    }
+    .discuss-header h2 {
+      color: #1e1e1e;
       font-size: 0.95rem;
-      margin: 0 0 0.55rem;
+      margin: 0;
     }
-    .discuss-message-list {
+    .discuss-member-count {
+      color: #9499a0;
+      font-size: 0.72rem;
+    }
+    .wechat-message-list {
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.85rem;
       min-height: 0;
       overflow-y: auto;
-      padding-right: 0.15rem;
+      padding: 0.85rem 0.7rem;
     }
-    .discuss-message {
-      background: #f6f7f8;
-      border-radius: 8px;
-      padding: 0.45rem 0.55rem;
+    .wechat-message {
+      align-items: flex-start;
+      display: flex;
+      gap: 0.5rem;
+      max-width: 92%;
     }
-    .discuss-message strong {
-      color: #61666d;
-      display: block;
-      font-size: 0.75rem;
-      margin-bottom: 0.15rem;
+    .wechat-message.own {
+      align-self: flex-end;
+      flex-direction: row-reverse;
     }
-    .discuss-message p {
-      color: #18191c;
-      font-size: 0.82rem;
-      line-height: 1.45;
-      margin: 0;
-      overflow-wrap: anywhere;
+    .wechat-avatar {
+      border-radius: 50%;
+      flex: 0 0 auto;
+      height: 2rem;
+      object-fit: cover;
+      width: 2rem;
     }
-    .discuss-message time {
-      color: #9499a0;
+    .wechat-message-body {
+      min-width: 0;
+    }
+    .wechat-message-name {
+      color: #646970;
       display: block;
       font-size: 0.7rem;
-      margin-top: 0.2rem;
+      margin: 0 0 0.2rem;
+    }
+    .wechat-message.own .wechat-message-name { text-align: right; }
+    .wechat-bubble {
+      background: #fff;
+      border: 1px solid #e3e5e7;
+      border-radius: 0.25rem 0.65rem 0.65rem;
+      color: #1e1e1e;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      padding: 0.48rem 0.65rem;
+      white-space: pre-wrap;
+    }
+    .wechat-message.own .wechat-bubble {
+      background: #00aeec;
+      border-color: #00aeec;
+      border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
+      color: #fff;
+    }
+    .wechat-message-time {
+      color: #9499a0;
+      display: block;
+      font-size: 0.66rem;
+      margin-top: 0.18rem;
     }
     .discuss-empty {
       color: var(--game-muted);
@@ -75,23 +116,30 @@ import { GameCommentsStore } from './game-comments-store'
       text-align: center;
     }
     .discuss-skeleton {
-      background: #eceff3;
+      background: #e8eaed;
       border-radius: 8px;
       height: 3rem;
     }
     .discuss-composer {
+      align-items: center;
+      background: #fff;
+      border-top: 1px solid #e3e5e7;
       display: flex;
       gap: 0.4rem;
-      margin-top: 0.55rem;
+      padding: 0.65rem;
     }
     .discuss-composer input {
       background: #f1f2f3;
-      border: 0;
+      border: 1px solid transparent;
       border-radius: 6px;
       flex: 1;
       font-size: 0.82rem;
       min-width: 0;
       padding: 0.45rem 0.55rem;
+    }
+    .discuss-composer input:focus {
+      border-color: #00aeec;
+      outline: 0;
     }
     .discuss-composer button {
       background: var(--game-brand);
@@ -109,32 +157,40 @@ import { GameCommentsStore } from './game-comments-store'
       .game-discuss-panel { height: auto; min-height: 260px; }
       .discuss-composer { align-items: stretch; flex-direction: column; }
     }
-  `],
+  ` ],
   template: `
     <section class="game-discuss-panel" aria-labelledby="discuss-title">
-      <h2 id="discuss-title">讨论群</h2>
-      <div class="discuss-message-list" #discussList>
+      <header class="discuss-header">
+        <h2 id="discuss-title">讨论群</h2>
+        <span class="discuss-member-count">实时交流</span>
+      </header>
+      <div class="wechat-message-list">
         @if (store.loading()) {
           @for (i of [1,2,3]; track $index) {
             <div class="discuss-skeleton shimmer"></div>
           }
         } @else {
           @for (msg of store.timeline(); track msg.id) {
-            <article class="discuss-message">
-              <strong>{{ msg.account?.displayName || msg.account?.name || '玩家' }}</strong>
-              <p>{{ msg.text }}</p>
-              <time>{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
+            <article class="wechat-message" [class.own]="store.isOwn(msg)">
+              <img class="wechat-avatar" [src]="store.messageAvatar(msg)" alt="">
+              <div class="wechat-message-body">
+                <strong class="wechat-message-name">{{ msg.account?.displayName || msg.account?.name || '玩家' }}</strong>
+                <p class="wechat-bubble">{{ msg.text }}</p>
+                <time class="wechat-message-time">{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
+              </div>
             </article>
           } @empty {
-            <p class="discuss-empty">还没有人发言，来打个招呼吧</p>
+          <p class="discuss-empty">还没有人发言，来打个招呼吧</p>
           }
         }
       </div>
-      <form class="discuss-composer" (submit)="$event.preventDefault(); store.submitChat()">
+      @if (store.error()) { <p class="discuss-error" role="alert">{{ store.error() }}</p> }
+      @if (store.feedback()) { <p class="discuss-error" role="status">{{ store.feedback() }}</p> }
+      <form class="discuss-composer" (submit)="$event.preventDefault(); store.submit()">
         <input
           aria-label="讨论群消息"
-          [value]="store.chatDraft()"
-          (input)="store.chatDraft.set($any($event.target).value)"
+          [value]="store.draft()"
+          (input)="store.draft.set($any($event.target).value)"
           placeholder="在讨论群说点什么..."
           maxlength="5000"
         >
@@ -144,5 +200,5 @@ import { GameCommentsStore } from './game-comments-store'
   `
 })
 export class GameDiscussComponent {
-  readonly store = inject(GameCommentsStore)
+  readonly store = inject(GameDiscussStore)
 }

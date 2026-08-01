@@ -36,10 +36,6 @@
           <div class="game-title-meta" aria-label="游戏数据">
             <span aria-label="游玩次数"><my-global-icon iconName="play" />{{ formatBigNumber(game()!.playCount) }} 游玩</span>
             <span aria-label="评论数"><my-global-icon iconName="message-circle" />{{ formatBigNumber(commentCount() || game()!.comments || 0) }} 评论</span>
-            <span aria-label="评分" class="game-title-score">
-              <my-global-icon iconName="star" />
-              {{ displayAverageScore() > 0 ? displayAverageScore().toFixed(1) : '暂无' }} 评分
-            </span>
             <time [attr.datetime]="game()!.updatedAt">{{ game()!.updatedAt | date:'yyyy-MM-dd HH:mm' }}</time>
             @if (!community()?.isOwner) {
               <button type="button" class="report-trigger-btn" (click)="openReportDialog()" aria-label="举报游戏">举报</button>
@@ -95,10 +91,7 @@
         [uuid]="currentUuid"
         [game]="game()"
         [communityError]="communityError()"
-        [inWatchLater]="inWatchLater()"
-        [watchLaterFeedback]="watchLaterFeedback()"
         (share)="shareGame()"
-        (toggleWatchLater)="toggleWatchLater()"
       />
 
       <my-game-comments />
