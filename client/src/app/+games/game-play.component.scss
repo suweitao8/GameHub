@@ -1317,23 +1317,37 @@
 
 .game-play-page .game-title-developer {
   align-items: center;
-  gap: 4px 10px;
-  grid-template-columns: 48px minmax(0, 1fr);
-  grid-template-rows: auto auto;
+  display: flex;
   justify-self: end;
+  min-height: 73px;
+  width: 100%;
+}
+
+.game-play-page .developer-identity {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-width: 0;
   width: 100%;
 }
 
 .game-play-page .developer-identity img {
   align-self: center;
+  grid-column: 1;
+  grid-row: auto;
   height: 48px;
   width: 48px;
 }
 
-.game-play-page .developer-identity div {
-  align-content: start;
+.game-play-page .developer-profile {
+  align-content: center;
+  display: grid;
   gap: 2px;
-  padding-top: 1px;
+  grid-column: 2;
+  grid-row: auto;
+  min-width: 0;
+  padding-top: 0;
 }
 
 .game-play-page .developer-identity a {
@@ -1352,7 +1366,10 @@
   font-size: 0.78rem;
   line-height: 20px;
   min-height: 28px;
+  grid-column: auto;
+  grid-row: auto;
   padding: 3px 10px;
+  justify-self: start;
   width: max-content;
   min-width: 80px;
 }
@@ -1452,6 +1469,10 @@
   .game-play-page .game-title-meta { gap: 4px 12px; }
 
   .game-play-page .game-title-developer {
+    min-height: 64px;
+  }
+
+  .game-play-page .developer-identity {
     grid-template-columns: 40px minmax(0, 1fr);
   }
 

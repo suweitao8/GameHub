@@ -151,6 +151,13 @@ assert(rankings.includes('最近更新'), 'rankings must label 最近更新')
 
 const playHtml = read('client/src/app/+games/game-play.component.html')
 assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-play must render the HTML game stage')
+assert(playHtml.includes('developer-profile'), 'game-play developer card must group identity text and follow action for vertical centering')
+assert(playHtml.includes('onRelatedCoverError'), 'game-play related covers must fall back when an image request fails')
+const gameOverviewCtrl = read('server/core/controllers/api/games/community-overview.ts')
+assert(
+  gameOverviewCtrl.includes('coverFallback: null'),
+  'related games must not advertise a cover fallback URL when the game has no cover'
+)
 
 const authorHtml = read('client/src/app/+games/game-author.component.html')
 assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')

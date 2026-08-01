@@ -59,6 +59,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly community = signal<GameCommunity | null>(null)
   readonly communityError = signal('')
   readonly related = signal<GameRelatedGame[]>([])
+  readonly relatedCoverBroken = signal<Record<string, boolean>>({})
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
@@ -98,6 +99,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.community.set(null)
     this.communityError.set('')
     this.related.set([])
+    this.relatedCoverBroken.set({})
     this.playRecordedFor = ''
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
@@ -170,6 +172,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   getDeveloperAvatar (label: string) { return buildGameAvatarDataUrl(label) }
+
+  onRelatedCoverError (uuid: string) {
+    this.relatedCoverBroken.update(state => ({ ...state, [uuid]: true }))
+  }
 
   @HostListener('document:keydown', [ '$event' ])
   onKeydown (event: KeyboardEvent) {

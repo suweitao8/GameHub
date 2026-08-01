@@ -1,5 +1,4 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
-import { CONFIG } from '@server/initializers/config.js'
 import { generateGameCoverSignedUrl } from '@server/lib/games/game-cdn.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { AccountModel } from '@server/models/account/account.js'
@@ -129,7 +128,6 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
     result = result.concat(fillers.map(g => ({ game: g, overlap: 0, playCount: Number(g.playCount || 0) })))
   }
 
-  const baseUrl = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
   const data = result.slice(0, limit).map(({ game: g }) => {
     const owner = (g as any).Owner
     return {
@@ -138,7 +136,7 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
       category: g.category,
       tags: Array.isArray(g.tags) ? g.tags.filter((t: unknown) => typeof t === 'string') : [],
       coverPath: g.coverPath ? generateGameCoverSignedUrl({ uuid: g.uuid }) : null,
-      coverFallback: g.coverPath ? null : `${baseUrl}/api/v1/games/${g.uuid}/cover`,
+      coverFallback: null,
       playCount: Number(g.playCount || 0),
       likes: Number(g.get?.('gameLikes') ?? 0),
       favorites: Number(g.get?.('favoriteCount') ?? 0),

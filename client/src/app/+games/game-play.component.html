@@ -47,20 +47,20 @@
           @if (community()?.author; as author) {
             <div class="developer-identity">
               <img [src]="getDeveloperAvatar(author.displayName || game()!.title)" alt="">
-              <div>
+              <div class="developer-profile">
                 <a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a>
                 <span class="developer-title">{{ game()!.title }}</span>
+                <button
+                  type="button"
+                  class="developer-follow-button"
+                  [class.active]="community()!.following"
+                  [disabled]="community()!.isOwner"
+                  (click)="toggleFollow()"
+                >
+                  {{ community()!.following ? '已关注' : '+ 关注' }}
+                </button>
               </div>
             </div>
-            <button
-              type="button"
-              class="developer-follow-button"
-              [class.active]="community()!.following"
-              [disabled]="community()!.isOwner"
-              (click)="toggleFollow()"
-            >
-              {{ community()!.following ? '已关注' : '+ 关注' }}
-            </button>
           } @else {
             <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:#eceff3"></div>
           }
@@ -109,8 +109,8 @@
               @for (item of related(); track item.uuid) {
                 <a class="related-game-row" [routerLink]="['/games', item.uuid]">
                   <div class="related-game-thumb">
-                    @if (item.coverPath || item.coverFallback) {
-                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy">
+                    @if ((item.coverPath || item.coverFallback) && !relatedCoverBroken()[item.uuid]) {
+                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy" (error)="onRelatedCoverError(item.uuid)">
                     } @else {
                       <span>G</span>
                     }
