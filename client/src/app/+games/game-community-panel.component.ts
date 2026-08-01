@@ -127,8 +127,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       margin-bottom: 0.85rem;
     }
     .game-description-content {
-      height: 8.5rem;
-      max-height: 8.5rem;
+      height: 200px;
+      max-height: 200px;
       overflow-y: auto;
       padding-right: 0.35rem;
     }

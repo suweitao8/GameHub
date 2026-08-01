@@ -262,13 +262,16 @@
 .game-header-actions my-global-icon {
   align-items: center;
   display: inline-flex;
+  flex: 0 0 0.75rem;
   justify-content: center;
-  height: 1rem;
-  width: 1rem;
+  height: 0.75rem;
+  width: 0.75rem;
 }
 
 .game-header-actions my-global-icon ::ng-deep svg {
   display: block;
+  height: 100%;
+  width: 100%;
 }
 
 .game-header-action-wrap {

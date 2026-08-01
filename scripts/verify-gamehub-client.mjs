@@ -166,6 +166,7 @@ const gameCommunityServiceTs = read('client/src/app/+games/services/game-communi
 const communityPanelTs = read('client/src/app/+games/game-community-panel.component.ts')
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
+const headerScss = read('client/src/app/header/header.component.scss')
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
@@ -257,16 +258,24 @@ assert(
 )
 assert(
   commentsTs.includes('height: 1.75rem;') && commentsTs.includes('width: 1.75rem;') &&
-    commentsTs.includes('height: 0.75rem;') && commentsTs.includes('width: 0.75rem;') &&
-    commentsTs.includes('vertical-align: middle;'),
+    commentsTs.includes('height: 0.5rem;') && commentsTs.includes('width: 0.5rem;') &&
+    commentsTs.includes('align-items: center;') && commentsTs.includes('justify-content: center;') &&
+    commentsTs.includes('.bili-composer-tool-wrap:hover .bili-composer-tool') &&
+    /\.bili-composer-tool\s*\{[^}]*margin: 0;/.test(commentsTs) &&
+    (commentsTs.match(/class="bili-composer-tool-wrap"/g) || []).length >= 2,
   'comment emoji and image tools must share a smaller centered control box and icon size'
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
-    communityPanelTs.includes('height: 8.5rem;') &&
-    communityPanelTs.includes('max-height: 8.5rem;') &&
+    communityPanelTs.includes('height: 200px;') &&
+    communityPanelTs.includes('max-height: 200px;') &&
     communityPanelTs.includes('overflow-y: auto;'),
-  'game overview and controls must share a fixed five-line content area'
+  'game overview and controls must share a fixed 200px content area'
+)
+assert(
+  /\.game-header-actions my-global-icon \{[\s\S]*height: 0\.75rem;[\s\S]*width: 0\.75rem;/.test(headerScss) &&
+    /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100%;[\s\S]*width: 100%;/.test(headerScss),
+  'navbar action icons must use a smaller normalized icon box'
 )
 assert(
   /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&

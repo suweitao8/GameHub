@@ -139,8 +139,12 @@ import { GameCommentsStore } from './game-comments-store'
       margin-right: auto;
     }
     .bili-composer-tool-wrap {
+      align-items: center;
       display: inline-flex;
+      height: 1.75rem;
+      justify-content: center;
       position: relative;
+      width: 1.75rem;
     }
     .bili-composer-tool {
       align-items: center;
@@ -151,14 +155,17 @@ import { GameCommentsStore } from './game-comments-store'
       color: #61666d;
       cursor: pointer;
       display: inline-flex;
+      flex: 0 0 1.75rem;
       font-size: 0;
       height: 1.75rem;
       justify-content: center;
       line-height: 0;
+      margin: 0;
       padding: 0;
       vertical-align: middle;
       width: 1.75rem;
     }
+    .bili-composer-tool-wrap:hover .bili-composer-tool,
     .bili-composer-tool:hover,
     .bili-composer-tool:focus-visible {
       background: #f1f2f3;
@@ -167,8 +174,9 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-composer-tool my-global-icon {
       display: inline-flex;
-      height: 0.75rem;
-      width: 0.75rem;
+      flex: 0 0 0.5rem;
+      height: 0.5rem;
+      width: 0.5rem;
     }
     .bili-composer-tool my-global-icon ::ng-deep svg {
       display: block;
@@ -530,10 +538,12 @@ import { GameCommentsStore } from './game-comments-store'
                   </div>
                 }
               </div>
-              <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
-                <my-global-icon iconName="upload" />
-                <input type="file" accept="image/*" (change)="selectImage($event)">
-              </label>
+              <div class="bili-composer-tool-wrap">
+                <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
+                  <my-global-icon iconName="upload" />
+                  <input type="file" accept="image/*" (change)="selectImage($event)">
+                </label>
+              </div>
             </div>
             @if (store.replyTo()) {
               <button type="button" class="bili-cancel-reply" (click)="store.replyTo.set(null)">取消回复</button>
