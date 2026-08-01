@@ -183,9 +183,16 @@ assert(discussStoreTs.includes('discussion') && discussStoreTs.includes('send'),
 assert(gameCommunityServiceTs.includes('discussion (') && gameCommunityServiceTs.includes('sendDiscussion'), 'community service must expose independent discussion endpoints')
 assert(gamePlayHtml.includes('my-game-discuss'), 'game play must render the discussion group')
 assert(
-  relatedMarkup.includes('related-game-stat') && relatedMarkup.includes('iconName="play"') && relatedMarkup.includes('iconName="like"') &&
+  relatedMarkup.includes('related-game-stat') && relatedMarkup.includes('iconName="play"') &&
+    relatedMarkup.includes('iconName="message-circle"') && relatedMarkup.includes('item.comments') &&
+    !relatedMarkup.includes('iconName="like"') && !relatedMarkup.includes('item.likes') &&
     !relatedMarkup.includes(' 游玩') && !relatedMarkup.includes(' 赞'),
-  'related game stats must use the shared play/like icons without text labels'
+  'related game stats must use compact play/comment icons without like stats or text labels'
+)
+assert(
+  gamePlayScss.includes('.related-game-stat my-global-icon') && gamePlayScss.includes('height: 0.72rem;') &&
+    gamePlayScss.includes('width: 0.72rem;') && gamePlayScss.includes('stroke-width: 2;'),
+  'related game stats must use a smaller centered icon box'
 )
 assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discussion panel and its body must use a white surface')
 assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
@@ -242,9 +249,30 @@ assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wide
 assert(!gamePlayHtml.includes('iconName="download"') && !gamePlayHtml.includes('iconName="keyboard"') && !gamePlayHtml.includes('class="keyboard-shortcuts-hint"'), 'game controls must remove download, keyboard, and shortcut hint actions')
 assert(gamePlayScss.includes('background: rgb(0 0 0 / 68%)') && gamePlayScss.includes('opacity: 0;') && gamePlayScss.includes('.game-stage:hover .game-player-controls'), 'game controls must be a hidden translucent overlay revealed on stage hover')
 assert(commentsTs.includes('bili-composer-tool') && commentsTs.includes('accept="image/*"') && commentsTs.includes('添加表情'), 'comment composer must expose emoji and image controls')
+assert(
+  commentsTs.includes('emojiOpen') && commentsTs.includes('class="bili-emoji-picker"') && commentsTs.includes('class="bili-emoji-option"') &&
+    commentsTs.includes('(click)="toggleEmojiPicker($event)"') && commentsTs.includes('selectEmoji(emoji, commentInput') &&
+    !commentsTs.includes('(click)="insertEmoji(commentInput)"'),
+  'comment composer must expose a selectable emoji picker instead of inserting a fixed emoji directly'
+)
+assert(
+  commentsTs.includes('height: 1.75rem;') && commentsTs.includes('width: 1.75rem;') &&
+    commentsTs.includes('height: 0.95rem;') && commentsTs.includes('width: 0.95rem;') &&
+    commentsTs.includes('vertical-align: middle;'),
+  'comment emoji and image tools must share a smaller centered control box and icon size'
+)
 assert(commentsTs.includes('class="bili-send-btn" [disabled]="!store.draft().trim()"') && commentsTs.includes('>发送</button>'), 'comment composer must use a disabled gray send button for empty text')
 assert(commentsTs.includes('height: 20px;') && commentsTs.includes('line-height: 20px;'), 'comment metadata controls must use a fixed centered line box')
 assert((gameCommunityOverviewTs.match(/subQuery: false/g) || []).length >= 2, 'related games queries must disable Sequelize subqueries for joined stats')
+assert(
+  /playCount: number\s+comments: number/.test(gameCommunityModelTs),
+  'related game model must expose the comment count instead of a like count'
+)
+assert(
+  gameCommunityOverviewTs.includes("comments: Number(g.get?.('gameComments') ?? 0)") &&
+    !gameCommunityOverviewTs.includes("likes: Number(g.get?.('gameLikes') ?? 0)"),
+  'related game API must return the joined comment count instead of likes'
+)
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'

@@ -138,7 +138,7 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
       coverPath: g.coverPath ? generateGameCoverSignedUrl({ uuid: g.uuid }) : null,
       coverFallback: null,
       playCount: Number(g.playCount || 0),
-      likes: Number(g.get?.('gameLikes') ?? 0),
+      comments: Number(g.get?.('gameComments') ?? 0),
       favorites: Number(g.get?.('favoriteCount') ?? 0),
       publishedAt: g.publishedAt,
       author: owner?.Actor

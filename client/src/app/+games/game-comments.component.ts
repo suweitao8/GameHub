@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common'
-import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, HostListener, inject, Input, signal } from '@angular/core'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { GameCommentsStore } from './game-comments-store'
 
@@ -138,20 +138,26 @@ import { GameCommentsStore } from './game-comments-store'
       gap: 0.3rem;
       margin-right: auto;
     }
+    .bili-composer-tool-wrap {
+      display: inline-flex;
+      position: relative;
+    }
     .bili-composer-tool {
       align-items: center;
       background: transparent;
       border: 0;
       border-radius: 4px;
+      box-sizing: border-box;
       color: #61666d;
       cursor: pointer;
       display: inline-flex;
       font-size: 0;
-      height: 2rem;
+      height: 1.75rem;
       justify-content: center;
       line-height: 0;
-      padding: 0 0.35rem;
-      width: 2rem;
+      padding: 0;
+      vertical-align: middle;
+      width: 1.75rem;
     }
     .bili-composer-tool:hover,
     .bili-composer-tool:focus-visible {
@@ -160,11 +166,46 @@ import { GameCommentsStore } from './game-comments-store'
       outline: 0;
     }
     .bili-composer-tool my-global-icon {
-      height: 1.1rem;
-      width: 1.1rem;
+      display: inline-flex;
+      height: 0.95rem;
+      width: 0.95rem;
     }
     .bili-composer-tool input {
       display: none;
+    }
+    .bili-emoji-picker {
+      background: #fff;
+      border: 1px solid #e3e5e7;
+      border-radius: 8px;
+      bottom: calc(100% + 0.45rem);
+      box-shadow: 0 8px 24px rgb(25 30 40 / 12%);
+      display: grid;
+      gap: 0.2rem;
+      grid-template-columns: repeat(6, 1fr);
+      left: 0;
+      padding: 0.4rem;
+      position: absolute;
+      width: 13.5rem;
+      z-index: 10;
+    }
+    .bili-emoji-option {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      font-size: 1.05rem;
+      height: 1.85rem;
+      justify-content: center;
+      line-height: 1;
+      padding: 0;
+      width: 1.85rem;
+    }
+    .bili-emoji-option:hover,
+    .bili-emoji-option:focus-visible {
+      background: #f1f2f3;
+      outline: 0;
     }
     .bili-composer-image {
       align-items: center;
@@ -458,9 +499,32 @@ import { GameCommentsStore } from './game-comments-store'
           }
           <div class="bili-composer-actions">
             <div class="bili-composer-tools">
-              <button type="button" class="bili-composer-tool" aria-label="添加表情" title="添加表情" (click)="insertEmoji(commentInput)">
-                <my-global-icon iconName="mood-smile" />
-              </button>
+              <div class="bili-composer-tool-wrap">
+                <button
+                  type="button"
+                  class="bili-composer-tool"
+                  aria-label="添加表情"
+                  title="添加表情"
+                  [attr.aria-expanded]="emojiOpen()"
+                  (click)="toggleEmojiPicker($event)"
+                >
+                  <my-global-icon iconName="mood-smile" />
+                </button>
+                @if (emojiOpen()) {
+                  <div class="bili-emoji-picker" role="dialog" aria-label="选择表情">
+                    @for (emoji of emojiOptions; track emoji) {
+                      <button
+                        type="button"
+                        class="bili-emoji-option"
+                        [attr.aria-label]="'选择表情 ' + emoji"
+                        (click)="selectEmoji(emoji, commentInput, $event)"
+                      >
+                        {{ emoji }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
               <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
                 <my-global-icon iconName="upload" />
                 <input type="file" accept="image/*" (change)="selectImage($event)">
@@ -573,20 +637,38 @@ import { GameCommentsStore } from './game-comments-store'
 export class GameCommentsComponent {
   readonly store = inject(GameCommentsStore)
   readonly imageDataUrl = signal('')
+  readonly emojiOpen = signal(false)
+  readonly emojiOptions = [ '😀', '😄', '😂', '🙂', '😉', '😍', '🤔', '😎', '🥳', '😭', '😡', '👍' ]
 
   /** Kept for API symmetry; the host wires the store directly. */
   @Input() gameTitle = ''
 
-  insertEmoji (input: HTMLInputElement) {
+  @HostListener('document:click')
+  closeEmojiPicker () {
+    this.emojiOpen.set(false)
+  }
+
+  toggleEmojiPicker (event: Event) {
+    event.stopPropagation()
+    this.emojiOpen.update(open => !open)
+  }
+
+  selectEmoji (emoji: string, input: HTMLInputElement, event: Event) {
+    event.stopPropagation()
+    this.insertEmoji(input, emoji)
+    this.emojiOpen.set(false)
+  }
+
+  private insertEmoji (input: HTMLInputElement, emoji: string) {
     const value = this.store.draft()
     const start = input.selectionStart ?? value.length
     const end = input.selectionEnd ?? start
     const prefix = start > 0 && !/\s$/.test(value.slice(0, start)) ? ' ' : ''
-    const next = `${value.slice(0, start)}${prefix}🙂${value.slice(end)}`
+    const next = `${value.slice(0, start)}${prefix}${emoji}${value.slice(end)}`
     this.store.draft.set(next)
     queueMicrotask(() => {
       input.focus()
-      const cursor = start + prefix.length + 2
+      const cursor = start + prefix.length + emoji.length
       input.setSelectionRange(cursor, cursor)
     })
   }

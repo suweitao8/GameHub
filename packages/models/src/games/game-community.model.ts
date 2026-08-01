@@ -29,7 +29,7 @@ export interface GameRelatedGame {
   coverPath: string | null
   coverFallback: string | null
   playCount: number
-  likes: number
+  comments: number
   favorites: number
   publishedAt: string | null
   author: GameAuthorSummary | null
