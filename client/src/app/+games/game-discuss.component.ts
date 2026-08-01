@@ -91,7 +91,7 @@ import { GameDiscussStore } from './game-discuss-store'
     }
     .wechat-message.own .wechat-message-name { text-align: right; }
     .wechat-bubble {
-      background: #f1f2f3;
+      background: #eeeef0;
       border: 1px solid #e3e5e7;
       border-radius: 0.25rem 0.65rem 0.65rem;
       color: #303133;
@@ -102,8 +102,8 @@ import { GameDiscussStore } from './game-discuss-store'
       white-space: pre-wrap;
     }
     .wechat-message.own .wechat-bubble {
-      background: #95ec69;
-      border-color: #95ec69;
+      background: #9df29f;
+      border-color: #9df29f;
       border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
       color: #303133;
     }
