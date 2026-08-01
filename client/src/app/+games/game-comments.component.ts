@@ -223,6 +223,11 @@ import { GameCommentsStore } from './game-comments-store'
       min-width: 4.5rem;
       padding: 0.4rem 0.9rem;
     }
+    .bili-send-btn:disabled {
+      background: #e3e5e7;
+      color: #9499a0;
+      cursor: not-allowed;
+    }
     .bili-comment-list {
       display: flex;
       flex-direction: column;
@@ -453,7 +458,7 @@ import { GameCommentsStore } from './game-comments-store'
             @if (store.replyTo()) {
               <button type="button" class="bili-cancel-reply" (click)="store.replyTo.set(null)">取消回复</button>
             }
-            <button type="submit" class="bili-send-btn">{{ store.replyTo() ? '回复' : '发布' }}</button>
+            <button type="submit" class="bili-send-btn" [disabled]="!store.draft().trim()">发送</button>
           </div>
         </div>
       </form>

@@ -117,7 +117,10 @@
                   </div>
                   <div class="related-game-copy">
                     <strong>{{ item.title }}</strong>
-                    <span>{{ formatBigNumber(item.playCount) }} 游玩 · {{ formatBigNumber(item.likes) }} 赞</span>
+                    <span class="related-game-meta" aria-label="游戏数据">
+                      <span class="related-game-stat"><my-global-icon iconName="play" />{{ formatBigNumber(item.playCount) }}</span>
+                      <span class="related-game-stat"><my-global-icon iconName="like" />{{ formatBigNumber(item.likes) }}</span>
+                    </span>
                   </div>
                 </a>
               }

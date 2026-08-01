@@ -23,7 +23,7 @@ import { GameDiscussStore } from './game-discuss-store'
 
     /* WeChat-style discussion group */
     .game-discuss-panel {
-      background: #f5f6f7;
+      background: #fff;
       border: 1px solid #e3e5e7;
       border-radius: 8px;
       display: flex;
@@ -54,6 +54,7 @@ import { GameDiscussStore } from './game-discuss-store'
       display: none;
     }
     .wechat-message-list {
+      background: #fff;
       display: flex;
       flex: 1;
       flex-direction: column;
@@ -93,7 +94,7 @@ import { GameDiscussStore } from './game-discuss-store'
       background: #fff;
       border: 1px solid #e3e5e7;
       border-radius: 0.25rem 0.65rem 0.65rem;
-      color: #1e1e1e;
+      color: #646970;
       font-size: 0.82rem;
       line-height: 1.45;
       overflow-wrap: anywhere;
@@ -101,16 +102,19 @@ import { GameDiscussStore } from './game-discuss-store'
       white-space: pre-wrap;
     }
     .wechat-message.own .wechat-bubble {
-      background: #00aeec;
-      border-color: #00aeec;
+      background: #fff;
+      border-color: #e3e5e7;
       border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
-      color: #fff;
+      color: var(--game-success);
     }
-    .wechat-message-time {
+    .wechat-time-separator {
+      align-self: center;
       color: #9499a0;
       display: block;
       font-size: 0.66rem;
-      margin-top: 0.18rem;
+      line-height: 20px;
+      margin: 2px auto;
+      text-align: center;
     }
     .discuss-empty {
       color: var(--game-muted);
@@ -158,6 +162,11 @@ import { GameDiscussStore } from './game-discuss-store'
       min-height: 32px;
       padding: 6px 10px;
     }
+    .discuss-composer button:disabled {
+      background: #e3e5e7;
+      color: #9499a0;
+      cursor: not-allowed;
+    }
 
     @media (max-width: 900px) {
       :host { flex: 0 0 auto; }
@@ -176,13 +185,15 @@ import { GameDiscussStore } from './game-discuss-store'
             <div class="discuss-skeleton shimmer"></div>
           }
         } @else {
-          @for (msg of store.timeline(); track msg.id) {
+          @for (msg of store.timeline(); track msg.id; let index = $index) {
+            @if (store.shouldShowTime(index)) {
+              <time class="wechat-time-separator">{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
+            }
             <article class="wechat-message" [class.own]="store.isOwn(msg)">
               <img class="wechat-avatar" [src]="store.messageAvatar(msg)" alt="">
               <div class="wechat-message-body">
                 <strong class="wechat-message-name">{{ msg.account?.displayName || msg.account?.name || '玩家' }}</strong>
                 <p class="wechat-bubble">{{ msg.text }}</p>
-                <time class="wechat-message-time">{{ msg.createdAt | date:'MM-dd HH:mm' }}</time>
               </div>
             </article>
           } @empty {
@@ -200,7 +211,7 @@ import { GameDiscussStore } from './game-discuss-store'
           placeholder="在讨论群说点什么..."
           maxlength="5000"
         >
-        <button type="submit">发送</button>
+        <button type="submit" [disabled]="!store.draft().trim()">发送</button>
       </form>
     </section>
   `

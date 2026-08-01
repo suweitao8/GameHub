@@ -25,6 +25,15 @@ export class GameDiscussStore implements OnDestroy {
 
   readonly timeline = () => this.messages()
 
+  shouldShowTime (index: number) {
+    if (index <= 0) return true
+    const messages = this.messages()
+    const currentTime = Date.parse(messages[index]?.createdAt || '')
+    const previousTime = Date.parse(messages[index - 1]?.createdAt || '')
+    if (!Number.isFinite(currentTime) || !Number.isFinite(previousTime)) return true
+    return currentTime - previousTime > 10 * 60 * 1000
+  }
+
   init (uuid: string) {
     this.stopPolling()
     this.uuid = uuid

@@ -557,6 +557,21 @@
   color: #9499a0;
   font-size: 0.72rem;
 }
+.related-game-meta {
+  align-items: center;
+  display: flex;
+  gap: 0.65rem;
+}
+.related-game-stat {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.18rem;
+}
+.related-game-stat my-global-icon {
+  display: inline-flex;
+  height: 0.78rem;
+  width: 0.78rem;
+}
 
 @media (max-width: 980px) {
   .game-stage-row {

@@ -201,6 +201,8 @@ const gameCommunityOverviewTs = read('server/core/controllers/api/games/communit
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
+const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
+const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
 assert(existsSync(join(root, 'server/core/models/game/game-chat-message.ts')), 'discussion chat must have an independent server model')
 assert(existsSync(join(root, 'server/core/controllers/api/games/community-chat.ts')), 'discussion chat must have an independent API controller')
 assert(discussTs.includes("GameDiscussStore"), 'discussion panel must use GameDiscussStore instead of the comment store')
@@ -208,6 +210,15 @@ assert(!discussTs.includes("GameCommentsStore"), 'discussion panel must not impo
 assert(discussStoreTs.includes('discussion') && discussStoreTs.includes('send'), 'GameDiscussStore must load and send discussion messages')
 assert(gameCommunityServiceTs.includes('discussion (') && gameCommunityServiceTs.includes('sendDiscussion'), 'community service must expose independent discussion endpoints')
 assert(gamePlayHtml.includes('my-game-discuss'), 'game play must render the discussion group')
+assert(
+  relatedMarkup.includes('related-game-stat') && relatedMarkup.includes('iconName="play"') && relatedMarkup.includes('iconName="like"') &&
+    !relatedMarkup.includes(' 游玩') && !relatedMarkup.includes(' 赞'),
+  'related game stats must use the shared play/like icons without text labels'
+)
+assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discussion panel and its body must use a white surface')
+assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
+assert(discussTs.includes('[disabled]="!store.draft().trim()"') && /\.discuss-composer button:disabled\s*\{/.test(discussTs), 'discussion send button must be disabled and gray for empty text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*color: var\(--game-success\);/.test(discussTs), 'own discussion messages must use the green text color')
 assert(!communityPanelTs.includes('一键三连') && !communityPanelTs.includes('tripleAction'), 'community actions must not expose one-click triple interaction')
 assert(!communityPanelTs.includes('余额') && !communityPanelTs.includes('coin-row'), 'community actions must not expose a duplicate coin balance composer')
 assert(!communityPanelTs.includes('description-rating') && !communityPanelTs.includes('reviewScores'), 'game description must not expose star rating UI')
@@ -245,6 +256,7 @@ assert(
 )
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(commentsTs.includes('bili-composer-tool') && commentsTs.includes('accept="image/*"') && commentsTs.includes('添加表情'), 'comment composer must expose emoji and image controls')
+assert(commentsTs.includes('class="bili-send-btn" [disabled]="!store.draft().trim()"') && commentsTs.includes('>发送</button>'), 'comment composer must use a disabled gray send button for empty text')
 assert(commentsTs.includes('height: 20px;') && commentsTs.includes('line-height: 20px;'), 'comment metadata controls must use a fixed centered line box')
 assert((gameCommunityOverviewTs.match(/subQuery: false/g) || []).length >= 2, 'related games queries must disable Sequelize subqueries for joined stats')
 assert(
