@@ -1,14 +1,3 @@
-import { GamesListParams } from './games-api'
-
-export const SORT_KINDS: readonly { id: GamesListParams['sort']; label: string }[] = [
-  { id: 'recommended', label: '综合' },
-  { id: 'latest', label: '最新' },
-  { id: 'popular', label: '最热' },
-  { id: 'likes', label: '点赞' },
-  { id: 'coins', label: '投币' },
-  { id: 'favorites', label: '收藏' }
-]
-
 export const HOME_CATEGORIES: readonly {
   id: string
   title: string

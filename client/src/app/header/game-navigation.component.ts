@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal }
 import { FormsModule } from '@angular/forms'
 import { Router } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { GamesService } from '../+games/games.service'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 
@@ -15,7 +14,6 @@ import { environment } from '../../environments/environment'
 })
 export class GameNavigationComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router)
-  private readonly gamesService = inject(GamesService)
   private readonly http = inject(HttpClient)
   private readonly historyStorageKey = 'gamehub-search-history'
   private blurTimer: ReturnType<typeof setTimeout> | undefined
@@ -24,16 +22,16 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   readonly query = signal('')
   readonly focused = signal(false)
   readonly history = signal<string[]>([])
-  readonly hotKeywords = signal<string[]>([ '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智', '策略挑战', '恐怖探索', '经典街机', '独立新作', '新作推荐' ])
+  readonly hotKeywords = signal<string[]>([ '像素冒险', '解谜小游戏', '平台跳跃', '休闲益智', '策略挑战', '恐怖探索', '经典街机', '独立新作', '新作推荐' ])
   readonly suggestions = signal<string[]>([])
   readonly suggestionLoading = signal(false)
   readonly suggestionVisible = signal(false)
 
   private readonly allHotKeywords = [
-    '像素冒险', '解谜小游戏', '平台跳跃', '双人游戏', '休闲益智',
+    '像素冒险', '解谜小游戏', '平台跳跃', '休闲益智',
     '策略挑战', '恐怖探索', '经典街机', '独立新作', '新作推荐',
     '物理模拟', '创意玩法', '沙盒创造', '机车竞速', '跑酷',
-    '角色扮演', '塔防御策略', '音乐节奏', '文字冒险', '多人联机'
+    '角色扮演', '塔防御策略', '音乐节奏', '文字冒险'
   ]
 
   ngOnInit () {
@@ -85,7 +83,7 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
         this.selectSearch(suggestionList[0])
         return
       }
-      this.submitSearch(event as unknown as Event)
+      this.submitSearch(event)
     }
   }
 

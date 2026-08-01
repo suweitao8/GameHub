@@ -1,4 +1,4 @@
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, ElementRef, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin, of } from 'rxjs'
@@ -14,15 +14,18 @@ import { environment } from '../../environments/environment'
 import { GameErrorRetryComponent } from './shared'
 import { FeaturedCarouselComponent } from './games-home/featured-carousel.component'
 import { GameSectionComponent } from './games-home/game-section.component'
-import { HOME_CATEGORIES, SORT_KINDS } from './games-home.constants'
+import { HOME_CATEGORIES } from './games-home.constants'
 
 @Component({
   templateUrl: './games-home.component.html',
   styleUrl: './games-home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, GameSkeletonComponent, GlobalIconComponent, RouterLink, GameErrorRetryComponent, FeaturedCarouselComponent, GameSectionComponent ]
+  imports: [
+    GameCardComponent, GameSkeletonComponent, GlobalIconComponent, RouterLink,
+    GameErrorRetryComponent, FeaturedCarouselComponent, GameSectionComponent
+  ]
 })
-export class GamesHomeComponent implements OnDestroy, OnInit {
+export class GamesHomeComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
   private readonly route = inject(ActivatedRoute)
@@ -50,7 +53,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
   readonly recommendedTotal = signal(0)
   readonly loadingMore = signal(false)
 
-  readonly sortKinds = SORT_KINDS
   readonly categories = HOME_CATEGORIES
 
   ngOnInit () {
@@ -64,14 +66,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
       this.search.set(params.get('search') || '')
       this.publishedAfter.set(params.get('publishedAfter') || '')
       const requestedSort = params.get('sort') as GamesListParams['sort']
-      const validSorts = [ 'recommended', 'latest', 'popular', 'likes', 'coins', 'favorites' ]
+      const validSorts = [ 'recommended', 'latest', 'popular' ]
       this.sort.set(validSorts.includes(requestedSort || '') ? requestedSort : 'recommended')
       this.recommendedOffset.set(0)
       this.loadGames()
     })
   }
-
-  ngOnDestroy () {}
 
   loadGames () {
     if (this.communityRoute()) {
@@ -181,8 +181,15 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
         ? this.gamesService.listRecent().pipe(catchError(() => of({ total: 0, data: [] as Game[] })))
         : of({ total: 0, data: [] as Game[] }),
       recommended: this.gamesService.list({ ...common, sort: 'recommended', start: this.recommendedOffset() }),
-      featured: this.gamesService.getFeaturedGames(6).pipe(catchError(() => of({ total: 0, data: [] as Game[] }))),
-      collections: this.http.get<{ total: number; data: { id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[] }>(`${environment.apiUrl}/api/v1/games/collections`).pipe(catchError(() => of({ total: 0, data: [] })))
+      featured: this.gamesService.getFeaturedGames(6).pipe(
+        catchError(() => of({ total: 0, data: [] as Game[] }))
+      ),
+      collections: this.http.get<{
+        total: number
+        data: { id: number; title: string; slug: string; coverPath: string | null; gameCount: number }[]
+      }>(`${environment.apiUrl}/api/v1/games/collections`).pipe(
+        catchError(() => of({ total: 0, data: [] }))
+      )
     }).subscribe({
       next: result => {
         this.latest.set(result.latest.data)
@@ -191,7 +198,13 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
         this.featured.set(result.featured.data)
         this.collections.set(result.collections.data)
         // Prefer server recent plays; fall back to local browse history for guests
-        const allGames = [ ...result.recent.data, ...result.latest.data, ...result.popular.data, ...result.recommended.data, ...result.featured.data ]
+        const allGames = [
+          ...result.recent.data,
+          ...result.latest.data,
+          ...result.popular.data,
+          ...result.recommended.data,
+          ...result.featured.data
+        ]
         this.recent.set(this.buildRecentPlayedList(result.recent.data, allGames))
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)
@@ -230,7 +243,7 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     }
     this.gamesService.list(common).subscribe({
       next: result => {
-        this.recommended.update(prev => [...prev, ...result.data])
+        this.recommended.update(prev => [ ...prev, ...result.data ])
         this.recommendedTotal.set(result.total)
         this.loadingMore.set(false)
       },
@@ -282,30 +295,6 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     return unique
   }
 
-  onSortChange (event: Event) {
-    const sort = (event.target as HTMLSelectElement).value as GamesListParams['sort']
-    this.sort.set(sort || 'recommended')
-    this.loadGames()
-  }
-
-  onSortPill (sort: GamesListParams['sort']) {
-    if (this.sort() === sort) return
-    this.sort.set(sort)
-    this.loadGames()
-  }
-
-  sortLabel () {
-    const labels: Record<string, string> = {
-      recommended: '综合排序',
-      latest: '最新发布',
-      popular: '最多游玩',
-      likes: '最多点赞',
-      coins: '最多投币',
-      favorites: '最多收藏'
-    }
-    return labels[this.sort()] || '排序'
-  }
-
   onPublishedAfterChange (event: Event) {
     this.publishedAfter.set((event.target as HTMLInputElement).value)
     this.loadGames()
@@ -315,15 +304,12 @@ export class GamesHomeComponent implements OnDestroy, OnInit {
     if (this.view() === 'following') return '关注动态'
     if (this.searchMode() || this.search() || this.category() || this.publishedAfter()) return '搜索结果'
 
-    return {
+    const headings: Record<string, string> = {
       recommended: '为你推荐',
       popular: '正在热门',
-      latest: '最新发布',
-      updated: '最近更新',
-      likes: '最多点赞',
-      coins: '最多投币',
-      favorites: '最多收藏'
-    }[this.sort()]
+      latest: '最新发布'
+    }
+    return headings[this.sort()] || '为你推荐'
   }
 
   categoryTitle () {

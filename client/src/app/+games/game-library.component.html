@@ -26,7 +26,6 @@
         @for (game of games(); track game.uuid) {
           <div class="library-game-item">
             <my-game-card [game]="game" />
-            <a class="library-download" [href]="getDownloadUrl(game.uuid)">下载游戏包</a>
           </div>
         } @empty {
           @if (!error()) {

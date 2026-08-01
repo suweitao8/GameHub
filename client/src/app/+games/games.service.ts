@@ -158,10 +158,6 @@ export class GamesService {
     return buildGameRuntimeUrl(runtimeOrigin, uuid)
   }
 
-  buildDownloadUrl (uuid: string) {
-    return `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/download`
-  }
-
   // ---------------------------------------------------------------------------
   // 社区互动（委托 GameCommunityService，新组件应直接 inject 该 service）
   // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ActivatedRoute, RouterModule } from '@angular/router'
+import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 import { GameCardComponent } from './game-card.component'
@@ -20,7 +20,7 @@ export type GameCollectionDetail = {
 @Component({
   selector: 'my-game-collection-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, GameCardComponent, GameSkeletonComponent],
+  imports: [ CommonModule, GameCardComponent, GameSkeletonComponent ],
   template: `
     <div class="collection-detail-container">
       @if (loading()) {
@@ -64,20 +64,17 @@ export type GameCollectionDetail = {
           } @else {
             <div class="collection-empty">
               <span>该专题暂无游戏</span>
-              <p>去看看其他专题吧</p>
-              <a routerLink="/games/collections">浏览全部专题</a>
             </div>
           }
         </div>
       } @else {
         <div class="collection-not-found">
           <span>专题合集不存在</span>
-          <a routerLink="/games/collections">返回专题列表</a>
         </div>
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .collection-detail-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
 
     .collection-header { margin-bottom: 1.5rem; }
@@ -91,15 +88,19 @@ export type GameCollectionDetail = {
     .collection-games .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
 
     .collection-skeleton-header { margin-bottom: 1.5rem; }
-    .collection-skeleton-cover { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--game-radius); background: #e2e8f0; margin-bottom: 0.75rem; }
+    .collection-skeleton-cover {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--game-radius);
+      background: #e2e8f0;
+      margin-bottom: 0.75rem;
+    }
     .collection-skeleton-text { height: 1rem; width: 60%; border-radius: 4px; background: #e2e8f0; margin-bottom: 0.5rem; }
     .collection-skeleton-text.short { width: 30%; }
     .collection-skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
 
     .collection-not-found { text-align: center; padding: 3rem; }
-    .collection-not-found span { display: block; font-size: 1.1rem; margin-bottom: 1rem; color: var(--game-muted); }
-    .collection-not-found a { color: var(--game-brand); text-decoration: none; }
-    .collection-not-found a:hover { text-decoration: underline; }
+    .collection-not-found span { display: block; font-size: 1.1rem; color: var(--game-muted); }
 
     .collection-empty {
       align-items: center;
@@ -115,9 +116,6 @@ export type GameCollectionDetail = {
       text-align: center;
     }
     .collection-empty span { font-size: 1.1rem; color: var(--game-muted); }
-    .collection-empty p { margin: 0; color: var(--game-muted); }
-    .collection-empty a { color: var(--game-brand); text-decoration: none; font-weight: 600; }
-    .collection-empty a:hover { text-decoration: underline; }
 
     .collection-error {
       align-items: center;
@@ -140,7 +138,7 @@ export type GameCollectionDetail = {
       font-weight: 600;
       padding: 0.55rem 1.25rem;
     }
-  `]
+  ` ]
 })
 export class GameCollectionDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)

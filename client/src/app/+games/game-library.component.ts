@@ -53,10 +53,6 @@ export class GameLibraryComponent implements OnInit, OnDestroy {
     })
   }
 
-  getDownloadUrl (uuid: string) {
-    return this.gamesService.buildDownloadUrl(uuid)
-  }
-
   load () {
     const request = this.tab() === 'favorites'
       ? this.gamesService.listFavorites()

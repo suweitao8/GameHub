@@ -14,7 +14,7 @@
         <div class="cover-preview-area">@if (coverPreview()) { <img [src]="coverPreview()" alt="游戏封面预览"><div><span>{{ coverSource() === 'runtime' ? '系统运行截图封面' : coverSource() === 'manual' ? '自定义封面' : 'GameHub 自动封面' }}</span><button type="button" (click)="regenerateCover()">重新生成封面</button></div> } @else { <button type="button" class="cover-generate-button" (click)="regenerateCover()" [disabled]="!title.trim()">生成封面预览</button> }</div>
         <label>简介<textarea name="description" [(ngModel)]="description" rows="4" placeholder="一句话介绍你的游戏"></textarea></label>
         <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
-        @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> } @if (createdGame(); as game) { <div class="upload-success-links"><a [routerLink]="['/games', game.uuid]">打开游戏</a><a [href]="getDownloadUrl(game.uuid)">下载游戏包</a></div> }
+        @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> } @if (createdGame(); as game) { <div class="upload-success-links"><a [routerLink]="['/games', game.uuid]">打开游戏</a></div> }
         <button type="submit" [disabled]="submitting() || !file">{{ submitting() ? '正在检查并提交…' : '提交审核并发布' }}</button>
       </form>
     </div>

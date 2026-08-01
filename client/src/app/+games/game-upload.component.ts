@@ -176,10 +176,6 @@ export class GameUploadComponent implements OnDestroy {
     return `上传中... ${this.uploadProgress()}%`
   }
 
-  getDownloadUrl (uuid: string) {
-    return this.gamesService.buildDownloadUrl(uuid)
-  }
-
   private resetForNewFile () {
     this.error.set('')
     this.createdGame.set(null)

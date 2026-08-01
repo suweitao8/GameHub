@@ -22,6 +22,12 @@
   text-align: center;
 }
 
+.category-empty-spacer {
+  display: block;
+  min-height: calc(100vh - 8rem);
+  width: 100%;
+}
+
 .empty-icon {
   font-size: 3rem;
   margin-bottom: 0.5rem;
@@ -158,39 +164,6 @@
   align-items: flex-end;
   display: flex;
   min-height: 2.8rem;
-}
-
-.sort-pills {
-  display: flex;
-  gap: 0.35rem;
-}
-
-.sort-pills button {
-  background: #fff;
-  border: 1px solid var(--game-border);
-  border-radius: 6px;
-  color: var(--game-muted);
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.35rem 0.7rem;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms ease;
-}
-
-.sort-pills button:hover {
-  background: #f0f2f4;
-  border-color: #c9cdd1;
-  color: var(--game-text);
-}
-
-.sort-pills button.active {
-  background: var(--game-brand);
-  border-color: var(--game-brand);
-  color: #fff;
-}
-
-.sort-pills button:active {
-  transform: scale(0.95);
 }
 
 .shuffle-button {
@@ -476,7 +449,10 @@
 }
 
 @media (max-width: 1050px) {
-  .game-grid { gap: 0.65rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .game-grid {
+    gap: 0.65rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1200px) {
@@ -486,7 +462,10 @@
 }
 
 @media (max-width: 720px) {
-  .game-grid { gap: 0.4rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-grid {
+    gap: 0.4rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .home-discovery-nav {
     align-items: center;
     flex-wrap: nowrap;

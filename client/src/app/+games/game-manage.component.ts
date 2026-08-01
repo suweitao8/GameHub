@@ -110,10 +110,6 @@ export class GameManageComponent implements OnInit, OnDestroy {
     }[status]
   }
 
-  getDownloadUrl (uuid: string) {
-    return this.gamesService.buildDownloadUrl(uuid)
-  }
-
   applyFilter () {
     const query = this.searchQuery().trim().toLowerCase()
     const status = this.statusFilter()

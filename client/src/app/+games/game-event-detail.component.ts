@@ -1,10 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ActivatedRoute, RouterLink } from '@angular/router'
+import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 import { AuthService } from '@app/core/auth/auth.service'
-import { GameCardComponent } from './game-card.component'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 
@@ -37,7 +36,7 @@ export type EventParticipant = {
 @Component({
   selector: 'my-game-event-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, GlobalIconComponent ],
   template: `
     <div class="event-detail-container">
       @if (loading()) {
@@ -67,7 +66,9 @@ export type EventParticipant = {
                 @if (joined()) {
                   <button type="button" class="event-action-btn secondary" (click)="leaveEvent()">取消报名</button>
                 } @else {
-                  <button type="button" class="event-action-btn primary" (click)="joinEvent()">{{ ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants ? '名额已满' : '立即报名' }}</button>
+                  <button type="button" class="event-action-btn primary" (click)="joinEvent()">
+                    {{ ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants ? '名额已满' : '立即报名' }}
+                  </button>
                 }
               }
             </div>
@@ -92,7 +93,9 @@ export type EventParticipant = {
             <h2 id="participants-title">已报名 {{ participants().length }} 人</h2>
             @if (participantsLoading()) {
               <div class="participants-skeleton">
-                <div class="participant-skeleton shimmer" *ngFor="let _ of [1,2,3]"></div>
+                @for (_ of [1, 2, 3]; track $index) {
+                  <div class="participant-skeleton shimmer"></div>
+                }
               </div>
             } @else if (participants().length) {
               <div class="participants-list">
@@ -115,12 +118,11 @@ export type EventParticipant = {
         <div class="event-not-found">
           <h1>活动不存在</h1>
           <p>该活动可能已被删除或尚未开始</p>
-          <a routerLink="/games/events">返回活动列表</a>
         </div>
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .event-detail-container { max-width: 900px; margin: 0 auto; padding: 1rem; }
 
     .event-detail-header {
@@ -248,9 +250,7 @@ export type EventParticipant = {
 
     .event-not-found { text-align: center; padding: 3rem; }
     .event-not-found h1 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-    .event-not-found p { color: var(--game-muted); margin: 0 0 1rem; }
-    .event-not-found a { color: var(--game-brand); text-decoration: none; font-weight: 700; }
-    .event-not-found a:hover { text-decoration: underline; }
+    .event-not-found p { color: var(--game-muted); margin: 0; }
 
     .event-detail-skeleton { display: flex; flex-direction: column; gap: 1rem; }
     .event-skeleton-cover { aspect-ratio: 16 / 9; border-radius: var(--game-radius); }
@@ -258,7 +258,7 @@ export type EventParticipant = {
     .event-skeleton-text { height: 1rem; width: 40%; border-radius: 4px; }
     .participants-skeleton { display: flex; flex-direction: column; gap: 0.5rem; }
     .participant-skeleton { height: 2.5rem; border-radius: 4px; }
-  `]
+  ` ]
 })
 export class GameEventDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)

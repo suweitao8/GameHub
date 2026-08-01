@@ -56,6 +56,11 @@ function assertBundleContract (body, label) {
 
 // 1) GameHub home and banner asset contracts
 const homeHtml = read('client/src/app/+games/games-home.component.html')
+const homeTs = read('client/src/app/+games/games-home.component.ts')
+const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
+const navigationTs = read('client/src/app/header/game-navigation.component.ts')
+const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
+const collectionDetailTs = read('client/src/app/+games/game-collection-detail.component.ts')
 const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')
 assert(
   existsSync(bannerAssetPath),
@@ -132,10 +137,21 @@ const authorHtml = read('client/src/app/+games/game-author.component.html')
 assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')
 assert(!authorHtml.includes('account.handle'), 'author page must not render an account handle in the visible profile')
 
-const homeTs = read('client/src/app/+games/games-home.component.ts')
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
 assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')
 assert(homeHtml.includes('我玩过的') && homeHtml.includes('最新发布') && homeHtml.includes('热门游戏'), 'games-home must render the required feed sections')
+assert(
+  !homeHtml.includes('返回发现') && !homeHtml.includes('该分类暂无游戏') && !homeHtml.includes('浏览全部'),
+  'games-home must keep category-empty pages visually blank and remove return navigation actions'
+)
+assert(!homeHtml.includes('sort-pills') && !homeTs.includes('sortKinds') && !homeConstantsTs.includes("id: 'likes'") && !homeConstantsTs.includes("id: 'coins'"), 'games-home must not expose legacy video sorting pills')
+assert(
+  homeTs.includes("const validSorts = [ 'recommended', 'latest', 'popular' ]") &&
+    !homeTs.includes('最多点赞') && !homeTs.includes('最多投币') && !homeTs.includes('最多收藏'),
+  'games-home must only accept the current discovery sorts'
+)
+assert(!navigationTs.includes('双人游戏') && !navigationTs.includes('多人联机'), 'search hot keywords must not reintroduce multiplayer-only labels')
+assert(!eventDetailTs.includes('返回活动列表') && !collectionDetailTs.includes('浏览全部专题') && !collectionDetailTs.includes('返回专题列表'), 'game detail states must not render legacy return buttons')
 
 const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
 assert(
@@ -174,6 +190,14 @@ const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
 const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
 const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
+const uploadHtml = read('client/src/app/+games/game-upload.component.html')
+const uploadTs = read('client/src/app/+games/game-upload.component.ts')
+const libraryHtml = read('client/src/app/+games/game-library.component.html')
+const libraryTs = read('client/src/app/+games/game-library.component.ts')
+const libraryScss = read('client/src/app/+games/game-library.component.scss')
+const manageHtml = read('client/src/app/+games/game-manage.component.html')
+const manageTs = read('client/src/app/+games/game-manage.component.ts')
+const gamesServiceTs = read('client/src/app/+games/games.service.ts')
 const clientPackageJson = JSON.parse(read('client/package.json'))
 const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
 const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
@@ -249,6 +273,12 @@ assert(
 )
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(!gamePlayHtml.includes('iconName="download"') && !gamePlayHtml.includes('iconName="keyboard"') && !gamePlayHtml.includes('class="keyboard-shortcuts-hint"'), 'game controls must remove download, keyboard, and shortcut hint actions')
+assert(
+  ![ uploadHtml, uploadTs, libraryHtml, libraryTs, libraryScss, manageHtml, manageTs, gamesServiceTs ].some(body =>
+    body.includes('下载游戏包') || body.includes('buildDownloadUrl') || body.includes('library-download')
+  ),
+  'GameHub must not expose game download actions or download URL helpers'
+)
 assert(gamePlayScss.includes('background: rgb(0 0 0 / 68%)') && gamePlayScss.includes('opacity: 0;') && gamePlayScss.includes('.game-stage:hover .game-player-controls'), 'game controls must be a hidden translucent overlay revealed on stage hover')
 assert(commentsTs.includes('bili-composer-tool') && commentsTs.includes('accept="image/*"') && commentsTs.includes('添加表情'), 'comment composer must expose emoji and image controls')
 assert(

@@ -49,13 +49,6 @@
 .library-page .game-grid { display: grid;
   gap: 1rem;
   grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.library-download { color: var(--game-brand);
-  display: inline-block;
-  font-size: 0.82rem;
-  font-weight: 700;
-  margin-top: 0.55rem;
-  text-decoration: none; }
-
 @media (max-width: 1050px) {
   .library-page .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

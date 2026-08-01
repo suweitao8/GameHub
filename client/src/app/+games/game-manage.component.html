@@ -34,7 +34,6 @@
             <a [routerLink]="['/games/edit', game.uuid]">编辑</a>
           }
           @if (ownerView() && game.status !== 'unlisted') { <a [routerLink]="['/games/edit', game.uuid]">编辑</a><button type="button" class="danger-action" [disabled]="removing() !== null || moderating() !== null" (click)="requestRemove(game)">{{ isRemoving(game) ? '下架中…' : removeTarget() === game.uuid ? '再次点击确认下架' : '下架' }}</button> }
-          @if (ownerView() || game.status === 'published') { <a [href]="getDownloadUrl(game.uuid)">下载游戏包</a> }
         </div>
       </article>
     } @empty {
