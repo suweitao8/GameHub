@@ -238,7 +238,11 @@ assert(gameStatsSummaryTs.includes('declare shares: number'), 'game stats summar
 assert(gameShareControllerTs.includes("increment('shares'"), 'creating a share link must increment the game share count')
 assert(communityPanelTs.includes('state.favorites') && communityPanelTs.includes('state.shares'), 'favorite and share actions must render numeric counts')
 assert(!communityPanelTs.includes("state.favorite ? '已收藏' : '收藏'") && !communityPanelTs.includes('<strong>分享</strong>'), 'favorite and share actions must not render text labels instead of counts')
-assert(gamePlayScss.includes('.game-play-page .game-title-developer {\n  align-items: center;') && gamePlayScss.includes('.game-play-page .developer-identity img {\n  align-self: center;'), 'developer avatar must be vertically centered with the identity block')
+assert(
+  /\.game-play-page \.game-title-developer \{\s+align-items: center;/.test(gamePlayScss) &&
+    /\.game-play-page \.developer-identity img \{\s+align-self: center;/.test(gamePlayScss),
+  'developer avatar must be vertically centered with the identity block'
+)
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(commentsTs.includes('bili-composer-tool') && commentsTs.includes('accept="image/*"') && commentsTs.includes('添加表情'), 'comment composer must expose emoji and image controls')
 assert(commentsTs.includes('height: 20px;') && commentsTs.includes('line-height: 20px;'), 'comment metadata controls must use a fixed centered line box')
