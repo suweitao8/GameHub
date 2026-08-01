@@ -62,11 +62,11 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .game-action-button > my-global-icon { color: inherit;
       align-items: center;
       display: inline-flex;
-      flex: 0 0 1.45rem;
-      height: 1.45rem;
+      flex: 0 0 1.1rem;
+      height: 1.1rem;
       justify-content: center;
       line-height: 0;
-      width: 1.45rem; }
+      width: 1.1rem; }
     .game-action-button > my-global-icon ::ng-deep svg { stroke-width: 2.1; }
     .game-action-button strong {
       color: inherit;
@@ -74,9 +74,9 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       font-size: 0.82rem;
       font-weight: 600;
       display: inline-flex;
-      height: 1.45rem;
+      height: 1.1rem;
       line-height: 1;
-      min-height: 0.8rem;
+      min-height: 1.1rem;
       white-space: nowrap;
     }
     .game-action-button small {
@@ -94,8 +94,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
         transform: translateY(0); } }
 
     .game-description-panel {
-      border-top: 1px solid var(--game-border);
-      margin-top: 1rem;
+      border-top: 0;
+      margin-top: 0;
       padding-top: 0.95rem;
     }
     .game-description-fallback {
@@ -120,6 +120,56 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       line-height: 1.7;
       margin: 0;
       white-space: pre-wrap; }
+    .game-description-tabs {
+      align-items: center;
+      display: flex;
+      gap: 1.35rem;
+      margin-bottom: 0.85rem;
+    }
+    .game-description-tab {
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: var(--game-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      margin-bottom: -1px;
+      padding: 0.15rem 0 0.55rem;
+    }
+    .game-description-tab:hover,
+    .game-description-tab:focus-visible,
+    .game-description-tab.active {
+      color: var(--game-text);
+    }
+    .game-description-tab:focus-visible { outline: 2px solid var(--game-brand); outline-offset: 2px; }
+    .game-description-tab.active {
+      border-bottom-color: var(--game-brand);
+      font-weight: 700;
+    }
+    .game-description-table {
+      display: grid;
+      gap: 0.55rem;
+      margin: 0;
+    }
+    .game-description-table > div {
+      align-items: start;
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+    }
+    .game-description-table dt {
+      color: var(--game-muted);
+      font-size: 0.8rem;
+      line-height: 1.7;
+    }
+    .game-description-table dd {
+      color: var(--game-text);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      margin: 0;
+      white-space: pre-wrap;
+    }
     .description-tags {
       margin-top: 0.75rem;
     }
@@ -174,16 +224,30 @@ import { getGameActionErrorMessage } from './game-action-feedback'
         @if (actionFeedback()) { <p class="feedback action-feedback" role="status">{{ actionFeedback() }}</p> }
 
         <section class="game-description-panel" aria-labelledby="game-description-title">
-          <div class="description-heading">
-            <h2 id="game-description-title">简介</h2>
+          <h2 id="game-description-title" class="visually-hidden">游戏信息</h2>
+          <div class="game-description-tabs" role="tablist" aria-label="游戏信息分类">
+            <button type="button" class="game-description-tab" role="tab"
+              [class.active]="descriptionTab() === 'overview'"
+              [attr.aria-selected]="descriptionTab() === 'overview'"
+              (click)="descriptionTab.set('overview')">简介</button>
+            <button type="button" class="game-description-tab" role="tab"
+              [class.active]="descriptionTab() === 'controls'"
+              [attr.aria-selected]="descriptionTab() === 'controls'"
+              (click)="descriptionTab.set('controls')">操作</button>
           </div>
-          <p>{{ game?.description || '作者还没有填写简介。' }}</p>
-          @if (game?.tags?.length) {
-            <div class="game-tags description-tags">
-              @for (tag of game!.tags!; track tag) {
-                <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
-              }
-            </div>
+          @if (descriptionTab() === 'overview') {
+            <p>{{ game?.description || '作者还没有填写简介。' }}</p>
+            @if (game?.tags?.length) {
+              <div class="game-tags description-tags">
+                @for (tag of game!.tags!; track tag) {
+                  <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
+                }
+              </div>
+            }
+          } @else {
+            <dl class="game-description-table">
+              <div><dt>操作说明</dt><dd>{{ game?.instructions || '作者还没有填写操作说明。' }}</dd></div>
+            </dl>
           }
         </section>
       </section>
@@ -216,6 +280,7 @@ export class GameCommunityPanelComponent {
 
   readonly coinLoading = signal(false)
   readonly actionFeedback = signal('')
+  readonly descriptionTab = signal<'overview' | 'controls'>('overview')
 
   toggleRate () {
     if (!this.requireLogin()) return

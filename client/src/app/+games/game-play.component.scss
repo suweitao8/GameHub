@@ -225,47 +225,28 @@
 .start-game-overlay my-global-icon { height: 1rem;
   width: 1rem; }
 .game-player-controls { align-items: center;
-  background: rgb(20 22 27 / 88%);
+  background: rgb(0 0 0 / 68%);
   bottom: 0;
   color: #fff;
   display: flex;
   font-size: 0.78rem;
   justify-content: space-between;
   left: 0;
-  padding: 0.4rem 0.7rem;
-  position: absolute;
-  right: 0; }
-
-.keyboard-shortcuts-hint {
-  align-items: center;
-  background: rgb(20 22 27 / 60%);
-  border-top: 1px solid rgb(255 255 255 / 10%);
-  bottom: 2.4rem;
-  color: rgb(255 255 255 / 70%);
-  display: flex;
-  font-size: 0.7rem;
-  gap: 0.85rem;
-  justify-content: center;
-  left: 0;
   opacity: 0;
-  padding: 0.35rem 0.7rem;
+  padding: 0.4rem 0.7rem;
   pointer-events: none;
   position: absolute;
   right: 0;
-  transition: opacity 200ms ease;
-}
-
-.game-stage:hover .keyboard-shortcuts-hint { opacity: 1; }
-
-.keyboard-shortcuts-hint kbd {
-  background: rgb(255 255 255 / 12%);
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: 3px;
-  color: #fff;
-  font-family: monospace;
-  font-size: 0.68rem;
-  margin-right: 0.25rem;
-  padding: 0.1rem 0.35rem;
+  transform: translateY(8px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  z-index: 3; }
+.game-stage:hover .game-player-controls,
+.game-stage:focus-within .game-player-controls,
+.game-player-controls:hover,
+.game-player-controls:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 .game-player-controls-left,
 .game-player-controls-right { align-items: center;
@@ -282,12 +263,15 @@
   min-width: 1.3rem;
   padding: 0.25rem; }
 .game-player-controls button:hover,
-.game-player-controls button:focus-visible { color: var(--game-brand); }
+.game-player-controls button:focus-visible { background: rgb(255 255 255 / 12%);
+  color: #fff;
+  outline: 2px solid rgb(255 255 255 / 75%);
+  outline-offset: 1px; }
 .game-player-controls button my-global-icon { color: inherit;
   height: 1rem;
   width: 1rem; }
 .game-player-controls button my-global-icon ::ng-deep svg { stroke-width: 2.1; }
-.game-volume-control input { accent-color: var(--game-brand);
+.game-volume-control input { accent-color: #fff;
   height: 1rem;
   opacity: 0;
   padding: 0;

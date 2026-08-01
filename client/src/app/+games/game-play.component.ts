@@ -207,8 +207,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   retryLoadGame () { this.loadGame(this.currentUuid) }
 
-  downloadGame () { window.location.assign(this.gamesService.buildDownloadUrl(this.currentUuid)) }
-
   onFrameLoaded () { this.frameLoading.set(false); this.syncGameVolume() }
 
   onFrameError () { this.frameLoading.set(false); this.loadingError.set(true) }
