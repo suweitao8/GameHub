@@ -62,6 +62,40 @@ assert(
   'GameHub header banner source asset must exist'
 )
 
+// 1b) Shared GameHub icon contract
+const globalIconTs = read('client/src/app/shared/shared-icons/global-icon.component.ts')
+const tablerIconNames = [
+  'search', 'player-play', 'thumb-up', 'coin', 'star', 'share-3', 'message-circle',
+  'user', 'users', 'device-gamepad-2', 'bell', 'upload', 'download', 'calendar',
+  'clock', 'keyboard', 'maximize', 'volume', 'refresh', 'home', 'menu-2',
+  'chevron-left', 'chevron-right'
+]
+assert(
+  existsSync(join(root, 'client/src/assets/images/tabler')),
+  'Tabler icon asset directory must exist'
+)
+for (const iconName of tablerIconNames) {
+  assert(
+    existsSync(join(root, 'client/src/assets/images/tabler', `${iconName}.svg`)),
+    `Tabler icon asset must exist: ${iconName}.svg`
+  )
+}
+for (const [iconName, fileName] of [
+  [ 'search', 'search' ],
+  [ 'play', 'player-play' ],
+  [ 'like', 'thumb-up' ],
+  [ 'coin', 'coin' ],
+  [ 'star', 'star' ],
+  [ 'share', 'share-3' ],
+  [ 'message-circle', 'message-circle' ],
+  [ 'gamepad', 'device-gamepad-2' ]
+]) {
+  assert(
+    globalIconTs.includes(`assets/images/tabler/${fileName}.svg`),
+    `global icon ${iconName} must use the Tabler ${fileName} asset`
+  )
+}
+
 // 2) Server dist layout contracts
 const clientCtrl = read('server/core/controllers/client.ts')
 assert(
