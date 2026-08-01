@@ -14,8 +14,10 @@ import { GameDiscussStore } from './game-discuss-store'
   imports: [ DatePipe ],
   styles: [ `
     :host {
+      box-sizing: border-box;
       display: block;
       flex: 1 1 auto;
+      height: 100%;
       min-height: 0;
     }
 
@@ -38,8 +40,8 @@ import { GameDiscussStore } from './game-discuss-store'
       border-bottom: 1px solid #e3e5e7;
       display: flex;
       justify-content: space-between;
-      min-height: 3.1rem;
-      padding: 0 0.85rem;
+      min-height: 48px;
+      padding: 0 12px;
     }
     .discuss-header h2 {
       color: #1e1e1e;
@@ -54,15 +56,15 @@ import { GameDiscussStore } from './game-discuss-store'
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 12px;
       min-height: 0;
       overflow-y: auto;
-      padding: 0.85rem 0.7rem;
+      padding: 12px;
     }
     .wechat-message {
       align-items: flex-start;
       display: flex;
-      gap: 0.5rem;
+      gap: 8px;
       max-width: 92%;
     }
     .wechat-message.own {
@@ -92,9 +94,9 @@ import { GameDiscussStore } from './game-discuss-store'
       border-radius: 0.25rem 0.65rem 0.65rem;
       color: #1e1e1e;
       font-size: 0.82rem;
-      line-height: 1.5;
+      line-height: 1.45;
       overflow-wrap: anywhere;
-      padding: 0.48rem 0.65rem;
+      padding: 7px 10px;
       white-space: pre-wrap;
     }
     .wechat-message.own .wechat-bubble {
@@ -125,8 +127,9 @@ import { GameDiscussStore } from './game-discuss-store'
       background: #fff;
       border-top: 1px solid #e3e5e7;
       display: flex;
-      gap: 0.4rem;
-      padding: 0.65rem;
+      gap: 8px;
+      min-height: 52px;
+      padding: 10px 12px;
     }
     .discuss-composer input {
       background: #f1f2f3;
@@ -134,8 +137,9 @@ import { GameDiscussStore } from './game-discuss-store'
       border-radius: 6px;
       flex: 1;
       font-size: 0.82rem;
+      line-height: 20px;
       min-width: 0;
-      padding: 0.45rem 0.55rem;
+      padding: 6px 8px;
     }
     .discuss-composer input:focus {
       border-color: #00aeec;
@@ -149,7 +153,9 @@ import { GameDiscussStore } from './game-discuss-store'
       flex: 0 0 auto;
       font-size: 0.8rem;
       font-weight: 600;
-      padding: 0.45rem 0.7rem;
+      line-height: 20px;
+      min-height: 32px;
+      padding: 6px 10px;
     }
 
     @media (max-width: 900px) {

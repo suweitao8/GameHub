@@ -95,6 +95,13 @@ for (const [iconName, fileName] of [
     `global icon ${iconName} must use the Tabler ${fileName} asset`
   )
 }
+const tablerAssetFiles = collectFiles(join(root, 'client/src/assets/images/tabler'), '.svg')
+for (const file of tablerAssetFiles) {
+  const body = readFileSync(file, 'utf8').trim()
+  const label = file.startsWith(root) ? file.slice(root.length + 1) : file
+  assert(body.startsWith('<svg'), `${label} must start with an SVG root element`)
+  assert(!body.includes('Exit code') && !body.includes('Wall time') && !body.includes('Output:'), `${label} must not contain shell output`)
+}
 
 // 2) Server dist layout contracts
 const clientCtrl = read('server/core/controllers/client.ts')
@@ -202,6 +209,12 @@ assert(gamePlayHtml.includes('[disabled]="community()!.isOwner"'), 'developer ca
 assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
 assert(gamePlayScss.includes('.play-side my-game-discuss'), 'discussion sidebar must define its own stage-height region')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
+assert(gamePlayScss.includes('--game-detail-gap: 16px'), 'game play must define the shared detail-page spacing rhythm')
+assert(gamePlayScss.includes('grid-template-columns: minmax(0, 4fr) minmax(240px, 1fr)'), 'game play must keep a 4:1 stage/sidebar layout')
+assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a stable 16:9 layout ratio')
+assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must use border-box sizing for aligned dimensions')
+assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
+assert(!communityPanelTs.includes('<small>点赞</small>') && !communityPanelTs.includes('<small>投币</small>'), 'game actions must not add a second text row under each icon')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'

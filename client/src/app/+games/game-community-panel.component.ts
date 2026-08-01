@@ -32,8 +32,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 
     .interaction-row { align-items: center;
       border-bottom: 1px solid var(--game-border);
-      gap: 1.7rem;
-      padding: 0.45rem 0 0.8rem; }
+      gap: 1.5rem;
+      padding: 0.7rem 0 0.85rem; }
     .interaction-row button { align-items: center;
       background: transparent;
       border: 0;
@@ -49,27 +49,25 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .interaction-row button.active { background: transparent;
       color: var(--game-brand); }
     .interaction-row button:first-child { font-size: 1rem; }
-    .game-action-button { flex-direction: column;
-      gap: 0.12rem !important;
-      min-width: 3.5rem;
+    .game-action-button { flex-direction: row;
+      gap: 0.4rem !important;
+      min-height: 2rem;
+      min-width: 3rem;
       padding: 0.1rem 0 !important; }
-    .game-action-button > span {
-      font-size: 1.35rem;
-      line-height: 1;
-    }
     .game-action-button > my-global-icon { color: inherit;
-      height: 1.35rem;
-      width: 1.35rem; }
+      height: 1.45rem;
+      width: 1.45rem; }
     .game-action-button > my-global-icon ::ng-deep svg { stroke-width: 2.1; }
     .game-action-button strong {
       color: inherit;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      line-height: 1;
+      line-height: 1.2;
       min-height: 0.8rem;
     }
     .game-action-button small {
       color: var(--game-muted);
+      display: none;
       font-size: 0.72rem;
       line-height: 1;
     }
@@ -142,17 +140,19 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     @if (community(); as state) {
       <section class="game-community-panel" aria-label="游戏互动操作">
         <div class="interaction-row">
-          <button class="game-action-button" type="button" [class.active]="state.rating === 'like'" (click)="toggleRate()">
-            <my-global-icon iconName="like" /><strong>{{ state.likes }}</strong><small>点赞</small>
+          <button class="game-action-button" type="button"
+            [attr.aria-label]="'点赞 ' + state.likes" [class.active]="state.rating === 'like'" (click)="toggleRate()">
+            <my-global-icon iconName="like" /><strong>{{ state.likes }}</strong>
           </button>
-          <button class="game-action-button" type="button" [disabled]="coinLoading()" (click)="giveCoin()">
-            <my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong><small>{{ coinLoading() ? '处理中' : '投币' }}</small>
+          <button class="game-action-button" type="button"
+            [attr.aria-label]="'投币 ' + state.coins" [disabled]="coinLoading()" (click)="giveCoin()">
+            <my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong>
           </button>
-          <button class="game-action-button" type="button" [class.active]="state.favorite" (click)="toggleFavorite()">
-            <my-global-icon iconName="star" /><strong>{{ state.favorite ? '已' : '' }}</strong><small>收藏</small>
+          <button class="game-action-button" type="button" aria-label="收藏" [class.active]="state.favorite" (click)="toggleFavorite()">
+            <my-global-icon iconName="star" /><strong>{{ state.favorite ? '已收藏' : '收藏' }}</strong>
           </button>
-          <button class="game-action-button" type="button" (click)="share.emit()">
-            <my-global-icon iconName="share" /><strong></strong><small>分享</small>
+          <button class="game-action-button" type="button" aria-label="分享" (click)="share.emit()">
+            <my-global-icon iconName="share" /><strong>分享</strong>
           </button>
         </div>
         @if (actionFeedback()) { <p class="feedback action-feedback" role="status">{{ actionFeedback() }}</p> }
