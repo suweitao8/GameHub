@@ -190,6 +190,7 @@ const gameCommunityServiceTs = read('client/src/app/+games/services/game-communi
 const communityPanelTs = read('client/src/app/+games/game-community-panel.component.ts')
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
+const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 assert(existsSync(join(root, 'server/core/models/game/game-chat-message.ts')), 'discussion chat must have an independent server model')
 assert(existsSync(join(root, 'server/core/controllers/api/games/community-chat.ts')), 'discussion chat must have an independent API controller')
 assert(discussTs.includes("GameDiscussStore"), 'discussion panel must use GameDiscussStore instead of the comment store')
@@ -221,6 +222,7 @@ assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交�
 assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
 assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #6b6f75'), 'game colors must use softened charcoal primary and gray secondary text')
 assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #6b6f75'), 'detail page must apply its charcoal palette within the component scope')
+assert((gameCommunityOverviewTs.match(/subQuery: false/g) || []).length >= 2, 'related games queries must disable Sequelize subqueries for joined stats')
 assert(
   featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
   'featured carousel must bind the average-color fade to the cover'

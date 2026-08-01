@@ -80,6 +80,7 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
 
   // 1. Same category, overlap tags, exclude self, published only
   const candidates = await GameModel.findAll<MGame>({
+    subQuery: false,
     where: {
       status: 'published',
       id: { [Op.ne]: game.id },
@@ -106,6 +107,7 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
   if (result.length < limit) {
     const existingIds = new Set(result.map(r => r.game.id).concat([ game.id ]))
     const fillers = await GameModel.findAll<MGame>({
+      subQuery: false,
       where: {
         status: 'published',
         id: { [Op.notIn]: Array.from(existingIds) },
