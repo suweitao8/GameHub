@@ -257,9 +257,21 @@ assert(
 )
 assert(
   commentsTs.includes('height: 1.75rem;') && commentsTs.includes('width: 1.75rem;') &&
-    commentsTs.includes('height: 0.95rem;') && commentsTs.includes('width: 0.95rem;') &&
+    commentsTs.includes('height: 0.75rem;') && commentsTs.includes('width: 0.75rem;') &&
     commentsTs.includes('vertical-align: middle;'),
   'comment emoji and image tools must share a smaller centered control box and icon size'
+)
+assert(
+  communityPanelTs.includes('class="game-description-content"') &&
+    communityPanelTs.includes('height: 8.5rem;') &&
+    communityPanelTs.includes('max-height: 8.5rem;') &&
+    communityPanelTs.includes('overflow-y: auto;'),
+  'game overview and controls must share a fixed five-line content area'
+)
+assert(
+  /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&
+    gamePlayScss.includes('flex: 0 0 var(--game-stage-height);'),
+  'detail sidebar must grow with recommendations while keeping the discussion panel at stage height'
 )
 assert(commentsTs.includes('class="bili-send-btn" [disabled]="!store.draft().trim()"') && commentsTs.includes('>发送</button>'), 'comment composer must use a disabled gray send button for empty text')
 assert(commentsTs.includes('height: 20px;') && commentsTs.includes('line-height: 20px;'), 'comment metadata controls must use a fixed centered line box')

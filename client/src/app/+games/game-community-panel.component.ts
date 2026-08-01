@@ -126,6 +126,12 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       gap: 1.35rem;
       margin-bottom: 0.85rem;
     }
+    .game-description-content {
+      height: 8.5rem;
+      max-height: 8.5rem;
+      overflow-y: auto;
+      padding-right: 0.35rem;
+    }
     .game-description-tab {
       background: transparent;
       border: 0;
@@ -235,20 +241,22 @@ import { getGameActionErrorMessage } from './game-action-feedback'
               [attr.aria-selected]="descriptionTab() === 'controls'"
               (click)="descriptionTab.set('controls')">操作</button>
           </div>
-          @if (descriptionTab() === 'overview') {
-            <p>{{ game?.description || '作者还没有填写简介。' }}</p>
-            @if (game?.tags?.length) {
-              <div class="game-tags description-tags">
-                @for (tag of game!.tags!; track tag) {
-                  <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
-                }
-              </div>
+          <div class="game-description-content">
+            @if (descriptionTab() === 'overview') {
+              <p>{{ game?.description || '作者还没有填写简介。' }}</p>
+              @if (game?.tags?.length) {
+                <div class="game-tags description-tags">
+                  @for (tag of game!.tags!; track tag) {
+                    <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
+                  }
+                </div>
+              }
+            } @else {
+              <dl class="game-description-table">
+                <div><dt>操作说明</dt><dd>{{ game?.instructions || '作者还没有填写操作说明。' }}</dd></div>
+              </dl>
             }
-          } @else {
-            <dl class="game-description-table">
-              <div><dt>操作说明</dt><dd>{{ game?.instructions || '作者还没有填写操作说明。' }}</dd></div>
-            </dl>
-          }
+          </div>
         </section>
       </section>
     } @else if (communityError) {

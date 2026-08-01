@@ -167,8 +167,13 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-composer-tool my-global-icon {
       display: inline-flex;
-      height: 0.95rem;
-      width: 0.95rem;
+      height: 0.75rem;
+      width: 0.75rem;
+    }
+    .bili-composer-tool my-global-icon ::ng-deep svg {
+      display: block;
+      height: 100%;
+      width: 100%;
     }
     .bili-composer-tool input {
       display: none;

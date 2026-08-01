@@ -1439,13 +1439,14 @@
 
 .game-play-page .play-side {
   gap: var(--game-detail-gap);
-  height: var(--game-stage-height);
-  min-height: 0;
+  height: auto;
+  min-height: var(--game-stage-height);
 }
 
 .game-play-page .play-side my-game-discuss {
-  height: 100%;
-  min-height: 0;
+  flex: 0 0 var(--game-stage-height);
+  height: var(--game-stage-height);
+  min-height: var(--game-stage-height);
 }
 
 .game-play-page .game-comments,
@@ -1471,6 +1472,7 @@
 
   .game-play-page .play-side,
   .game-play-page .play-side my-game-discuss {
+    flex: 0 0 auto;
     height: auto;
   }
 
