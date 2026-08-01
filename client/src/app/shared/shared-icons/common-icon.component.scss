@@ -1,17 +1,17 @@
 :host {
-  display: inline-block;
+  align-items: center;
+  display: inline-flex;
   height: 24px;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;
   width: 24px;
 
   ::ng-deep {
-    svg {
-      vertical-align: bottom;
+    .tabler-icon {
+      display: block;
       width: inherit;
       height: inherit;
-    }
-
-    .feather-flag {
-      margin-left: -1px;
     }
   }
 }

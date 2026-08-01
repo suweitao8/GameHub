@@ -117,5 +117,9 @@
     "vite-plugin-checker": "^0.14.4",
     "vite-plugin-node-polyfills": "^0.28.0",
     "zone.js": "~0.16.2"
+  },
+  "dependencies": {
+    "@tabler/icons": "3.46.0",
+    "@tabler/icons-angular": "3.46.0"
   }
 }

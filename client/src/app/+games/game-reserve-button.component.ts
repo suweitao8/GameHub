@@ -1,24 +1,25 @@
-import { Component, inject, signal, OnInit, input } from '@angular/core'
+import { Component, inject, signal, input } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { GamesService } from './games.service'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   selector: 'my-game-reserve-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [ CommonModule, GlobalIconComponent ],
   template: `
     <button class="reserve-button" [class.reserved]="reserved()"
             (click)="toggleReserve()" [disabled]="loading()">
       @if (loading()) {
         <span class="loading-dots">...</span>
       } @else if (reserved()) {
-        <span>✓ 已预约</span>
+        <span><my-global-icon iconName="tick" /> 已预约</span>
       } @else {
-        <span>🔔 预约</span>
+        <span><my-global-icon iconName="bell" /> 预约</span>
       }
     </button>
   `,
-  styles: [`
+  styles: [ `
     .reserve-button {
       display: flex;
       align-items: center;
@@ -33,6 +34,17 @@ import { GamesService } from './games.service'
       background: var(--game-surface);
       color: var(--game-text);
       transition: all 0.2s ease;
+    }
+
+    .reserve-button > span {
+      align-items: center;
+      display: inline-flex;
+      gap: 0.3rem;
+    }
+
+    .reserve-button my-global-icon {
+      height: 1rem;
+      width: 1rem;
     }
 
     .reserve-button:hover:not(:disabled) {
@@ -58,17 +70,13 @@ import { GamesService } from './games.service'
       40% { content: '..'; }
       60%, 100% { content: '...'; }
     }
-  `]
+  ` ]
 })
-export class GameReserveButtonComponent implements OnInit {
+export class GameReserveButtonComponent {
   private readonly gamesService = inject(GamesService)
   uuid = input.required<string>()
   reserved = signal(false)
   loading = signal(false)
-
-  ngOnInit () {
-    // Check if already reserved (would need an API endpoint)
-  }
 
   toggleReserve () {
     if (this.reserved()) {

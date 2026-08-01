@@ -1271,6 +1271,7 @@
 /* GameHub detail-page layout contract: one spacing rhythm and one baseline. */
 .game-play-page {
   --game-detail-gap: 16px;
+  --game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr);
   --game-stage-height: clamp(360px, 44vw, 680px);
   --game-text: #303133;
   --game-text-button: #6b6f75;
@@ -1286,13 +1287,13 @@
 
 .game-play-page .game-community-content,
 .game-play-page .game-play-layout {
-  max-width: 1280px;
-  width: calc(100% - 48px);
+  max-width: none;
+  width: 90%;
 }
 
 .game-play-page .game-title-bar {
   gap: var(--game-detail-gap);
-  grid-template-columns: minmax(0, 4fr) minmax(240px, 1fr);
+  grid-template-columns: var(--game-detail-columns);
   padding: 0 0 8px;
 }
 
@@ -1333,8 +1334,11 @@
 .game-play-page .game-title-developer {
   align-items: center;
   display: flex;
+  grid-column: 2;
   justify-self: end;
   min-height: 73px;
+  max-width: 100%;
+  margin-left: auto;
   width: 100%;
 }
 
@@ -1401,7 +1405,7 @@
 
 .game-play-page .game-stage-row {
   gap: var(--game-detail-gap);
-  grid-template-columns: minmax(0, 4fr) minmax(240px, 1fr);
+  grid-template-columns: var(--game-detail-columns);
 }
 
 .game-play-page .stage-column {
@@ -1460,6 +1464,8 @@
 
   .game-play-page .game-stage-row,
   .game-play-page .game-title-bar { grid-template-columns: 1fr; }
+
+  .game-play-page .game-title-developer { grid-column: 1; }
 
   .game-play-page .game-stage { height: clamp(320px, 62vw, 560px); }
 

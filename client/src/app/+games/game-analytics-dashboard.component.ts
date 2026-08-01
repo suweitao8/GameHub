@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import type { GameAnalytics } from './games.service'
 import { GamesService } from './games.service'
-import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { GlobalIconComponent, type GlobalIconName } from '../shared/shared-icons/global-icon.component'
 
 type TimeRange = '7d' | '30d' | '90d'
 
 @Component({
   selector: 'my-game-analytics-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="analytics-dashboard">
       <div class="analytics-header">
@@ -107,7 +107,7 @@ type TimeRange = '7d' | '30d' | '90d'
               @for (item of breakdownItems(data.interactionBreakdown); track item.label) {
                 <div class="breakdown-item">
                   <div class="breakdown-icon" [style.background-color]="item.color + '20'">
-                    <div [style.color]="item.color">{{ item.icon }}</div>
+                    <div [style.color]="item.color"><my-global-icon [iconName]="item.iconName" /></div>
                   </div>
                   <div class="breakdown-info">
                     <div class="breakdown-top">
@@ -169,9 +169,9 @@ type TimeRange = '7d' | '30d' | '90d'
                     <div class="ranking-bar" [style.width.%]="(game.plays / maxPlays()) * 100"></div>
                   </div>
                   <div class="ranking-stats">
-                    <span class="stat-plays">▶ {{ formatNumber(game.plays) }}</span>
-                    <span class="stat-likes">❤ {{ formatNumber(game.likes) }}</span>
-                    <span class="stat-coins">🪙 {{ formatNumber(game.coins) }}</span>
+                    <span class="stat-plays"><my-global-icon iconName="play" />{{ formatNumber(game.plays) }}</span>
+                    <span class="stat-likes"><my-global-icon iconName="like" />{{ formatNumber(game.likes) }}</span>
+                    <span class="stat-coins"><my-global-icon iconName="coin" />{{ formatNumber(game.coins) }}</span>
                   </div>
                 </div>
               }
@@ -190,7 +190,7 @@ type TimeRange = '7d' | '30d' | '90d'
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .analytics-dashboard { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
 
     .analytics-header {
@@ -374,6 +374,19 @@ type TimeRange = '7d' | '30d' | '90d'
       font-size: 0.9rem;
     }
 
+    .breakdown-icon > div {
+      align-items: center;
+      display: inline-flex;
+      height: 1rem;
+      justify-content: center;
+      width: 1rem;
+    }
+
+    .breakdown-icon my-global-icon {
+      height: 1rem;
+      width: 1rem;
+    }
+
     .breakdown-info { flex: 1; min-width: 0; }
     .breakdown-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
     .breakdown-label { font-size: 0.8rem; color: var(--game-text); }
@@ -431,7 +444,15 @@ type TimeRange = '7d' | '30d' | '90d'
     }
 
     .ranking-number.top3 { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
-    .ranking-title { width: 8rem; font-size: 0.82rem; color: var(--game-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0; }
+    .ranking-title {
+      color: var(--game-text);
+      flex-shrink: 0;
+      font-size: 0.82rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 8rem;
+    }
 
     .ranking-bar-container {
       flex: 1;
@@ -441,9 +462,24 @@ type TimeRange = '7d' | '30d' | '90d'
       overflow: hidden;
     }
 
-    .ranking-bar { height: 100%; background: linear-gradient(90deg, var(--game-brand), #34d399); border-radius: 999px; transition: width 0.5s ease; }
+    .ranking-bar {
+      background: linear-gradient(90deg, var(--game-brand), #34d399);
+      border-radius: 999px;
+      height: 100%;
+      transition: width 0.5s ease;
+    }
 
-    .ranking-stats { display: flex; gap: 0.65rem; font-size: 0.7rem; color: var(--game-muted); flex-shrink: 0; width: 9rem; justify-content: flex-end; }
+    .ranking-stats {
+      color: var(--game-muted);
+      display: flex;
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      gap: 0.65rem;
+      justify-content: flex-end;
+      width: 9rem;
+    }
+    .ranking-stats span { align-items: center; display: inline-flex; gap: 0.2rem; }
+    .ranking-stats my-global-icon { height: 0.85rem; width: 0.85rem; }
     .ranking-stats span { white-space: nowrap; }
 
     /* Loading */
@@ -451,7 +487,7 @@ type TimeRange = '7d' | '30d' | '90d'
     .skeleton-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .skeleton-kpi { height: 4rem; border-radius: var(--game-radius); background: var(--game-border); }
     .skeleton-chart { height: 12rem; border-radius: var(--game-radius); background: var(--game-border); }
-  `]
+  ` ]
 })
 export class GameAnalyticsDashboardComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
@@ -485,7 +521,18 @@ export class GameAnalyticsDashboardComponent implements OnInit {
 
   kpis = computed(() => {
     const data = this.analytics()
-    if (!data) return { totalPlays: 0, totalLikes: 0, totalFollowers: 0, totalCoins: 0, playsTrend: 0, likesTrend: 0, followersTrend: 0, coinsTrend: 0 }
+    if (!data) {
+      return {
+        totalPlays: 0,
+        totalLikes: 0,
+        totalFollowers: 0,
+        totalCoins: 0,
+        playsTrend: 0,
+        likesTrend: 0,
+        followersTrend: 0,
+        coinsTrend: 0
+      }
+    }
 
     const totalPlays = data.playTrend.reduce((sum, t) => sum + t.plays, 0)
     const totalLikes = data.interactionBreakdown.likes
@@ -494,8 +541,10 @@ export class GameAnalyticsDashboardComponent implements OnInit {
 
     // Calculate simple trend (last period vs previous period)
     const mid = Math.floor(data.playTrend.length / 2)
+    const previousPlays = data.playTrend.slice(0, mid).reduce((sum, item) => sum + item.plays, 0)
+    const recentPlays = data.playTrend.slice(mid).reduce((sum, item) => sum + item.plays, 0)
     const playsTrend = data.playTrend.length > 1
-      ? Math.round(((data.playTrend.slice(mid).reduce((s, t) => s + t.plays, 0) - data.playTrend.slice(0, mid).reduce((s, t) => s + t.plays, 0)) / Math.max(data.playTrend.slice(0, mid).reduce((s, t) => s + t.plays, 0), 1)) * 100)
+      ? Math.round(((recentPlays - previousPlays) / Math.max(previousPlays, 1)) * 100)
       : 0
 
     return { totalPlays, totalLikes, totalFollowers, totalCoins, playsTrend, likesTrend: 0, followersTrend: 0, coinsTrend: 0 }
@@ -517,18 +566,18 @@ export class GameAnalyticsDashboardComponent implements OnInit {
   getXAxisLabels (trend: { date: string; plays: number }[]): string[] {
     if (!trend.length) return []
     const count = trend.length
-    return [trend[0].date.slice(5), trend[Math.floor(count / 2)].date.slice(5), trend[count - 1].date.slice(5)]
+    return [ trend[0].date.slice(5), trend[Math.floor(count / 2)].date.slice(5), trend[count - 1].date.slice(5) ]
   }
 
   breakdownItems (breakdown: GameAnalytics['interactionBreakdown']) {
     const max = Math.max(breakdown.likes, breakdown.coins, breakdown.favorites, breakdown.comments, breakdown.reviews, 1)
-    const icons: Record<string, string> = { '点赞': '❤', '投币': '🪙', '收藏': '⭐', '评论': '💬', '评价': '✍' }
+    const icons: Record<string, GlobalIconName> = { 点赞: 'like', 投币: 'coin', 收藏: 'star', 评论: 'message-circle', 评价: 'edit' }
     return [
-      { label: '点赞', value: breakdown.likes, percent: (breakdown.likes / max) * 100, color: '#ef4444', icon: icons['点赞'] },
-      { label: '投币', value: breakdown.coins, percent: (breakdown.coins / max) * 100, color: '#f59e0b', icon: icons['投币'] },
-      { label: '收藏', value: breakdown.favorites, percent: (breakdown.favorites / max) * 100, color: '#3b82f6', icon: icons['收藏'] },
-      { label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100, color: '#22c55e', icon: icons['评论'] },
-      { label: '评价', value: breakdown.reviews, percent: (breakdown.reviews / max) * 100, color: '#8b5cf6', icon: icons['评价'] }
+      { label: '点赞', value: breakdown.likes, percent: (breakdown.likes / max) * 100, color: '#ef4444', iconName: icons['点赞'] },
+      { label: '投币', value: breakdown.coins, percent: (breakdown.coins / max) * 100, color: '#f59e0b', iconName: icons['投币'] },
+      { label: '收藏', value: breakdown.favorites, percent: (breakdown.favorites / max) * 100, color: '#3b82f6', iconName: icons['收藏'] },
+      { label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100, color: '#22c55e', iconName: icons['评论'] },
+      { label: '评价', value: breakdown.reviews, percent: (breakdown.reviews / max) * 100, color: '#8b5cf6', iconName: icons['评价'] }
     ]
   }
 
@@ -582,11 +631,11 @@ export class GameAnalyticsDashboardComponent implements OnInit {
 
     // Build CSV
     const csvRows = [
-      ['日期', '播放量'],
-      ...data.playTrend.map(t => [t.date, String(t.plays)])
+      [ '日期', '播放量' ],
+      ...data.playTrend.map(t => [ t.date, String(t.plays) ])
     ]
     const csv = csvRows.map(row => row.join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob([ csv ], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url

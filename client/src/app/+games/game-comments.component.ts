@@ -146,10 +146,10 @@ import { GameCommentsStore } from './game-comments-store'
       color: #61666d;
       cursor: pointer;
       display: inline-flex;
-      font-size: 1.15rem;
+      font-size: 0;
       height: 2rem;
       justify-content: center;
-      line-height: 1;
+      line-height: 0;
       padding: 0 0.35rem;
       width: 2rem;
     }
@@ -160,8 +160,8 @@ import { GameCommentsStore } from './game-comments-store'
       outline: 0;
     }
     .bili-composer-tool my-global-icon {
-      height: 1.05rem;
-      width: 1.05rem;
+      height: 1.1rem;
+      width: 1.1rem;
     }
     .bili-composer-tool input {
       display: none;
@@ -191,13 +191,22 @@ import { GameCommentsStore } from './game-comments-store'
       white-space: nowrap;
     }
     .bili-composer-image button {
+      align-items: center;
       background: transparent;
       border: 0;
       color: #9499a0;
       cursor: pointer;
-      font-size: 1rem;
+      display: inline-flex;
+      font-size: 0;
+      height: 1.75rem;
+      justify-content: center;
       line-height: 1;
       padding: 0.25rem;
+      width: 1.75rem;
+    }
+    .bili-composer-image button my-global-icon {
+      height: 1rem;
+      width: 1rem;
     }
     .bili-comment-image {
       border-radius: 6px;
@@ -444,12 +453,14 @@ import { GameCommentsStore } from './game-comments-store'
             <div class="bili-composer-image">
               <img [src]="imageDataUrl()" [alt]="image.name">
               <span>{{ image.name }}</span>
-              <button type="button" aria-label="移除图片" (click)="clearImage()">×</button>
+              <button type="button" aria-label="移除图片" (click)="clearImage()"><my-global-icon iconName="cross" /></button>
             </div>
           }
           <div class="bili-composer-actions">
             <div class="bili-composer-tools">
-              <button type="button" class="bili-composer-tool" aria-label="添加表情" title="添加表情" (click)="insertEmoji(commentInput)">☺</button>
+              <button type="button" class="bili-composer-tool" aria-label="添加表情" title="添加表情" (click)="insertEmoji(commentInput)">
+                <my-global-icon iconName="mood-smile" />
+              </button>
               <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
                 <my-global-icon iconName="upload" />
                 <input type="file" accept="image/*" (change)="selectImage($event)">

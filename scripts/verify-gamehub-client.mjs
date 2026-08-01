@@ -64,37 +64,6 @@ assert(
 
 // 1b) Shared GameHub icon contract
 const globalIconTs = read('client/src/app/shared/shared-icons/global-icon.component.ts')
-const tablerIconNames = [
-  'search', 'player-play', 'thumb-up', 'coin', 'star', 'share-3', 'message-circle',
-  'user', 'users', 'device-gamepad-2', 'bell', 'upload', 'download', 'calendar',
-  'clock', 'keyboard', 'maximize', 'volume', 'refresh', 'home', 'menu-2',
-  'chevron-left', 'chevron-right'
-]
-assert(
-  existsSync(join(root, 'client/src/assets/images/tabler')),
-  'Tabler icon asset directory must exist'
-)
-for (const iconName of tablerIconNames) {
-  assert(
-    existsSync(join(root, 'client/src/assets/images/tabler', `${iconName}.svg`)),
-    `Tabler icon asset must exist: ${iconName}.svg`
-  )
-}
-for (const [iconName, fileName] of [
-  [ 'search', 'search' ],
-  [ 'play', 'player-play' ],
-  [ 'like', 'thumb-up' ],
-  [ 'coin', 'coin' ],
-  [ 'star', 'star' ],
-  [ 'share', 'share-3' ],
-  [ 'message-circle', 'message-circle' ],
-  [ 'gamepad', 'device-gamepad-2' ]
-]) {
-  assert(
-    globalIconTs.includes(`assets/images/tabler/${fileName}.svg`),
-    `global icon ${iconName} must use the Tabler ${fileName} asset`
-  )
-}
 const tablerAssetFiles = collectFiles(join(root, 'client/src/assets/images/tabler'), '.svg')
 for (const file of tablerAssetFiles) {
   const body = readFileSync(file, 'utf8').trim()
@@ -201,6 +170,9 @@ const gameCommunityOverviewTs = read('server/core/controllers/api/games/communit
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
+const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
+const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
+const clientPackageJson = JSON.parse(read('client/package.json'))
 const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
 const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
 assert(existsSync(join(root, 'server/core/models/game/game-chat-message.ts')), 'discussion chat must have an independent server model')
@@ -218,7 +190,7 @@ assert(
 assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discussion panel and its body must use a white surface')
 assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
 assert(discussTs.includes('[disabled]="!store.draft().trim()"') && /\.discuss-composer button:disabled\s*\{/.test(discussTs), 'discussion send button must be disabled and gray for empty text')
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*color: var\(--game-success\);/.test(discussTs), 'own discussion messages must use the green text color')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success\);[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use a green background with black text')
 assert(!communityPanelTs.includes('一键三连') && !communityPanelTs.includes('tripleAction'), 'community actions must not expose one-click triple interaction')
 assert(!communityPanelTs.includes('余额') && !communityPanelTs.includes('coin-row'), 'community actions must not expose a duplicate coin balance composer')
 assert(!communityPanelTs.includes('description-rating') && !communityPanelTs.includes('reviewScores'), 'game description must not expose star rating UI')
@@ -233,7 +205,7 @@ assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the alig
 assert(gamePlayScss.includes('.play-side my-game-discuss'), 'discussion sidebar must define its own stage-height region')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
 assert(gamePlayScss.includes('--game-detail-gap: 16px'), 'game play must define the shared detail-page spacing rhythm')
-assert(gamePlayScss.includes('grid-template-columns: minmax(0, 4fr) minmax(240px, 1fr)'), 'game play must keep a 4:1 stage/sidebar layout')
+assert(gamePlayScss.includes('--game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr)'), 'game play must keep a shared 4:1 stage/sidebar layout')
 assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a stable 16:9 layout ratio')
 assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must use border-box sizing for aligned dimensions')
 assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
@@ -243,6 +215,16 @@ assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交�
 assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
 assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #6b6f75'), 'game colors must use softened charcoal primary and gray secondary text')
 assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #6b6f75'), 'detail page must apply its charcoal palette within the component scope')
+assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
+assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
+assert(commentsTs.includes('iconName="mood-smile"') && !commentsTs.includes('>☺</button>'), 'comment composer must use a library smile icon instead of a text glyph')
+assert(!analyticsTs.includes('🪙') && !analyticsTs.includes("'❤'") && analyticsTs.includes('iconName'), 'analytics controls must use shared library icons instead of emoji glyphs')
+assert(homeHtml.includes('iconName="search"') && !homeHtml.includes('🔍'), 'game home empty state must use the shared search icon instead of an emoji')
+assert(reserveTs.includes('iconName="bell"') && reserveTs.includes('iconName="tick"') && !reserveTs.includes('🔔') && !reserveTs.includes('✓'), 'game reservation states must use shared library icons instead of emoji glyphs')
+assert(/\.wechat-bubble\s*\{[\s\S]*background: #f1f2f3;[\s\S]*color: #303133;/.test(discussTs), 'other discussion messages must use a gray background with black text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success\);[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use a green background with black text')
+assert(gamePlayScss.includes('width: 90%;') && !gamePlayScss.includes('max-width: 1280px;'), 'detail page must follow the homepage 5 percent side spacing without a narrower desktop cap')
+assert(/\.game-play-page \.game-title-developer\s*\{[\s\S]*justify-self: end;[\s\S]*width: 100%;/.test(gamePlayScss), 'developer card must share the discussion sidebar right boundary')
 assert(gameCommunityModelTs.includes('favorites: number') && gameCommunityModelTs.includes('shares: number'), 'game community model must expose favorite and share counts')
 assert(gameCommunityOverviewTs.includes('favorites: Number(stats?.favorites') && gameCommunityOverviewTs.includes('shares: Number(stats?.shares'), 'community overview must return favorite and share counts')
 assert(gameStatsSummaryTs.includes('declare shares: number'), 'game stats summary must persist share counts')
