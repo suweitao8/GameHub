@@ -176,6 +176,7 @@ const gameCardScss = read('client/src/app/+games/game-card.component.scss')
 assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
+const gamePlayTs = read('client/src/app/+games/game-play.component.ts')
 const gamePlayScss = read('client/src/app/+games/game-play.component.scss')
 const discussTs = read('client/src/app/+games/game-discuss.component.ts')
 const discussStoreTs = read('client/src/app/+games/game-discuss-store.ts')
@@ -273,6 +274,12 @@ assert(
 )
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(!gamePlayHtml.includes('iconName="download"') && !gamePlayHtml.includes('iconName="keyboard"') && !gamePlayHtml.includes('class="keyboard-shortcuts-hint"'), 'game controls must remove download, keyboard, and shortcut hint actions')
+assert(
+  !gamePlayHtml.includes('举报') && !gamePlayHtml.includes('my-game-report-dialog') &&
+    !gamePlayTs.includes('GameReportDialogComponent') && !gamePlayTs.includes('reportOpen') &&
+    !gamePlayTs.includes('openReportDialog') && !gamePlayScss.includes('.report-trigger-btn'),
+  'game play must not expose the removed report feature'
+)
 assert(
   ![ uploadHtml, uploadTs, libraryHtml, libraryTs, libraryScss, manageHtml, manageTs, gamesServiceTs ].some(body =>
     body.includes('下载游戏包') || body.includes('buildDownloadUrl') || body.includes('library-download')

@@ -1219,23 +1219,6 @@
   margin-bottom: 0.4rem;
 }
 
-/* Report trigger button */
-.report-trigger-btn {
-  background: transparent;
-  border: 1px solid var(--game-border);
-  border-radius: 4px;
-  color: var(--game-muted);
-  cursor: pointer;
-  font-size: 0.72rem;
-  padding: 0.15rem 0.5rem;
-  transition: border-color 160ms ease, color 160ms ease;
-}
-
-.report-trigger-btn:hover {
-  border-color: var(--game-danger);
-  color: var(--game-danger);
-}
-
 /* Back to top button */
 .back-to-top { align-items: center;
   background: var(--game-brand);

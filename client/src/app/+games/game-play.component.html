@@ -37,9 +37,6 @@
             <span aria-label="游玩次数"><my-global-icon iconName="play" />{{ formatBigNumber(game()!.playCount) }}</span>
             <span aria-label="评论数"><my-global-icon iconName="message-circle" />{{ formatBigNumber(commentCount() || game()!.comments || 0) }}</span>
             <time [attr.datetime]="game()!.updatedAt">{{ game()!.updatedAt | date:'yyyy-MM-dd HH:mm' }}</time>
-            @if (!community()?.isOwner) {
-              <button type="button" class="report-trigger-btn" (click)="openReportDialog()" aria-label="举报游戏">举报</button>
-            }
           </div>
         </div>
 
@@ -127,7 +124,6 @@
       </div><!-- /.play-main -->
 
       <my-game-share-dialog [(open)]="shareOpen" [game]="game()" />
-      <my-game-report-dialog [(open)]="reportOpen" [uuid]="currentUuid" />
     </div>
   }
 </main>
