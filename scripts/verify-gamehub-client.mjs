@@ -256,6 +256,7 @@ const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.compone
 const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
 const uploadHtml = read('client/src/app/+games/game-upload.component.html')
 const uploadTs = read('client/src/app/+games/game-upload.component.ts')
+const previewProbeTs = read('client/src/app/+games/services/game-preview-probe.service.ts')
 const libraryHtml = read('client/src/app/+games/game-library.component.html')
 const libraryTs = read('client/src/app/+games/game-library.component.ts')
 const libraryScss = read('client/src/app/+games/game-library.component.scss')
@@ -400,6 +401,25 @@ assert((gameFeedTs.match(/\[Op\.ne\]: 'review'/g) || []).length >= 3, 'game feed
 assert(gameTestsTs.includes('should not expose star rating distribution') && gameTestsTs.includes('HttpStatusCode.NOT_FOUND_404'), 'game API tests must enforce removal of the star rating distribution endpoint')
 assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.review-score-picker') && !gamePlayScss.includes('.review-skeleton'), 'game detail styles must not retain dead star-review UI')
 assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
+assert(
+  previewProbeTs.includes('private prepareGeneration = 0') &&
+    previewProbeTs.includes('const generation = ++this.prepareGeneration') &&
+    previewProbeTs.includes('if (generation !== this.prepareGeneration) return'),
+  'game upload preview must ignore stale async file preparation results'
+)
+assert(
+  previewProbeTs.includes('URL.revokeObjectURL(this.objectUrl)') &&
+    previewProbeTs.includes('this.previewUrl.set(null)') &&
+    previewProbeTs.includes('this.onComplete = undefined'),
+  'game upload preview must revoke object URLs and clear callbacks when reset'
+)
+assert(uploadHtml.includes('(load)="onPreviewLoaded($event)"') && uploadTs.includes('onPreviewLoaded (event: Event)'), 'game upload preview must ignore stale iframe load events')
+assert(
+  previewProbeTs.includes('private previewReady = false') &&
+    previewProbeTs.includes('if (!this.previewReady) return') &&
+    previewProbeTs.includes('this.previewReady = true'),
+  'game upload preview must ignore iframe load events while a new file is still preparing'
+)
 assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
     gameCommunityDoc.includes('禁止上传 ZIP') &&

@@ -115,8 +115,8 @@ export class GameUploadComponent implements OnDestroy {
     this.previewStatus.set('封面已生成')
   }
 
-  onPreviewLoaded () {
-    this.previewProbe.onPreviewLoaded()
+  onPreviewLoaded (event: Event) {
+    this.previewProbe.onPreviewLoaded(event)
   }
 
   async submit () {

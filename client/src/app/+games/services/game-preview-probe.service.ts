@@ -28,6 +28,8 @@ export class GamePreviewProbeService implements OnDestroy {
   private objectUrl = ''
   private timer: ReturnType<typeof setTimeout> | undefined
   private token = ''
+  private prepareGeneration = 0
+  private previewReady = false
   private handled = false
   private onComplete: PreviewCompleteCallback | undefined
 
@@ -37,10 +39,21 @@ export class GamePreviewProbeService implements OnDestroy {
 
   /** Begin previewing `file`: validate, wrap with the probe, build the iframe URL. */
   async prepare (file: File, onComplete: PreviewCompleteCallback) {
+    const generation = ++this.prepareGeneration
+    if (this.timer) clearTimeout(this.timer)
+    this.timer = undefined
+    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
+    this.objectUrl = ''
+    this.previewUrl.set(null)
+    this.previewReady = false
+    this.previewError.set('')
+    this.runtimeScreenshot.set('')
+    this.handled = false
     this.onComplete = onComplete
     this.step.set(2)
     this.previewStatus.set('正在检查文件…')
     const source = await file.text()
+    if (generation !== this.prepareGeneration) return
     if (!/<(?:!doctype\s+html|html|body)\b/i.test(source)) {
       this.error.set('文件不是可识别的 HTML 文档，请选择单文件 HTML。')
       this.previewStatus.set('文件检查失败')
@@ -53,13 +66,19 @@ export class GamePreviewProbeService implements OnDestroy {
     this.runtimeScreenshot.set('')
     const wrapped = this.wrapDocument(source, this.token)
     this.objectUrl = URL.createObjectURL(new Blob([ wrapped ], { type: 'text/html' }))
+    this.previewReady = true
     this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.objectUrl))
     this.step.set(3)
     this.previewStatus.set('正在启动游戏…')
   }
 
   /** Called when the preview iframe finishes loading — arms the capture timeout. */
-  onPreviewLoaded () {
+  onPreviewLoaded (event: Event) {
+    if (!this.previewReady) return
+
+    const iframe = event.target as HTMLIFrameElement | null
+    if (iframe && this.objectUrl && iframe.src !== this.objectUrl) return
+
     this.step.set(3)
     this.previewStatus.set('正在检测运行错误…')
     if (this.timer) clearTimeout(this.timer)
@@ -69,17 +88,25 @@ export class GamePreviewProbeService implements OnDestroy {
   }
 
   reset () {
+    this.prepareGeneration += 1
     if (this.timer) clearTimeout(this.timer)
     this.timer = undefined
+    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
+    this.objectUrl = ''
+    this.previewUrl.set(null)
+    this.previewReady = false
+    this.previewStatus.set('')
+    this.error.set('')
     this.handled = false
     this.runtimeScreenshot.set('')
     this.previewError.set('')
+    this.onComplete = undefined
+    this.step.set(1)
   }
 
   ngOnDestroy () {
     window.removeEventListener('message', this.onMessage)
-    if (this.timer) clearTimeout(this.timer)
-    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
+    this.reset()
   }
 
   private complete (runtimeScreenshot?: string) {
