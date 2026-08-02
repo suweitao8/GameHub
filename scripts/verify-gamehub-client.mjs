@@ -485,11 +485,11 @@ assert(
   'game interaction spacing must be compact and tags must sit at the bottom of the fixed overview area'
 )
 assert(
-  headerScss.includes('--game-header-icon-size: 0.5rem;') &&
+  headerScss.includes('--game-header-icon-size: 1.05rem;') &&
     /\.game-header-actions my-global-icon \{[\s\S]*height: var\(--game-header-icon-size\) !important;[\s\S]*width: var\(--game-header-icon-size\) !important;/.test(headerScss) &&
     headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
-  'navbar action icons must use a smaller normalized icon box'
+  'navbar action icons must use a normalized icon box aligned with the navigation text'
 )
 assert(
   !headerScss.includes('background: #eaf8ff;') &&
