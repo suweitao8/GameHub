@@ -421,6 +421,12 @@ assert(
   'game upload preview must ignore iframe load events while a new file is still preparing'
 )
 assert(
+  uploadTs.includes('readonly previewValidationError = this.previewProbe.error') &&
+    uploadHtml.includes('{{ previewValidationError() }}') &&
+    uploadHtml.includes('[disabled]="submitting() || !file || !!previewValidationError()"'),
+  'game upload must expose preview validation errors and block submission until they are fixed'
+)
+assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
     gameCommunityDoc.includes('禁止上传 ZIP') &&
     !gameCommunityDoc.includes('资源包：`.zip`'),

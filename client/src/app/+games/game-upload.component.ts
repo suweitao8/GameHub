@@ -36,6 +36,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly previewUrl = this.previewProbe.previewUrl
   readonly previewStatus = this.previewProbe.previewStatus
   readonly previewError = this.previewProbe.previewError
+  readonly previewValidationError = this.previewProbe.error
   readonly step = this.previewProbe.step
   readonly coverPreview = this.coverGenerator.coverPreview
   readonly coverSource = this.coverGenerator.coverSource
