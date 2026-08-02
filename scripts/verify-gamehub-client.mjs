@@ -389,6 +389,12 @@ assert(
   'navbar action icons must use a smaller normalized icon box'
 )
 assert(
+  !headerScss.includes('background: #eaf8ff;') &&
+    /\.game-header-actions a\.game-header-action-active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
+    /\.game-header-left-nav a\.active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss),
+  'GameHub navigation must keep a transparent selected and hover state while only animating the icon'
+)
+assert(
   headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
     headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
     headerScss.includes('background-position: center top;') &&

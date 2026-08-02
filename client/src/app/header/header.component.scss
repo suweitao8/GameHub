@@ -159,8 +159,8 @@
 
 .game-header-left-nav a:hover,
 .game-header-left-nav a:focus-visible {
-  background: #eaf8ff;
-  color: #00aeec !important;
+  background: transparent;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   outline: 0;
 }
 
@@ -171,7 +171,7 @@
 
 .game-header-left-nav a.active {
   background: transparent;
-  color: #00aeec !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-right {
@@ -239,8 +239,8 @@
 
 .game-header-actions a:hover,
 .game-header-actions a:focus-visible {
-  background: #eaf8ff;
-  color: #00aeec !important;
+  background: transparent;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-actions a:focus-visible,
@@ -251,7 +251,7 @@
 
 .game-header-actions a.game-header-action-active {
   background: transparent;
-  color: #00aeec !important;
+  color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
 }
 
 .game-header-actions a:hover my-global-icon,
