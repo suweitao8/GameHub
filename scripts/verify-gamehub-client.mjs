@@ -162,7 +162,10 @@ assert(
   'games-home must isolate optional latest and popular feed failures'
 )
 assert(
-  gameSectionTs.includes('@if (games().length)') && gameSectionTs.includes("@if (shuffleLabel() && games().length; as label)"),
+  gameSectionTs.includes('@if (games().length)') &&
+    gameSectionTs.includes('@if (shuffleLabel() && games().length)') &&
+    gameSectionTs.includes('{{ shuffleLabel() }}') &&
+    !gameSectionTs.includes('; as label'),
   'empty game sections must not render headings or shuffle actions'
 )
 const staticGameRouterRegistrations = gamesIndexTs.match(/gamesRouter\.use\('\/', (discoveryRouter|personalRouter|reservationRouter|collectionRouter)\)/g) || []

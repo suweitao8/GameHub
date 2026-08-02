@@ -29,10 +29,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
               <my-game-card [game]="game" [searchTerm]="searchTerm()" />
             }
           </div>
-          @if (shuffleLabel() && games().length; as label) {
+          @if (shuffleLabel() && games().length) {
             <button class="section-side-action" type="button" [attr.aria-label]="'换一批' + heading()" (click)="shuffle.emit()">
               <my-global-icon class="section-side-action-icon" iconName="refresh" />
-              <span class="section-side-action-label">{{ label }}</span>
+              <span class="section-side-action-label">{{ shuffleLabel() }}</span>
             </button>
           }
         </div>
