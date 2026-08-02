@@ -317,7 +317,7 @@ assert(
 assert(
     commentsTs.includes('height: 1.5rem;') && commentsTs.includes('width: 1.5rem;') &&
     commentsTs.includes('flex: 0 0 1.5rem;') &&
-  commentsTs.includes('height: 0.5rem !important;') && commentsTs.includes('width: 0.5rem !important;') &&
+  commentsTs.includes('height: 1rem !important;') && commentsTs.includes('width: 1rem !important;') &&
     commentsTs.includes('my-global-icon ::ng-deep tabler-icon') &&
     commentsTs.includes('align-items: center;') && commentsTs.includes('justify-content: center;') &&
     commentsTs.includes('.bili-composer-tool-wrap:hover .bili-composer-tool') &&
@@ -358,7 +358,7 @@ assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.
 assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
 assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
 assert(
-  commentsTs.includes('height: 0.65rem;') && commentsTs.includes('width: 0.65rem;') &&
+  commentsTs.includes('height: 0.5rem;') && commentsTs.includes('width: 0.5rem;') &&
     commentsTs.includes('.bili-meta-btn my-global-icon ::ng-deep svg'),
   'comment like icons must use a smaller centered icon box'
 )

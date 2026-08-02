@@ -176,9 +176,9 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-composer-tool my-global-icon {
       display: inline-flex;
-      flex: 0 0 0.5rem;
-      height: 0.5rem !important;
-      width: 0.5rem !important;
+      flex: 0 0 1rem;
+      height: 1rem !important;
+      width: 1rem !important;
     }
     .bili-composer-tool my-global-icon ::ng-deep tabler-icon,
     .bili-composer-tool my-global-icon ::ng-deep .tabler-icon,
@@ -373,13 +373,14 @@ import { GameCommentsStore } from './game-comments-store'
     .bili-meta-btn my-global-icon {
       align-items: center;
       display: inline-flex;
-      flex: 0 0 0.65rem;
-      height: 0.65rem;
+      flex: 0 0 0.5rem;
+      height: 0.5rem;
       justify-content: center;
       line-height: 0;
-      width: 0.65rem;
+      width: 0.5rem;
     }
     .bili-meta-btn my-global-icon ::ng-deep tabler-icon,
+    .bili-meta-btn my-global-icon ::ng-deep .tabler-icon,
     .bili-meta-btn my-global-icon ::ng-deep svg {
       display: block;
       height: 100% !important;
