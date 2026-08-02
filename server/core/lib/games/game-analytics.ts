@@ -153,14 +153,14 @@ export async function getCreatorFollowerTrend (accountId: number): Promise<{ dat
 
   const rows = await sequelizeTypescript.query(`
     SELECT
-      DATE("ActorFollow"."createdAt") AS date,
+      DATE("actorFollow"."createdAt") AS date,
       COUNT(*) AS followers
     FROM "actorFollow"
-    INNER JOIN "actor" ON "actor"."id" = "ActorFollow"."targetActorId"
+    INNER JOIN "actor" ON "actor"."id" = "actorFollow"."targetActorId"
     WHERE "actor"."accountId" = :accountId
-      AND "ActorFollow"."state" = 'accepted'
-      AND "ActorFollow"."createdAt" >= NOW() - INTERVAL '30 days'
-    GROUP BY DATE("ActorFollow"."createdAt")
+      AND "actorFollow"."state" = 'accepted'
+      AND "actorFollow"."createdAt" >= NOW() - INTERVAL '30 days'
+    GROUP BY DATE("actorFollow"."createdAt")
     ORDER BY date ASC
   `, {
     replacements: { accountId },

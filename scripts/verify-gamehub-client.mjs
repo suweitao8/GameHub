@@ -475,9 +475,12 @@ assert(
   'following feed must consume the actor account SELECT result as an array'
 )
 assert(
-  gameAnalyticsServerTs.includes('INNER JOIN "actor" ON "actor"."id" = "ActorFollow"."targetActorId"') &&
+  gameAnalyticsServerTs.includes('INNER JOIN "actor" ON "actor"."id" = "actorFollow"."targetActorId"') &&
     gameAnalyticsServerTs.includes('"actor"."accountId" = :accountId') &&
-    !gameAnalyticsServerTs.includes('a."actorId"'),
+    gameAnalyticsServerTs.includes('DATE("actorFollow"."createdAt")') &&
+    gameAnalyticsServerTs.includes('"actorFollow"."state"') &&
+    !gameAnalyticsServerTs.includes('a."actorId"') &&
+    !gameAnalyticsServerTs.includes('"ActorFollow"."createdAt"'),
   'creator follower analytics must join the actor account through actor.accountId'
 )
 assert(
