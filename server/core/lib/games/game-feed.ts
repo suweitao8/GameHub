@@ -35,7 +35,7 @@ export async function getFollowingFeed (accountId: number, options: {
 
   // 通过 targetActorIds 找到对应的 Account ids
   const { sequelizeTypescript } = await import('@server/initializers/database.js')
-  const [ actorRows ] = await sequelizeTypescript.query(`
+  const actorRows = await sequelizeTypescript.query(`
     SELECT "accountId" FROM "actor" WHERE "id" IN (:targetActorIds)
   `, {
     replacements: { targetActorIds },

@@ -463,6 +463,17 @@ assert(
     gameDiscoveryServerTs.includes('const rows = await sequelizeTypescript.query'),
   'GameHub discovery and collection APIs must register their Sequelize models and consume SELECT query rows correctly'
 )
+const analyticsSelectDestructures = gameAnalyticsServerTs.match(/const \[ rows \] = await sequelizeTypescript\.query/g) || []
+assert(
+  analyticsSelectDestructures.length === 0 &&
+    (gameAnalyticsServerTs.match(/const rows = await sequelizeTypescript\.query/g) || []).length >= 3,
+  'creator analytics must consume Sequelize SELECT rows as an array instead of destructuring the first row'
+)
+assert(
+  !gameFeedTs.includes('const [ actorRows ] = await sequelizeTypescript.query') &&
+    gameFeedTs.includes('const actorRows = await sequelizeTypescript.query'),
+  'following feed must consume the actor account SELECT result as an array'
+)
 assert(
   /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&
     gamePlayScss.includes('flex: 0 0 var(--game-stage-height);'),

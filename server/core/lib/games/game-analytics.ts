@@ -15,7 +15,7 @@ export async function getCreatorPlayTrend (accountId: number): Promise<{ date: s
   const cached = await client.get(prefix + cacheKey)
   if (cached) return JSON.parse(cached)
 
-  const [ rows ] = await sequelizeTypescript.query(`
+  const rows = await sequelizeTypescript.query(`
     SELECT
       DATE("recent"."lastPlayedAt") AS date,
       COUNT(*) AS plays
@@ -111,7 +111,7 @@ export async function getCreatorGameRanking (accountId: number): Promise<{
   const cached = await client.get(prefix + cacheKey)
   if (cached) return JSON.parse(cached)
 
-  const [ rows ] = await sequelizeTypescript.query(`
+  const rows = await sequelizeTypescript.query(`
     SELECT
       g.id AS "gameId",
       g.title,
@@ -151,7 +151,7 @@ export async function getCreatorFollowerTrend (accountId: number): Promise<{ dat
   const cached = await client.get(prefix + cacheKey)
   if (cached) return JSON.parse(cached)
 
-  const [ rows ] = await sequelizeTypescript.query(`
+  const rows = await sequelizeTypescript.query(`
     SELECT
       DATE("ActorFollow"."createdAt") AS date,
       COUNT(*) AS followers
