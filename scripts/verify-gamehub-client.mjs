@@ -222,6 +222,7 @@ const gameCommunityServiceTs = read('client/src/app/+games/services/game-communi
 const communityPanelTs = read('client/src/app/+games/game-community-panel.component.ts')
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
+const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
@@ -289,6 +290,26 @@ assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discuss
 assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
 assert(discussTs.includes('[disabled]="!store.draft().trim()"') && /\.discuss-composer button:disabled\s*\{/.test(discussTs), 'discussion send button must be disabled and gray for empty text')
 assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
+assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
+assert(
+  commentsStoreTs.includes('private requestGeneration = 0') &&
+    commentsStoreTs.includes('this.stopPolling()') &&
+    commentsStoreTs.includes('if (this.refreshTimer) return') &&
+    commentsStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return') &&
+    /this\.sort\.set\(value\)\n    const generation = \+\+this\.requestGeneration\n    this\.loading\.set\(true\)\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
+  'comment polling and loads must stop and ignore stale route responses'
+)
+assert(
+  discussStoreTs.includes('private requestGeneration = 0') &&
+    discussStoreTs.includes('if (this.refreshTimer) return') &&
+    discussStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return'),
+  'discussion polling and loads must ignore stale route responses'
+)
+assert(
+  gamePlayTs.includes('private loadGeneration = 0') &&
+    (gamePlayTs.match(/if \(generation !== this\.loadGeneration \|\| this\.currentUuid !== uuid\) return/g) || []).length >= 3,
+  'game detail requests must ignore stale responses after a route change'
+)
 assert(!communityPanelTs.includes('一键三连') && !communityPanelTs.includes('tripleAction'), 'community actions must not expose one-click triple interaction')
 assert(!communityPanelTs.includes('余额') && !communityPanelTs.includes('coin-row'), 'community actions must not expose a duplicate coin balance composer')
 assert(!communityPanelTs.includes('description-rating') && !communityPanelTs.includes('reviewScores'), 'game description must not expose star rating UI')

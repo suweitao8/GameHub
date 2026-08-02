@@ -35,6 +35,7 @@ export class GameCommentsStore implements OnDestroy {
 
   private uuid = ''
   private refreshTimer: ReturnType<typeof setInterval> | undefined
+  private requestGeneration = 0
 
   /** Sorted hottest-first or latest-first for the comment list. */
   readonly sorted = () => {
@@ -53,17 +54,25 @@ export class GameCommentsStore implements OnDestroy {
   }
 
   init (uuid: string) {
+    this.stopPolling()
     this.uuid = uuid
+    const generation = ++this.requestGeneration
     this.reset()
-    this.load(uuid, this.sort())
+    this.load(uuid, this.sort(), generation)
     this.startPolling()
   }
 
-  setUuid (uuid: string) { this.uuid = uuid }
+  setUuid (uuid: string) {
+    if (this.uuid === uuid) return
+    this.stopPolling()
+    this.uuid = uuid
+    this.requestGeneration += 1
+  }
 
   private reset () {
     this.comments.set([])
     this.loading.set(true)
+    this.loadingMore.set(false)
     this.error.set('')
     this.draft.set('')
     this.commentImage.set(null)
@@ -78,20 +87,27 @@ export class GameCommentsStore implements OnDestroy {
   setSort (value: 'new' | 'hot') {
     if (this.sort() === value) return
     this.sort.set(value)
+    const generation = ++this.requestGeneration
     this.loading.set(true)
-    this.load(this.uuid, value)
+    this.loadingMore.set(false)
+    this.load(this.uuid, value, generation)
   }
 
   loadMore () {
     if (this.loadingMore() || this.comments().length >= this.total()) return
+    const uuid = this.uuid
+    const generation = this.requestGeneration
     this.loadingMore.set(true)
-    this.gamesService.comments(this.uuid, this.sort(), this.comments().length, 20).subscribe({
+    this.gamesService.comments(uuid, this.sort(), this.comments().length, 20).subscribe({
       next: result => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.update(prev => [ ...prev, ...result.data ])
         this.total.set(result.total)
         this.loadingMore.set(false)
       },
-      error: () => this.loadingMore.set(false)
+      error: () => {
+        if (generation === this.requestGeneration && uuid === this.uuid) this.loadingMore.set(false)
+      }
     })
   }
 
@@ -225,16 +241,18 @@ export class GameCommentsStore implements OnDestroy {
     this.stopPolling()
   }
 
-  private load (uuid: string, sort: 'new' | 'hot') {
+  private load (uuid: string, sort: 'new' | 'hot', generation: number) {
     if (!uuid) return
     this.gamesService.comments(uuid, sort, 0, 20).subscribe({
       next: result => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set(result.data)
         this.total.set(result.total)
         this.loading.set(false)
         this.error.set('')
       },
       error: () => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set([])
         this.total.set(0)
         this.loading.set(false)
@@ -251,7 +269,7 @@ export class GameCommentsStore implements OnDestroy {
   }
 
   private startPolling () {
-    this.stopPolling()
+    if (this.refreshTimer) return
     this.refreshTimer = setInterval(() => this.refresh(), 4000)
     document.addEventListener('visibilitychange', this.onVisibilityChange)
   }
@@ -273,9 +291,11 @@ export class GameCommentsStore implements OnDestroy {
 
   private refresh () {
     if (!this.uuid) return
-    this.gamesService.comments(this.uuid, this.sort(), 0, 20).subscribe({
+    const uuid = this.uuid
+    const generation = this.requestGeneration
+    this.gamesService.comments(uuid, this.sort(), 0, 20).subscribe({
       next: result => {
-        if (!result.data.length) return
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set(result.data)
         this.total.set(result.total)
         this.error.set('')

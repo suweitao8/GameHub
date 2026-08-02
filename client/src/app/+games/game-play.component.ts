@@ -47,6 +47,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly watchLaterService = inject(WatchLaterService)
   private reloadKey = 0
   private playRecordedFor = ''
+  private loadGeneration = 0
   /** Current game uuid, exposed read-only for child component bindings. */
   currentUuid = ''
 
@@ -77,6 +78,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy () {
+    this.loadGeneration += 1
     this.subscriptions.forEach(s => s.unsubscribe())
     window.removeEventListener('scroll', this.onScroll)
   }
@@ -86,6 +88,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   scrollToTop () { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
   loadGame (uuid: string) {
+    const generation = ++this.loadGeneration
     if (!uuid) return
     this.currentUuid = uuid
     this.commentsStore.setUuid(uuid)
@@ -102,6 +105,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
       next: game => {
+        if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
         this.game.set(game)
         this.recommendService.recordView(game)
         this.updateMetaTags(game)
@@ -110,12 +114,24 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.loading.set(false)
         this.commentsStore.init(uuid)
         this.gamesService.community(uuid).subscribe({
-          next: value => this.community.set(value),
-          error: () => this.communityError.set('互动操作暂时无法加载，请稍后重试。')
+          next: value => {
+            if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
+            this.community.set(value)
+          },
+          error: () => {
+            if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
+            this.communityError.set('互动操作暂时无法加载，请稍后重试。')
+          }
         })
-        this.gamesService.related(uuid, 8).subscribe({ next: result => this.related.set(result.data) })
+        this.gamesService.related(uuid, 8).subscribe({
+          next: result => {
+            if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
+            this.related.set(result.data)
+          }
+        })
       },
       error: () => {
+        if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
         this.loading.set(false)
         this.loadingError.set(true)
       }

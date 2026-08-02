@@ -22,6 +22,7 @@ export class GameDiscussStore implements OnDestroy {
 
   private uuid = ''
   private refreshTimer: ReturnType<typeof setInterval> | undefined
+  private requestGeneration = 0
 
   readonly timeline = () => this.messages()
 
@@ -37,13 +38,14 @@ export class GameDiscussStore implements OnDestroy {
   init (uuid: string) {
     this.stopPolling()
     this.uuid = uuid
+    const generation = ++this.requestGeneration
     this.messages.set([])
     this.loading.set(true)
     this.error.set('')
     this.draft.set('')
     this.feedback.set('')
     this.total.set(0)
-    this.load()
+    this.load(generation)
     this.startPolling()
   }
 
@@ -51,9 +53,12 @@ export class GameDiscussStore implements OnDestroy {
     if (!this.requireLogin()) return
     const text = this.draft().trim()
     if (!text || !this.uuid) return
+    const uuid = this.uuid
+    const generation = this.requestGeneration
 
-    this.communityService.sendDiscussion(this.uuid, text).subscribe({
+    this.communityService.sendDiscussion(uuid, text).subscribe({
       next: result => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.messages.update(messages => [ ...messages, result.message ])
         this.total.update(value => value + 1)
         this.draft.set('')
@@ -81,16 +86,19 @@ export class GameDiscussStore implements OnDestroy {
 
   ngOnDestroy () { this.stopPolling() }
 
-  private load () {
-    if (!this.uuid) return
-    this.communityService.discussion(this.uuid, 0, 50).subscribe({
+  private load (generation: number) {
+    const uuid = this.uuid
+    if (!uuid) return
+    this.communityService.discussion(uuid, 0, 50).subscribe({
       next: result => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.messages.set(result.data)
         this.total.set(result.total)
         this.loading.set(false)
         this.error.set('')
       },
       error: () => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.messages.set([])
         this.total.set(0)
         this.loading.set(false)
@@ -101,8 +109,11 @@ export class GameDiscussStore implements OnDestroy {
 
   private refresh () {
     if (!this.uuid) return
-    this.communityService.discussion(this.uuid, 0, 50).subscribe({
+    const uuid = this.uuid
+    const generation = this.requestGeneration
+    this.communityService.discussion(uuid, 0, 50).subscribe({
       next: result => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.messages.set(result.data)
         this.total.set(result.total)
         this.error.set('')
@@ -111,6 +122,7 @@ export class GameDiscussStore implements OnDestroy {
   }
 
   private startPolling () {
+    if (this.refreshTimer) return
     this.refreshTimer = setInterval(() => this.refresh(), 4000)
     document.addEventListener('visibilitychange', this.onVisibilityChange)
   }

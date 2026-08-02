@@ -209,7 +209,7 @@ import { GameDiscussStore } from './game-discuss-store'
           [value]="store.draft()"
           (input)="store.draft.set($any($event.target).value)"
           placeholder="在讨论群说点什么..."
-          maxlength="5000"
+          maxlength="2000"
         >
         <button type="submit" [disabled]="!store.draft().trim()">发送</button>
       </form>
