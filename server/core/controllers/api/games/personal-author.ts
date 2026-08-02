@@ -6,11 +6,12 @@ import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js
 import { ActorFollowModel } from '@server/models/actor/actor-follow.js'
 import { ActorModel } from '@server/models/actor/actor.js'
 import { AccountModel } from '@server/models/account/account.js'
+import { VideoChannelModel } from '@server/models/video/video-channel.js'
 import type { MGame } from '@server/types/models/game/game.js'
 import { asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import express from 'express'
-import { literal } from 'sequelize'
+import { col, fn, literal } from 'sequelize'
 import { getUser, formatGame } from './game-shared.js'
 
 const personalAuthorRouter = express.Router()
@@ -89,26 +90,51 @@ async function listFollowing (req: express.Request, res: express.Response) {
       include: [
         {
           model: AccountModel,
-          required: true
+          required: false
         },
         {
-          model: GameModel,
-          where: { status: 'published' },
+          model: VideoChannelModel,
           required: false,
-          attributes: [ 'id' ]
+          include: [
+            {
+              model: AccountModel,
+              required: true
+            }
+          ]
         }
       ]
     })
 
-    const data = actors.map(actor => ({
-      id: actor.Account.id,
-      name: actor.Account.name,
-      displayName: actor.Account.getDisplayName(),
-      description: actor.Account.description || '',
-      handle: actor.getIdentifier(),
-      followers: actor.followersCount || 0,
-      games: (actor as any).Games?.length || 0
-    }))
+    const targetAccountIds = actors
+      .map(actor => actor.accountId || actor.VideoChannel?.accountId)
+      .filter((accountId): accountId is number => Number.isInteger(accountId))
+    const gameCounts = await GameModel.findAll<any>({
+      where: { ownerAccountId: targetAccountIds, status: 'published' },
+      attributes: [ 'ownerAccountId', [ fn('COUNT', col('id')), 'gameCount' ] ],
+      group: [ 'ownerAccountId' ],
+      raw: true
+    })
+    const gameCountByAccountId = new Map<number, number>()
+    for (const row of gameCounts) {
+      gameCountByAccountId.set(Number(row.ownerAccountId), Number(row.gameCount))
+    }
+
+    const data = actors
+      .map(actor => {
+        const account = actor.Account || actor.VideoChannel?.Account
+        if (!account) return undefined
+
+        return {
+          id: account.id,
+          name: account.name,
+          displayName: account.getDisplayName(),
+          description: account.description || '',
+          handle: actor.getIdentifier(),
+          followers: actor.followersCount || 0,
+          games: gameCountByAccountId.get(account.id) || 0
+        }
+      })
+      .filter((author): author is NonNullable<typeof author> => !!author)
 
     return res.json({ total: data.length, data })
   })

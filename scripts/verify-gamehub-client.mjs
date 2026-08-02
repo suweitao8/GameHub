@@ -230,6 +230,7 @@ const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts
 const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
 const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
 const gameFeedTs = read('server/core/lib/games/game-feed.ts')
+const personalAuthorTs = read('server/core/controllers/api/games/personal-author.ts')
 const personalLibraryTs = read('server/core/controllers/api/games/personal-library.ts')
 const gameTestsTs = read('packages/tests/src/api/games/games-api.ts')
 const gameAboutTs = read('client/src/app/game-about.component.ts')
@@ -486,6 +487,14 @@ assert(
 assert(
   !gameFeedTs.includes('model: ActorFollowModel') && gameFeedTs.includes('AccountModel.findByPk(accountId)'),
   'following feed must not eager-load ActorFollowModel from AccountModel'
+)
+assert(
+  personalAuthorTs.includes("[ fn('COUNT', col('id')), 'gameCount' ]") &&
+    personalAuthorTs.includes("group: [ 'ownerAccountId' ]") &&
+    personalAuthorTs.includes('actor.accountId || actor.VideoChannel?.accountId') &&
+    personalAuthorTs.includes('id: account.id') &&
+    !personalAuthorTs.includes('model: GameModel'),
+  'following authors must aggregate published games by owner account instead of eager-loading an invalid ActorModel -> GameModel association'
 )
 assert(
   gameAnalyticsServerTs.includes('INNER JOIN "actor" ON "actor"."id" = "actorFollow"."targetActorId"') &&
