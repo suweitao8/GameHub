@@ -52,6 +52,7 @@ export class GamesHomeComponent implements OnInit {
   readonly recommendedOffset = signal(0)
   readonly recommendedTotal = signal(0)
   readonly loadingMore = signal(false)
+  private requestGeneration = 0
 
   readonly categories = HOME_CATEGORIES
 
@@ -74,6 +75,9 @@ export class GamesHomeComponent implements OnInit {
   }
 
   loadGames () {
+    const generation = ++this.requestGeneration
+    this.loadingMore.set(false)
+
     if (this.communityRoute()) {
       this.latest.set([])
       this.popular.set([])
@@ -105,6 +109,7 @@ export class GamesHomeComponent implements OnInit {
     if (this.view() === 'following') {
       this.gamesService.list({ ...common, sort: 'latest' }).subscribe({
         next: result => {
+          if (!this.isCurrentRequest(generation)) return
           this.recommended.set(result.data)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
@@ -113,6 +118,7 @@ export class GamesHomeComponent implements OnInit {
           this.loading.set(false)
         },
         error: () => {
+          if (!this.isCurrentRequest(generation)) return
           this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
@@ -123,6 +129,7 @@ export class GamesHomeComponent implements OnInit {
     if (this.searchMode() && this.sort() === 'recommended') {
       this.gamesService.list({ ...common, sort: 'recommended' }).subscribe({
         next: result => {
+          if (!this.isCurrentRequest(generation)) return
           this.recommended.set(result.data)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
@@ -131,6 +138,7 @@ export class GamesHomeComponent implements OnInit {
           this.loading.set(false)
         },
         error: () => {
+          if (!this.isCurrentRequest(generation)) return
           this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
@@ -141,6 +149,7 @@ export class GamesHomeComponent implements OnInit {
     if (this.sort() !== 'recommended') {
       this.gamesService.list({ ...common, sort: this.sort() }).subscribe({
         next: result => {
+          if (!this.isCurrentRequest(generation)) return
           this.recommended.set(result.data)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
@@ -149,6 +158,7 @@ export class GamesHomeComponent implements OnInit {
           this.loading.set(false)
         },
         error: () => {
+          if (!this.isCurrentRequest(generation)) return
           this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
@@ -159,6 +169,7 @@ export class GamesHomeComponent implements OnInit {
     if (this.category()) {
       this.gamesService.list({ ...common, count: 16, sort: 'popular' }).subscribe({
         next: result => {
+          if (!this.isCurrentRequest(generation)) return
           this.recommended.set(result.data)
           this.recommendedTotal.set(result.total)
           this.popular.set([])
@@ -167,6 +178,7 @@ export class GamesHomeComponent implements OnInit {
           this.loading.set(false)
         },
         error: () => {
+          if (!this.isCurrentRequest(generation)) return
           this.error.set('加载失败，请稍后重试')
           this.loading.set(false)
         }
@@ -196,6 +208,7 @@ export class GamesHomeComponent implements OnInit {
       )
     }).subscribe({
       next: result => {
+        if (!this.isCurrentRequest(generation)) return
         this.latest.set(result.latest.data)
         this.popular.set(result.popular.data)
         this.recommended.set(result.recommended.data)
@@ -214,6 +227,7 @@ export class GamesHomeComponent implements OnInit {
         this.loading.set(false)
       },
       error: () => {
+        if (!this.isCurrentRequest(generation)) return
         this.error.set('加载失败，请稍后重试')
         this.loading.set(false)
       }
@@ -236,6 +250,7 @@ export class GamesHomeComponent implements OnInit {
     if (current >= total) return
 
     this.loadingMore.set(true)
+    const generation = this.requestGeneration
     const common: GamesListParams = {
       search: this.search() || undefined,
       category: this.category() || undefined,
@@ -247,16 +262,24 @@ export class GamesHomeComponent implements OnInit {
     }
     this.gamesService.list(common).subscribe({
       next: result => {
+        if (!this.isCurrentRequest(generation)) return
         this.recommended.update(prev => [ ...prev, ...result.data ])
         this.recommendedTotal.set(result.total)
         this.loadingMore.set(false)
       },
-      error: () => this.loadingMore.set(false)
+      error: () => {
+        if (!this.isCurrentRequest(generation)) return
+        this.loadingMore.set(false)
+      }
     })
   }
 
   hasMoreToLoad () {
     return this.recommended().length < this.recommendedTotal()
+  }
+
+  private isCurrentRequest (generation: number) {
+    return generation === this.requestGeneration
   }
 
   shufflePopular () {

@@ -180,6 +180,14 @@ assert(
     !homeTs.includes('最多点赞') && !homeTs.includes('最多投币') && !homeTs.includes('最多收藏'),
   'games-home must only accept the current discovery sorts'
 )
+assert(
+  homeTs.includes('private requestGeneration = 0') &&
+    homeTs.includes('const generation = ++this.requestGeneration') &&
+    homeTs.includes('const generation = this.requestGeneration') &&
+    homeTs.includes('private isCurrentRequest (generation: number)') &&
+    (homeTs.match(/if \(!this\.isCurrentRequest\(generation\)\) return/g) || []).length >= 8,
+  'games-home must ignore stale feed responses after query or sort changes'
+)
 assert(!navigationTs.includes('双人游戏') && !navigationTs.includes('多人联机'), 'search hot keywords must not reintroduce multiplayer-only labels')
 assert(
   navigationHtml.includes('@if (history().length && !suggestionLoading() && !suggestions().length) {') &&
