@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'crypto'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
-import { basename, extname, join, relative, resolve, sep, posix } from 'path'
+import { basename, dirname, extname, join, relative, resolve, sep, posix } from 'path'
 import { parse } from 'node-html-parser'
 
 export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
@@ -167,6 +167,43 @@ export type StoredGameScreenshot = {
   absolutePath: string
   relativePath: string
   mimeType: string
+}
+
+export async function cleanupStoredGameAssets (input: {
+  root: string
+  runtime?: Pick<StoredGameRuntimePackage, 'absoluteDirectory'>
+  cover?: Pick<StoredGameCover, 'absolutePath'>
+  screenshots?: Pick<StoredGameScreenshot, 'absolutePath'>[]
+}): Promise<boolean> {
+  const rootPath = resolve(input.root)
+  const directories = new Set<string>()
+  let cleanupSucceeded = true
+
+  const addDirectory = (directory: string | undefined) => {
+    if (!directory) return
+
+    const absoluteDirectory = resolve(directory)
+    if (!isPathInside(rootPath, absoluteDirectory)) {
+      cleanupSucceeded = false
+      return
+    }
+
+    directories.add(absoluteDirectory)
+  }
+
+  addDirectory(input.runtime?.absoluteDirectory)
+  addDirectory(input.cover && dirname(input.cover.absolutePath))
+  for (const screenshot of input.screenshots || []) addDirectory(dirname(screenshot.absolutePath))
+
+  await Promise.all(Array.from(directories).map(async directory => {
+    try {
+      await rm(directory, { recursive: true, force: true })
+    } catch {
+      cleanupSucceeded = false
+    }
+  }))
+
+  return cleanupSucceeded
 }
 
 const MAX_SCREENSHOTS = 5

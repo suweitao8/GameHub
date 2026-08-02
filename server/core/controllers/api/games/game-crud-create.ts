@@ -2,9 +2,17 @@ import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles } from '@server/helpers/express-utils.js'
 import { sanitizeGameDescription } from '@server/helpers/game-sanitization.js'
+import { logger } from '@server/helpers/logger.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { awardExp } from '@server/lib/games/game-exp.js'
-import { GameRuntimeValidationError, MAX_SCREENSHOTS, storeGameCover, storeGameRuntimePackage, storeGameScreenshot } from '@server/lib/games/game-runtime.js'
+import {
+  cleanupStoredGameAssets,
+  GameRuntimeValidationError,
+  MAX_SCREENSHOTS,
+  storeGameCover,
+  storeGameRuntimePackage,
+  storeGameScreenshot
+} from '@server/lib/games/game-runtime.js'
 import { createGameRuntimePreview } from '@server/lib/games/game-runtime-preview.js'
 import { isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
@@ -12,7 +20,7 @@ import { GameModel } from '@server/models/game/game.js'
 import { GameActivityModel } from '@server/models/game/game-activity.js'
 import { asyncMiddleware, authenticate, gameUploadRateLimiter } from '@server/middlewares/index.js'
 import { gameCreateValidator, parseGameTags } from '@server/middlewares/validators/games.js'
-import { readFile, rm } from 'fs/promises'
+import { readFile } from 'fs/promises'
 import express from 'express'
 import { Op } from 'sequelize'
 import { gameFile, MAX_GAMES_PER_ACCOUNT, getUser, formatGame, getGameRuntimeErrorMessage } from './game-shared.js'
@@ -76,6 +84,7 @@ async function createGame (req: express.Request, res: express.Response) {
     let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined
     let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
     const storedScreenshots: Awaited<ReturnType<typeof storeGameScreenshot>>[] = []
+    let persisted = false
     try {
       const content = await readFile(file.path)
       stored = await storeGameRuntimePackage({
@@ -114,8 +123,8 @@ async function createGame (req: express.Request, res: express.Response) {
         where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } }
       }) || 0)
       if (storageUsed + stored.fileSizeBytes > CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES) {
-        await rm(stored.absoluteDirectory, { recursive: true, force: true })
-        if (storedCover) await rm(storedCover.absolutePath, { force: true })
+        const cleanupSucceeded = await cleanupStoredGameAssets({ root: CONFIG.STORAGE.GAMES_DIR, runtime: stored, cover: storedCover, screenshots: storedScreenshots })
+        if (!cleanupSucceeded) logger.warn('Failed to clean up game assets after a storage quota rejection.')
         return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Account game storage quota reached' })
       }
 
@@ -135,6 +144,7 @@ async function createGame (req: express.Request, res: express.Response) {
         status,
         publishedAt: status === 'published' ? new Date() : null
       })
+      persisted = true
 
       auditLogger.create(getAuditIdFromRes(res), new GameAuditView(formatGame(game)))
       awardExp(user.Account.id, 'PUBLISH_GAME').catch(() => undefined)
@@ -150,8 +160,10 @@ async function createGame (req: express.Request, res: express.Response) {
 
       return res.status(HttpStatusCode.CREATED_201).json(formatGame(game))
     } catch (err) {
-      if (stored) await rm(stored.absoluteDirectory, { recursive: true, force: true }).catch(() => undefined)
-      if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
+      if (!persisted) {
+        const cleanupSucceeded = await cleanupStoredGameAssets({ root: CONFIG.STORAGE.GAMES_DIR, runtime: stored, cover: storedCover, screenshots: storedScreenshots })
+        if (!cleanupSucceeded) logger.warn('Failed to clean up game assets after a game creation failure.', { err })
+      }
       if (err instanceof GameRuntimeValidationError) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: getGameRuntimeErrorMessage(err) })
       throw err
     } finally {

@@ -1,5 +1,7 @@
 # GameHub HTML 游戏资源包上传实施计划
 
+> **状态：已废弃（2026-08-02）。** 当前实现只接受单个 `.html` 或 `.htm` 文件（最大 20MB），禁止 ZIP 和多文件资源包；本文中的 ZIP 计划不再作为执行依据。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 支持安全的单文件 HTML 与 ZIP 资源包上传，并从统一的 GameHub 入口完成预览、截图、发布和试玩。

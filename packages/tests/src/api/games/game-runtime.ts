@@ -1,10 +1,11 @@
 import { expect } from 'chai'
-import { mkdtemp, readFile, rm } from 'fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'fs/promises'
 import JSZip from 'jszip'
 import { tmpdir } from 'os'
 import { join, resolve } from 'path'
 import {
   getGameRuntimeHeaders,
+  cleanupStoredGameAssets,
   injectGameDefaultBackground,
   injectGameRuntimeBridge,
   storeGameRuntimePackage,
@@ -78,6 +79,64 @@ describe('Game runtime security', function () {
     }
   })
 
+  it('removes every stored asset directory after a game operation fails', async function () {
+    const root = await mkdtemp(join(tmpdir(), 'peertube-games-'))
+    const runtimeDirectory = join(root, 'runtime-id')
+    const coverDirectory = join(root, 'covers', 'cover-id')
+    const screenshotDirectory = join(root, 'screenshots', 'screenshot-id')
+
+    await mkdir(runtimeDirectory, { recursive: true })
+    await mkdir(coverDirectory, { recursive: true })
+    await mkdir(screenshotDirectory, { recursive: true })
+    await writeFile(join(runtimeDirectory, 'index.html'), '<html></html>')
+    await writeFile(join(coverDirectory, 'cover.png'), Buffer.from('cover'))
+    await writeFile(join(screenshotDirectory, 'screenshot.png'), Buffer.from('screenshot'))
+
+    try {
+      const cleanupSucceeded = await cleanupStoredGameAssets({
+        root,
+        runtime: {
+          absoluteDirectory: runtimeDirectory
+        },
+        cover: {
+          absolutePath: join(coverDirectory, 'cover.png')
+        },
+        screenshots: [ {
+          absolutePath: join(screenshotDirectory, 'screenshot.png')
+        } ]
+      })
+
+      expect(cleanupSucceeded).to.equal(true)
+      await expectPathMissing(runtimeDirectory)
+      await expectPathMissing(coverDirectory)
+      await expectPathMissing(screenshotDirectory)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+    }
+  })
+
+  it('does not delete an asset directory outside the storage root', async function () {
+    const root = await mkdtemp(join(tmpdir(), 'peertube-games-'))
+    const outsideRoot = await mkdtemp(join(tmpdir(), 'peertube-games-outside-'))
+    const outsideDirectory = join(outsideRoot, 'runtime-id')
+
+    await mkdir(outsideDirectory, { recursive: true })
+    await writeFile(join(outsideDirectory, 'index.html'), '<html></html>')
+
+    try {
+      const cleanupSucceeded = await cleanupStoredGameAssets({
+        root,
+        runtime: { absoluteDirectory: outsideDirectory }
+      })
+
+      expect(cleanupSucceeded).to.equal(false)
+      await access(outsideDirectory)
+    } finally {
+      await rm(root, { recursive: true, force: true })
+      await rm(outsideRoot, { recursive: true, force: true })
+    }
+  })
+
   it('rejects zip packages even when they contain a valid index file', async function () {
     const root = await mkdtemp(join(tmpdir(), 'peertube-games-'))
     const zip = new JSZip()
@@ -142,3 +201,14 @@ describe('Game runtime security', function () {
     expect(unchanged).to.equal(source)
   })
 })
+
+async function expectPathMissing (path: string) {
+  let exists = true
+  try {
+    await access(path)
+  } catch {
+    exists = false
+  }
+
+  expect(exists).to.equal(false)
+}

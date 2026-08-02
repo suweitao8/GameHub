@@ -2,14 +2,22 @@ import { HttpStatusCode } from '@peertube/peertube-models'
 import { GameAuditView, auditLoggerFactory, getAuditIdFromRes } from '@server/helpers/audit-logger.js'
 import { cleanUpReqFiles } from '@server/helpers/express-utils.js'
 import { sanitizeGameDescription } from '@server/helpers/game-sanitization.js'
+import { logger } from '@server/helpers/logger.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
-import { GameRuntimeValidationError, MAX_SCREENSHOTS, storeGameCover, storeGameRuntimePackage, storeGameScreenshot } from '@server/lib/games/game-runtime.js'
+import {
+  cleanupStoredGameAssets,
+  GameRuntimeValidationError,
+  MAX_SCREENSHOTS,
+  storeGameCover,
+  storeGameRuntimePackage,
+  storeGameScreenshot
+} from '@server/lib/games/game-runtime.js'
 import { canManageGame, isGameModerator } from '@server/lib/games/game-policy.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
 import { asyncMiddleware, authenticate, gameUploadRateLimiter } from '@server/middlewares/index.js'
 import { gameCreateValidator, gameUUIDValidator, parseGameTags } from '@server/middlewares/validators/games.js'
-import { readFile, rm } from 'fs/promises'
+import { readFile } from 'fs/promises'
 import express from 'express'
 import { gameFile, getUser, formatGame, getGameRuntimeErrorMessage } from './game-shared.js'
 
@@ -34,6 +42,7 @@ async function updateGame (req: express.Request, res: express.Response) {
     let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined
     let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
     const storedScreenshots: Awaited<ReturnType<typeof storeGameScreenshot>>[] = []
+    let persisted = false
     try {
       if (file) {
         const content = await readFile(file.path)
@@ -89,11 +98,14 @@ async function updateGame (req: express.Request, res: express.Response) {
       }
 
       await game.save()
+      persisted = true
       auditLogger.update(getAuditIdFromRes(res), new GameAuditView(formatGame(game)), new GameAuditView(oldGame))
       return res.json(formatGame(game))
     } catch (err) {
-      if (stored) await rm(stored.absoluteDirectory, { recursive: true, force: true }).catch(() => undefined)
-      if (storedCover) await rm(storedCover.absolutePath, { force: true }).catch(() => undefined)
+      if (!persisted) {
+        const cleanupSucceeded = await cleanupStoredGameAssets({ root: CONFIG.STORAGE.GAMES_DIR, runtime: stored, cover: storedCover, screenshots: storedScreenshots })
+        if (!cleanupSucceeded) logger.warn('Failed to clean up game assets after a game update failure.', { err })
+      }
       if (err instanceof GameRuntimeValidationError) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: getGameRuntimeErrorMessage(err) })
       throw err
     } finally {

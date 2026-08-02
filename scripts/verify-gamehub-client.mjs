@@ -214,6 +214,12 @@ const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
 const gameFeedTs = read('server/core/lib/games/game-feed.ts')
 const gameTestsTs = read('packages/tests/src/api/games/games-api.ts')
 const gameAboutTs = read('client/src/app/game-about.component.ts')
+const gameCommunityDoc = read('support/doc/development/game-community.md')
+const gameCrudCreateTs = read('server/core/controllers/api/games/game-crud-create.ts')
+const gameCrudUpdateTs = read('server/core/controllers/api/games/game-crud-update.ts')
+const legacyGamePackageSpec = read('docs/superpowers/specs/2026-07-18-html-game-package-upload-design.md')
+const legacyGamePackagePlan = read('docs/superpowers/plans/2026-07-18-html-game-package-upload-plan.md')
+const gameRequirementsDoc = read('support/doc/development/gamehub-requirements-bilibili-benchmark.md')
 const loginHtml = read('client/src/app/+login/login.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
 const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
@@ -369,6 +375,28 @@ assert((gameFeedTs.match(/\[Op\.ne\]: 'review'/g) || []).length >= 3, 'game feed
 assert(gameTestsTs.includes('should not expose star rating distribution') && gameTestsTs.includes('HttpStatusCode.NOT_FOUND_404'), 'game API tests must enforce removal of the star rating distribution endpoint')
 assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.review-score-picker') && !gamePlayScss.includes('.review-skeleton'), 'game detail styles must not retain dead star-review UI')
 assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
+assert(
+  gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
+    gameCommunityDoc.includes('禁止上传 ZIP') &&
+    !gameCommunityDoc.includes('资源包：`.zip`'),
+  'GameHub development docs must keep the single-HTML-only upload contract'
+)
+assert(
+  gameCrudCreateTs.includes('cleanupStoredGameAssets') && gameCrudCreateTs.includes('root: CONFIG.STORAGE.GAMES_DIR') &&
+    gameCrudCreateTs.includes('if (!persisted)'),
+  'game creation must clean failed assets only before persistence and stay within the games storage root'
+)
+assert(
+  gameCrudUpdateTs.includes('cleanupStoredGameAssets') && gameCrudUpdateTs.includes('root: CONFIG.STORAGE.GAMES_DIR') &&
+    gameCrudUpdateTs.includes('if (!persisted)'),
+  'game updates must clean failed assets only before persistence and stay within the games storage root'
+)
+assert(
+  legacyGamePackageSpec.includes('状态：已废弃') && legacyGamePackagePlan.includes('状态：已废弃') &&
+    gameRequirementsDoc.includes('当前契约说明') &&
+    gameRequirementsDoc.includes('禁止 ZIP 和多文件资源包'),
+  'legacy ZIP documents must be explicitly marked as historical and point to the current single-HTML contract'
+)
 assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
 assert(
   commentsTs.includes('height: 0.7rem;') && commentsTs.includes('width: 0.7rem;') &&
