@@ -136,17 +136,17 @@ import { GameCommentsStore } from './game-comments-store'
       align-items: center;
       display: inline-flex;
       gap: 0.3rem;
-      height: 1.75rem;
+      height: 2rem;
       margin-right: auto;
     }
     .bili-composer-tool-wrap {
       align-items: center;
       display: inline-flex;
-      flex: 0 0 1.75rem;
-      height: 1.75rem;
+      flex: 0 0 2rem;
+      height: 2rem;
       justify-content: center;
       position: relative;
-      width: 1.75rem;
+      width: 2rem;
     }
     .bili-composer-tool {
       align-items: center;
@@ -157,15 +157,15 @@ import { GameCommentsStore } from './game-comments-store'
       color: #61666d;
       cursor: pointer;
       display: inline-flex;
-      flex: 0 0 1.75rem;
+      flex: 0 0 2rem;
       font-size: 0;
-      height: 1.75rem;
+      height: 2rem;
       justify-content: center;
       line-height: 0;
       margin: 0;
       padding: 0;
       vertical-align: middle;
-      width: 1.5rem;
+      width: 2rem;
     }
     .bili-composer-tool-wrap:hover .bili-composer-tool,
     .bili-composer-tool:hover,
@@ -176,9 +176,9 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-composer-tool my-global-icon {
       display: inline-flex;
-      flex: 0 0 1.125rem;
-      height: 1.125rem !important;
-      width: 1.125rem !important;
+      flex: 0 0 1.25rem;
+      height: 1.25rem !important;
+      width: 1.25rem !important;
     }
     .bili-composer-tool my-global-icon ::ng-deep tabler-icon,
     .bili-composer-tool my-global-icon ::ng-deep .tabler-icon,
@@ -373,11 +373,11 @@ import { GameCommentsStore } from './game-comments-store'
     .bili-meta-btn my-global-icon {
       align-items: center;
       display: inline-flex;
-      flex: 0 0 0.75rem;
-      height: 0.75rem;
+      flex: 0 0 0.7rem;
+      height: 0.7rem;
       justify-content: center;
       line-height: 0;
-      width: 0.75rem;
+      width: 0.7rem;
     }
     .bili-meta-btn my-global-icon ::ng-deep tabler-icon,
     .bili-meta-btn my-global-icon ::ng-deep .tabler-icon,
