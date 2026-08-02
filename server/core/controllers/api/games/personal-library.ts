@@ -23,12 +23,13 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
 
   const rows = await GameFavoriteModel.findAll<any>({
+    subQuery: false,
     where: { accountId: user.Account.id },
     include: [ {
       model: GameModel,
       where: { status: 'published' },
       required: true,
-      attributes: { include: GameModel.getPublicStatsAttributes() },
+      attributes: { include: GameModel.getPublicStatsAttributes('Game->StatsSummary') },
       include: [
         { model: AccountModel, required: true },
         { model: GameStatsSummaryModel, required: false }
@@ -46,12 +47,13 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
 
   const rows = await GameRecentModel.findAll<any>({
+    subQuery: false,
     where: { accountId: user.Account.id },
     include: [ {
       model: GameModel,
       where: { status: 'published' },
       required: true,
-      attributes: { include: GameModel.getPublicStatsAttributes() },
+      attributes: { include: GameModel.getPublicStatsAttributes('Game->StatsSummary') },
       include: [
         { model: AccountModel, required: true },
         { model: GameStatsSummaryModel, required: false }

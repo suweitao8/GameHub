@@ -19,9 +19,7 @@ export async function getFollowingFeed (accountId: number, options: {
   const offset = Math.max(0, options.offset || 0)
 
   // 通过 account 找到 actor，再获取关注列表
-  const account = await AccountModel.findByPk(accountId, {
-    include: [ { model: ActorFollowModel, required: false } ]
-  })
+  const account = await AccountModel.findByPk(accountId)
   if (!account?.Actor) return { total: 0, data: [] }
 
   // 获取关注的目标 actor IDs

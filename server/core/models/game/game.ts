@@ -223,13 +223,15 @@ export class GameModel extends SequelizeModel<GameModel> {
    * 从 GameStatsSummaryModel JOIN 读取聚合统计，替代每行子查询
    * 必须配合 include: [ GameStatsSummaryModel ] 使用
    */
-  static getPublicStatsAttributes (_tableAlias = '"GameModel"') {
+  static getPublicStatsAttributes (statsAlias = 'StatsSummary') {
+    const statsColumn = (field: string) => literal(`"${statsAlias}"."${field}"`)
+
     return [
-      [ col('StatsSummary.likes'), 'gameLikes' ],
-      [ col('StatsSummary.dislikes'), 'gameDislikes' ],
-      [ col('StatsSummary.comments'), 'gameComments' ],
-      [ col('StatsSummary.favorites'), 'favoriteCount' ],
-      [ col('StatsSummary.coins'), 'coinCount' ]
+      [ statsColumn('likes'), 'gameLikes' ],
+      [ statsColumn('dislikes'), 'gameDislikes' ],
+      [ statsColumn('comments'), 'gameComments' ],
+      [ statsColumn('favorites'), 'favoriteCount' ],
+      [ statsColumn('coins'), 'coinCount' ]
     ] as any
   }
 }

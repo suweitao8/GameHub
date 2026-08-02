@@ -230,6 +230,7 @@ const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts
 const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
 const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
 const gameFeedTs = read('server/core/lib/games/game-feed.ts')
+const personalLibraryTs = read('server/core/controllers/api/games/personal-library.ts')
 const gameTestsTs = read('packages/tests/src/api/games/games-api.ts')
 const gameAboutTs = read('client/src/app/game-about.component.ts')
 const gameCommunityDoc = read('support/doc/development/game-community.md')
@@ -473,6 +474,18 @@ assert(
   !gameFeedTs.includes('const [ actorRows ] = await sequelizeTypescript.query') &&
     gameFeedTs.includes('const actorRows = await sequelizeTypescript.query'),
   'following feed must consume the actor account SELECT result as an array'
+)
+assert(
+  (personalLibraryTs.match(/subQuery:\s*false/g) || []).length >= 2,
+  'personal library game queries must disable the Sequelize subquery so joined stats aliases remain valid'
+)
+assert(
+  (personalLibraryTs.match(/getPublicStatsAttributes\('Game->StatsSummary'\)/g) || []).length >= 2,
+  'personal library game queries must use the nested Game->StatsSummary alias for joined stats'
+)
+assert(
+  !gameFeedTs.includes('model: ActorFollowModel') && gameFeedTs.includes('AccountModel.findByPk(accountId)'),
+  'following feed must not eager-load ActorFollowModel from AccountModel'
 )
 assert(
   gameAnalyticsServerTs.includes('INNER JOIN "actor" ON "actor"."id" = "actorFollow"."targetActorId"') &&
