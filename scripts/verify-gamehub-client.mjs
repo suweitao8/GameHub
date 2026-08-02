@@ -475,6 +475,12 @@ assert(
   'following feed must consume the actor account SELECT result as an array'
 )
 assert(
+  gameAnalyticsServerTs.includes('INNER JOIN "actor" ON "actor"."id" = "ActorFollow"."targetActorId"') &&
+    gameAnalyticsServerTs.includes('"actor"."accountId" = :accountId') &&
+    !gameAnalyticsServerTs.includes('a."actorId"'),
+  'creator follower analytics must join the actor account through actor.accountId'
+)
+assert(
   /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&
     gamePlayScss.includes('flex: 0 0 var(--game-stage-height);'),
   'detail sidebar must grow with recommendations while keeping the discussion panel at stage height'

@@ -156,8 +156,8 @@ export async function getCreatorFollowerTrend (accountId: number): Promise<{ dat
       DATE("ActorFollow"."createdAt") AS date,
       COUNT(*) AS followers
     FROM "actorFollow"
-    INNER JOIN "account" a ON a."actorId" = "ActorFollow"."targetActorId"
-    WHERE a.id = :accountId
+    INNER JOIN "actor" ON "actor"."id" = "ActorFollow"."targetActorId"
+    WHERE "actor"."accountId" = :accountId
       AND "ActorFollow"."state" = 'accepted'
       AND "ActorFollow"."createdAt" >= NOW() - INTERVAL '30 days'
     GROUP BY DATE("ActorFollow"."createdAt")
