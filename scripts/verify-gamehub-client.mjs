@@ -59,6 +59,7 @@ const homeHtml = read('client/src/app/+games/games-home.component.html')
 const homeTs = read('client/src/app/+games/games-home.component.ts')
 const gameSectionTs = read('client/src/app/+games/games-home/game-section.component.ts')
 const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
+const gameMetaTagsTs = read('client/src/app/+games/services/game-meta-tags.ts')
 const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const navigationTs = read('client/src/app/header/game-navigation.component.ts')
 const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
@@ -150,6 +151,10 @@ assert(!authorHtml.includes('account.handle'), 'author page must not render an a
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
 assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')
 assert(homeHtml.includes('我玩过的') && homeHtml.includes('最新发布') && homeHtml.includes('热门游戏'), 'games-home must render the required feed sections')
+assert(
+  gameMetaTagsTs.includes("titleService.setTitle('GameHub')") && !gameMetaTagsTs.includes('titleService.setTitle(title)'),
+  'browser tab title must remain GameHub while game title stays in share metadata'
+)
 assert(
   /latest:\s*this\.gamesService\.list\(\{ \.\.\.common, count: 5, sort: 'latest' \}\)\.pipe\(\s*catchError\(\(\) => of\(\{ total: 0, data: \[\] as Game\[\] \}\)\)/.test(homeTs) &&
     /popular:\s*this\.gamesService\.list\(\{ \.\.\.common, count: 10, sort: 'popular' \}\)\.pipe\(\s*catchError\(\(\) => of\(\{ total: 0, data: \[\] as Game\[\] \}\)\)/.test(homeTs),

@@ -4,7 +4,7 @@ import { Meta, Title } from '@angular/platform-browser'
 // 更新游戏详情页的 SEO meta 标签（Open Graph + Twitter Card）
 export function updateGameMetaTags (game: Game, meta: Meta, titleService: Title) {
   const title = `${game.title} - GameHub`
-  titleService.setTitle(title)
+  titleService.setTitle('GameHub')
 
   const baseUrl = window.location.origin
   const gameUrl = `${baseUrl}/games/${game.uuid}`
