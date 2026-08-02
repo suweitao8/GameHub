@@ -18,26 +18,28 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ GameCardComponent, GlobalIconComponent, NgClass ],
   template: `
-    <section class="game-section" [ngClass]="sectionClass()" [class.compact-game-section]="compact()">
-      <div class="game-section-heading" [class.compact-section-heading]="compact()">
-        <h2>{{ heading() }}</h2>
-      </div>
-      <div class="section-with-side-action">
-        <div class="game-grid">
-          @for (game of games(); track game.uuid) {
-            <my-game-card [game]="game" [searchTerm]="searchTerm()" />
+    @if (games().length) {
+      <section class="game-section" [ngClass]="sectionClass()" [class.compact-game-section]="compact()">
+        <div class="game-section-heading" [class.compact-section-heading]="compact()">
+          <h2>{{ heading() }}</h2>
+        </div>
+        <div class="section-with-side-action">
+          <div class="game-grid">
+            @for (game of games(); track game.uuid) {
+              <my-game-card [game]="game" [searchTerm]="searchTerm()" />
+            }
+          </div>
+          @if (shuffleLabel() && games().length; as label) {
+            <button class="section-side-action" type="button" [attr.aria-label]="'换一批' + heading()" (click)="shuffle.emit()">
+              <my-global-icon class="section-side-action-icon" iconName="refresh" />
+              <span class="section-side-action-label">{{ label }}</span>
+            </button>
           }
         </div>
-        @if (shuffleLabel(); as label) {
-          <button class="section-side-action" type="button" [attr.aria-label]="'换一批' + heading()" (click)="shuffle.emit()">
-            <my-global-icon class="section-side-action-icon" iconName="refresh" />
-            <span class="section-side-action-label">{{ label }}</span>
-          </button>
-        }
-      </div>
-    </section>
+      </section>
+    }
   `,
-  styles: [`
+  styles: [ `
     .game-grid {
       display: grid;
       column-gap: 1rem;
@@ -155,7 +157,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     @media (max-width: 450px) {
       .game-grid { gap: 0.35rem; }
     }
-  `]
+  ` ]
 })
 export class GameSectionComponent {
   readonly games = input<Game[]>([])
@@ -166,5 +168,5 @@ export class GameSectionComponent {
   readonly compact = input(false)
   /** Extra class(es) applied to the inner <section> for parent SCSS hooks. */
   readonly sectionClass = input<string>('')
-  readonly shuffle = output<void>()
+  readonly shuffle = output()
 }

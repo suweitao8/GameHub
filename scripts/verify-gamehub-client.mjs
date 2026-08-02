@@ -57,6 +57,8 @@ function assertBundleContract (body, label) {
 // 1) GameHub home and banner asset contracts
 const homeHtml = read('client/src/app/+games/games-home.component.html')
 const homeTs = read('client/src/app/+games/games-home.component.ts')
+const gameSectionTs = read('client/src/app/+games/games-home/game-section.component.ts')
+const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
 const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const navigationTs = read('client/src/app/header/game-navigation.component.ts')
 const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
@@ -149,6 +151,17 @@ assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendServ
 assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')
 assert(homeHtml.includes('我玩过的') && homeHtml.includes('最新发布') && homeHtml.includes('热门游戏'), 'games-home must render the required feed sections')
 assert(
+  /latest:\s*this\.gamesService\.list\(\{ \.\.\.common, count: 5, sort: 'latest' \}\)\.pipe\(\s*catchError\(\(\) => of\(\{ total: 0, data: \[\] as Game\[\] \}\)\)/.test(homeTs) &&
+    /popular:\s*this\.gamesService\.list\(\{ \.\.\.common, count: 10, sort: 'popular' \}\)\.pipe\(\s*catchError\(\(\) => of\(\{ total: 0, data: \[\] as Game\[\] \}\)\)/.test(homeTs),
+  'games-home must isolate optional latest and popular feed failures'
+)
+assert(
+  gameSectionTs.includes('@if (games().length)') && gameSectionTs.includes("@if (shuffleLabel() && games().length; as label)"),
+  'empty game sections must not render headings or shuffle actions'
+)
+const staticGameRouterRegistrations = gamesIndexTs.match(/gamesRouter\.use\('\/', (discoveryRouter|personalRouter|reservationRouter|collectionRouter)\)/g) || []
+assert(staticGameRouterRegistrations.length === 4, 'games static namespace routers must be registered exactly once')
+assert(
   !homeHtml.includes('返回发现') && !homeHtml.includes('该分类暂无游戏') && !homeHtml.includes('浏览全部'),
   'games-home must keep category-empty pages visually blank and remove return navigation actions'
 )
@@ -222,7 +235,6 @@ const legacyGamePackagePlan = read('docs/superpowers/plans/2026-07-18-html-game-
 const gameRequirementsDoc = read('support/doc/development/gamehub-requirements-bilibili-benchmark.md')
 const loginHtml = read('client/src/app/+login/login.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
-const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
 const gameDiscoveryServerTs = read('server/core/controllers/api/games/game-discovery.ts')
 const databaseTs = read('server/core/initializers/database.ts')
 const openapiTs = read('support/doc/api/openapi.yaml')

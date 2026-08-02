@@ -175,8 +175,12 @@ export class GamesHomeComponent implements OnInit {
     }
 
     forkJoin({
-      latest: this.gamesService.list({ ...common, count: 5, sort: 'latest' }),
-      popular: this.gamesService.list({ ...common, count: 10, sort: 'popular' }),
+      latest: this.gamesService.list({ ...common, count: 5, sort: 'latest' }).pipe(
+        catchError(() => of({ total: 0, data: [] as Game[] }))
+      ),
+      popular: this.gamesService.list({ ...common, count: 10, sort: 'popular' }).pipe(
+        catchError(() => of({ total: 0, data: [] as Game[] }))
+      ),
       recent: this.authService.isLoggedIn()
         ? this.gamesService.listRecent().pipe(catchError(() => of({ total: 0, data: [] as Game[] })))
         : of({ total: 0, data: [] as Game[] }),
