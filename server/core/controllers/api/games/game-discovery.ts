@@ -107,7 +107,7 @@ async function listTags (_req: express.Request, res: express.Response) {
     }
 
     const { sequelizeTypescript } = await import('@server/initializers/database.js')
-    const [ rows ] = await sequelizeTypescript.query(`
+    const rows = await sequelizeTypescript.query(`
       SELECT unnest("tags") AS tag, COUNT(*) AS "gameCount"
       FROM "game"
       WHERE "status" = 'published'
@@ -142,7 +142,7 @@ async function listCategories (_req: express.Request, res: express.Response) {
     }
 
     const { sequelizeTypescript } = await import('@server/initializers/database.js')
-    const [ rows ] = await sequelizeTypescript.query(`
+    const rows = await sequelizeTypescript.query(`
       SELECT "category", COUNT(*) AS "gameCount"
       FROM "game"
       WHERE "status" = 'published'

@@ -269,5 +269,12 @@ describe('Test games API', function () {
       const result = await res.json()
       expect(result.data).to.be.an('array')
     })
+
+    it('should list game collections', async function () {
+      const res = await fetch(`${server.url}/api/v1/games/collections`)
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.be.an('array')
+    })
   })
 })

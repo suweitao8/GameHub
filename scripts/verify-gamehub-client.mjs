@@ -192,6 +192,8 @@ const communityPanelTs = read('client/src/app/+games/game-community-panel.compon
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
+const appScss = read('client/src/app/app.component.scss')
+const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
@@ -207,6 +209,9 @@ const gameTestsTs = read('packages/tests/src/api/games/games-api.ts')
 const gameAboutTs = read('client/src/app/game-about.component.ts')
 const loginHtml = read('client/src/app/+login/login.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
+const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
+const gameDiscoveryServerTs = read('server/core/controllers/api/games/game-discovery.ts')
+const databaseTs = read('server/core/initializers/database.ts')
 const openapiTs = read('support/doc/api/openapi.yaml')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
 const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
@@ -264,7 +269,7 @@ assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a sta
 assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must use border-box sizing for aligned dimensions')
 assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
 assert(!communityPanelTs.includes('<small>点赞</small>') && !communityPanelTs.includes('<small>投币</small>'), 'game actions must not add a second text row under each icon')
-assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1rem') && communityPanelTs.includes('width: 1rem'), 'game action icons and numbers must share a compact centered baseline')
+assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1.125rem') && communityPanelTs.includes('width: 1.125rem'), 'game action icons and numbers must share a compact centered baseline')
 assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game?.instructions'), 'game description must expose separate overview and controls tabs')
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
@@ -315,15 +320,15 @@ assert(
   'comment composer must expose a selectable emoji picker instead of inserting a fixed emoji directly'
 )
 assert(
-    commentsTs.includes('height: 1.5rem;') && commentsTs.includes('width: 1.5rem;') &&
-    commentsTs.includes('flex: 0 0 1.5rem;') &&
-  commentsTs.includes('height: 1rem !important;') && commentsTs.includes('width: 1rem !important;') &&
+    commentsTs.includes('height: 1.75rem;') && commentsTs.includes('width: 1.75rem;') &&
+    commentsTs.includes('flex: 0 0 1.75rem;') &&
+  commentsTs.includes('height: 1.125rem !important;') && commentsTs.includes('width: 1.125rem !important;') &&
     commentsTs.includes('my-global-icon ::ng-deep tabler-icon') &&
     commentsTs.includes('align-items: center;') && commentsTs.includes('justify-content: center;') &&
     commentsTs.includes('.bili-composer-tool-wrap:hover .bili-composer-tool') &&
     /\.bili-composer-tool\s*\{[^}]*margin: 0;/.test(commentsTs) &&
     (commentsTs.match(/class="bili-composer-tool-wrap"/g) || []).length >= 2,
-  'comment emoji and image tools must share a smaller centered control box and icon size'
+  'comment emoji and image tools must share a centered control box and match the primary action icon size'
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
@@ -358,7 +363,7 @@ assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.
 assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
 assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
 assert(
-  commentsTs.includes('height: 0.5rem;') && commentsTs.includes('width: 0.5rem;') &&
+  commentsTs.includes('height: 0.75rem;') && commentsTs.includes('width: 0.75rem;') &&
     commentsTs.includes('.bili-meta-btn my-global-icon ::ng-deep svg'),
   'comment like icons must use a smaller centered icon box'
 )
@@ -374,6 +379,30 @@ assert(
     headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a smaller normalized icon box'
+)
+assert(
+  headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
+    headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
+    headerScss.includes('background-position: center top;') &&
+    headerScss.includes('height: var(--header-height);') &&
+    appScss.includes('--header-height: 200px;') &&
+    appScss.includes('--header-height: 50px;') &&
+    gamesHomeScss.includes('top: var(--header-height);'),
+  'GameHub desktop header must show the fixed-ratio 200px banner, collapse to 50px after scrolling, and keep the discovery nav below it'
+)
+assert(
+  gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
+    gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") < gamesIndexTs.indexOf("gamesRouter.use('/', crudRouter)") &&
+    gamesIndexTs.indexOf("gamesRouter.use('/', personalRouter)") < gamesIndexTs.indexOf("gamesRouter.use('/', crudRouter)") &&
+    gamesIndexTs.indexOf("gamesRouter.use('/', collectionRouter)") < gamesIndexTs.indexOf("gamesRouter.use('/', crudRouter)"),
+  'GameHub static discovery, personal, and collection routes must be registered before the /:uuid CRUD route'
+)
+assert(
+  databaseTs.includes("import { GameCollectionModel, GameCollectionItemModel } from '../models/game/game-collection.js'") &&
+    databaseTs.includes('GameCollectionModel,') && databaseTs.includes('GameCollectionItemModel,') &&
+    !gameDiscoveryServerTs.includes('const [ rows ] = await sequelizeTypescript.query') &&
+    gameDiscoveryServerTs.includes('const rows = await sequelizeTypescript.query'),
+  'GameHub discovery and collection APIs must register their Sequelize models and consume SELECT query rows correctly'
 )
 assert(
   /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&

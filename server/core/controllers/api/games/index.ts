@@ -16,11 +16,18 @@ gamesRouter.use(apiRateLimiter)
 gamesRouter.use('/', runtimeRouter)
 gamesRouter.use('/', gameCommunityRouter)
 gamesRouter.use('/events', gameEventRouter)
-gamesRouter.use('/', crudRouter)
 gamesRouter.use('/', discoveryRouter)
 gamesRouter.use('/', personalRouter)
 gamesRouter.use('/', reservationRouter)
 gamesRouter.use('/', collectionRouter)
+// Register static namespaces before the parameterized /:uuid CRUD routes.
+// Otherwise paths such as /featured, /collections, and /me/* are consumed by
+// the UUID validator and never reach their intended controller.
+gamesRouter.use('/', discoveryRouter)
+gamesRouter.use('/', personalRouter)
+gamesRouter.use('/', reservationRouter)
+gamesRouter.use('/', collectionRouter)
+gamesRouter.use('/', crudRouter)
 gamesRouter.use('/', moderationRouter)
 gamesRouter.use('/', shareRouter)
 

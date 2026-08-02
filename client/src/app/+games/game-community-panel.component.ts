@@ -62,11 +62,11 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .game-action-button > my-global-icon { color: inherit;
       align-items: center;
       display: inline-flex;
-      flex: 0 0 1rem;
-      height: 1rem;
+      flex: 0 0 1.125rem;
+      height: 1.125rem;
       justify-content: center;
       line-height: 0;
-      width: 1rem; }
+      width: 1.125rem; }
     .game-action-button > my-global-icon ::ng-deep tabler-icon,
     .game-action-button > my-global-icon ::ng-deep svg {
       display: block;
@@ -218,7 +218,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     @media (max-width: 600px) {
       .interaction-row { gap: 1.25rem; }
       .game-action-button { min-width: 2.8rem; padding: 0.05rem 0.2rem !important; }
-      .game-action-button > my-global-icon { height: 1rem; width: 1rem; }
+      .game-action-button > my-global-icon { height: 1.125rem; width: 1.125rem; }
       .game-action-button strong { font-size: 0.7rem; }
       .game-action-button small { font-size: 0.65rem; }
     }

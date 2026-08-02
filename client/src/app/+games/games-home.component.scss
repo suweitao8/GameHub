@@ -249,7 +249,7 @@
   justify-content: flex-start;
   margin: 0.9rem 0;
   position: sticky;
-  top: 0;
+  top: var(--header-height);
   z-index: 30;
 }
 
