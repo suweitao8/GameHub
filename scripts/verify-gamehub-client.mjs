@@ -69,6 +69,7 @@ assert(
 
 // 1b) Shared GameHub icon contract
 const globalIconTs = read('client/src/app/shared/shared-icons/global-icon.component.ts')
+const gameAvatarTs = read('client/src/app/shared/game-avatar.ts')
 const tablerAssetFiles = collectFiles(join(root, 'client/src/assets/images/tabler'), '.svg')
 for (const file of tablerAssetFiles) {
   const body = readFileSync(file, 'utf8').trim()
@@ -284,6 +285,7 @@ assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityToke
 assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #6b6f75'), 'detail page must apply its charcoal palette within the component scope')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
+assert(gameAvatarTs.includes('shape-rendering="crispEdges"') && gameAvatarTs.includes('<rect') && !gameAvatarTs.includes('<text'), 'GameHub fallback avatars must use a circular pixel-art renderer instead of an initial letter')
 assert(commentsTs.includes('iconName="mood-smile"') && !commentsTs.includes('>☺</button>'), 'comment composer must use a library smile icon instead of a text glyph')
 assert(!analyticsTs.includes('🪙') && !analyticsTs.includes("'❤'") && analyticsTs.includes('iconName'), 'analytics controls must use shared library icons instead of emoji glyphs')
 assert(homeHtml.includes('iconName="search"') && !homeHtml.includes('🔍'), 'game home empty state must use the shared search icon instead of an emoji')

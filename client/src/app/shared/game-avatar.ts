@@ -1,36 +1,44 @@
 /**
- * Generate a smooth circular avatar data URL with initials.
- * Avoid pixel-art / crispEdges SVGs that look crooked when scaled up on game pages.
+ * Generate a deterministic circular pixel-art avatar for users without a profile image.
+ * The fallback stays recognizable at both the small header size and the larger developer card size.
  */
 export function buildGameAvatarDataUrl (label: string) {
   const text = (label || 'G').trim()
   const seed = Array.from(text).reduce((total, char) => total + char.charCodeAt(0), 0)
   const palettes = [
-    { bg: '#e5f7ff', fg: '#008acb', ring: '#00aeec' },
-    { bg: '#fff0f5', fg: '#c44a72', ring: '#fb7299' },
-    { bg: '#e7fff8', fg: '#0f8a68', ring: '#00c091' },
-    { bg: '#fff7e8', fg: '#a67a00', ring: '#ffb400' }
+    { bg: '#d7f4ff', hair: '#26364a', hairDark: '#1a2635', skin: '#f4c9a7', shirt: '#00aeec', shirtAccent: '#007ea9', cheek: '#ef8f8a' },
+    { bg: '#ffe3ed', hair: '#5a3446', hairDark: '#3d2633', skin: '#f3c4a0', shirt: '#fb7299', shirtAccent: '#c34d74', cheek: '#e98984' },
+    { bg: '#dff7ee', hair: '#24534b', hairDark: '#173b36', skin: '#f2c49f', shirt: '#00a878', shirtAccent: '#087255', cheek: '#e78c82' },
+    { bg: '#fff0cf', hair: '#4b3a2c', hairDark: '#302319', skin: '#f1c19d', shirt: '#f0a52b', shirtAccent: '#bd6c13', cheek: '#e8887d' }
   ] as const
   const palette = palettes[seed % palettes.length]
-
-  const first = text[0] || 'G'
-  const initial = /[\u4e00-\u9fffA-Za-z0-9]/.test(first) ? first.toUpperCase() : 'G'
+  const pixelSize = 4
+  const pixel = (x: number, y: number, width: number, height: number, fill: string) =>
+    `<rect x="${x * pixelSize}" y="${y * pixelSize}" width="${width * pixelSize}" height="${height * pixelSize}" fill="${fill}"/>`
 
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">` +
-    `<circle cx="32" cy="32" r="32" fill="${palette.bg}"/>` +
-    `<circle cx="32" cy="32" r="30" fill="none" stroke="${palette.ring}" stroke-width="2" opacity="0.35"/>` +
-    `<text x="32" y="34" text-anchor="middle" dominant-baseline="middle" ` +
-    `font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="700" fill="${palette.fg}">` +
-    `${escapeXml(initial)}</text></svg>`
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" shape-rendering="crispEdges">` +
+    `<defs><clipPath id="avatar-circle"><circle cx="32" cy="32" r="32"/></clipPath></defs>` +
+    `<g clip-path="url(#avatar-circle)">` +
+    `<rect width="64" height="64" fill="${palette.bg}"/>` +
+    pixel(4, 2, 8, 1, palette.hairDark) +
+    pixel(3, 3, 10, 2, palette.hair) +
+    pixel(2, 5, 12, 2, palette.hair) +
+    pixel(3, 7, 10, 4, palette.skin) +
+    pixel(4, 5, 8, 2, palette.skin) +
+    pixel(3, 6, 1, 3, palette.hair) +
+    pixel(11, 6, 2, 3, palette.hair) +
+    pixel(5, 8, 1, 1, palette.hairDark) +
+    pixel(10, 8, 1, 1, palette.hairDark) +
+    pixel(6, 10, 4, 1, palette.skin) +
+    pixel(4, 10, 1, 1, palette.cheek) +
+    pixel(11, 10, 1, 1, palette.cheek) +
+    pixel(5, 11, 6, 1, palette.skin) +
+    pixel(2, 12, 12, 4, palette.shirt) +
+    pixel(4, 12, 8, 1, palette.shirtAccent) +
+    pixel(6, 13, 4, 1, palette.bg) +
+    pixel(7, 14, 2, 2, palette.shirtAccent) +
+    `</g><circle cx="32" cy="32" r="31" fill="none" stroke="#ffffff" stroke-opacity="0.68" stroke-width="2"/></svg>`
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
-}
-
-function escapeXml (value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
 }
