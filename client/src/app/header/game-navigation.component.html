@@ -15,7 +15,7 @@
             }
           </ul>
         }
-        @if (history().length && !suggestionLoading() && !query().trim()) {
+        @if (history().length && !suggestionLoading() && !suggestions().length) {
           <div class="game-search-panel-heading"><strong>搜索历史</strong><button type="button" (click)="clearHistory()">清空</button></div>
           <div class="game-search-history">
             @for (term of history(); track term) { <button type="button" (click)="selectSearch(term)">{{ term }}</button> }

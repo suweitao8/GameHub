@@ -62,6 +62,7 @@ const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
 const gameMetaTagsTs = read('client/src/app/+games/services/game-meta-tags.ts')
 const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const navigationTs = read('client/src/app/header/game-navigation.component.ts')
+const navigationHtml = read('client/src/app/header/game-navigation.component.html')
 const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
 const collectionDetailTs = read('client/src/app/+games/game-collection-detail.component.ts')
 const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')
@@ -177,6 +178,11 @@ assert(
   'games-home must only accept the current discovery sorts'
 )
 assert(!navigationTs.includes('双人游戏') && !navigationTs.includes('多人联机'), 'search hot keywords must not reintroduce multiplayer-only labels')
+assert(
+  navigationHtml.includes('@if (history().length && !suggestionLoading() && !suggestions().length) {') &&
+    !navigationHtml.includes('@if (history().length && !suggestionLoading() && !query().trim()) {'),
+  'search focus must keep recent search history visible when the previous query is prefilled'
+)
 assert(!eventDetailTs.includes('返回活动列表') && !collectionDetailTs.includes('浏览全部专题') && !collectionDetailTs.includes('返回专题列表'), 'game detail states must not render legacy return buttons')
 
 const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
