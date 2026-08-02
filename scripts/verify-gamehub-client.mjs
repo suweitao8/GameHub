@@ -234,6 +234,7 @@ const communityPanelTs = read('client/src/app/+games/game-community-panel.compon
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
+const headerTs = read('client/src/app/header/header.component.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
@@ -498,6 +499,10 @@ assert(
     headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a normalized icon box aligned with the navigation text'
+)
+assert(
+  (headerTs.match(/this\.gameNavLoaded\.delete\(popup\)/g) || []).length >= 4,
+  'header game navigation popovers must be retryable after a failed request'
 )
 assert(
   !headerScss.includes('background: #eaf8ff;') &&

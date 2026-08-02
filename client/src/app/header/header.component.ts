@@ -99,6 +99,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private gameNavCloseTimer: ReturnType<typeof setTimeout> | undefined
   private gameCoinBalanceRequested = false
   private gameNavLoaded = new Set<GameHeaderPopup>()
+  private gameNavRequestGenerations = new Map<GameHeaderPopup, number>()
 
   get requiresApproval () {
     return this.config.signup.requiresApproval
@@ -447,53 +448,82 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.gameNavLoaded.add(popup)
     this.gameNavLoading.set(true)
+    const generation = (this.gameNavRequestGenerations.get(popup) || 0) + 1
+    this.gameNavRequestGenerations.set(popup, generation)
+    const isCurrentRequest = () => this.loggedIn && this.gameNavRequestGenerations.get(popup) === generation
 
     if (popup === 'notifications') {
       this.gamesService.notifications().subscribe({
-        next: value => this.gameNavNotifications.set(value.data || []),
+        next: value => {
+          if (!isCurrentRequest()) return
+          this.gameNavNotifications.set(value.data || [])
+        },
         error: () => {
+          if (!isCurrentRequest()) return
+          this.gameNavLoaded.delete(popup)
           this.gameNavNotifications.set([])
           this.gameNavLoading.set(false)
         },
-        complete: () => this.gameNavLoading.set(false)
+        complete: () => {
+          if (isCurrentRequest()) this.gameNavLoading.set(false)
+        }
       })
       return
     }
 
     if (popup === 'favorites') {
       this.gamesService.listFavorites().subscribe({
-        next: value => this.gameNavFavorites.set(value.data || []),
+        next: value => {
+          if (!isCurrentRequest()) return
+          this.gameNavFavorites.set(value.data || [])
+        },
         error: () => {
+          if (!isCurrentRequest()) return
+          this.gameNavLoaded.delete(popup)
           this.gameNavFavorites.set([])
           this.gameNavLoading.set(false)
         },
-        complete: () => this.gameNavLoading.set(false)
+        complete: () => {
+          if (isCurrentRequest()) this.gameNavLoading.set(false)
+        }
       })
       return
     }
 
     if (popup === 'history') {
       this.gamesService.listRecent().subscribe({
-        next: value => this.gameNavRecent.set(value.data || []),
+        next: value => {
+          if (!isCurrentRequest()) return
+          this.gameNavRecent.set(value.data || [])
+        },
         error: () => {
+          if (!isCurrentRequest()) return
+          this.gameNavLoaded.delete(popup)
           this.gameNavRecent.set([])
           this.gameNavLoading.set(false)
         },
-        complete: () => this.gameNavLoading.set(false)
+        complete: () => {
+          if (isCurrentRequest()) this.gameNavLoading.set(false)
+        }
       })
       return
     }
 
     this.gamesService.creatorOverview().subscribe({
       next: value => {
+        if (!isCurrentRequest()) return
         this.gameNavOwned.set(value.games || [])
         this.gameCoinBalance.set(value.coinBalance)
       },
       error: () => {
+        if (!isCurrentRequest()) return
+        this.gameNavLoaded.delete(popup)
         this.gameNavOwned.set([])
         this.gameNavLoading.set(false)
       },
-      complete: () => this.gameNavLoading.set(false)
+      complete: () => {
+        if (isCurrentRequest()) this.gameNavLoading.set(false)
+      }
     })
   }
 
@@ -510,6 +540,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
       : undefined
 
     if (!this.loggedIn) {
+      this.gameNavRequestGenerations.clear()
+      this.gameNavLoaded.clear()
+      this.gameNavFavorites.set([])
+      this.gameNavRecent.set([])
+      this.gameNavOwned.set([])
+      this.gameNavNotifications.set([])
+      this.gameNavLoading.set(false)
       this.gameCoinBalance.set(null)
       this.gameCoinBalanceRequested = false
     }
