@@ -296,7 +296,7 @@ assert(
     commentsStoreTs.includes('this.stopPolling()') &&
     commentsStoreTs.includes('if (this.refreshTimer) return') &&
     commentsStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return') &&
-    /this\.sort\.set\(value\)\n    const generation = \+\+this\.requestGeneration\n    this\.loading\.set\(true\)\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
+    /this\.sort\.set\(value\)\r?\n    const generation = \+\+this\.requestGeneration\r?\n    this\.loading\.set\(true\)\r?\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
   'comment polling and loads must stop and ignore stale route responses'
 )
 assert(
