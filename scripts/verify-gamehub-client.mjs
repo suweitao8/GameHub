@@ -195,6 +195,19 @@ const headerScss = read('client/src/app/header/header.component.scss')
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
+const gameSharedTs = read('server/core/controllers/api/games/game-shared.ts')
+const gameDiscoveryTs = read('server/core/controllers/api/games/game-discovery.ts')
+const gameDiscoveryServiceTs = read('client/src/app/+games/services/game-discovery.service.ts')
+const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
+const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts')
+const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
+const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
+const gameFeedTs = read('server/core/lib/games/game-feed.ts')
+const gameTestsTs = read('packages/tests/src/api/games/games-api.ts')
+const gameAboutTs = read('client/src/app/game-about.component.ts')
+const loginHtml = read('client/src/app/+login/login.component.html')
+const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
+const openapiTs = read('support/doc/api/openapi.yaml')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
 const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
 const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
@@ -314,10 +327,46 @@ assert(
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
-    /\.game-description-content\s*\{[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
+    /\.game-description-content\s*\{[\s\S]*display: flex;[\s\S]*flex-direction: column;[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
     communityPanelTs.includes('min-height: 200px;') &&
     /\.game-description-fallback\s*\{[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs),
   'game overview and controls must share a fixed 200px content area, including fallback state'
+)
+// 2h) GameHub only supports text comments; the former star-rating/review
+// subsystem must not remain reachable through public routes, models, or UI.
+assert(!gameCommunityRouterTs.includes('communityReviewsRouter'), 'game community router must not mount the removed star-rating review routes')
+assert(!existsSync(join(root, 'server/core/controllers/api/games/community-reviews.ts')), 'removed game review controller must not remain in the source tree')
+assert(!existsSync(join(root, 'server/core/models/game/game-review.ts')), 'removed game review model must not remain in the source tree')
+assert(!existsSync(join(root, 'packages/models/src/games/game-review.model.ts')), 'removed game review client contract must not remain in the source tree')
+assert(!existsSync(join(root, 'packages/models/src/games/game-rating.model.ts')), 'removed game rating-distribution contract must not remain in the source tree')
+assert(!gameCommunityServiceTs.includes('GameReview') && !gameCommunityServiceTs.includes('ratingDistribution') && !gameCommunityServiceTs.includes('review ('), 'community service must expose comments without star-rating APIs')
+assert(!gamesServiceTs.includes('GameReview') && !gamesServiceTs.includes('GameRatingDistribution') && !gamesServiceTs.includes('ratingDistribution') && !gamesServiceTs.includes('review ('), 'legacy game review APIs must not be re-exported by GamesService')
+assert(!gameCommunityModelTs.includes('reviews:') && !gameCommunityModelTs.includes('averageReviewScore'), 'game community state must not expose review totals or average scores')
+assert(!gameStatsSummaryTs.includes('gameReview') && !gameStatsSummaryTs.includes('averageReviewScore') && !gameStatsSummaryTs.includes('declare reviews'), 'live game stats must aggregate comments instead of star reviews')
+assert(gameSharedTs.includes("gameComments") && !gameSharedTs.includes("gameReviews"), 'game cards and metadata must use comment counts, not legacy review counts')
+assert(!gameDiscoveryTs.includes('topRated') && !gameDiscoveryTs.includes('averageReviewScore') && !gameDiscoveryTs.includes('reviews:'), 'game rankings must not sort or expose star-review metrics')
+assert(!gameDiscoveryServiceTs.includes('topRated') && !gameRankingsTs.includes('topRated') && !gameRankingsTs.includes('评分'), 'ranking UI and service must not offer star-rating sorting')
+assert(!gameRankingModelTs.includes('reviews:') && !gameRankingModelTs.includes('averageReviewScore'), 'ranking contract must contain comments and engagement metrics only')
+assert(!gameCreatorModelTs.includes('reviews:') && !gameAnalyticsServerTs.includes('gameReview') && !gameAnalyticsServerTs.includes('reviews:'), 'creator analytics must count comments without a separate review series')
+assert(!analyticsTs.includes('breakdown.reviews') && !analyticsTs.includes('评价'), 'creator analytics UI must not show a star-review series')
+assert(!openapiTs.includes('/api/v1/games/{uuid}/reviews:') && !openapiTs.includes('/api/v1/games/{uuid}/rating-distribution:') && !openapiTs.includes('topRated') && !openapiTs.includes('GameReview:') && !openapiTs.includes('GameRatingDistribution:'), 'OpenAPI must remove legacy game review and rating contracts')
+assert(!openapiTs.includes('comment, reply, review, follow'), 'OpenAPI game activity kinds must not retain the removed review activity')
+assert(gameAnalyticsServerTs.includes("game-analytics:v2:"), 'creator analytics cache key must invalidate the removed review-shaped payload')
+assert((gameFeedTs.match(/\[Op\.ne\]: 'review'/g) || []).length >= 3, 'game feeds must filter historical review activities')
+assert(gameTestsTs.includes('should not expose star rating distribution') && gameTestsTs.includes('HttpStatusCode.NOT_FOUND_404'), 'game API tests must enforce removal of the star rating distribution endpoint')
+assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.review-score-picker') && !gamePlayScss.includes('.review-skeleton'), 'game detail styles must not retain dead star-review UI')
+assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
+assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
+assert(
+  commentsTs.includes('height: 0.65rem;') && commentsTs.includes('width: 0.65rem;') &&
+    commentsTs.includes('.bili-meta-btn my-global-icon ::ng-deep svg'),
+  'comment like icons must use a smaller centered icon box'
+)
+assert(
+  communityPanelTs.includes('padding: 0.25rem 0 0.3rem;') &&
+    communityPanelTs.includes('padding-top: 0.45rem;') &&
+    /\.description-tags\s*\{[\s\S]*margin-top: auto;/.test(communityPanelTs),
+  'game interaction spacing must be compact and tags must sit at the bottom of the fixed overview area'
 )
 assert(
   headerScss.includes('--game-header-icon-size: 0.5rem;') &&

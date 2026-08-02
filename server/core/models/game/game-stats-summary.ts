@@ -1,4 +1,4 @@
-import { AllowNull, BelongsTo, Column, CreatedAt, DataType, Default, ForeignKey, Table, UpdatedAt } from 'sequelize-typescript'
+import { AllowNull, BelongsTo, Column, CreatedAt, Default, ForeignKey, Table, UpdatedAt } from 'sequelize-typescript'
 import { GameModel } from './game.js'
 import { SequelizeModel } from '../shared/index.js'
 
@@ -11,8 +11,7 @@ import { SequelizeModel } from '../shared/index.js'
     { fields: [ 'shares' ] },
     { fields: [ 'coins' ] },
     { fields: [ 'comments' ] },
-    { fields: [ 'plays' ] },
-    { fields: [ 'averageReviewScore' ] }
+    { fields: [ 'plays' ] }
   ]
 })
 export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel> {
@@ -59,16 +58,6 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
   @Column
   declare comments: number
 
-  @AllowNull(false)
-  @Default(0)
-  @Column
-  declare reviews: number
-
-  @AllowNull(false)
-  @Default(0)
-  @Column(DataType.DECIMAL(3, 1))
-  declare averageReviewScore: number
-
   @CreatedAt
   declare createdAt: Date
 
@@ -85,8 +74,6 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
         COALESCE((SELECT COUNT(*) FROM "gameFavorite" WHERE "gameFavorite"."gameId" = ${gameId}), 0) AS "favorites",
         COALESCE((SELECT SUM("amount" * -1) FROM "gameCoinLedger" WHERE "gameCoinLedger"."gameId" = ${gameId} AND "gameCoinLedger"."kind" = 'spend'), 0) AS "coins",
         COALESCE((SELECT COUNT(*) FROM "gameComment" WHERE "gameComment"."gameId" = ${gameId} AND "gameComment"."deletedAt" IS NULL), 0) AS "comments",
-        COALESCE((SELECT COUNT(*) FROM "gameReview" WHERE "gameReview"."gameId" = ${gameId}), 0) AS "reviews",
-        COALESCE((SELECT AVG(score)::numeric FROM "gameReview" WHERE "gameReview"."gameId" = ${gameId}), 0) AS "averageReviewScore",
         COALESCE((SELECT "playCount" FROM "game" WHERE "game"."id" = ${gameId}), 0) AS "plays"
     `)
 
@@ -100,9 +87,7 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
         dislikes: Number(row.dislikes) || 0,
         favorites: Number(row.favorites) || 0,
         coins: Number(row.coins) || 0,
-        comments: Number(row.comments) || 0,
-        reviews: Number(row.reviews) || 0,
-        averageReviewScore: Number(row.averageReviewScore) || 0
+        comments: Number(row.comments) || 0
       })
     } else {
       await GameStatsSummaryModel.create({
@@ -112,9 +97,7 @@ export class GameStatsSummaryModel extends SequelizeModel<GameStatsSummaryModel>
         dislikes: Number(row.dislikes) || 0,
         favorites: Number(row.favorites) || 0,
         coins: Number(row.coins) || 0,
-        comments: Number(row.comments) || 0,
-        reviews: Number(row.reviews) || 0,
-        averageReviewScore: Number(row.averageReviewScore) || 0
+        comments: Number(row.comments) || 0
       })
     }
   }

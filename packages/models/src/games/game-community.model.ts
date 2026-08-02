@@ -6,8 +6,6 @@ import type { GameRatingType } from './game.type.js'
 export interface GameCommunity {
   isOwner: boolean
   likes: number
-  reviews: number
-  averageReviewScore: number
   chatMessages: number
   rating: GameRatingType | null
   favorite: boolean
@@ -33,13 +31,6 @@ export interface GameRelatedGame {
   favorites: number
   publishedAt: string | null
   author: GameAuthorSummary | null
-}
-
-// 一键三连结果
-export interface GameTripleResult {
-  liked: boolean
-  coined: boolean
-  favorited: boolean
 }
 
 // 投币结果

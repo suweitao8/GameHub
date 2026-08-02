@@ -570,14 +570,13 @@ export class GameAnalyticsDashboardComponent implements OnInit {
   }
 
   breakdownItems (breakdown: GameAnalytics['interactionBreakdown']) {
-    const max = Math.max(breakdown.likes, breakdown.coins, breakdown.favorites, breakdown.comments, breakdown.reviews, 1)
-    const icons: Record<string, GlobalIconName> = { 点赞: 'like', 投币: 'coin', 收藏: 'star', 评论: 'message-circle', 评价: 'edit' }
+    const max = Math.max(breakdown.likes, breakdown.coins, breakdown.favorites, breakdown.comments, 1)
+    const icons: Record<string, GlobalIconName> = { 点赞: 'like', 投币: 'coin', 收藏: 'star', 评论: 'message-circle' }
     return [
       { label: '点赞', value: breakdown.likes, percent: (breakdown.likes / max) * 100, color: '#ef4444', iconName: icons['点赞'] },
       { label: '投币', value: breakdown.coins, percent: (breakdown.coins / max) * 100, color: '#f59e0b', iconName: icons['投币'] },
       { label: '收藏', value: breakdown.favorites, percent: (breakdown.favorites / max) * 100, color: '#3b82f6', iconName: icons['收藏'] },
-      { label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100, color: '#22c55e', iconName: icons['评论'] },
-      { label: '评价', value: breakdown.reviews, percent: (breakdown.reviews / max) * 100, color: '#8b5cf6', iconName: icons['评价'] }
+      { label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100, color: '#22c55e', iconName: icons['评论'] }
     ]
   }
 

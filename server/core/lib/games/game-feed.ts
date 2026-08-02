@@ -47,10 +47,16 @@ export async function getFollowingFeed (accountId: number, options: {
 
   const [ total, activities ] = await Promise.all([
     GameActivityModel.count({
-      where: { actorAccountId: { [Op.in]: targetAccountIds } }
+      where: {
+        actorAccountId: { [Op.in]: targetAccountIds },
+        kind: { [Op.ne]: 'review' }
+      }
     }),
     GameActivityModel.findAll({
-      where: { actorAccountId: { [Op.in]: targetAccountIds } },
+      where: {
+        actorAccountId: { [Op.in]: targetAccountIds },
+        kind: { [Op.ne]: 'review' }
+      },
       include: [
         {
           model: AccountModel,
@@ -83,9 +89,9 @@ export async function getPublicFeed (options: {
   const limit = Math.min(MAX_FEED_ITEMS, Math.max(1, options.limit || 20))
   const offset = Math.max(0, options.offset || 0)
 
-  const where: any = {}
+  const where: any = { kind: { [Op.ne]: 'review' } }
   if (options.kinds && options.kinds.length > 0) {
-    where.kind = { [Op.in]: options.kinds }
+    where.kind = { [Op.in]: options.kinds, [Op.ne]: 'review' }
   }
 
   const [ total, activities ] = await Promise.all([

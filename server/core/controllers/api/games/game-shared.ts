@@ -62,7 +62,7 @@ export function formatGame (game: MGame) {
     featuredAt: game.featuredAt || null,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
-    comments: Number(game.get?.('gameReviews') ?? 0),
+    comments: Number(game.get?.('gameComments') ?? 0),
     likes: Number(game.get?.('gameLikes') ?? 0),
     favorites: Number(game.get?.('favoriteCount') || 0),
     coins: Number(game.get?.('coinCount') || 0),

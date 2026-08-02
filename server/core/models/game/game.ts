@@ -227,7 +227,6 @@ export class GameModel extends SequelizeModel<GameModel> {
     return [
       [ col('StatsSummary.likes'), 'gameLikes' ],
       [ col('StatsSummary.dislikes'), 'gameDislikes' ],
-      [ col('StatsSummary.reviews'), 'gameReviews' ],
       [ col('StatsSummary.comments'), 'gameComments' ],
       [ col('StatsSummary.favorites'), 'favoriteCount' ],
       [ col('StatsSummary.coins'), 'coinCount' ]

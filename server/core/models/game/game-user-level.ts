@@ -27,9 +27,7 @@ export const EXP_REWARDS = {
   LIKE: 1,
   FAVORITE: 2,
   COIN: 3,
-  PUBLISH_GAME: 20,
-  REVIEW: 5,
-  TRIPLE: 5
+  PUBLISH_GAME: 20
 } as const
 
 /**

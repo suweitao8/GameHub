@@ -4,12 +4,9 @@ import {
   GameComment,
   GameChatMessage,
   GameCommunity,
-  GameRatingDistribution,
   GameRelatedGame,
   GameReportResult,
-  GameReview,
-  GameShareResult,
-  GameTripleResult
+  GameShareResult
 } from '@peertube/peertube-models'
 import { Observable } from 'rxjs'
 import { environment } from '../../../environments/environment'
@@ -40,16 +37,6 @@ export class GameCommunityService {
     return this.http.post<{ message: GameChatMessage }>(
       `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/discussion`, { text }
     )
-  }
-
-  reviews (uuid: string, start = 0, count = 20): Observable<{ total: number, data: GameReview[] }> {
-    return this.http.get<{ total: number, data: GameReview[] }>(
-      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/reviews?start=${start}&count=${count}`
-    )
-  }
-
-  ratingDistribution (uuid: string): Observable<GameRatingDistribution> {
-    return this.http.get<GameRatingDistribution>(`${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/rating-distribution`)
   }
 
   related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
@@ -90,12 +77,6 @@ export class GameCommunityService {
       `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, body)
   }
 
-  review (uuid: string, score: number, text: string): Observable<{ review: GameReview }> {
-    return this.http.put<{ review: GameReview }>(
-      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/review`, { score, text }
-    )
-  }
-
   reply (uuid: string, commentId: number, text: string, image?: File | null): Observable<{ comment: GameComment }> {
     const body = new FormData()
     body.append('text', text)
@@ -117,12 +98,6 @@ export class GameCommunityService {
   coin (uuid: string, amount: 1 | 2): Observable<{ coins: number, coinBalance: number, coinsGiven: number }> {
     return this.http.post<{ coins: number, coinBalance: number, coinsGiven: number }>(
       `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount }
-    )
-  }
-
-  triple (uuid: string): Observable<GameTripleResult> {
-    return this.http.post<GameTripleResult>(
-      `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/triple`, {}
     )
   }
 

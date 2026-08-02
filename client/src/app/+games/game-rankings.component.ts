@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators'
 @Component({
   selector: 'my-game-rankings',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [ CommonModule, RouterModule ],
   template: `
     <div class="rankings-container">
       <div class="rankings-header">
@@ -72,14 +72,21 @@ import { map } from 'rxjs/operators'
 
       @if (loading()) {
         <div class="rankings-loading">
-          @for (i of [1,2,3,4,5,6,7,8,9,10]; track $index) {
-            <div class="ranking-skeleton"><div class="skeleton-rank"></div><div class="skeleton-cover"></div><div class="skeleton-text"><div class="skeleton-text-line"></div><div class="skeleton-text-line short"></div></div></div>
+          @for (i of [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]; track $index) {
+            <div class="ranking-skeleton">
+              <div class="skeleton-rank"></div>
+              <div class="skeleton-cover"></div>
+              <div class="skeleton-text">
+                <div class="skeleton-text-line"></div>
+                <div class="skeleton-text-line short"></div>
+              </div>
+            </div>
           }
         </div>
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .rankings-container { max-width: 900px; margin: 0 auto; padding: 1rem; }
 
     .rankings-header { margin-bottom: 1rem; }
@@ -194,7 +201,14 @@ import { map } from 'rxjs/operators'
     }
 
     .ranking-info { flex: 1; min-width: 0; }
-    .ranking-title { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ranking-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .ranking-stats {
       display: flex;
@@ -312,7 +326,7 @@ import { map } from 'rxjs/operators'
       .rankings-category-filter { margin-top: 0.5rem; }
       .rankings-category-filter select { width: 100%; }
     }
-  `]
+  ` ]
 })
 export class GameRankingsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
@@ -321,14 +335,13 @@ export class GameRankingsComponent implements OnInit {
   rankings = computed(() => this.rankingsState.data() ?? [])
   loading = this.rankingsState.loading
   hasError = this.rankingsState.hasError
-  currentTab = signal<'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
+  currentTab = signal<'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
 
-  tabs: { id: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
+  tabs: { id: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
     { id: 'hot', label: '最热' },
     { id: 'newest', label: '最新' },
     { id: 'updated', label: '最近更新' },
-    { id: 'topRated', label: '评分最高' },
     { id: 'favorites', label: '最多收藏' },
     { id: 'coins', label: '最多投币' },
     { id: 'comments', label: '最多评论' },
@@ -357,7 +370,7 @@ export class GameRankingsComponent implements OnInit {
     this.loadRankings()
   }
 
-  setTab (tab: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes') {
+  setTab (tab: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes') {
     this.currentTab.set(tab)
     this.rankingsState.reset()
     this.loadRankings()
@@ -380,7 +393,6 @@ export class GameRankingsComponent implements OnInit {
     switch (this.currentTab()) {
       case 'hot': return this.formatNumber(game.stats.plays)
       case 'newest': return this.formatNumber(game.stats.plays)
-      case 'topRated': return game.stats.averageReviewScore.toFixed(1)
       case 'favorites': return this.formatNumber(game.stats.favorites)
       case 'coins': return this.formatNumber(game.stats.coins)
       case 'comments': return this.formatNumber(game.stats.comments)
@@ -393,7 +405,6 @@ export class GameRankingsComponent implements OnInit {
     const labels: Record<string, string> = {
       hot: '热度',
       newest: '游玩',
-      topRated: '评分',
       favorites: '收藏',
       coins: '投币',
       comments: '评论',

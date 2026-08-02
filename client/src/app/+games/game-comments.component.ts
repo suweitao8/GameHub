@@ -373,12 +373,18 @@ import { GameCommentsStore } from './game-comments-store'
     .bili-meta-btn my-global-icon {
       align-items: center;
       display: inline-flex;
-      height: 0.85rem;
+      flex: 0 0 0.65rem;
+      height: 0.65rem;
       justify-content: center;
       line-height: 0;
-      width: 0.85rem;
+      width: 0.65rem;
     }
-    .bili-meta-btn my-global-icon ::ng-deep svg { display: block; }
+    .bili-meta-btn my-global-icon ::ng-deep tabler-icon,
+    .bili-meta-btn my-global-icon ::ng-deep svg {
+      display: block;
+      height: 100% !important;
+      width: 100% !important;
+    }
     .bili-meta-btn.active,
     .bili-meta-btn:hover {
       color: #00aeec;

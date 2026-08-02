@@ -68,11 +68,6 @@ export const gameCommentRateLimiter = buildRateLimiter({
   max: 15
 })
 
-export const gameReviewRateLimiter = buildRateLimiter({
-  windowMs: 60 * 1000,
-  max: 5
-})
-
 export const gameRatingRateLimiter = buildRateLimiter({
   windowMs: 60 * 1000,
   max: 20

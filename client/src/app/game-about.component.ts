@@ -19,7 +19,7 @@ import { RouterLink } from '@angular/router'
         </section>
 
         <section class="game-about-stats" aria-label="GameHub 特点">
-          <article><strong>单文件运行</strong><span>HTML 或 ZIP 游戏包都能上传，打开页面即可试玩。</span></article>
+          <article><strong>单文件运行</strong><span>单个 HTML 文件即可上传，打开页面即可试玩。</span></article>
           <article><strong>安全检测</strong><span>发布前校验资源路径和脚本能力，减少不必要的风险。</span></article>
           <article><strong>社区互动</strong><span>点赞、收藏、投币、评论和关注作者，和创作者一起成长。</span></article>
         </section>
@@ -39,9 +39,9 @@ import { RouterLink } from '@angular/router'
             <p class="game-eyebrow">FOR CREATORS</p>
             <h2>创作者可以做什么</h2>
             <ul>
-              <li>上传单个 HTML 文件或包含根目录 index.html 的 ZIP 包。</li>
+              <li>上传单个不超过 20MB 的 HTML 文件，系统会在发布前自动检查。</li>
               <li>补充封面、简介、操作说明、类型和标签，让作品更容易被发现。</li>
-              <li>在创作中心管理作品、查看互动数据并下载原始游戏包。</li>
+              <li>在创作中心管理作品并查看互动数据。</li>
             </ul>
             <a routerLink="/games/creator">进入创作中心 →</a>
           </article>

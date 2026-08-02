@@ -228,14 +228,11 @@ describe('Test games API', function () {
       expect(result.comment.text).to.equal('Great game!')
     })
 
-    it('should get rating distribution', async function () {
+    it('should not expose star rating distribution', async function () {
       if (!publishedGameUuid) this.skip()
 
       const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/rating-distribution`)
-      expect(res.status).to.equal(HttpStatusCode.OK_200)
-      const result = await res.json()
-      expect(result.total).to.be.a('number')
-      expect(result.distribution).to.be.an('array')
+      expect(res.status).to.equal(HttpStatusCode.NOT_FOUND_404)
     })
   })
 

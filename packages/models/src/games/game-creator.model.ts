@@ -27,7 +27,6 @@ export interface GameInteractionBreakdown {
   coins: number
   favorites: number
   comments: number
-  reviews: number
 }
 
 export interface GameCreatorGameRanking {

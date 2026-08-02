@@ -9242,7 +9242,7 @@ paths:
       tags:
         - Games
       summary: Get game community stats
-      description: Get community statistics for a game (likes, reviews, etc.)
+      description: Get community statistics for a game (likes, comments, and engagement)
       operationId: getGameCommunity
       parameters:
         - $ref: '#/components/parameters/idOrUUID'
@@ -9297,42 +9297,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GameComment'
-
-  /api/v1/games/{uuid}/reviews:
-    get:
-      tags:
-        - Games
-      summary: List game reviews
-      description: Get reviews for a game
-      operationId: listGameReviews
-      parameters:
-        - $ref: '#/components/parameters/idOrUUID'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GameReviewList'
-
-  /api/v1/games/{uuid}/rating-distribution:
-    get:
-      tags:
-        - Games
-      summary: Get rating distribution
-      description: Returns 5-star to 1-star review counts and percentages for the rating histogram shown on the game detail page.
-      operationId: getGameRatingDistribution
-      parameters:
-        - $ref: '#/components/parameters/idOrUUID'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GameRatingDistribution'
-        '404':
-          description: game not found
 
   /api/v1/games/{uuid}/related:
     get:
@@ -9411,7 +9375,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [hot, newest, topRated, favorites, coins, comments, likes]
+            enum: [hot, newest, updated, favorites, coins, comments, likes]
           description: Ranking criteria
         - name: count
           in: query
@@ -10635,67 +10599,6 @@ paths:
                     type: integer
         '403':
           description: not enough coins
-
-  /api/v1/games/{uuid}/triple:
-    post:
-      tags:
-        - Games
-      summary: Triple-action a game
-      description: Performs the combined like + coin + favorite (triple) action on a game.
-      operationId: tripleGame
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/idOrUUID'
-      responses:
-        '200':
-          description: triple action applied
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  liked:
-                    type: boolean
-                  favorited:
-                    type: boolean
-                  coins:
-                    type: integer
-
-  /api/v1/games/{uuid}/review:
-    put:
-      tags:
-        - Games
-      summary: Upsert a review
-      description: Creates or updates the authenticated user's review and star rating for a game.
-      operationId: upsertGameReview
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/idOrUUID'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [rating]
-              properties:
-                rating:
-                  type: integer
-                  minimum: 1
-                  maximum: 5
-                title:
-                  type: string
-                text:
-                  type: string
-      responses:
-        '200':
-          description: review saved
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GameReview'
 
   /api/v1/games/{uuid}/moderate:
     post:
@@ -16299,10 +16202,6 @@ components:
           type: boolean
         likes:
           type: integer
-        reviews:
-          type: integer
-        averageReviewScore:
-          type: number
         chatMessages:
           type: integer
         rating:
@@ -16373,74 +16272,6 @@ components:
           items:
             $ref: '#/components/schemas/GameComment'
 
-    GameReview:
-      type: object
-      properties:
-        id:
-          type: integer
-        score:
-          type: integer
-        text:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        account:
-          type: object
-          nullable: true
-          properties:
-            displayName:
-              type: string
-            name:
-              type: string
-        isAuthor:
-          type: boolean
-
-    GameReviewList:
-      type: object
-      properties:
-        total:
-          type: integer
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GameReview'
-
-    GameRatingDistribution:
-      type: object
-      description: 5-star to 1-star rating histogram data for the game detail page.
-      properties:
-        total:
-          type: integer
-          description: Total number of reviews used to compute percentages.
-        distribution:
-          type: array
-          description: One entry per star bucket (5 down to 1).
-          items:
-            $ref: '#/components/schemas/GameRatingBucket'
-
-    GameRatingBucket:
-      type: object
-      properties:
-        star:
-          type: integer
-          minimum: 1
-          maximum: 5
-          description: Star bucket (5 = best, 1 = worst).
-        count:
-          type: integer
-          minimum: 0
-          description: Number of reviews with this score.
-        percent:
-          type: number
-          format: float
-          minimum: 0
-          maximum: 100
-          description: Share of total reviews (one decimal, e.g. 33.3). 0 when total is 0.
-
     GameRelatedGame:
       type: object
       description: Lightweight summary of a related/recommended game.
@@ -16503,7 +16334,7 @@ components:
           type: integer
         kind:
           type: string
-          enum: [publish, like, coin, favorite, comment, reply, review, follow]
+          enum: [publish, like, coin, favorite, comment, reply, follow]
         message:
           type: string
         createdAt:
@@ -16566,10 +16397,6 @@ components:
               type: integer
             comments:
               type: integer
-            reviews:
-              type: integer
-            averageReviewScore:
-              type: number
 
     GameRankingList:
       type: object

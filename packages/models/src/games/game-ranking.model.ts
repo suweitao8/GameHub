@@ -11,8 +11,6 @@ export interface GameRanking extends Game {
     favorites: number
     coins: number
     comments: number
-    reviews: number
-    averageReviewScore: number
   }
 }
 

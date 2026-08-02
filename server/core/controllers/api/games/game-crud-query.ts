@@ -165,8 +165,7 @@ async function getGameSEO (req: express.Request, res: express.Response) {
     tags: game.tags,
     stats: stats ? {
       plays: stats.plays,
-      likes: stats.likes,
-      averageReviewScore: Number(stats.averageReviewScore)
+      likes: stats.likes
     } : null,
     publishedTime: game.publishedAt?.toISOString() || null,
     modifiedTime: game.updatedAt?.toISOString()

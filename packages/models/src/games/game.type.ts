@@ -1,7 +1,7 @@
 // 游戏状态：审核流转
 export type GameStatus = 'pending' | 'published' | 'rejected' | 'unlisted' | 'blocked'
 
-// 评分类型（点赞/取消）
+// 点赞状态（点赞/取消）
 export type GameRatingType = 'like' | 'none'
 
 // 排序维度
@@ -20,7 +20,6 @@ export type GameRankingKind =
   | 'hot'
   | 'newest'
   | 'updated'
-  | 'topRated'
   | 'favorites'
   | 'coins'
   | 'comments'

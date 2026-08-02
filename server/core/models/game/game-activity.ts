@@ -3,7 +3,7 @@ import { AccountModel } from '../account/account.js'
 import { GameModel } from './game.js'
 import { SequelizeModel } from '../shared/index.js'
 
-export type GameActivityKind = 'publish' | 'comment' | 'reply' | 'like' | 'favorite' | 'coin' | 'follow' | 'review'
+export type GameActivityKind = 'publish' | 'comment' | 'reply' | 'like' | 'favorite' | 'coin' | 'follow'
 
 /**
  * 社区动态 — 记录游戏相关的所有用户活动

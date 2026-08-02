@@ -16,7 +16,7 @@ export class GameDiscoveryService {
   private static readonly BASE_URL = `${environment.apiUrl}/api/v1/games`
 
   getRankings (
-    kind: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes',
+    kind: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes',
     count = 50,
     category?: string
   ): Observable<{ kind: string; total: number; data: GameRanking[] }> {

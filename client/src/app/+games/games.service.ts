@@ -24,15 +24,11 @@ import {
   GameNotificationList,
   GameRanking,
   GameRankingList,
-  GameRatingDistribution,
   GameRelatedGame,
   GameReportResult,
   GameReservation,
   GameReservationList,
-  GameReview,
-  GameReviewList,
-  GameShareResult,
-  GameTripleResult
+  GameShareResult
 } from '@peertube/peertube-models'
 import { catchError, map, shareReplay } from 'rxjs/operators'
 import { Observable } from 'rxjs'
@@ -64,15 +60,11 @@ export type {
   GameNotificationList,
   GameRanking,
   GameRankingList,
-  GameRatingDistribution,
   GameRelatedGame,
   GameReportResult,
   GameReservation,
   GameReservationList,
-  GameReview,
-  GameReviewList,
-  GameShareResult,
-  GameTripleResult
+  GameShareResult
 }
 
 // Re-export 领域 service，供新组件按需 inject（渐进迁移）
@@ -172,16 +164,6 @@ export class GamesService {
     )
   }
 
-  reviews (uuid: string, start = 0, count = 20): Observable<{ total: number, data: GameReview[] }> {
-    return this.http.get<{ total: number, data: GameReview[] }>(
-      `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reviews?start=${start}&count=${count}`
-    )
-  }
-
-  ratingDistribution (uuid: string): Observable<GameRatingDistribution> {
-    return this.http.get<GameRatingDistribution>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/rating-distribution`)
-  }
-
   related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
     return this.http.get<{ total: number, data: GameRelatedGame[] }>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/related?count=${count}`
@@ -217,10 +199,6 @@ export class GamesService {
     return this.http.post<{ comment: GameComment }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/comments`, body)
   }
 
-  review (uuid: string, score: number, text: string): Observable<{ review: GameReview }> {
-    return this.http.put<{ review: GameReview }>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/review`, { score, text })
-  }
-
   reply (uuid: string, commentId: number, text: string, image?: File | null): Observable<{ comment: GameComment }> {
     const body = new FormData()
     body.append('text', text)
@@ -242,10 +220,6 @@ export class GamesService {
   coin (uuid: string, amount: 1 | 2): Observable<{ coins: number, coinBalance: number, coinsGiven: number }> {
     return this.http.post<{ coins: number, coinBalance: number, coinsGiven: number }>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/coin`, { amount })
-  }
-
-  triple (uuid: string): Observable<GameTripleResult> {
-    return this.http.post<GameTripleResult>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/triple`, {})
   }
 
   share (uuid: string): Observable<GameShareResult> {
@@ -310,7 +284,7 @@ export class GamesService {
   // ---------------------------------------------------------------------------
 
   getRankings (
-    kind: 'hot' | 'newest' | 'updated' | 'topRated' | 'favorites' | 'coins' | 'comments' | 'likes',
+    kind: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes',
     count = 50,
     category?: string
   ): Observable<{ kind: string; total: number; data: GameRanking[] }> {

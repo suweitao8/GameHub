@@ -8,7 +8,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 @Component({
   selector: 'my-game-activity-feed',
   standalone: true,
-  imports: [CommonModule, RouterModule, GlobalIconComponent],
+  imports: [ CommonModule, RouterModule, GlobalIconComponent ],
   template: `
     <div class="feed-container">
       <div class="feed-header">
@@ -90,7 +90,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .feed-container { max-width: 680px; margin: 0 auto; padding: 1rem; }
     .feed-header { margin-bottom: 1rem; }
     .feed-header h2 { font-size: 1.4rem; margin-bottom: 0.75rem; }
@@ -196,7 +196,6 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
     .feed-kind-badge.coin { background: #fef3c7; color: #f59e0b; }
     .feed-kind-badge.favorite { background: #dbeafe; color: #3b82f6; }
     .feed-kind-badge.comment { background: #d1fae5; color: #22c55e; }
-    .feed-kind-badge.review { background: #f3e8ff; color: #8b5cf6; }
 
     .feed-empty {
       text-align: center;
@@ -266,7 +265,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
       border-radius: 4px;
       background: #eceff3;
     }
-  `]
+  ` ]
 })
 export class GameActivityFeedComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
@@ -301,7 +300,7 @@ export class GameActivityFeedComponent implements OnInit {
 
     service.subscribe({
       next: (result) => {
-        this.activities.update(prev => [...prev, ...result.data])
+        this.activities.update(prev => [ ...prev, ...result.data ])
         this.hasMore.set(result.data.length === 20)
         this.loading.set(false)
         this.refreshing.set(false)
@@ -331,7 +330,7 @@ export class GameActivityFeedComponent implements OnInit {
   kindLabel (kind: string): string {
     const labels: Record<string, string> = {
       publish: '发布', like: '点赞', coin: '投币', favorite: '收藏',
-      comment: '评论', reply: '回复', review: '评价', follow: '关注'
+      comment: '评论', reply: '回复', follow: '关注'
     }
     return labels[kind] || kind
   }

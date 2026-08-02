@@ -45,8 +45,6 @@ async function getCommunity (req: express.Request, res: express.Response) {
     return res.json({
       isOwner: !!user && user.Account.id === game.ownerAccountId,
       likes: stats?.likes || 0,
-      reviews: stats?.reviews || 0,
-      averageReviewScore: Number(Number(stats?.averageReviewScore || 0).toFixed(1)),
       chatMessages: chatMessages || 0,
       rating,
       favorite,

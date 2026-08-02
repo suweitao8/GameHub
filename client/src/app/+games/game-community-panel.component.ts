@@ -33,7 +33,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .interaction-row { align-items: center;
       border-bottom: 1px solid var(--game-border);
       gap: 2rem;
-      padding: 0.55rem 0 0.65rem; }
+      padding: 0.25rem 0 0.3rem; }
     .interaction-row button { align-items: center;
       background: transparent;
       border: 0;
@@ -102,7 +102,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     .game-description-panel {
       border-top: 0;
       margin-top: 0;
-      padding-top: 0.95rem;
+      padding-top: 0.45rem;
     }
     .game-description-fallback {
       background: #fff;
@@ -139,6 +139,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
     }
     .game-description-content {
       box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
       height: 200px;
       max-height: 200px;
       min-height: 200px;
@@ -190,7 +192,8 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       white-space: pre-wrap;
     }
     .description-tags {
-      margin-top: 0.75rem;
+      margin-top: auto;
+      padding-top: 0.75rem;
     }
 
     /* Game tags */

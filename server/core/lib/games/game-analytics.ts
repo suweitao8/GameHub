@@ -1,7 +1,7 @@
 import { sequelizeTypescript } from '@server/initializers/database.js'
 import { Redis } from '@server/lib/redis.js'
 
-const ANALYTICS_CACHE_PREFIX = 'game-analytics:'
+const ANALYTICS_CACHE_PREFIX = 'game-analytics:v2:'
 const ANALYTICS_CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes
 
 /**
@@ -46,7 +46,6 @@ export async function getCreatorInteractionBreakdown (accountId: number): Promis
   coins: number
   favorites: number
   comments: number
-  reviews: number
 }> {
   const cacheKey = `${ANALYTICS_CACHE_PREFIX}interaction-breakdown:${accountId}`
   const client = Redis.Instance.getClient()
@@ -63,12 +62,12 @@ export async function getCreatorInteractionBreakdown (accountId: number): Promis
   }).then(rows => (rows as { id: number }[]).map(r => r.id))
 
   if (gameIds.length === 0) {
-    const empty = { likes: 0, coins: 0, favorites: 0, comments: 0, reviews: 0 }
+    const empty = { likes: 0, coins: 0, favorites: 0, comments: 0 }
     await client.set(prefix + cacheKey, JSON.stringify(empty), 'PX', ANALYTICS_CACHE_TTL_MS)
     return empty
   }
 
-  const [ likes, coins, favorites, comments, reviews ] = await Promise.all([
+  const [ likes, coins, favorites, comments ] = await Promise.all([
     sequelizeTypescript.query(`
       SELECT COUNT(*) AS cnt FROM "gameRating" WHERE "gameId" IN (:gameIds) AND type = 'like'
     `, { replacements: { gameIds }, type: 'SELECT' }),
@@ -82,17 +81,13 @@ export async function getCreatorInteractionBreakdown (accountId: number): Promis
     sequelizeTypescript.query(`
       SELECT COUNT(*) AS cnt FROM "gameComment" WHERE "gameId" IN (:gameIds) AND "deletedAt" IS NULL
     `, { replacements: { gameIds }, type: 'SELECT' }),
-    sequelizeTypescript.query(`
-      SELECT COUNT(*) AS cnt FROM "gameReview" WHERE "gameId" IN (:gameIds)
-    `, { replacements: { gameIds }, type: 'SELECT' })
   ])
 
   const result = {
     likes: Number((likes[0] as any)?.cnt || 0),
     coins: Math.max(0, Number((coins[0] as any)?.cnt || 0)),
     favorites: Number((favorites[0] as any)?.cnt || 0),
-    comments: Number((comments[0] as any)?.cnt || 0),
-    reviews: Number((reviews[0] as any)?.cnt || 0)
+    comments: Number((comments[0] as any)?.cnt || 0)
   }
 
   await client.set(prefix + cacheKey, JSON.stringify(result), 'PX', ANALYTICS_CACHE_TTL_MS)

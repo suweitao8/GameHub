@@ -35,10 +35,9 @@ async function getRankings (req: express.Request, res: express.Response) {
       hot: 'plays',
       newest: 'latest',
       updated: 'updated',
-      topRated: 'latest', // We'll sort by averageReviewScore after fetching
       favorites: 'favorites',
       coins: 'coins',
-      comments: 'likes', // We'll filter after fetching
+      comments: 'likes', // We'll sort by comment count after fetching
       likes: 'likes'
     }
 
@@ -51,7 +50,7 @@ async function getRankings (req: express.Request, res: express.Response) {
       offset: 0
     })
 
-    // For topRated, sort by averageReviewScore; for comments, include comment count
+    // Comment ranking is sorted from the aggregated comment count.
     const gameIds = data.map(g => g.id)
     const statsMap = new Map<number, any>()
     if (gameIds.length > 0) {
@@ -64,13 +63,7 @@ async function getRankings (req: express.Request, res: express.Response) {
 
     // Re-sort for special rankings
     let sortedData = data
-    if (kind === 'topRated') {
-      sortedData = data.sort((a, b) => {
-        const scoreA = Number(statsMap.get(a.id)?.averageReviewScore || 0)
-        const scoreB = Number(statsMap.get(b.id)?.averageReviewScore || 0)
-        return scoreB - scoreA
-      })
-    } else if (kind === 'comments') {
+    if (kind === 'comments') {
       sortedData = data.sort((a, b) => {
         const commentsA = Number(statsMap.get(a.id)?.comments || 0)
         const commentsB = Number(statsMap.get(b.id)?.comments || 0)
@@ -89,9 +82,7 @@ async function getRankings (req: express.Request, res: express.Response) {
           likes: Number(stats?.likes || 0),
           favorites: Number(stats?.favorites || 0),
           coins: Number(stats?.coins || 0),
-          comments: Number(stats?.comments || 0),
-          reviews: Number(stats?.reviews || 0),
-          averageReviewScore: Number(stats?.averageReviewScore || 0)
+          comments: Number(stats?.comments || 0)
         }
       }
     })

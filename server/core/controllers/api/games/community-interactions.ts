@@ -24,7 +24,6 @@ communityInteractionsRouter.put('/:uuid/favorite', gameUUIDValidator, authentica
 communityInteractionsRouter.put('/:uuid/follow', gameUUIDValidator, authenticate, asyncMiddleware(followAuthor))
 communityInteractionsRouter.put('/author/:accountId/follow', authenticate, asyncMiddleware(followAccount))
 communityInteractionsRouter.post('/:uuid/coin', gameUUIDValidator, authenticate, gameCoinRateLimiter, asyncMiddleware(coinGame))
-communityInteractionsRouter.post('/:uuid/triple', gameUUIDValidator, authenticate, gameRatingRateLimiter, asyncMiddleware(tripleAction))
 
 async function rateGame (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
@@ -268,81 +267,6 @@ async function getCoinState (gameId: number, accountId: number) {
     GameCoinLedgerModel.sum('amount', { where: { accountId, gameId, kind: 'spend' } })
   ])
   return { balance: Math.max(0, Number(balance || 0)), given: Math.max(0, Number(given || 0) * -1) }
-}
-
-/**
- * 一键三连：点赞 + 投币(1枚) + 收藏
- * 如果已经操作过则跳过该步骤，不会重复操作
- */
-async function tripleAction (req: express.Request, res: express.Response) {
-  const game = await getPublishedGame(req)
-  const user = getUser(res)
-  if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (game.ownerAccountId === user.Account.id) {
-    return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot triple their own game' })
-  }
-
-  const results = { liked: false, coined: false, favorited: false }
-
-  // 1. Like (if not already liked)
-  const existingRating = await GameRatingModel.load(user.Account.id, game.id)
-  if (!existingRating) {
-    await GameRatingModel.create({ accountId: user.Account.id, gameId: game.id, type: 'like' })
-    results.liked = true
-  }
-
-  // 2. Coin (1 coin, if balance allows and not already given max)
-  const day = new Date().toISOString().slice(0, 10)
-  await GameCoinLedgerModel.findOrCreate({
-    where: { accountId: user.Account.id, day, kind: 'daily_grant' },
-    defaults: { accountId: user.Account.id, gameId: null, day, kind: 'daily_grant', amount: 2 }
-  })
-  const balance = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id } }) || 0)
-  const given = Number(await GameCoinLedgerModel.sum('amount', { where: { accountId: user.Account.id, gameId: game.id, kind: 'spend' } }) || 0) * -1
-  if (balance >= 1 && given < 2) {
-    await GameCoinLedgerModel.create({ accountId: user.Account.id, gameId: game.id, amount: -1, day, kind: 'spend' })
-    results.coined = true
-  }
-
-  // 3. Favorite (if not already favorited)
-  const existingFavorite = await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
-  if (!existingFavorite) {
-    await GameFavoriteModel.create({ gameId: game.id, accountId: user.Account.id })
-    results.favorited = true
-  }
-
-  // Send notifications for new actions
-  if (results.liked) {
-    await createGameNotification({
-      recipientAccountId: game.ownerAccountId,
-      actorAccountId: user.Account.id,
-      gameId: game.id,
-      kind: 'like',
-      message: `${user.username} 赞了你的游戏`
-    })
-  }
-  if (results.coined) {
-    await createGameNotification({
-      recipientAccountId: game.ownerAccountId,
-      actorAccountId: user.Account.id,
-      gameId: game.id,
-      kind: 'coin',
-      message: `${user.username} 给你的游戏投了硬币`
-    })
-  }
-  if (results.favorited) {
-    await createGameNotification({
-      recipientAccountId: game.ownerAccountId,
-      actorAccountId: user.Account.id,
-      gameId: game.id,
-      kind: 'favorite',
-      message: `${user.username} 收藏了你的游戏`
-    })
-  }
-
-  awardExp(user.Account.id, 'TRIPLE').catch(() => undefined)
-  invalidateRecommendationCache(user.Account.id).catch(() => undefined)
-  return res.json(results)
 }
 
 export { communityInteractionsRouter, userRating, getCoinState }
