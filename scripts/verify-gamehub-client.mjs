@@ -179,7 +179,13 @@ assert(
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+const gameCardHtml = read('client/src/app/+games/game-card.component.html')
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
+assert(
+  gameCardHtml.includes('[innerHTML]="game.title | highlight: searchTerm"') &&
+    !gameCardHtml.includes('{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}'),
+  'game card search highlights must render sanitized mark HTML instead of exposing markup text'
+)
 assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')

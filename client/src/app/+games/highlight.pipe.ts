@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core'
 
 /**
  * 高亮文本中的关键词
- * Usage: {{ text | highlight: searchTerm }}
+ * Usage: <span [innerHTML]="text | highlight: searchTerm"></span>
  */
 @Pipe({ name: 'highlight', standalone: true })
 export class HighlightPipe implements PipeTransform {

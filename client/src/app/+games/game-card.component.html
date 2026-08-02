@@ -24,7 +24,7 @@
       </div>
     </div>
     <div class="game-card-body">
-      <h3>{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}</h3>
+      <h3 [innerHTML]="game.title | highlight: searchTerm"></h3>
       <div class="game-card-author">
         <span class="author-up-badge" aria-hidden="true">UP</span>
         @if (game.author?.id) {
