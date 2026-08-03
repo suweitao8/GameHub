@@ -207,6 +207,10 @@ assert(
   'search focus must keep recent search history visible when the previous query is prefilled'
 )
 assert(
+  navigationHtml.includes('aria-label="搜索游戏、作者或标签"'),
+  'game search input must expose its accessible name directly to assistive technology'
+)
+assert(
   navigationTs.includes('private suggestionGeneration = 0') &&
     navigationTs.includes('clearTimeout(this.suggestionTimer)') &&
     navigationTs.includes('const generation = ++this.suggestionGeneration') &&
