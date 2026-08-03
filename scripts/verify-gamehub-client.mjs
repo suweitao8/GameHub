@@ -329,6 +329,7 @@ const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
 const uploadHtml = read('client/src/app/+games/game-upload.component.html')
 const uploadTs = read('client/src/app/+games/game-upload.component.ts')
 const previewProbeTs = read('client/src/app/+games/services/game-preview-probe.service.ts')
+const gameRuntimeTs = read('server/core/controllers/api/games/runtime.ts')
 const libraryHtml = read('client/src/app/+games/game-library.component.html')
 const libraryTs = read('client/src/app/+games/game-library.component.ts')
 const libraryScss = read('client/src/app/+games/game-library.component.scss')
@@ -455,6 +456,15 @@ assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityToke
 assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #6b6f75'), 'detail page must apply its charcoal palette within the component scope')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
+assert(
+  homeHtml.includes('iconName="calendar"') &&
+    homeHtml.includes('iconName="award"') &&
+    homeHtml.includes('iconName="markdown"') &&
+    homeHtml.includes('iconName="tag"') &&
+    !/class="community-hub-icon">[^<]*[\u4e00-\u9fff]/u.test(homeHtml),
+  'community hub cards must use shared library icons instead of text glyphs'
+)
+assert(globalIconTs.includes("'tag': IconTag"), 'shared icon library must expose the tag icon used by the community hub')
 assert(gameAvatarTs.includes('shape-rendering="crispEdges"') && gameAvatarTs.includes('<rect') && !gameAvatarTs.includes('<text'), 'GameHub fallback avatars must use a circular pixel-art renderer instead of an initial letter')
 assert(commentsTs.includes('iconName="mood-smile"') && !commentsTs.includes('>☺</button>'), 'comment composer must use a library smile icon instead of a text glyph')
 assert(!analyticsTs.includes('🪙') && !analyticsTs.includes("'❤'") && analyticsTs.includes('iconName'), 'analytics controls must use shared library icons instead of emoji glyphs')
@@ -565,6 +575,10 @@ assert(
     previewProbeTs.includes('const generation = ++this.prepareGeneration') &&
     previewProbeTs.includes('if (generation !== this.prepareGeneration) return'),
   'game upload preview must ignore stale async file preparation results'
+)
+assert(
+  previewProbeTs.includes('replace(/<\\/body>/i') && gameRuntimeTs.includes('replace(/<\\/body>/i'),
+  'game preview probes must inject before case-insensitive closing body tags'
 )
 assert(
   previewProbeTs.includes('URL.revokeObjectURL(this.objectUrl)') &&

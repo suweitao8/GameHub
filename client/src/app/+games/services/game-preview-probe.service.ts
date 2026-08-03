@@ -196,6 +196,6 @@ export class GamePreviewProbeService implements OnDestroy {
         setTimeout(inspect, 1800)
       })()
     </script>`
-    return source.includes('</body>') ? source.replace('</body>', `${probe}</body>`) : `${source}${probe}`
+    return /<\/body>/i.test(source) ? source.replace(/<\/body>/i, `${probe}</body>`) : `${source}${probe}`
   }
 }
