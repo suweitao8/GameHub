@@ -240,6 +240,10 @@ assert(
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+assert(
+  featuredHtml.includes("[attr.aria-current]=\"index === carouselIndex() ? 'true' : null\""),
+  'featured carousel indicators must expose the active recommendation with aria-current'
+)
 const gameCardHtml = read('client/src/app/+games/game-card.component.html')
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
 const notificationHtml = read('client/src/app/+games/game-notifications.component.html')
