@@ -36,6 +36,7 @@ export class GameCommentsStore implements OnDestroy {
   private uuid = ''
   private refreshTimer: ReturnType<typeof setInterval> | undefined
   private requestGeneration = 0
+  private hasLoadedMore = false
 
   /** Sorted hottest-first or latest-first for the comment list. */
   readonly sorted = () => {
@@ -57,6 +58,7 @@ export class GameCommentsStore implements OnDestroy {
     this.stopPolling()
     this.uuid = uuid
     const generation = ++this.requestGeneration
+    this.hasLoadedMore = false
     this.reset()
     this.load(uuid, this.sort(), generation)
     this.startPolling()
@@ -88,6 +90,7 @@ export class GameCommentsStore implements OnDestroy {
     if (this.sort() === value) return
     this.sort.set(value)
     const generation = ++this.requestGeneration
+    this.hasLoadedMore = false
     this.loading.set(true)
     this.loadingMore.set(false)
     this.load(this.uuid, value, generation)
@@ -103,6 +106,7 @@ export class GameCommentsStore implements OnDestroy {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.update(prev => [ ...prev, ...result.data ])
         this.total.set(result.total)
+        this.hasLoadedMore = true
         this.loadingMore.set(false)
       },
       error: () => {
@@ -268,6 +272,20 @@ export class GameCommentsStore implements OnDestroy {
     ])))
   }
 
+  private mergeRefreshedComments (refreshed: GameComment[]) {
+    if (!this.hasLoadedMore) return refreshed
+
+    const current = this.comments()
+    const currentIds = new Set(current.map(comment => comment.id))
+    const refreshedById = new Map(refreshed.map(comment => [ comment.id, comment ]))
+    const newlyArrived = refreshed.filter(comment => !currentIds.has(comment.id))
+
+    return [
+      ...newlyArrived,
+      ...current.map(comment => refreshedById.get(comment.id) || comment)
+    ]
+  }
+
   private startPolling () {
     if (this.refreshTimer) return
     this.refreshTimer = setInterval(() => this.refresh(), 4000)
@@ -296,7 +314,7 @@ export class GameCommentsStore implements OnDestroy {
     this.gamesService.comments(uuid, this.sort(), 0, 20).subscribe({
       next: result => {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
-        this.comments.set(result.data)
+        this.comments.set(this.mergeRefreshedComments(result.data))
         this.total.set(result.total)
         this.error.set('')
       }

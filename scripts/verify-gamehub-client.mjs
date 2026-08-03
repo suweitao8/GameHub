@@ -325,7 +325,7 @@ assert(
     commentsStoreTs.includes('this.stopPolling()') &&
     commentsStoreTs.includes('if (this.refreshTimer) return') &&
     commentsStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return') &&
-    /this\.sort\.set\(value\)\r?\n    const generation = \+\+this\.requestGeneration\r?\n    this\.loading\.set\(true\)\r?\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
+    /this\.sort\.set\(value\)\r?\n    const generation = \+\+this\.requestGeneration\r?\n    (?:this\.hasLoadedMore = false\r?\n    )?this\.loading\.set\(true\)\r?\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
   'comment polling and loads must stop and ignore stale route responses'
 )
 assert(
@@ -536,6 +536,13 @@ assert(
     activityFeedTs.includes('this.loadingMore.set(false)') &&
     (activityFeedTs.match(/if \(generation !== this\.requestGeneration\) return/g) || []).length >= 2,
   'activity feed must ignore stale tab responses and recover pagination state after failures'
+)
+assert(
+  commentsStoreTs.includes('private hasLoadedMore = false') &&
+    commentsStoreTs.includes('this.hasLoadedMore = true') &&
+    commentsStoreTs.includes('mergeRefreshedComments') &&
+    commentsStoreTs.includes('this.comments.set(this.mergeRefreshedComments(result.data))'),
+  'comment polling must preserve loaded pages while refreshing the latest comments'
 )
 assert(
   !headerScss.includes('background: #eaf8ff;') &&
