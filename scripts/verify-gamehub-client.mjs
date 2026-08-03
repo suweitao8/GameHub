@@ -127,6 +127,12 @@ assert(
 const rankings = read('client/src/app/+games/game-rankings.component.ts')
 assert(rankings.includes("'updated'") || rankings.includes('"updated"'), 'rankings must include updated tab id')
 assert(rankings.includes('最近更新'), 'rankings must label 最近更新')
+assert(
+  rankings.includes('{{ formatNumber(game.stats.comments) }} 评论') &&
+    !rankings.includes('{{ formatNumber(game.stats.likes) }} 点赞') &&
+    !rankings.includes('{{ formatNumber(game.stats.favorites) }} 收藏'),
+  'ranking game items must use play and comment counts instead of the legacy like/favorite stats'
+)
 
 const playHtml = read('client/src/app/+games/game-play.component.html')
 assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-play must render the HTML game stage')
@@ -148,6 +154,12 @@ assert(
 const authorHtml = read('client/src/app/+games/game-author.component.html')
 assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')
 assert(!authorHtml.includes('account.handle'), 'author page must not render an account handle in the visible profile')
+assert(
+  authorHtml.includes('{{ formatNumber(author()!.data[0].comments || 0) }} 评论') &&
+    !authorHtml.includes('{{ formatNumber(author()!.data[0].likes || 0) }} 点赞') &&
+    !authorHtml.includes('{{ formatNumber(author()!.data[0].favorites || 0) }} 收藏'),
+  'author pinned game stats must use play and comment counts instead of the legacy like/favorite stats'
+)
 
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
 assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')

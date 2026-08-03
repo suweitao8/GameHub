@@ -104,8 +104,7 @@
                   <p>{{ author()!.data[0].description || '暂无简介' }}</p>
                   <div class="pinned-stats">
                     <span>{{ formatNumber(author()!.data[0].playCount || 0) }} 游玩</span>
-                    <span>{{ formatNumber(author()!.data[0].likes || 0) }} 点赞</span>
-                    <span>{{ formatNumber(author()!.data[0].favorites || 0) }} 收藏</span>
+                    <span>{{ formatNumber(author()!.data[0].comments || 0) }} 评论</span>
                   </div>
                 </div>
               </a>

@@ -46,8 +46,7 @@ import { map } from 'rxjs/operators'
               <h3 class="ranking-title">{{ game.title }}</h3>
               <div class="ranking-stats">
                 <span>{{ formatNumber(game.stats.plays) }} 游玩</span>
-                <span>{{ formatNumber(game.stats.likes) }} 点赞</span>
-                <span>{{ formatNumber(game.stats.favorites) }} 收藏</span>
+                <span>{{ formatNumber(game.stats.comments) }} 评论</span>
               </div>
             </div>
             <div class="ranking-score">
