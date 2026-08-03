@@ -108,6 +108,7 @@ describe('Test games API', function () {
       expect(game.uuid).to.equal(publishedGameUuid)
       expect(game.title).to.equal('Test Game')
       expect(game.runtimeUrl).to.be.a('string')
+      expect(game.comments).to.be.a('number')
     })
 
     it('should return 404 for unknown UUID', async function () {
@@ -207,6 +208,7 @@ describe('Test games API', function () {
       expect(res.status).to.equal(HttpStatusCode.OK_200)
       const result = await res.json()
       expect(result.total).to.be.a('number')
+      expect(result.commentCount).to.be.a('number')
       expect(result.data).to.be.an('array')
     })
 

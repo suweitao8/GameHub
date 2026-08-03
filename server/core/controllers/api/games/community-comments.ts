@@ -93,10 +93,12 @@ async function listComments (req: express.Request, res: express.Response) {
     const sort = parseCommentSort(req.query.sort as string)
 
     const where = { gameId: game.id, inReplyToCommentId: null, deletedAt: null }
+    const allCommentsWhere = { gameId: game.id, deletedAt: null }
     const order = getCommentSortOrder(sort)
 
-    const [ total, comments ] = await Promise.all([
+    const [ total, commentCount, comments ] = await Promise.all([
       GameCommentModel.count({ where }),
+      GameCommentModel.count({ where: allCommentsWhere }),
       GameCommentModel.findAll({
         where,
         include: [ commentAccountInclude ],
@@ -106,7 +108,7 @@ async function listComments (req: express.Request, res: express.Response) {
       })
     ])
 
-    return res.json({ total, data: await formatComments(comments, game, getUser(res)) })
+    return res.json({ total, commentCount, data: await formatComments(comments, game, getUser(res)) })
   })
 }
 

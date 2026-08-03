@@ -16190,6 +16190,9 @@ components:
       properties:
         total:
           type: integer
+        commentCount:
+          type: integer
+          description: Total visible comments including replies. The total field remains the number of top-level threads.
         data:
           type: array
           items:

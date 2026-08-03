@@ -36,6 +36,8 @@ export interface GameComment {
 // 评论列表响应
 export interface GameCommentList {
   total: number
+  /** All visible comments, including replies; `total` remains top-level thread count for pagination. */
+  commentCount?: number
   data: GameComment[]
 }
 

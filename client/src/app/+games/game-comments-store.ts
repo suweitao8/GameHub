@@ -23,6 +23,7 @@ export class GameCommentsStore implements OnDestroy {
   readonly loading = signal(true)
   readonly error = signal('')
   readonly total = signal(0)
+  readonly commentCount = signal(0)
   readonly loadingMore = signal(false)
   readonly submitting = signal(false)
   readonly draft = signal('')
@@ -77,6 +78,7 @@ export class GameCommentsStore implements OnDestroy {
     this.comments.set([])
     this.loading.set(true)
     this.loadingMore.set(false)
+    this.commentCount.set(0)
     this.submitting.set(false)
     this.error.set('')
     this.draft.set('')
@@ -109,6 +111,7 @@ export class GameCommentsStore implements OnDestroy {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.update(prev => [ ...prev, ...result.data ])
         this.total.set(result.total)
+        this.commentCount.set(result.commentCount ?? result.total)
         this.hasLoadedMore = true
         this.loadingMore.set(false)
       },
@@ -131,6 +134,7 @@ export class GameCommentsStore implements OnDestroy {
       next: result => {
         this.comments.update(comments => [ result.comment, ...comments ])
         this.total.update(value => value + 1)
+        this.commentCount.update(value => value + 1)
         this.draft.set('')
         this.commentImage.set(null)
         this.feedback.set('')
@@ -152,6 +156,7 @@ export class GameCommentsStore implements OnDestroy {
       next: result => {
         this.comments.update(comments => [ ...comments, result.comment ])
         this.total.update(value => value + 1)
+        this.commentCount.update(value => value + 1)
         this.chatDraft.set('')
         this.submitting.set(false)
         queueMicrotask(() => this.scrollDiscussToBottom())
@@ -181,6 +186,7 @@ export class GameCommentsStore implements OnDestroy {
           ...replies,
           [parentId]: [ ...(replies[parentId] || []), result.comment ]
         }))
+        this.commentCount.update(value => value + 1)
         this.submitting.set(false)
       },
       error: err => {
@@ -224,10 +230,13 @@ export class GameCommentsStore implements OnDestroy {
     if (!comment) return
     this.gamesService.deleteComment(this.uuid, comment.id).subscribe({
       next: () => {
+        const isRootComment = this.comments().some(item => item.id === comment.id)
         this.comments.update(comments => comments.filter(item => item.id !== comment.id))
         this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
           id, items.filter(item => item.id !== comment.id)
         ])))
+        this.commentCount.update(value => Math.max(0, value - 1))
+        if (isRootComment) this.total.update(value => Math.max(0, value - 1))
         this.feedback.set('评论已删除')
         this.deleteTarget.set(null)
       },
@@ -271,6 +280,7 @@ export class GameCommentsStore implements OnDestroy {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set(result.data)
         this.total.set(result.total)
+        this.commentCount.set(result.commentCount ?? result.total)
         this.loading.set(false)
         this.error.set('')
       },
@@ -278,6 +288,7 @@ export class GameCommentsStore implements OnDestroy {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set([])
         this.total.set(0)
+        this.commentCount.set(0)
         this.loading.set(false)
         this.error.set('评论加载失败，请稍后重试')
       }
@@ -341,6 +352,7 @@ export class GameCommentsStore implements OnDestroy {
         if (generation !== this.requestGeneration || uuid !== this.uuid) return
         this.comments.set(this.mergeRefreshedComments(result.data))
         this.total.set(result.total)
+        this.commentCount.set(result.commentCount ?? result.total)
         this.error.set('')
       }
     })

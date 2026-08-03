@@ -69,7 +69,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly watchLaterFeedback = signal('')
 
   /** Comment count badge in the title bar (driven by the comment store). */
-  readonly commentCount = computed(() => this.commentsStore.total() || this.commentsStore.comments().length || 0)
+  readonly commentCount = computed(() =>
+    this.commentsStore.commentCount() || this.commentsStore.total() || this.commentsStore.comments().length || 0
+  )
 
   ngOnInit () {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))

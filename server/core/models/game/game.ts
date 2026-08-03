@@ -140,11 +140,14 @@ export class GameModel extends SequelizeModel<GameModel> {
   @UpdatedAt
   declare updatedAt: Date
 
-  static loadByUUID (uuid: string, options: { publishedOnly?: boolean } = {}) {
+  static loadByUUID (uuid: string, options: { publishedOnly?: boolean, includeStats?: boolean } = {}) {
     const where: any = { uuid }
     if (options.publishedOnly) where.status = 'published'
 
-    return GameModel.findOne<MGame>({ where, include: [ { model: AccountModel, required: true } ] })
+    const include = [ { model: AccountModel, required: true } ] as any[]
+    if (options.includeStats) include.push({ model: GameStatsSummaryModel, required: false })
+
+    return GameModel.findOne<MGame>({ where, include })
   }
 
   static async listPublished (options: {

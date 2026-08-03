@@ -288,6 +288,7 @@ const legacyGamePackagePlan = read('docs/superpowers/plans/2026-07-18-html-game-
 const gameRequirementsDoc = read('support/doc/development/gamehub-requirements-bilibili-benchmark.md')
 const loginHtml = read('client/src/app/+login/login.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
+const communityCommentsTs = read('server/core/controllers/api/games/community-comments.ts')
 const gameDiscoveryServerTs = read('server/core/controllers/api/games/game-discovery.ts')
 const databaseTs = read('server/core/initializers/database.ts')
 const openapiTs = read('support/doc/api/openapi.yaml')
@@ -356,6 +357,16 @@ assert(
     !/private stopPolling \(\) \{[^}]*document\.removeEventListener\('visibilitychange', this\.onVisibilityChange\)/.test(commentsStoreTs) &&
     !/private stopPolling \(\) \{[^}]*document\.removeEventListener\('visibilitychange', this\.onVisibilityChange\)/.test(discussStoreTs),
   'comment and discussion polling must keep visibility listeners while paused so polling resumes after the tab becomes visible'
+)
+assert(
+  communityCommentsTs.includes('commentCount') &&
+    commentsStoreTs.includes('readonly commentCount = signal(0)') &&
+    commentsStoreTs.includes('result.commentCount') &&
+    commentsTs.includes('store.commentCount()') &&
+    gamePlayTs.includes('commentsStore.commentCount()') &&
+    gameCrudQueryTs.includes('includeStats') &&
+    gameCrudQueryTs.includes('GameStatsSummaryModel'),
+  'game comment totals must distinguish thread pagination from all comments and detail responses must include public stats'
 )
 assert(
   gamePlayTs.includes('private loadGeneration = 0') &&

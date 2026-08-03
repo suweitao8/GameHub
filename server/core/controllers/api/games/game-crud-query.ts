@@ -89,7 +89,7 @@ async function listGamesForModerators (_req: express.Request, res: express.Respo
 
 async function getGame (req: express.Request, res: express.Response) {
   return traceGameOperation('getGame', async () => {
-    const game = await GameModel.loadByUUID(req.params.uuid)
+    const game = await GameModel.loadByUUID(req.params.uuid, { includeStats: true })
     if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
     const user = getUser(res)

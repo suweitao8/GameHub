@@ -495,7 +495,9 @@ import { GameCommentsStore } from './game-comments-store'
   template: `
     <section class="game-comments bili-comment-panel" aria-labelledby="comments-title">
       <div class="bili-comment-header">
-        <h2 id="comments-title">评论 <span class="bili-comment-count">{{ store.total() || store.comments().length || 0 }}</span></h2>
+        <h2 id="comments-title">
+          评论 <span class="bili-comment-count">{{ store.commentCount() || store.total() || store.comments().length || 0 }}</span>
+        </h2>
         <div class="bili-comment-sort" role="group" aria-label="评论排序">
           <button type="button" [class.active]="store.sort() === 'hot'" (click)="store.setSort('hot')">最热</button>
           <span class="bili-sort-sep" aria-hidden="true">|</span>
