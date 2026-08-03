@@ -714,18 +714,19 @@ assert(
   'header game navigation popovers must be retryable after a failed request'
 )
 assert(
-  headerHtml.includes('(mouseenter)="scheduleGameAvatarMenu()"') &&
-    headerHtml.includes('(mouseleave)="cancelGameAvatarHover()"') &&
-    (headerHtml.match(/\(mouseleave\)="cancelGameAvatarHover\(\)"/g) || []).length >= 1,
-  'header avatar hover must support mouseenter/mouseleave in addition to pointer events'
+  headerHtml.includes('(pointerenter)="scheduleGameAvatarMenu()"') &&
+    headerHtml.includes('(pointerleave)="cancelGameAvatarHover()"') &&
+    !headerHtml.includes('(mouseenter)="scheduleGameAvatarMenu()"') &&
+    !headerHtml.includes('(mouseleave)="cancelGameAvatarHover()"'),
+  'header avatar hover must use one pointer-event path without duplicate mouse handlers'
 )
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
     headerHtml.includes(`(pointerenter)="scheduleGameNavHover('${popup}')"`) &&
-      headerHtml.includes(`(mouseenter)="scheduleGameNavHover('${popup}')"`) &&
       headerHtml.includes('(pointerleave)="cancelGameNavHover()"') &&
-      headerHtml.includes('(mouseleave)="cancelGameNavHover()"'),
-    `header ${popup} hover entry must support mouseenter/mouseleave in addition to pointer events`
+      !headerHtml.includes(`(mouseenter)="scheduleGameNavHover('${popup}')"`) &&
+      !headerHtml.includes('(mouseleave)="cancelGameNavHover()"'),
+    `header ${popup} hover entry must use one pointer-event path without duplicate mouse handlers`
   )
 }
 const gameNavPopoverSections = headerHtml.match(/<section\b[^>]*game-header-popover[^>]*>/g) || []
@@ -733,11 +734,11 @@ assert(
   gameNavPopoverSections.length >= 4 &&
     gameNavPopoverSections.every(section =>
       section.includes('(pointerenter)="retainGameNavHover()"') &&
-      section.includes('(mouseenter)="retainGameNavHover()"') &&
       section.includes('(pointerleave)="cancelGameNavHover()"') &&
-      section.includes('(mouseleave)="cancelGameNavHover()"')
+      !section.includes('(mouseenter)="retainGameNavHover()"') &&
+      !section.includes('(mouseleave)="cancelGameNavHover()"')
     ),
-  'header hover popovers must retain mouseenter/mouseleave compatibility events'
+  'header hover popovers must retain through one pointer-event path without duplicate handlers'
 )
 assert(
   asyncStateTs.includes('let requestGeneration = 0') &&
