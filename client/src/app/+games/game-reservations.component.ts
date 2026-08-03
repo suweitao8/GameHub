@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
+import { Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { GamesService } from './games.service'
@@ -8,7 +8,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 @Component({
   selector: 'my-game-reservations',
   standalone: true,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="reservations-container">
       <div class="reservations-header">
@@ -38,7 +38,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
               </div>
               <div class="reservation-stats">
                 <span><my-global-icon iconName="play" />{{ item.game.playCount }} 游玩</span>
-                <span><my-global-icon iconName="like" />{{ item.game.likes || 0 }} 点赞</span>
+                <span><my-global-icon iconName="message-circle" />{{ item.game.comments || 0 }} 评论</span>
               </div>
             </div>
             <button class="cancel-btn" (click)="cancelReservation(item.id, $index)" [disabled]="item.loading">
@@ -55,7 +55,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
       </div>
     </div>
   `,
-  styles: [`
+  styles: [ `
     .reservations-container { max-width: 900px; margin: 0 auto; padding: 1rem; }
 
     .reservations-header {
@@ -211,7 +211,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
     }
 
     .browse-link:hover { transform: translateY(-1px); filter: brightness(1.05); }
-  `]
+  ` ]
 })
 export class GameReservationsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
@@ -231,7 +231,7 @@ export class GameReservationsComponent implements OnInit {
 
   cancelReservation (id: number, index: number) {
     this.reservations.update(items => {
-      const newItems = [...items]
+      const newItems = [ ...items ]
       newItems[index] = { ...newItems[index], loading: true }
       return newItems
     })
@@ -242,7 +242,7 @@ export class GameReservationsComponent implements OnInit {
       },
       error: () => {
         this.reservations.update(items => {
-          const newItems = [...items]
+          const newItems = [ ...items ]
           newItems[index] = { ...newItems[index], loading: false }
           return newItems
         })

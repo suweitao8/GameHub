@@ -138,6 +138,12 @@ const playHtml = read('client/src/app/+games/game-play.component.html')
 assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-play must render the HTML game stage')
 assert(playHtml.includes('developer-profile'), 'game-play developer card must group identity text and follow action for vertical centering')
 assert(playHtml.includes('onRelatedCoverError'), 'game-play related covers must fall back when an image request fails')
+const reservationsTs = read('client/src/app/+games/game-reservations.component.ts')
+assert(
+  reservationsTs.includes('iconName="message-circle"') && reservationsTs.includes('{{ item.game.comments || 0 }} 评论') &&
+    !reservationsTs.includes('iconName="like"') && !reservationsTs.includes('{{ item.game.likes || 0 }} 点赞'),
+  'game reservations must use play and comment metrics instead of the legacy like metric'
+)
 const gameOverviewCtrl = read('server/core/controllers/api/games/community-overview.ts')
 const gameCrudQueryTs = read('server/core/controllers/api/games/game-crud-query.ts')
 const openapi = read('support/doc/api/openapi.yaml')
