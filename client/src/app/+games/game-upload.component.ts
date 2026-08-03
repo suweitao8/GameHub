@@ -40,6 +40,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly step = this.previewProbe.step
   readonly coverPreview = this.coverGenerator.coverPreview
   readonly coverSource = this.coverGenerator.coverSource
+  private previewGeneration = 0
 
   @HostListener('window:beforeunload', [ '$event' ])
   onBeforeUnload (event: BeforeUnloadEvent) {
@@ -50,9 +51,11 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   ngOnDestroy () {
-    // Service is root-scoped and survives the component, but preview state is
-    // component-scoped, so reset it on teardown.
+    // Both services are root-scoped, so clear their state when this route is
+    // destroyed. Otherwise a later upload can briefly render an old cover.
+    this.previewGeneration += 1
     this.previewProbe.reset()
+    this.resetCoverState()
   }
 
   onFileChange (event: Event) {
@@ -150,13 +153,13 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   private resetForNewFile () {
+    this.previewGeneration += 1
     this.file = null
     this.fileSize.set(0)
     this.error.set('')
     this.createdGame.set(null)
     this.cover = null
-    this.coverGenerator.coverPreview.set('')
-    this.coverGenerator.coverSource.set('generated')
+    this.resetCoverState()
     this.previewProbe.reset()
   }
 
@@ -179,7 +182,8 @@ export class GameUploadComponent implements OnDestroy {
       return
     }
 
-    void this.previewProbe.prepare(file, screenshot => this.finishPreview(screenshot))
+    const generation = this.previewGeneration
+    void this.previewProbe.prepare(file, screenshot => this.finishPreview(screenshot, generation))
   }
 
   private hasUnsavedChanges () {
@@ -189,16 +193,26 @@ export class GameUploadComponent implements OnDestroy {
       !!this.instructions.trim() || !!this.tags.trim()
   }
 
-  private async finishPreview (dataUrl?: string) {
+  private async finishPreview (dataUrl: string | undefined, generation: number) {
+    if (generation !== this.previewGeneration || !this.file || this.coverGenerator.coverSource() === 'manual') return
+
     this.step.set(4)
     this.previewStatus.set('正在生成封面…')
-    this.cover = dataUrl
+    const cover = dataUrl
       ? await this.coverGenerator.coverFromScreenshot(dataUrl, this.title)
       : await this.coverGenerator.generateAutomaticCover(this.title)
+    if (generation !== this.previewGeneration || !this.file || this.coverGenerator.coverSource() === 'manual') return
+
+    this.cover = cover
     this.coverGenerator.coverSource.set(dataUrl ? 'runtime' : 'generated')
     this.coverGenerator.setCoverPreview(this.cover)
     this.step.set(5)
     this.previewStatus.set(dataUrl ? '已生成运行截图封面' : '已生成 GameHub 封面')
+  }
+
+  private resetCoverState () {
+    this.coverGenerator.coverPreview.set('')
+    this.coverGenerator.coverSource.set('generated')
   }
 
   private getUploadError (error: unknown) {

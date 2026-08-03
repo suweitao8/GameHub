@@ -587,6 +587,20 @@ assert(
   'game upload preview must revoke object URLs and clear callbacks when reset'
 )
 assert(uploadHtml.includes('(load)="onPreviewLoaded($event)"') && uploadTs.includes('onPreviewLoaded (event: Event)'), 'game upload preview must ignore stale iframe load events')
+assert(!uploadHtml.includes('class="upload-preview-frame"') || !uploadHtml.includes('loading="lazy"'), 'game upload preview iframe must load eagerly so safety checks cannot be skipped off-screen')
+assert(
+  uploadTs.includes('private previewGeneration = 0') &&
+    uploadTs.includes('this.previewGeneration += 1') &&
+    uploadTs.includes('finishPreview(screenshot, generation)') &&
+    uploadTs.includes('generation !== this.previewGeneration'),
+  'game upload cover generation must ignore stale file lifecycle results'
+)
+assert(
+  uploadTs.includes('this.coverGenerator.coverPreview.set(\'\')') &&
+    uploadTs.includes('this.coverGenerator.coverSource.set(\'generated\')') &&
+    uploadTs.includes('this.coverGenerator.coverSource() === \'manual\''),
+  'game upload must clear cross-page cover state and preserve a manually selected cover'
+)
 assert(
   previewProbeTs.includes('private previewReady = false') &&
     previewProbeTs.includes('if (!this.previewReady) return') &&
