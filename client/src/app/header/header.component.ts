@@ -72,7 +72,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly gameNavRecent = signal<Game[]>([])
   readonly gameNavOwned = signal<Game[]>([])
   readonly gameNavNotifications = signal<GameNotification[]>([])
-  readonly gameNavLoading = signal(false)
+  readonly gameNavLoading = signal<Record<GameHeaderPopup, boolean>>({
+    notifications: false,
+    favorites: false,
+    history: false,
+    creator: false
+  })
 
   user: AuthUser
   loggedIn: boolean
@@ -396,6 +401,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }, 250)
   }
 
+  isGameNavLoading (popup: GameHeaderPopup) {
+    return this.gameNavLoading()[popup]
+  }
+
   /** 鼠标进入弹窗区域时取消关闭（配合延迟关闭使用） */
   retainGameNavHover () {
     if (this.gameNavCloseTimer) {
@@ -447,7 +456,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.gameNavLoaded.has(popup) || !this.loggedIn) return
 
     this.gameNavLoaded.add(popup)
-    this.gameNavLoading.set(true)
+    this.setGameNavLoading(popup, true)
     const generation = (this.gameNavRequestGenerations.get(popup) || 0) + 1
     this.gameNavRequestGenerations.set(popup, generation)
     const isCurrentRequest = () => this.loggedIn && this.gameNavRequestGenerations.get(popup) === generation
@@ -462,10 +471,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
           if (!isCurrentRequest()) return
           this.gameNavLoaded.delete(popup)
           this.gameNavNotifications.set([])
-          this.gameNavLoading.set(false)
+          this.setGameNavLoading(popup, false)
         },
         complete: () => {
-          if (isCurrentRequest()) this.gameNavLoading.set(false)
+          if (isCurrentRequest()) this.setGameNavLoading(popup, false)
         }
       })
       return
@@ -481,10 +490,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
           if (!isCurrentRequest()) return
           this.gameNavLoaded.delete(popup)
           this.gameNavFavorites.set([])
-          this.gameNavLoading.set(false)
+          this.setGameNavLoading(popup, false)
         },
         complete: () => {
-          if (isCurrentRequest()) this.gameNavLoading.set(false)
+          if (isCurrentRequest()) this.setGameNavLoading(popup, false)
         }
       })
       return
@@ -500,10 +509,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
           if (!isCurrentRequest()) return
           this.gameNavLoaded.delete(popup)
           this.gameNavRecent.set([])
-          this.gameNavLoading.set(false)
+          this.setGameNavLoading(popup, false)
         },
         complete: () => {
-          if (isCurrentRequest()) this.gameNavLoading.set(false)
+          if (isCurrentRequest()) this.setGameNavLoading(popup, false)
         }
       })
       return
@@ -519,10 +528,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (!isCurrentRequest()) return
         this.gameNavLoaded.delete(popup)
         this.gameNavOwned.set([])
-        this.gameNavLoading.set(false)
+        this.setGameNavLoading(popup, false)
       },
       complete: () => {
-        if (isCurrentRequest()) this.gameNavLoading.set(false)
+        if (isCurrentRequest()) this.setGameNavLoading(popup, false)
       }
     })
   }
@@ -546,10 +555,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameNavRecent.set([])
       this.gameNavOwned.set([])
       this.gameNavNotifications.set([])
-      this.gameNavLoading.set(false)
+      this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
       this.gameCoinBalance.set(null)
       this.gameCoinBalanceRequested = false
     }
+  }
+
+  private setGameNavLoading (popup: GameHeaderPopup, loading: boolean) {
+    this.gameNavLoading.update(state => ({ ...state, [popup]: loading }))
   }
 
   private loadGameCoinBalance () {

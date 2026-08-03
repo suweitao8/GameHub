@@ -714,6 +714,13 @@ assert(
   'header game navigation popovers must be retryable after a failed request'
 )
 assert(
+  headerTs.includes('readonly gameNavLoading = signal<Record<GameHeaderPopup, boolean>>') &&
+    headerTs.includes('isGameNavLoading (popup: GameHeaderPopup)') &&
+    (headerHtml.match(/isGameNavLoading\('/g) || []).length >= 4 &&
+    !headerHtml.includes('gameNavLoading() &&'),
+  'header game navigation popovers must keep loading state per popup request'
+)
+assert(
   headerHtml.includes('(pointerenter)="scheduleGameAvatarMenu()"') &&
     headerHtml.includes('(pointerleave)="cancelGameAvatarHover()"') &&
     !headerHtml.includes('(mouseenter)="scheduleGameAvatarMenu()"') &&

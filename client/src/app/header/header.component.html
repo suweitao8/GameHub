@@ -153,14 +153,14 @@
           </a>
           @if (gameNavHover() === 'notifications') {
             <section class="game-header-popover game-header-notification-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="动态预览">
-              @if (gameNavLoading() && !gameNavNotifications().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
+              @if (isGameNavLoading('notifications') && !gameNavNotifications().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (notification of gameNavNotifications().slice(0, 3); track notification.id) {
                 <a class="game-notification-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
                   <span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAvatarUrl(notification)" alt=""><strong>{{ notification.actor?.displayName || notification.actor?.name || 'GameHub 玩家' }}</strong></span>
                   <span class="game-preview-title"><strong>{{ notification.game?.title || notification.message }}</strong><small>{{ notification.createdAt | date:'MM-dd HH:mm' }}</small></span>
                   @if (notification.game?.coverPath) { <img class="game-preview-cover" [src]="notification.game!.coverPath!" [alt]="notification.game!.title" loading="lazy"> } @else { <img class="game-preview-cover" [src]="getGameNavAvatarUrl(notification)" alt="" loading="lazy"> }
                 </a>
-              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">暂时没有新的动态</p> } }
+              } @empty { @if (!isGameNavLoading('notifications')) { <p class="game-popover-empty">暂时没有新的动态</p> } }
             </section>
           }
         </div>
@@ -171,10 +171,10 @@
           </a>
           @if (gameNavHover() === 'favorites') {
             <section class="game-header-popover game-header-list-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="收藏预览">
-              @if (gameNavLoading() && !gameNavFavorites().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
+              @if (isGameNavLoading('favorites') && !gameNavFavorites().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>已收藏</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
-              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有收藏游戏</p> } }
+              } @empty { @if (!isGameNavLoading('favorites')) { <p class="game-popover-empty">还没有收藏游戏</p> } }
             </section>
           }
         </div>
@@ -185,10 +185,10 @@
           </a>
           @if (gameNavHover() === 'history') {
             <section class="game-header-popover game-header-list-popover game-header-history-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="游玩历史预览">
-              @if (gameNavLoading() && !gameNavRecent().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
+              @if (isGameNavLoading('history') && !gameNavRecent().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>最近游玩</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
-              } @empty { @if (!gameNavLoading()) { <p class="game-popover-empty">还没有游玩记录</p> } }
+              } @empty { @if (!isGameNavLoading('history')) { <p class="game-popover-empty">还没有游玩记录</p> } }
             </section>
           }
         </div>
