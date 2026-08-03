@@ -277,6 +277,7 @@ export class GameActivityFeedComponent implements OnInit {
   tabError = signal(false)
   hasMore = signal(true)
   offset = 0
+  private requestGeneration = 0
 
   ngOnInit () {
     this.loadFeed()
@@ -288,24 +289,35 @@ export class GameActivityFeedComponent implements OnInit {
     this.offset = 0
     this.activities.set([])
     this.tabError.set(false)
+    this.hasMore.set(true)
     this.loadFeed()
   }
 
-  loadFeed () {
-    this.loading.set(true)
+  loadFeed (options: { append?: boolean; offset?: number; rollbackOffset?: number } = {}) {
+    const append = options.append === true
+    const requestOffset = options.offset ?? this.offset
+    const generation = ++this.requestGeneration
+
+    this.loading.set(!append)
+    this.loadingMore.set(append)
     this.tabError.set(false)
     const service = this.tab() === 'following'
-      ? this.gamesService.getFeed(this.offset, 20)
-      : this.gamesService.getPublicFeed(this.offset, 20)
+      ? this.gamesService.getFeed(requestOffset, 20)
+      : this.gamesService.getPublicFeed(requestOffset, 20)
 
     service.subscribe({
       next: (result) => {
-        this.activities.update(prev => [ ...prev, ...result.data ])
+        if (generation !== this.requestGeneration) return
+        if (append) this.activities.update(prev => [ ...prev, ...result.data ])
+        else this.activities.set(result.data)
         this.hasMore.set(result.data.length === 20)
         this.loading.set(false)
+        this.loadingMore.set(false)
         this.refreshing.set(false)
       },
       error: () => {
+        if (generation !== this.requestGeneration) return
+        if (append && options.rollbackOffset !== undefined) this.offset = options.rollbackOffset
         if (this.activities().length === 0) this.tabError.set(true)
         this.loading.set(false)
         this.refreshing.set(false)
@@ -315,15 +327,19 @@ export class GameActivityFeedComponent implements OnInit {
   }
 
   loadMore () {
-    this.offset += 20
-    this.loadingMore.set(true)
-    this.loadFeed()
+    if (this.loading() || this.loadingMore() || !this.hasMore()) return
+
+    const rollbackOffset = this.offset
+    const nextOffset = rollbackOffset + 20
+    this.offset = nextOffset
+    this.loadFeed({ append: true, offset: nextOffset, rollbackOffset })
   }
 
   retry () {
     this.offset = 0
     this.activities.set([])
     this.tabError.set(false)
+    this.hasMore.set(true)
     this.loadFeed()
   }
 

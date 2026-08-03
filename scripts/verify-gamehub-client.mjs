@@ -236,6 +236,7 @@ const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
 const headerTs = read('client/src/app/header/header.component.ts')
 const asyncStateTs = read('client/src/app/+games/shared/async-state.ts')
+const activityFeedTs = read('client/src/app/+games/game-activity-feed.component.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
@@ -512,6 +513,14 @@ assert(
     (asyncStateTs.match(/if \(generation !== requestGeneration\) return/g) || []).length >= 6 &&
     asyncStateTs.includes('requestGeneration += 1'),
   'shared async state must ignore stale loads and reset in-flight responses'
+)
+assert(
+  activityFeedTs.includes('private requestGeneration = 0') &&
+    activityFeedTs.includes('const generation = ++this.requestGeneration') &&
+    activityFeedTs.includes('const rollbackOffset = this.offset') &&
+    activityFeedTs.includes('this.loadingMore.set(false)') &&
+    (activityFeedTs.match(/if \(generation !== this\.requestGeneration\) return/g) || []).length >= 2,
+  'activity feed must ignore stale tab responses and recover pagination state after failures'
 )
 assert(
   !headerScss.includes('background: #eaf8ff;') &&
