@@ -23,6 +23,7 @@ export class GameDiscussStore implements OnDestroy {
   private uuid = ''
   private refreshTimer: ReturnType<typeof setInterval> | undefined
   private requestGeneration = 0
+  private visibilityListening = false
 
   readonly timeline = () => this.messages()
 
@@ -84,7 +85,10 @@ export class GameDiscussStore implements OnDestroy {
     return buildGameAvatarDataUrl(message.account?.displayName || message.account?.name || '玩家')
   }
 
-  ngOnDestroy () { this.stopPolling() }
+  ngOnDestroy () {
+    this.stopPolling()
+    this.removeVisibilityListener()
+  }
 
   private load (generation: number) {
     const uuid = this.uuid
@@ -122,15 +126,21 @@ export class GameDiscussStore implements OnDestroy {
   }
 
   private startPolling () {
-    if (this.refreshTimer) return
-    this.refreshTimer = setInterval(() => this.refresh(), 4000)
+    if (!this.refreshTimer) this.refreshTimer = setInterval(() => this.refresh(), 4000)
+    if (this.visibilityListening) return
     document.addEventListener('visibilitychange', this.onVisibilityChange)
+    this.visibilityListening = true
   }
 
   private stopPolling () {
     if (this.refreshTimer) clearInterval(this.refreshTimer)
     this.refreshTimer = undefined
+  }
+
+  private removeVisibilityListener () {
+    if (!this.visibilityListening) return
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
+    this.visibilityListening = false
   }
 
   private onVisibilityChange = () => {

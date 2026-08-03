@@ -323,16 +323,25 @@ assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength=
 assert(
   commentsStoreTs.includes('private requestGeneration = 0') &&
     commentsStoreTs.includes('this.stopPolling()') &&
-    commentsStoreTs.includes('if (this.refreshTimer) return') &&
+    commentsStoreTs.includes('if (!this.refreshTimer) this.refreshTimer = setInterval') &&
     commentsStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return') &&
     /this\.sort\.set\(value\)\r?\n    const generation = \+\+this\.requestGeneration\r?\n    (?:this\.hasLoadedMore = false\r?\n    )?this\.loading\.set\(true\)\r?\n    this\.loadingMore\.set\(false\)/.test(commentsStoreTs),
   'comment polling and loads must stop and ignore stale route responses'
 )
 assert(
   discussStoreTs.includes('private requestGeneration = 0') &&
-    discussStoreTs.includes('if (this.refreshTimer) return') &&
+    discussStoreTs.includes('if (!this.refreshTimer) this.refreshTimer = setInterval') &&
     discussStoreTs.includes('if (generation !== this.requestGeneration || uuid !== this.uuid) return'),
   'discussion polling and loads must ignore stale route responses'
+)
+assert(
+  commentsStoreTs.includes('private visibilityListening = false') &&
+    discussStoreTs.includes('private visibilityListening = false') &&
+    commentsStoreTs.includes('this.removeVisibilityListener()') &&
+    discussStoreTs.includes('this.removeVisibilityListener()') &&
+    !/private stopPolling \(\) \{[^}]*document\.removeEventListener\('visibilitychange', this\.onVisibilityChange\)/.test(commentsStoreTs) &&
+    !/private stopPolling \(\) \{[^}]*document\.removeEventListener\('visibilitychange', this\.onVisibilityChange\)/.test(discussStoreTs),
+  'comment and discussion polling must keep visibility listeners while paused so polling resumes after the tab becomes visible'
 )
 assert(
   gamePlayTs.includes('private loadGeneration = 0') &&

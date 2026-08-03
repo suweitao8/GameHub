@@ -37,6 +37,7 @@ export class GameCommentsStore implements OnDestroy {
   private refreshTimer: ReturnType<typeof setInterval> | undefined
   private requestGeneration = 0
   private hasLoadedMore = false
+  private visibilityListening = false
 
   /** Sorted hottest-first or latest-first for the comment list. */
   readonly sorted = () => {
@@ -243,6 +244,7 @@ export class GameCommentsStore implements OnDestroy {
 
   ngOnDestroy () {
     this.stopPolling()
+    this.removeVisibilityListener()
   }
 
   private load (uuid: string, sort: 'new' | 'hot', generation: number) {
@@ -287,16 +289,22 @@ export class GameCommentsStore implements OnDestroy {
   }
 
   private startPolling () {
-    if (this.refreshTimer) return
-    this.refreshTimer = setInterval(() => this.refresh(), 4000)
+    if (!this.refreshTimer) this.refreshTimer = setInterval(() => this.refresh(), 4000)
+    if (this.visibilityListening) return
     document.addEventListener('visibilitychange', this.onVisibilityChange)
+    this.visibilityListening = true
   }
 
   private stopPolling () {
     if (!this.refreshTimer) return
     clearInterval(this.refreshTimer)
     this.refreshTimer = undefined
+  }
+
+  private removeVisibilityListener () {
+    if (!this.visibilityListening) return
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
+    this.visibilityListening = false
   }
 
   private onVisibilityChange = () => {
