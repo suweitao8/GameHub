@@ -326,7 +326,11 @@ assert(
 )
 assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discussion panel and its body must use a white surface')
 assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
-assert(discussTs.includes('[disabled]="!store.draft().trim()"') && /\.discuss-composer button:disabled\s*\{/.test(discussTs), 'discussion send button must be disabled and gray for empty text')
+assert(
+  discussTs.includes('[disabled]="!store.draft().trim() || store.submitting()"') &&
+    /\.discuss-composer button:disabled\s*\{/.test(discussTs),
+  'discussion send button must be disabled and gray for empty text or an in-flight request'
+)
 assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
 assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
 assert(
@@ -647,7 +651,22 @@ assert(
     gamePlayScss.includes('flex: 0 0 var(--game-stage-height);'),
   'detail sidebar must grow with recommendations while keeping the discussion panel at stage height'
 )
-assert(commentsTs.includes('class="bili-send-btn" [disabled]="!store.draft().trim()"') && commentsTs.includes('>发送</button>'), 'comment composer must use a disabled gray send button for empty text')
+assert(
+  /class="bili-send-btn"\s+\[disabled\]="!store\.draft\(\)\.trim\(\) \|\| store\.submitting\(\)"/.test(commentsTs) &&
+    commentsTs.includes('{{ store.submitting() ?'),
+  'comment composer must use a disabled gray send button for empty text or an in-flight request'
+)
+assert(
+  commentsStoreTs.includes('readonly submitting = signal(false)') &&
+    discussStoreTs.includes('readonly submitting = signal(false)') &&
+    commentsTs.includes('[disabled]="!store.draft().trim() || store.submitting()"') &&
+    discussTs.includes('[disabled]="!store.draft().trim() || store.submitting()"') &&
+    commentsTs.includes('{{ store.submitting() ?') &&
+    discussTs.includes('{{ store.submitting() ?') &&
+    (commentsStoreTs.match(/this\.submitting\(\)\) return/g) || []).length >= 3 &&
+    discussStoreTs.includes('this.submitting()) return'),
+  'comment and discussion composers must lock repeated submissions until the current request completes'
+)
 assert(commentsTs.includes('height: 20px;') && commentsTs.includes('line-height: 20px;'), 'comment metadata controls must use a fixed centered line box')
 assert((gameCommunityOverviewTs.match(/subQuery: false/g) || []).length >= 2, 'related games queries must disable Sequelize subqueries for joined stats')
 assert(

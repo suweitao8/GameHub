@@ -211,7 +211,7 @@ import { GameDiscussStore } from './game-discuss-store'
           placeholder="在讨论群说点什么..."
           maxlength="2000"
         >
-        <button type="submit" [disabled]="!store.draft().trim()">发送</button>
+        <button type="submit" [disabled]="!store.draft().trim() || store.submitting()">{{ store.submitting() ? '发送中...' : '发送' }}</button>
       </form>
     </section>
   `

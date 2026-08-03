@@ -559,7 +559,9 @@ import { GameCommentsStore } from './game-comments-store'
             @if (store.replyTo()) {
               <button type="button" class="bili-cancel-reply" (click)="store.replyTo.set(null)">取消回复</button>
             }
-            <button type="submit" class="bili-send-btn" [disabled]="!store.draft().trim()">发送</button>
+            <button type="submit" class="bili-send-btn"
+              [disabled]="!store.draft().trim() || store.submitting()"
+            >{{ store.submitting() ? '发送中...' : '发送' }}</button>
           </div>
         </div>
       </form>

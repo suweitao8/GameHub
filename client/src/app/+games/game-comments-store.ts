@@ -24,6 +24,7 @@ export class GameCommentsStore implements OnDestroy {
   readonly error = signal('')
   readonly total = signal(0)
   readonly loadingMore = signal(false)
+  readonly submitting = signal(false)
   readonly draft = signal('')
   readonly commentImage = signal<File | null>(null)
   readonly chatDraft = signal('')
@@ -76,6 +77,7 @@ export class GameCommentsStore implements OnDestroy {
     this.comments.set([])
     this.loading.set(true)
     this.loadingMore.set(false)
+    this.submitting.set(false)
     this.error.set('')
     this.draft.set('')
     this.commentImage.set(null)
@@ -123,7 +125,8 @@ export class GameCommentsStore implements OnDestroy {
   submit (image = this.commentImage()) {
     if (!this.requireLogin()) return
     const text = this.draft().trim()
-    if (!text) return
+    if (!text || this.submitting()) return
+    this.submitting.set(true)
     this.gamesService.comment(this.uuid, text, image).subscribe({
       next: result => {
         this.comments.update(comments => [ result.comment, ...comments ])
@@ -131,23 +134,32 @@ export class GameCommentsStore implements OnDestroy {
         this.draft.set('')
         this.commentImage.set(null)
         this.feedback.set('')
+        this.submitting.set(false)
       },
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+      error: err => {
+        this.submitting.set(false)
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
   submitChat () {
     if (!this.requireLogin()) return
     const text = this.chatDraft().trim()
-    if (!text) return
+    if (!text || this.submitting()) return
+    this.submitting.set(true)
     this.gamesService.comment(this.uuid, text).subscribe({
       next: result => {
         this.comments.update(comments => [ ...comments, result.comment ])
         this.total.update(value => value + 1)
         this.chatDraft.set('')
+        this.submitting.set(false)
         queueMicrotask(() => this.scrollDiscussToBottom())
       },
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+      error: err => {
+        this.submitting.set(false)
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
@@ -155,7 +167,8 @@ export class GameCommentsStore implements OnDestroy {
     if (!this.requireLogin()) return
     const parentId = this.replyTo()
     const text = this.draft().trim()
-    if (!parentId || !text) return
+    if (!parentId || !text || this.submitting()) return
+    this.submitting.set(true)
     this.gamesService.reply(this.uuid, parentId, text, image).subscribe({
       next: result => {
         this.comments.update(comments => comments.map(comment => comment.id === parentId
@@ -168,8 +181,12 @@ export class GameCommentsStore implements OnDestroy {
           ...replies,
           [parentId]: [ ...(replies[parentId] || []), result.comment ]
         }))
+        this.submitting.set(false)
       },
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+      error: err => {
+        this.submitting.set(false)
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 

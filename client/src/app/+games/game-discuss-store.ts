@@ -17,6 +17,7 @@ export class GameDiscussStore implements OnDestroy {
   readonly loading = signal(true)
   readonly error = signal('')
   readonly draft = signal('')
+  readonly submitting = signal(false)
   readonly feedback = signal('')
   readonly total = signal(0)
 
@@ -44,6 +45,7 @@ export class GameDiscussStore implements OnDestroy {
     this.loading.set(true)
     this.error.set('')
     this.draft.set('')
+    this.submitting.set(false)
     this.feedback.set('')
     this.total.set(0)
     this.load(generation)
@@ -53,9 +55,10 @@ export class GameDiscussStore implements OnDestroy {
   submit () {
     if (!this.requireLogin()) return
     const text = this.draft().trim()
-    if (!text || !this.uuid) return
+    if (!text || !this.uuid || this.submitting()) return
     const uuid = this.uuid
     const generation = this.requestGeneration
+    this.submitting.set(true)
 
     this.communityService.sendDiscussion(uuid, text).subscribe({
       next: result => {
@@ -64,9 +67,14 @@ export class GameDiscussStore implements OnDestroy {
         this.total.update(value => value + 1)
         this.draft.set('')
         this.feedback.set('')
+        this.submitting.set(false)
         queueMicrotask(() => this.scrollToBottom())
       },
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+      error: err => {
+        if (generation !== this.requestGeneration || uuid !== this.uuid) return
+        this.submitting.set(false)
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
