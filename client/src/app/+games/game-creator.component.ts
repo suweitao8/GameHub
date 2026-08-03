@@ -3,12 +3,13 @@ import { Router, RouterLink } from '@angular/router'
 import { GameCardComponent } from './game-card.component'
 import { GameCreatorOverview, GameLevelInfo, GameNotification, GamesService } from './games.service'
 import { GameLevelBadgeComponent } from './game-level-badge.component'
+import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 @Component({
   templateUrl: './game-creator.component.html',
   styleUrl: './game-creator.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ GameCardComponent, RouterLink, GameLevelBadgeComponent ]
+  imports: [ GameCardComponent, RouterLink, GameLevelBadgeComponent, GlobalIconComponent ]
 })
 export class GameCreatorComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
@@ -80,6 +81,6 @@ export class GameCreatorComponent implements OnInit {
   }
 
   goToAnalytics () {
-    void this.router.navigate(['/games/analytics'])
+    void this.router.navigate([ '/games/analytics' ])
   }
 }

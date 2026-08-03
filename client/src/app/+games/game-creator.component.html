@@ -8,7 +8,11 @@
         <my-game-level-badge [levelInfo]="levelInfo()" />
         @if (levelInfo()?.dailyLoginAvailable) {
           <button type="button" class="daily-login-btn" [disabled]="dailyLoginLoading()" (click)="claimDaily()">
-            {{ dailyLoginLoading() ? '签到中…' : '🎁 每日签到' }}
+            @if (dailyLoginLoading()) {
+              签到中…
+            } @else {
+              <span class="daily-login-label"><my-global-icon iconName="award" />每日签到</span>
+            }
           </button>
         }
         @if (dailyLoginMessage()) { <span class="daily-login-msg">{{ dailyLoginMessage() }}</span> }
@@ -23,7 +27,7 @@
         } @else if (trendError()) {
           <p class="trend-fallback">数据加载失败</p>
         } @else {
-          <div class="trend-mini-chart" (click)="goToAnalytics()">
+          <button type="button" class="trend-mini-chart" (click)="goToAnalytics()">
             <div class="trend-bars">
               @for (item of trendPlays(); track item.date) {
                 <div class="trend-bar-wrapper" [style.height.%]="(item.plays / trendMax()) * 100">
@@ -31,7 +35,7 @@
                 </div>
               }
             </div>
-          </div>
+          </button>
         }
       </section>
       <section class="metric-grid">

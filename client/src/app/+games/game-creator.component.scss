@@ -111,10 +111,17 @@
 }
 
 .trend-mini-chart {
+  background: transparent;
+  border: 0;
+  color: inherit;
   cursor: pointer;
+  display: block;
+  font: inherit;
   height: 4rem;
   padding: 0.25rem 0;
+  text-align: inherit;
   transition: opacity 200ms ease;
+  width: 100%;
 }
 
 .trend-mini-chart:hover {
@@ -171,6 +178,7 @@
 }
 
 .daily-login-btn {
+  align-items: center;
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: 6px;
@@ -180,6 +188,17 @@
   font-weight: 700;
   padding: 0.45rem 0.85rem;
   transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.daily-login-label {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.daily-login-label my-global-icon {
+  height: 0.95rem;
+  width: 0.95rem;
 }
 
 .daily-login-btn:hover {

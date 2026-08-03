@@ -301,6 +301,9 @@ const gameDiscoveryServiceTs = read('client/src/app/+games/services/game-discove
 const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts')
 const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
+const gameCreatorHtml = read('client/src/app/+games/game-creator.component.html')
+const gameErrorRetryTs = read('client/src/app/+games/shared/game-error-retry.component.ts')
+const gameEmptyStateTs = read('client/src/app/+games/shared/game-empty-state.component.ts')
 const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
 const personalCreatorTs = read('server/core/controllers/api/games/personal-creator.ts')
 const gameFeedTs = read('server/core/lib/games/game-feed.ts')
@@ -466,6 +469,18 @@ assert(
 )
 assert(homeHtml.includes('iconName="search"') && !homeHtml.includes('🔍'), 'game home empty state must use the shared search icon instead of an emoji')
 assert(reserveTs.includes('iconName="bell"') && reserveTs.includes('iconName="tick"') && !reserveTs.includes('🔔') && !reserveTs.includes('✓'), 'game reservation states must use shared library icons instead of emoji glyphs')
+assert(
+  gameCreatorHtml.includes('iconName="award"') && !gameCreatorHtml.includes('🎁'),
+  'creator daily sign-in must use the shared icon library instead of an emoji glyph'
+)
+assert(
+  gameErrorRetryTs.includes('GlobalIconComponent') && gameErrorRetryTs.includes('<my-global-icon') && !gameErrorRetryTs.includes("icon = '⚠'"),
+  'game error state must use a shared library icon instead of an emoji glyph'
+)
+assert(
+  gameEmptyStateTs.includes('GlobalIconComponent') && gameEmptyStateTs.includes('<my-global-icon') && !gameEmptyStateTs.includes("icon = '🎮'"),
+  'game empty state must use a shared library icon instead of an emoji glyph'
+)
 assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: #303133;/.test(discussTs), 'other discussion messages must use the picked light gray background with black text')
 assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
 assert(gamePlayScss.includes('width: 90%;') && !gamePlayScss.includes('max-width: 1280px;'), 'detail page must follow the homepage 5 percent side spacing without a narrower desktop cap')

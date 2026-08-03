@@ -1,24 +1,26 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-icons/global-icon.component'
 
 /**
  * 通用错误重试组件
  *
- * 用法：<game-error-retry [message]="'加载失败'" (retry)="reload()" />
+ * 用法：<my-game-error-retry [message]="'加载失败'" (retry)="reload()" />
  */
 @Component({
-  selector: 'game-error-retry',
+  selector: 'my-game-error-retry',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [ GlobalIconComponent ],
   template: `
     <div class="game-error-state">
-      <span class="game-error-icon" aria-hidden="true">{{ icon }}</span>
+      <span class="game-error-icon" aria-hidden="true"><my-global-icon [iconName]="icon" /></span>
       <p class="game-error-text">{{ message }}</p>
       <button type="button" class="game-error-retry-btn" (click)="retry.emit()">
         重试
       </button>
     </div>
   `,
-  styles: [`
+  styles: [ `
     .game-error-state {
       align-items: center;
       display: flex;
@@ -30,7 +32,9 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
     }
     .game-error-icon {
       color: #fb7299;
-      font-size: 2.5rem;
+      display: inline-flex;
+      height: 2.5rem;
+      width: 2.5rem;
     }
     .game-error-text {
       color: #999;
@@ -50,10 +54,10 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from 
     .game-error-retry-btn:hover {
       background: #0090c4;
     }
-  `]
+  ` ]
 })
 export class GameErrorRetryComponent {
   @Input() message = '加载失败，请稍后重试'
-  @Input() icon = '⚠'
+  @Input() icon: GlobalIconName = 'alert'
   @Output() retry = new EventEmitter<void>()
 }
