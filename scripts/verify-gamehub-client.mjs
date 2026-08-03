@@ -545,6 +545,19 @@ assert(
   'game upload must expose preview validation errors and block submission until they are fixed'
 )
 assert(
+  uploadTs.includes('private prepareSelectedFile (file: File | null)') &&
+    uploadTs.includes('this.resetForNewFile()') &&
+    uploadTs.includes('this.fileSize.set(file?.size || 0)') &&
+    uploadTs.includes('this.previewProbe.reset()'),
+  'game upload must clear the previous preview and cover before validating a newly selected file'
+)
+assert(
+  uploadTs.includes('private hasUnsavedChanges ()') &&
+    uploadTs.includes('if (!this.hasUnsavedChanges()) return') &&
+    uploadTs.includes('this.submitting() || this.createdGame()'),
+  'game upload must warn only when there are actual unsaved fields or a file submission in progress'
+)
+assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
     gameCommunityDoc.includes('禁止上传 ZIP') &&
     !gameCommunityDoc.includes('资源包：`.zip`'),

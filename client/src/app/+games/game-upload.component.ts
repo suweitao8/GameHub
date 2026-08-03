@@ -43,7 +43,7 @@ export class GameUploadComponent implements OnDestroy {
 
   @HostListener('window:beforeunload', [ '$event' ])
   onBeforeUnload (event: BeforeUnloadEvent) {
-    if (this.submitting() || this.file || this.createdGame()) return
+    if (!this.hasUnsavedChanges()) return
     event.preventDefault()
     event.returnValue = '你有未保存的修改，确定离开吗？'
     return event.returnValue
@@ -56,21 +56,8 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   onFileChange (event: Event) {
-    this.file = (event.target as HTMLInputElement).files?.[0] || null
-    this.fileSize.set(this.file?.size || 0)
-    if (this.file && !/\.html?$/i.test(this.file.name.trim())) {
-      this.error.set('只支持单个 .html 或 .htm 文件。')
-      this.file = null
-      return
-    }
-    if (this.file && this.file.size > 20 * 1024 * 1024) {
-      this.error.set('HTML 文件不能超过 20MB。')
-      this.file = null
-      return
-    }
-
-    this.resetForNewFile()
-    if (this.file) void this.previewProbe.prepare(this.file, screenshot => this.finishPreview(screenshot))
+    const file = (event.target as HTMLInputElement).files?.[0]
+    if (file) this.prepareSelectedFile(file)
   }
 
   onFileDrop (event: DragEvent) {
@@ -78,22 +65,7 @@ export class GameUploadComponent implements OnDestroy {
     const file = event.dataTransfer?.files?.[0]
     if (!file) return
 
-    // Simulate the same flow as onFileChange
-    this.file = file
-    this.fileSize.set(file.size)
-    if (!/\.html?$/i.test(file.name.trim())) {
-      this.error.set('只支持单个 .html 或 .htm 文件。')
-      this.file = null
-      return
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      this.error.set('HTML 文件不能超过 20MB。')
-      this.file = null
-      return
-    }
-
-    this.resetForNewFile()
-    void this.previewProbe.prepare(file, screenshot => this.finishPreview(screenshot))
+    this.prepareSelectedFile(file)
   }
 
   onCoverChange (event: Event) {
@@ -178,12 +150,43 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   private resetForNewFile () {
+    this.file = null
+    this.fileSize.set(0)
     this.error.set('')
     this.createdGame.set(null)
     this.cover = null
     this.coverGenerator.coverPreview.set('')
     this.coverGenerator.coverSource.set('generated')
     this.previewProbe.reset()
+  }
+
+  private prepareSelectedFile (file: File | null) {
+    this.resetForNewFile()
+    this.file = file
+    this.fileSize.set(file?.size || 0)
+    if (!file) return
+
+    if (!/\.html?$/i.test(file.name.trim())) {
+      this.error.set('只支持单个 .html 或 .htm 文件。')
+      this.file = null
+      this.fileSize.set(0)
+      return
+    }
+    if (file.size > 20 * 1024 * 1024) {
+      this.error.set('HTML 文件不能超过 20MB。')
+      this.file = null
+      this.fileSize.set(0)
+      return
+    }
+
+    void this.previewProbe.prepare(file, screenshot => this.finishPreview(screenshot))
+  }
+
+  private hasUnsavedChanges () {
+    if (this.submitting() || this.createdGame()) return false
+
+    return !!this.file || !!this.cover || !!this.title.trim() || !!this.description.trim() ||
+      !!this.instructions.trim() || !!this.tags.trim()
   }
 
   private async finishPreview (dataUrl?: string) {
