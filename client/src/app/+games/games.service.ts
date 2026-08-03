@@ -24,6 +24,7 @@ import {
   GameNotificationList,
   GameRanking,
   GameRankingList,
+  GameRelatedCollections,
   GameRelatedGame,
   GameReportResult,
   GameReservation,
@@ -60,6 +61,7 @@ export type {
   GameNotificationList,
   GameRanking,
   GameRankingList,
+  GameRelatedCollections,
   GameRelatedGame,
   GameReportResult,
   GameReservation,
@@ -169,8 +171,8 @@ export class GamesService {
     )
   }
 
-  related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
-    return this.http.get<{ total: number, data: GameRelatedGame[] }>(
+  related (uuid: string, count = 8): Observable<GameRelatedCollections> {
+    return this.http.get<GameRelatedCollections>(
       `${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/related?count=${count}`
     )
   }

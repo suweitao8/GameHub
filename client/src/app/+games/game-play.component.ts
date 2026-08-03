@@ -58,6 +58,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly runtimeUrl = signal<SafeResourceUrl | null>(null)
   readonly community = signal<GameCommunity | null>(null)
   readonly communityError = signal('')
+  readonly developerGames = signal<GameRelatedGame[]>([])
   readonly related = signal<GameRelatedGame[]>([])
   readonly relatedCoverBroken = signal<Record<string, boolean>>({})
   readonly soundEnabled = signal(true)
@@ -101,6 +102,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.runtimeUrl.set(null)
     this.community.set(null)
     this.communityError.set('')
+    this.developerGames.set([])
     this.related.set([])
     this.relatedCoverBroken.set({})
     this.playRecordedFor = ''
@@ -128,7 +130,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.gamesService.related(uuid, 8).subscribe({
           next: result => {
             if (generation !== this.loadGeneration || this.currentUuid !== uuid) return
-            this.related.set(result.data)
+            this.developerGames.set(result.developerGames)
+            this.related.set(result.relatedGames)
           }
         })
       },

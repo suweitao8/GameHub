@@ -34,6 +34,13 @@ export interface GameRelatedGame {
 }
 
 // 投币结果
+export interface GameRelatedCollections {
+  total: number
+  developerGames: GameRelatedGame[]
+  relatedGames: GameRelatedGame[]
+  data: GameRelatedGame[]
+}
+
 export interface GameCoinResult {
   coins: number
   coinBalance: number

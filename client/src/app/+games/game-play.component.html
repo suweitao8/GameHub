@@ -92,10 +92,38 @@
       <aside class="play-side" aria-label="侧栏">
         <my-game-discuss />
 
-        @if (related().length) {
-          <section class="related-section" aria-labelledby="related-title">
+        @if (developerGames().length) {
+          <section class="related-section developer-games-section" aria-labelledby="developer-games-title">
             <div class="game-section-heading compact-section-heading">
-              <h2 id="related-title">相关推荐</h2>
+              <h2 id="developer-games-title">开发者的其他游戏</h2>
+            </div>
+            <div class="related-game-list">
+              @for (item of developerGames(); track item.uuid) {
+                <a class="related-game-row" [routerLink]="['/games', item.uuid]">
+                  <div class="related-game-thumb">
+                    @if ((item.coverPath || item.coverFallback) && !relatedCoverBroken()[item.uuid]) {
+                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy" (error)="onRelatedCoverError(item.uuid)">
+                    } @else {
+                      <span>G</span>
+                    }
+                  </div>
+                  <div class="related-game-copy">
+                    <strong>{{ item.title }}</strong>
+                    <span class="related-game-meta" aria-label="游戏数据">
+                      <span class="related-game-stat"><my-global-icon iconName="play" />{{ formatBigNumber(item.playCount) }}</span>
+                      <span class="related-game-stat"><my-global-icon iconName="message-circle" />{{ formatBigNumber(item.comments) }}</span>
+                    </span>
+                  </div>
+                </a>
+              }
+            </div>
+          </section>
+        }
+
+        @if (related().length) {
+          <section class="related-section same-category-section" aria-labelledby="same-category-title">
+            <div class="game-section-heading compact-section-heading">
+              <h2 id="same-category-title">同类型推荐</h2>
             </div>
             <div class="related-game-list">
               @for (item of related(); track item.uuid) {

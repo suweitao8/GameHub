@@ -339,6 +339,11 @@ const gamesServiceTs = read('client/src/app/+games/games.service.ts')
 const clientPackageJson = JSON.parse(read('client/package.json'))
 const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
 const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
+const relatedSchemaStart = openapiTs.indexOf('GameRelatedGame:')
+const relatedSchemaEnd = openapiTs.indexOf('GameRelatedList:', relatedSchemaStart)
+const relatedSchema = relatedSchemaStart >= 0 && relatedSchemaEnd > relatedSchemaStart
+  ? openapiTs.slice(relatedSchemaStart, relatedSchemaEnd)
+  : ''
 assert(existsSync(join(root, 'server/core/models/game/game-chat-message.ts')), 'discussion chat must have an independent server model')
 assert(existsSync(join(root, 'server/core/controllers/api/games/community-chat.ts')), 'discussion chat must have an independent API controller')
 assert(discussTs.includes("GameDiscussStore"), 'discussion panel must use GameDiscussStore instead of the comment store')
@@ -358,6 +363,30 @@ assert(
     !relatedMarkup.includes('iconName="like"') && !relatedMarkup.includes('item.likes') &&
     !relatedMarkup.includes(' 游玩') && !relatedMarkup.includes(' 赞'),
   'related game stats must use compact play/comment icons without like stats or text labels'
+)
+assert(
+  gameCommunityOverviewTs.includes('developerGames') &&
+    gameCommunityOverviewTs.includes('relatedGames') &&
+    gameCommunityModelTs.includes('developerGames: GameRelatedGame[]') &&
+    gameCommunityModelTs.includes('relatedGames: GameRelatedGame[]'),
+  'related game API must separate the developer games from same-category recommendations'
+)
+assert(
+  gamePlayTs.includes('developerGames') &&
+    gamePlayTs.includes('result.developerGames') &&
+    gamePlayTs.includes('result.relatedGames') &&
+    gamePlayHtml.includes('developer-games-section') &&
+    gamePlayHtml.includes('same-category-section') &&
+    gamePlayHtml.includes('开发者的其他游戏') &&
+    gamePlayHtml.includes('同类型推荐'),
+  'game detail sidebar must render developer games and same-category recommendations as separate sections'
+)
+assert(
+  openapiTs.includes('developerGames:') &&
+    openapiTs.includes('relatedGames:') &&
+    relatedSchema.includes('comments:') &&
+    !relatedSchema.includes('\n        likes:'),
+  'related game OpenAPI schema must expose comments and both recommendation groups'
 )
 assert(
   gamePlayScss.includes('.related-game-stat my-global-icon') && gamePlayScss.includes('height: 0.72rem;') &&

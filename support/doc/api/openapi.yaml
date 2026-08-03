@@ -9303,7 +9303,7 @@ paths:
       tags:
         - Games
       summary: List related games
-      description: Get up to 20 related games (same category and tag overlap first, backfilled by same author / popular games).
+      description: Get up to 20 games grouped into the creator's other games and same-category recommendations.
       operationId: listRelatedGames
       parameters:
         - $ref: '#/components/parameters/idOrUUID'
@@ -16299,7 +16299,7 @@ components:
           description: Stable fallback cover URL when coverPath is null.
         playCount:
           type: integer
-        likes:
+        comments:
           type: integer
         favorites:
           type: integer
@@ -16325,6 +16325,14 @@ components:
       properties:
         total:
           type: integer
+        developerGames:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameRelatedGame'
+        relatedGames:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameRelatedGame'
         data:
           type: array
           items:

@@ -5,7 +5,7 @@ import {
   GameCommentList,
   GameChatMessage,
   GameCommunity,
-  GameRelatedGame,
+  GameRelatedCollections,
   GameReportResult,
   GameShareResult
 } from '@peertube/peertube-models'
@@ -45,8 +45,8 @@ export class GameCommunityService {
     )
   }
 
-  related (uuid: string, count = 8): Observable<{ total: number, data: GameRelatedGame[] }> {
-    return this.http.get<{ total: number, data: GameRelatedGame[] }>(
+  related (uuid: string, count = 8): Observable<GameRelatedCollections> {
+    return this.http.get<GameRelatedCollections>(
       `${GameCommunityService.BASE_URL}/${encodeURIComponent(uuid)}/related?count=${count}`
     )
   }

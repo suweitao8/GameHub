@@ -75,58 +75,53 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
   const limit = Math.min(20, Math.max(1, Number(req.query.count) || 8))
+  const developerLimit = Math.min(3, limit)
+  const relatedLimit = Math.max(0, limit - developerLimit)
   const tags = Array.isArray(game.tags) ? game.tags.filter(t => typeof t === 'string') : []
+  const buildGameInclude = () => [
+    { model: AccountModel, required: true },
+    { model: GameStatsSummaryModel, required: false }
+  ]
 
-  // 1. Same category, overlap tags, exclude self, published only
-  const candidates = await GameModel.findAll<MGame>({
+  const developerGames = await GameModel.findAll<MGame>({
     subQuery: false,
     where: {
       status: 'published',
       id: { [Op.ne]: game.id },
-      category: game.category
+      ownerAccountId: game.ownerAccountId
     },
     attributes: { include: GameModel.getPublicStatsAttributes() },
-    include: [
-      { model: AccountModel, required: true },
-      { model: GameStatsSummaryModel, required: false }
-    ],
-    limit: 60
+    include: buildGameInclude(),
+    order: [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ],
+    limit: developerLimit
   })
 
-  // 2. Score by tag overlap, then by play count
-  const scored = candidates.map(c => {
-    const candidateTags = Array.isArray(c.tags) ? c.tags.filter(t => typeof t === 'string') : []
-    const overlap = tags.filter(t => candidateTags.includes(t)).length
-    return { game: c, overlap, playCount: Number(c.playCount || 0) }
-  })
-  scored.sort((a, b) => (b.overlap - a.overlap) || (b.playCount - a.playCount))
+  const excludedIds = new Set(developerGames.map(g => g.id).concat([ game.id ]))
 
-  // 3. If not enough same-category, fill from same author / popular
-  let result = scored.slice(0, limit)
-  if (result.length < limit) {
-    const existingIds = new Set(result.map(r => r.game.id).concat([ game.id ]))
-    const fillers = await GameModel.findAll<MGame>({
+  let relatedGames: MGame[] = []
+  if (relatedLimit > 0) {
+    const candidates = await GameModel.findAll<MGame>({
       subQuery: false,
       where: {
         status: 'published',
-        id: { [Op.notIn]: Array.from(existingIds) },
-        [Op.or]: [
-          { ownerAccountId: game.ownerAccountId },
-          { playCount: { [Op.gte]: 1 } }
-        ]
+        id: { [Op.notIn]: Array.from(excludedIds) },
+        category: game.category
       },
       attributes: { include: GameModel.getPublicStatsAttributes() },
-      include: [
-        { model: AccountModel, required: true },
-        { model: GameStatsSummaryModel, required: false }
-      ],
-      order: [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ],
-      limit: limit - result.length
+      include: buildGameInclude(),
+      limit: Math.max(60, relatedLimit * 4)
     })
-    result = result.concat(fillers.map(g => ({ game: g, overlap: 0, playCount: Number(g.playCount || 0) })))
+
+    const scored = candidates.map(candidate => {
+      const candidateTags = Array.isArray(candidate.tags) ? candidate.tags.filter(t => typeof t === 'string') : []
+      const overlap = tags.filter(t => candidateTags.includes(t)).length
+      return { game: candidate, overlap, playCount: Number(candidate.playCount || 0) }
+    })
+    scored.sort((a, b) => (b.overlap - a.overlap) || (b.playCount - a.playCount))
+    relatedGames = scored.slice(0, relatedLimit).map(item => item.game)
   }
 
-  const data = result.slice(0, limit).map(({ game: g }) => {
+  const formatGame = (g: MGame) => {
     const owner = (g as any).Owner
     return {
       uuid: g.uuid,
@@ -143,7 +138,16 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
         ? { id: owner.id, name: owner.name, displayName: owner.getDisplayName(), handle: owner.Actor.getIdentifier() }
         : null
     }
-  })
+  }
 
-  return res.json({ total: data.length, data })
+  const developerData = developerGames.map(formatGame)
+  const relatedData = relatedGames.map(formatGame)
+  const data = developerData.concat(relatedData)
+
+  return res.json({
+    total: data.length,
+    developerGames: developerData,
+    relatedGames: relatedData,
+    data
+  })
 }
