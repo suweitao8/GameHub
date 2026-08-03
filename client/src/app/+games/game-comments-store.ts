@@ -6,12 +6,10 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 
 /**
- * Shared comment state for a single game's comment + discuss panels.
+ * Comment state for a single game's review panel.
  *
- * Provided at the `GameCommentsComponent` host so the comment list (main
- * column) and the discuss sidebar (side column) read from the same store.
- * The host component sets `uuid` on init; polling and visibility handling
- * live here so both views stay in sync.
+ * Discussion chat intentionally lives in GameDiscussStore. Keeping the
+ * stores separate prevents a chat message from being treated as a review.
  */
 @Injectable()
 export class GameCommentsStore implements OnDestroy {
@@ -28,7 +26,6 @@ export class GameCommentsStore implements OnDestroy {
   readonly submitting = signal(false)
   readonly draft = signal('')
   readonly commentImage = signal<File | null>(null)
-  readonly chatDraft = signal('')
   readonly sort = signal<'new' | 'hot'>('hot')
   readonly replyTo = signal<number | null>(null)
   readonly replies = signal<Record<number, GameComment[]>>({})
@@ -48,13 +45,6 @@ export class GameCommentsStore implements OnDestroy {
       return list.sort((a, b) => (b.likes || 0) - (a.likes || 0) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
     return list.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }
-
-  /** Chronological timeline for the discuss sidebar. */
-  readonly timeline = () => {
-    return [ ...this.comments() ].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )
   }
 
   init (uuid: string) {
@@ -83,7 +73,6 @@ export class GameCommentsStore implements OnDestroy {
     this.error.set('')
     this.draft.set('')
     this.commentImage.set(null)
-    this.chatDraft.set('')
     this.sort.set('hot')
     this.replyTo.set(null)
     this.replies.set({})
@@ -139,27 +128,6 @@ export class GameCommentsStore implements OnDestroy {
         this.commentImage.set(null)
         this.feedback.set('')
         this.submitting.set(false)
-      },
-      error: err => {
-        this.submitting.set(false)
-        this.feedback.set(getGameActionErrorMessage(err))
-      }
-    })
-  }
-
-  submitChat () {
-    if (!this.requireLogin()) return
-    const text = this.chatDraft().trim()
-    if (!text || this.submitting()) return
-    this.submitting.set(true)
-    this.gamesService.comment(this.uuid, text).subscribe({
-      next: result => {
-        this.comments.update(comments => [ ...comments, result.comment ])
-        this.total.update(value => value + 1)
-        this.commentCount.update(value => value + 1)
-        this.chatDraft.set('')
-        this.submitting.set(false)
-        queueMicrotask(() => this.scrollDiscussToBottom())
       },
       error: err => {
         this.submitting.set(false)
@@ -262,11 +230,6 @@ export class GameCommentsStore implements OnDestroy {
   setCommentImage (image: File | null) { this.commentImage.set(image) }
 
   clearCommentImage () { this.commentImage.set(null) }
-
-  private scrollDiscussToBottom () {
-    const list = document.querySelector<HTMLElement>('.discuss-message-list')
-    if (list) list.scrollTop = list.scrollHeight
-  }
 
   ngOnDestroy () {
     this.stopPolling()

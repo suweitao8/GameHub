@@ -258,6 +258,7 @@ const communityPanelTs = read('client/src/app/+games/game-community-panel.compon
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
+const commentsStoreImplementation = commentsStoreTs.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '')
 const headerTs = read('client/src/app/header/header.component.ts')
 const headerHtml = read('client/src/app/header/header.component.html')
 const asyncStateTs = read('client/src/app/+games/shared/async-state.ts')
@@ -315,6 +316,12 @@ assert(!discussTs.includes("GameCommentsStore"), 'discussion panel must not impo
 assert(discussStoreTs.includes('discussion') && discussStoreTs.includes('send'), 'GameDiscussStore must load and send discussion messages')
 assert(gameCommunityServiceTs.includes('discussion (') && gameCommunityServiceTs.includes('sendDiscussion'), 'community service must expose independent discussion endpoints')
 assert(gamePlayHtml.includes('my-game-discuss'), 'game play must render the discussion group')
+assert(
+  !/\b(?:chatDraft|discussionDraft|submitChat|submitDiscussion|sendDiscussion|GameChatMessage|GameCommunityService|scrollDiscussToBottom|timeline)\b/.test(commentsStoreImplementation) &&
+    commentsStoreImplementation.includes('submit (') && commentsStoreImplementation.includes('submitReply (') &&
+    commentsStoreImplementation.includes('toggleLike ('),
+  'comment store must keep review-only state and submission paths separate from discussion chat'
+)
 assert(
   relatedMarkup.includes('related-game-stat') && relatedMarkup.includes('iconName="play"') &&
     relatedMarkup.includes('iconName="message-circle"') && relatedMarkup.includes('item.comments') &&
@@ -718,7 +725,7 @@ assert(
     discussTs.includes('[disabled]="!store.draft().trim() || store.submitting()"') &&
     commentsTs.includes('{{ store.submitting() ?') &&
     discussTs.includes('{{ store.submitting() ?') &&
-    (commentsStoreTs.match(/this\.submitting\(\)\) return/g) || []).length >= 3 &&
+    (commentsStoreTs.match(/this\.submitting\(\)\) return/g) || []).length >= 2 &&
     discussStoreTs.includes('this.submitting()) return'),
   'comment and discussion composers must lock repeated submissions until the current request completes'
 )
