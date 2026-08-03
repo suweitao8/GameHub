@@ -222,6 +222,13 @@ assert(
     !gameCardHtml.includes('{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}'),
   'game card search highlights must render sanitized mark HTML instead of exposing markup text'
 )
+assert(
+  gameCardHtml.includes('<article class="game-card">') &&
+    gameCardHtml.includes('<a class="game-card-main"') &&
+    gameCardHtml.includes('<div class="game-card-author">') &&
+    !/<a class="game-card"[\s\S]*<a class="author-name-link"/.test(gameCardHtml),
+  'game cards must keep the author link outside the main game link to avoid nested interactive elements'
+)
 assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')

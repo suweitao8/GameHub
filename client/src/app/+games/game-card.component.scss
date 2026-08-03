@@ -11,7 +11,12 @@
   border-radius: var(--game-radius);
   display: block;
   overflow: hidden;
+}
+
+.game-card-main {
+  color: inherit;
   cursor: pointer;
+  display: block;
   text-decoration: none;
 }
 
@@ -111,7 +116,7 @@
 }
 
 .game-card-body {
-  padding: 0.55rem 0.4rem 0.8rem;
+  padding: 0.55rem 0.4rem 0;
 }
 
 .game-card h3 {
@@ -135,6 +140,7 @@
 .game-card-author {
   margin-top: 0.35rem;
   min-width: 0;
+  padding: 0 0.4rem 0.8rem;
 }
 
 .author-up-badge {
@@ -227,7 +233,7 @@
 
 @media (max-width: 720px) {
   .game-card-body {
-    padding: 0.35rem 0.25rem 0.55rem;
+    padding: 0.35rem 0.25rem 0;
   }
 
   .game-card h3 {
@@ -238,6 +244,7 @@
     gap: 0.18rem;
     font-size: 0.62rem;
     min-width: 0;
+    padding: 0 0.25rem 0.55rem;
   }
 
   .game-card-author > span:not(.game-card-time) {
@@ -283,6 +290,7 @@
   .game-card-author {
     gap: 0.15rem;
     font-size: 0.58rem;
+    padding: 0 0.25rem 0.55rem;
   }
 
   .game-card-meta {

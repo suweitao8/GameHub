@@ -1,41 +1,43 @@
 @if (isVisible()) {
-  <a class="game-card" [routerLink]="['/games', game.uuid]" [attr.aria-label]="'打开游戏：' + game.title">
-    <div class="game-cover" [class.placeholder]="!game.coverPath || coverUnavailable()">
-      @if (game.coverPath && !coverUnavailable()) {
-        <img
-          [src]="game.coverPath"
-          [alt]="game.title + ' 封面'"
-          loading="lazy"
-          decoding="async"
-          sizes="(max-width: 720px) 50vw, (max-width: 1200px) 33vw, 320px"
-          width="320"
-          height="180"
-          (error)="onCoverError()"
-        >
-      } @else {
-        <div class="cover-placeholder-content">
-          <span class="cover-letter" aria-hidden="true">G</span>
-          <div class="cover-placeholder-copy"><strong>{{ game.title }}</strong><small>{{ categoryLabel() }} · 单文件小游戏</small></div>
-        </div>
-      }
-      <div class="game-card-meta" aria-label="游戏数据">
-        <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game.playCount) }}</span></span>
-        <span class="game-card-stat"><my-global-icon iconName="message-circle" /><span>{{ formatCount(game.comments) }}</span></span>
-      </div>
-    </div>
-    <div class="game-card-body">
-      <h3 [innerHTML]="game.title | highlight: searchTerm"></h3>
-      <div class="game-card-author">
-        <span class="author-up-badge" aria-hidden="true">UP</span>
-        @if (game.author?.id) {
-          <a class="author-name-link" [routerLink]="['/games/author', game.author.id]" (click)="$event.stopPropagation()">{{ game.author?.displayName || '独立创作者' }}</a>
+  <article class="game-card">
+    <a class="game-card-main" [routerLink]="['/games', game.uuid]" [attr.aria-label]="'打开游戏：' + game.title">
+      <div class="game-cover" [class.placeholder]="!game.coverPath || coverUnavailable()">
+        @if (game.coverPath && !coverUnavailable()) {
+          <img
+            [src]="game.coverPath"
+            [alt]="game.title + ' 封面'"
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width: 720px) 50vw, (max-width: 1200px) 33vw, 320px"
+            width="320"
+            height="180"
+            (error)="onCoverError()"
+          >
         } @else {
-          <span>{{ game.author?.displayName || '独立创作者' }}</span>
+          <div class="cover-placeholder-content">
+            <span class="cover-letter" aria-hidden="true">G</span>
+            <div class="cover-placeholder-copy"><strong>{{ game.title }}</strong><small>{{ categoryLabel() }} · 单文件小游戏</small></div>
+          </div>
         }
-        <span class="game-card-time">· {{ formatDate(game.publishedAt || game.createdAt) }}</span>
+        <div class="game-card-meta" aria-label="游戏数据">
+          <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game.playCount) }}</span></span>
+          <span class="game-card-stat"><my-global-icon iconName="message-circle" /><span>{{ formatCount(game.comments) }}</span></span>
+        </div>
       </div>
+      <div class="game-card-body">
+        <h3 [innerHTML]="game.title | highlight: searchTerm"></h3>
+      </div>
+    </a>
+    <div class="game-card-author">
+      <span class="author-up-badge" aria-hidden="true">UP</span>
+      @if (game.author?.id) {
+        <a class="author-name-link" [routerLink]="['/games/author', game.author.id]">{{ game.author?.displayName || '独立创作者' }}</a>
+      } @else {
+        <span>{{ game.author?.displayName || '独立创作者' }}</span>
+      }
+      <span class="game-card-time">· {{ formatDate(game.publishedAt || game.createdAt) }}</span>
     </div>
-  </a>
+  </article>
 } @else {
   <div class="game-card-placeholder" aria-hidden="true">
     <div class="game-cover" style="background:#8f6a52"></div>
