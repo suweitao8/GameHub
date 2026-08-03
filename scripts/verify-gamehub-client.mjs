@@ -369,6 +369,13 @@ assert(
   'game comment totals must distinguish thread pagination from all comments and detail responses must include public stats'
 )
 assert(
+  gameCrudQueryTs.includes('GameCommentModel.count') &&
+    gameCrudQueryTs.includes('setDataValue(\'gameComments\'') &&
+    gameSharedTs.includes('StatsSummary') &&
+    gameSharedTs.includes('statsSummary?.[field]'),
+  'game detail comments must use the live visible comment count and format included summary stats'
+)
+assert(
   gamePlayTs.includes('private loadGeneration = 0') &&
     (gamePlayTs.match(/if \(generation !== this\.loadGeneration \|\| this\.currentUuid !== uuid\) return/g) || []).length >= 3,
   'game detail requests must ignore stale responses after a route change'

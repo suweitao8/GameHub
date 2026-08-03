@@ -7,6 +7,7 @@ import { canManageGame, isGameModerator } from '@server/lib/games/game-policy.js
 import { CONFIG } from '@server/initializers/config.js'
 import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
 import { GameModel } from '@server/models/game/game.js'
+import { GameCommentModel } from '@server/models/game/game-comment.js'
 import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { AccountModel } from '@server/models/account/account.js'
@@ -95,6 +96,12 @@ async function getGame (req: express.Request, res: express.Response) {
     const user = getUser(res)
     const visible = game.status === 'published' || (user && (canManageGame(game, user) || isGameModerator(user)))
     if (!visible) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    const commentCount = await GameCommentModel.count({
+      where: { gameId: game.id, deletedAt: null }
+    })
+    const gameWithStats = game as any
+    gameWithStats.setDataValue('gameComments', commentCount)
 
     return res.json(formatGame(game))
   })

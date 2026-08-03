@@ -41,6 +41,11 @@ export function getUser (res: express.Response) {
 
 export function formatGame (game: MGame) {
   const owner = (game as any).Owner
+  const statsSummary = (game as any).StatsSummary
+  const readStat = (alias: string, field: string) => {
+    const value = game.get?.(alias) ?? statsSummary?.get?.(field) ?? statsSummary?.[field]
+    return Number(value) || 0
+  }
   const baseUrl = `${CONFIG.WEBSERVER.SCHEME}://${CONFIG.WEBSERVER.HOSTNAME}:${CONFIG.WEBSERVER.PORT}`
   return {
     uuid: game.uuid,
@@ -62,10 +67,10 @@ export function formatGame (game: MGame) {
     featuredAt: game.featuredAt || null,
     fileSizeBytes: game.fileSizeBytes,
     playCount: game.playCount,
-    comments: Number(game.get?.('gameComments') ?? 0),
-    likes: Number(game.get?.('gameLikes') ?? 0),
-    favorites: Number(game.get?.('favoriteCount') || 0),
-    coins: Number(game.get?.('coinCount') || 0),
+    comments: readStat('gameComments', 'comments'),
+    likes: readStat('gameLikes', 'likes'),
+    favorites: readStat('favoriteCount', 'favorites'),
+    coins: readStat('coinCount', 'coins'),
     publishedAt: game.publishedAt,
     createdAt: game.createdAt,
     updatedAt: game.updatedAt,
