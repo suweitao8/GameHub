@@ -228,15 +228,17 @@ import { getGameActionErrorMessage } from './game-action-feedback'
       <section class="game-community-panel" aria-label="游戏互动操作">
         <div class="interaction-row">
           <button class="game-action-button" type="button"
-            [attr.aria-label]="'点赞 ' + state.likes" [class.active]="state.rating === 'like'" (click)="toggleRate()">
+            [attr.aria-label]="'点赞 ' + state.likes" [class.active]="state.rating === 'like'"
+            [disabled]="actionLoading() !== null" (click)="toggleRate()">
             <my-global-icon iconName="like" /><strong>{{ state.likes }}</strong>
           </button>
           <button class="game-action-button" type="button"
-            [attr.aria-label]="'投币 ' + state.coins" [disabled]="coinLoading()" (click)="giveCoin()">
+            [attr.aria-label]="'投币 ' + state.coins" [disabled]="actionLoading() !== null" (click)="giveCoin()">
             <my-global-icon iconName="coin" /><strong>{{ state.coins }}</strong>
           </button>
           <button class="game-action-button" type="button"
-            [attr.aria-label]="'收藏 ' + state.favorites" [class.active]="state.favorite" (click)="toggleFavorite()">
+            [attr.aria-label]="'收藏 ' + state.favorites" [class.active]="state.favorite"
+            [disabled]="actionLoading() !== null" (click)="toggleFavorite()">
             <my-global-icon iconName="star" /><strong>{{ state.favorites }}</strong>
           </button>
           <button class="game-action-button" type="button" [attr.aria-label]="'分享 ' + state.shares" (click)="share.emit()">
@@ -303,29 +305,42 @@ export class GameCommunityPanelComponent {
   @Output() share = new EventEmitter<void>()
 
   readonly coinLoading = signal(false)
+  readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)
   readonly actionFeedback = signal('')
   readonly descriptionTab = signal<'overview' | 'controls'>('overview')
 
   toggleRate () {
     if (!this.requireLogin()) return
+    if (this.actionLoading() !== null) return
     const current = this.community()
     if (!current) return
     const next = current.rating === 'like' ? 'none' : 'like'
+    this.actionLoading.set('rate')
     this.gamesService.rate(this.uuid, next).subscribe({
       next: () => this.gamesService.community(this.uuid).subscribe({
         next: value => {
           this.community.set(value)
           this.actionFeedback.set(next === 'like' ? '点赞成功' : next === 'none' ? '已取消点赞' : '已记录你的反馈')
+          this.actionLoading.set(null)
+        },
+        error: error => {
+          this.actionLoading.set(null)
+          this.actionFeedback.set(getGameActionErrorMessage(error))
         }
       }),
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
+      error: error => {
+        this.actionLoading.set(null)
+        this.actionFeedback.set(getGameActionErrorMessage(error))
+      }
     })
   }
 
   toggleFavorite () {
     if (!this.requireLogin()) return
+    if (this.actionLoading() !== null) return
     const current = this.community()
     if (!current) return
+    this.actionLoading.set('favorite')
     this.gamesService.favorite(this.uuid, !current.favorite).subscribe({
       next: value => {
         this.community.update(state => state
@@ -336,18 +351,24 @@ export class GameCommunityPanelComponent {
             }
           : state)
         this.actionFeedback.set(value.favorite ? '已加入收藏' : '已取消收藏')
+        this.actionLoading.set(null)
       },
-      error: error => this.actionFeedback.set(getGameActionErrorMessage(error))
+      error: error => {
+        this.actionLoading.set(null)
+        this.actionFeedback.set(getGameActionErrorMessage(error))
+      }
     })
   }
 
   giveCoin () {
     if (!this.requireLogin()) return
     const state = this.community()
-    if (!state || this.coinLoading()) return
+    if (!state || this.actionLoading() !== null) return
+    this.actionLoading.set('coin')
     this.coinLoading.set(true)
     this.gamesService.coin(this.uuid, 1).subscribe({
       next: value => {
+        this.actionLoading.set(null)
         this.coinLoading.set(false)
         this.actionFeedback.set('投币成功')
         this.community.update(current => current
@@ -355,6 +376,7 @@ export class GameCommunityPanelComponent {
           : current)
       },
       error: error => {
+        this.actionLoading.set(null)
         this.coinLoading.set(false)
         this.actionFeedback.set(getGameActionErrorMessage(error))
       }

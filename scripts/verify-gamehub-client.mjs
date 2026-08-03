@@ -358,6 +358,16 @@ assert(
   'game detail requests must ignore stale responses after a route change'
 )
 assert(!communityPanelTs.includes('一键三连') && !communityPanelTs.includes('tripleAction'), 'community actions must not expose one-click triple interaction')
+assert(
+  communityPanelTs.includes("readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)") &&
+    (communityPanelTs.match(/\[disabled\]="actionLoading\(\) !== null"/g) || []).length >= 3 &&
+    communityPanelTs.includes('if (this.actionLoading() !== null) return') &&
+    communityPanelTs.includes("this.actionLoading.set('rate')") &&
+    communityPanelTs.includes("this.actionLoading.set('favorite')") &&
+    communityPanelTs.includes("this.actionLoading.set('coin')") &&
+    (communityPanelTs.match(/this\.actionLoading\.set\(null\)/g) || []).length >= 6,
+  'game interaction buttons must share a request lock and always release it on success or failure'
+)
 assert(!communityPanelTs.includes('余额') && !communityPanelTs.includes('coin-row'), 'community actions must not expose a duplicate coin balance composer')
 assert(!communityPanelTs.includes('description-rating') && !communityPanelTs.includes('reviewScores'), 'game description must not expose star rating UI')
 assert(!commentsTs.includes('评分') && !commentsTs.includes('review'), 'comments must be text-only and must not expose rating controls')
