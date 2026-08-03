@@ -721,6 +721,15 @@ assert(
   'header game navigation popovers must keep loading state per popup request'
 )
 assert(
+  headerTs.includes('readonly gameNavCoverFallbacks = signal<Record<string, boolean>>') &&
+    headerTs.includes('onGameNavCoverError (uuid: string)') &&
+    headerHtml.includes('gameNavCoverFallbacks()[notification.game.uuid]') &&
+    (headerHtml.match(/onGameNavCoverError\(/g) || []).length >= 3 &&
+    headerScss.includes('.game-preview-cover') &&
+    /\.game-preview-cover[\s\S]*height: 2\.85rem;[\s\S]*width: 5\.1rem;/.test(headerScss),
+  'header game popover covers must use a fixed thumbnail box and recover after image failures'
+)
+assert(
   headerHtml.includes('(pointerenter)="scheduleGameAvatarMenu()"') &&
     headerHtml.includes('(pointerleave)="cancelGameAvatarHover()"') &&
     !headerHtml.includes('(mouseenter)="scheduleGameAvatarMenu()"') &&

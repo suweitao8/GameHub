@@ -425,6 +425,15 @@
   width: 1.7rem;
 }
 
+.game-preview-cover {
+  background: #e8f7fc;
+  border-radius: 4px;
+  flex: 0 0 5.1rem;
+  height: 2.85rem;
+  object-fit: cover;
+  width: 5.1rem;
+}
+
 .game-live-preview strong,
 .game-notification-preview strong,
 .game-list-preview strong {

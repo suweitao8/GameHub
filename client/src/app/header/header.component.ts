@@ -78,6 +78,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     history: false,
     creator: false
   })
+  readonly gameNavCoverFallbacks = signal<Record<string, boolean>>({})
 
   user: AuthUser
   loggedIn: boolean
@@ -452,6 +453,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return buildGameAvatarDataUrl(game.author?.displayName || game.author?.name || 'GameHub 玩家')
   }
 
+  onGameNavCoverError (uuid: string) {
+    this.gameNavCoverFallbacks.update(state => ({ ...state, [uuid]: true }))
+  }
+
   private loadGameNavData (popup: GameHeaderPopup) {
     if (this.gameNavLoaded.has(popup) || !this.loggedIn) return
 
@@ -556,6 +561,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameNavOwned.set([])
       this.gameNavNotifications.set([])
       this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
+      this.gameNavCoverFallbacks.set({})
       this.gameCoinBalance.set(null)
       this.gameCoinBalanceRequested = false
     }
