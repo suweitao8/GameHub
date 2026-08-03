@@ -58,6 +58,7 @@
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
         (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
+        (mouseenter)="scheduleGameAvatarMenu()" (mouseleave)="cancelGameAvatarHover()"
         >
         @if (isGameExperience()) {
           <button class="tertiary-button" type="button" [attr.aria-label]="loggedIn ? '打开个人主页' : '登录 GameHub'" (click)="openGameProfile($event)">
@@ -145,14 +146,14 @@
 
     @if (isGameExperience()) {
       <div class="game-header-actions" aria-label="游戏快捷入口">
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('notifications')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('notifications')" (focusout)="onGameNavFocusOut($event)">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('notifications')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('notifications')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('notifications')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/notifications" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="动态" [attr.aria-label]="gameNotificationBadge.unread() ? '动态，' + gameNotificationBadge.unread() + ' 条未读' : '动态'">
             <my-global-icon iconName="bell"></my-global-icon>
             <span class="game-header-action-label">动态</span>
             @if (gameNotificationBadge.unread()) { <span class="game-header-unread" aria-hidden="true">{{ gameNotificationBadge.unread() > 99 ? '99+' : gameNotificationBadge.unread() }}</span> }
           </a>
           @if (gameNavHover() === 'notifications') {
-            <section class="game-header-popover game-header-notification-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="动态预览">
+            <section class="game-header-popover game-header-notification-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" (mouseenter)="retainGameNavHover()" (mouseleave)="cancelGameNavHover()" aria-label="动态预览">
               @if (gameNavLoading() && !gameNavNotifications().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (notification of gameNavNotifications().slice(0, 3); track notification.id) {
                 <a class="game-notification-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
@@ -164,13 +165,13 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('favorites')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('favorites')" (focusout)="onGameNavFocusOut($event)">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('favorites')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('favorites')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('favorites')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'favorites' }" title="我的收藏">
             <my-global-icon iconName="star"></my-global-icon>
             <span>收藏</span>
           </a>
           @if (gameNavHover() === 'favorites') {
-            <section class="game-header-popover game-header-list-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="收藏预览">
+            <section class="game-header-popover game-header-list-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" (mouseenter)="retainGameNavHover()" (mouseleave)="cancelGameNavHover()" aria-label="收藏预览">
               @if (gameNavLoading() && !gameNavFavorites().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>已收藏</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
@@ -178,13 +179,13 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('history')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('history')" (focusout)="onGameNavFocusOut($event)">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('history')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('history')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('history')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/library" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" [queryParams]="{ tab: 'recent' }" title="游玩历史">
             <my-global-icon iconName="history"></my-global-icon>
             <span>历史</span>
           </a>
           @if (gameNavHover() === 'history') {
-            <section class="game-header-popover game-header-list-popover game-header-history-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="游玩历史预览">
+            <section class="game-header-popover game-header-list-popover game-header-history-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" (mouseenter)="retainGameNavHover()" (mouseleave)="cancelGameNavHover()" aria-label="游玩历史预览">
               @if (gameNavLoading() && !gameNavRecent().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
                 <a class="game-list-preview" [routerLink]="[ '/games', game.uuid ]"><span class="game-preview-author"><img class="game-preview-avatar" [src]="getGameNavAuthorAvatarUrl(game)" alt=""><strong>{{ game.author?.displayName || '独立开发者' }}</strong></span><span class="game-preview-title"><strong>{{ game.title }}</strong><small>最近游玩</small></span><div class="game-list-cover" [class.placeholder]="!game.coverPath">@if (game.coverPath) { <img [src]="game.coverPath" [alt]="game.title" loading="lazy"> } @else { <span>{{ game.title.charAt(0) || 'G' }}</span> }</div></a>
@@ -192,13 +193,13 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="onGameNavFocusOut($event)">
+        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (mouseenter)="scheduleGameNavHover('creator')" (mouseleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="onGameNavFocusOut($event)">
           <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
             <my-global-icon iconName="upload"></my-global-icon>
             <span>创作中心</span>
           </a>
           @if (gameNavHover() === 'creator') {
-            <section class="game-header-popover game-header-creator-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="创作中心预览">
+            <section class="game-header-popover game-header-creator-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" (mouseenter)="retainGameNavHover()" (mouseleave)="cancelGameNavHover()" aria-label="创作中心预览">
               <div class="game-prompt-list">
                 <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 2D 游戏，使用 Canvas 和原生 JavaScript，不依赖外部资源，包含开始、暂停、重新开始和移动端触控操作。')">2D 游戏提示词</button>
                 <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 3D 游戏，使用 CSS 3D 或内嵌实现，不依赖外部网络资源，包含清晰的操作说明、开始和重新开始。')">3D 游戏提示词</button>
