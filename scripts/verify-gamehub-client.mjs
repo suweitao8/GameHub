@@ -640,6 +640,10 @@ assert(
   'game upload must clear cross-page cover state and preserve a manually selected cover'
 )
 assert(
+  /onCoverChange \(event: Event\) \{[\s\S]*const cover = \(event\.target as HTMLInputElement\)\.files\?\.\[0\] \|\| null[\s\S]*if \(!cover\) \{[\s\S]*this\.coverGenerator\.coverSource\.set\(\'generated\'\)[\s\S]*this\.coverGenerator\.setCoverPreview\(null\)[\s\S]*return/.test(uploadTs),
+  'clearing an optional manual cover must restore automatic cover state'
+)
+assert(
   previewProbeTs.includes('private previewReady = false') &&
     previewProbeTs.includes('if (!this.previewReady) return') &&
     previewProbeTs.includes('this.previewReady = true'),

@@ -72,9 +72,16 @@ export class GameUploadComponent implements OnDestroy {
   }
 
   onCoverChange (event: Event) {
-    this.cover = (event.target as HTMLInputElement).files?.[0] || null
+    const cover = (event.target as HTMLInputElement).files?.[0] || null
+    this.cover = cover
+    if (!cover) {
+      this.coverGenerator.coverSource.set('generated')
+      this.coverGenerator.setCoverPreview(null)
+      return
+    }
+
     this.coverGenerator.coverSource.set('manual')
-    this.coverGenerator.setCoverPreview(this.cover)
+    this.coverGenerator.setCoverPreview(cover)
   }
 
   async regenerateCover () {
