@@ -1,6 +1,12 @@
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
-import { getCreatorPlayTrend, getCreatorInteractionBreakdown, getCreatorGameRanking, getCreatorFollowerTrend } from '@server/lib/games/game-analytics.js'
+import {
+  getCreatorPlayTrend,
+  getCreatorInteractionBreakdown,
+  getCreatorGameRanking,
+  getCreatorFollowerTrend,
+  type GameAnalyticsRange
+} from '@server/lib/games/game-analytics.js'
 import { CONFIG } from '@server/initializers/config.js'
 import { GameModel } from '@server/models/game/game.js'
 import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js'
@@ -75,16 +81,18 @@ async function listOwnedGames (_req: express.Request, res: express.Response) {
 /**
  * 创作者数据分析 — 播放趋势/互动分布/游戏排行/粉丝增长
  */
-async function getCreatorAnalytics (_req: express.Request, res: express.Response) {
+async function getCreatorAnalytics (req: express.Request, res: express.Response) {
   return traceGameOperation('getCreatorAnalytics', async () => {
     const user = getUser(res)
     const accountId = user.Account.id
+    const requestedRange = req.query.range
+    const range: GameAnalyticsRange = requestedRange === '7d' || requestedRange === '90d' ? requestedRange : '30d'
 
     const [ playTrend, interactionBreakdown, gameRanking, followerTrend ] = await Promise.all([
-      getCreatorPlayTrend(accountId),
+      getCreatorPlayTrend(accountId, range),
       getCreatorInteractionBreakdown(accountId),
       getCreatorGameRanking(accountId),
-      getCreatorFollowerTrend(accountId)
+      getCreatorFollowerTrend(accountId, range)
     ])
 
     return res.json({

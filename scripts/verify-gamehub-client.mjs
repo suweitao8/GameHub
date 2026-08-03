@@ -274,6 +274,7 @@ const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts')
 const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
 const gameAnalyticsServerTs = read('server/core/lib/games/game-analytics.ts')
+const personalCreatorTs = read('server/core/controllers/api/games/personal-creator.ts')
 const gameFeedTs = read('server/core/lib/games/game-feed.ts')
 const personalAuthorTs = read('server/core/controllers/api/games/personal-author.ts')
 const personalLibraryTs = read('server/core/controllers/api/games/personal-library.ts')
@@ -402,6 +403,15 @@ assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('a
 assert(gameAvatarTs.includes('shape-rendering="crispEdges"') && gameAvatarTs.includes('<rect') && !gameAvatarTs.includes('<text'), 'GameHub fallback avatars must use a circular pixel-art renderer instead of an initial letter')
 assert(commentsTs.includes('iconName="mood-smile"') && !commentsTs.includes('>☺</button>'), 'comment composer must use a library smile icon instead of a text glyph')
 assert(!analyticsTs.includes('🪙') && !analyticsTs.includes("'❤'") && analyticsTs.includes('iconName'), 'analytics controls must use shared library icons instead of emoji glyphs')
+assert(
+  analyticsTs.includes('this.gamesService.getAnalytics(this.currentRange())') &&
+    gamesServiceTs.includes("getAnalytics (range: '7d' | '30d' | '90d' = '30d')") &&
+    gamesServiceTs.includes('?range=${range}') &&
+    personalCreatorTs.includes('req.query.range') &&
+    gameAnalyticsServerTs.includes('play-trend:${accountId}:${days}') &&
+    gameAnalyticsServerTs.includes('follower-trend:${accountId}:${days}'),
+  'creator analytics time range must reach the API, queries, and range-specific caches'
+)
 assert(homeHtml.includes('iconName="search"') && !homeHtml.includes('🔍'), 'game home empty state must use the shared search icon instead of an emoji')
 assert(reserveTs.includes('iconName="bell"') && reserveTs.includes('iconName="tick"') && !reserveTs.includes('🔔') && !reserveTs.includes('✓'), 'game reservation states must use shared library icons instead of emoji glyphs')
 assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: #303133;/.test(discussTs), 'other discussion messages must use the picked light gray background with black text')

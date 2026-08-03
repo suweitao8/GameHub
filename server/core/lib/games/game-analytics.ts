@@ -4,11 +4,20 @@ import { Redis } from '@server/lib/redis.js'
 const ANALYTICS_CACHE_PREFIX = 'game-analytics:v2:'
 const ANALYTICS_CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes
 
+export type GameAnalyticsRange = '7d' | '30d' | '90d'
+
+function getAnalyticsDays (range: GameAnalyticsRange): number {
+  if (range === '7d') return 7
+  if (range === '90d') return 90
+  return 30
+}
+
 /**
- * 获取创作者所有游戏的播放趋势（按天聚合，最近 30 天）
+ * 获取创作者所有游戏的播放趋势（按天聚合）
  */
-export async function getCreatorPlayTrend (accountId: number): Promise<{ date: string; plays: number }[]> {
-  const cacheKey = `${ANALYTICS_CACHE_PREFIX}play-trend:${accountId}`
+export async function getCreatorPlayTrend (accountId: number, range: GameAnalyticsRange = '30d'): Promise<{ date: string; plays: number }[]> {
+  const days = getAnalyticsDays(range)
+  const cacheKey = `${ANALYTICS_CACHE_PREFIX}play-trend:${accountId}:${days}`
   const client = Redis.Instance.getClient()
   const prefix = Redis.Instance.getPrefix()
 
@@ -21,7 +30,7 @@ export async function getCreatorPlayTrend (accountId: number): Promise<{ date: s
       COUNT(*) AS plays
     FROM "gameRecent" recent
     INNER JOIN "game" g ON g.id = recent."gameId" AND g."ownerAccountId" = :accountId
-    WHERE "recent"."lastPlayedAt" >= NOW() - INTERVAL '30 days'
+    WHERE "recent"."lastPlayedAt" >= NOW() - INTERVAL '${days} days'
     GROUP BY DATE("recent"."lastPlayedAt")
     ORDER BY date ASC
   `, {
@@ -141,10 +150,11 @@ export async function getCreatorGameRanking (accountId: number): Promise<{
 }
 
 /**
- * 获取创作者粉丝增长趋势（最近 30 天）
+ * 获取创作者粉丝增长趋势
  */
-export async function getCreatorFollowerTrend (accountId: number): Promise<{ date: string; followers: number }[]> {
-  const cacheKey = `${ANALYTICS_CACHE_PREFIX}follower-trend:${accountId}`
+export async function getCreatorFollowerTrend (accountId: number, range: GameAnalyticsRange = '30d'): Promise<{ date: string; followers: number }[]> {
+  const days = getAnalyticsDays(range)
+  const cacheKey = `${ANALYTICS_CACHE_PREFIX}follower-trend:${accountId}:${days}`
   const client = Redis.Instance.getClient()
   const prefix = Redis.Instance.getPrefix()
 
@@ -159,7 +169,7 @@ export async function getCreatorFollowerTrend (accountId: number): Promise<{ dat
     INNER JOIN "actor" ON "actor"."id" = "actorFollow"."targetActorId"
     WHERE "actor"."accountId" = :accountId
       AND "actorFollow"."state" = 'accepted'
-      AND "actorFollow"."createdAt" >= NOW() - INTERVAL '30 days'
+      AND "actorFollow"."createdAt" >= NOW() - INTERVAL '${days} days'
     GROUP BY DATE("actorFollow"."createdAt")
     ORDER BY date ASC
   `, {

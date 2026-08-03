@@ -321,8 +321,8 @@ export class GamesService {
     )
   }
 
-  getAnalytics (): Observable<GameAnalytics> {
-    return this.http.get<GameAnalytics>(`${GamesService.BASE_URL}/me/analytics`)
+  getAnalytics (range: '7d' | '30d' | '90d' = '30d'): Observable<GameAnalytics> {
+    return this.http.get<GameAnalytics>(`${GamesService.BASE_URL}/me/analytics?range=${range}`)
   }
 
   listForModerators (): Observable<GameList> {

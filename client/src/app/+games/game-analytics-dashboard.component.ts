@@ -506,7 +506,7 @@ export class GameAnalyticsDashboardComponent implements OnInit {
   }
 
   loadAnalytics () {
-    this.gamesService.getAnalytics().subscribe(data => this.analytics.set(data))
+    this.gamesService.getAnalytics(this.currentRange()).subscribe(data => this.analytics.set(data))
   }
 
   setTimeRange (range: TimeRange) {
