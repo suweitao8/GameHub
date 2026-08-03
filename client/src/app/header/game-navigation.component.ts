@@ -19,6 +19,7 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   private blurTimer: ReturnType<typeof setTimeout> | undefined
   private hotRefreshTimer: ReturnType<typeof setInterval> | undefined
   private suggestionTimer: ReturnType<typeof setTimeout> | undefined
+  private suggestionGeneration = 0
   readonly query = signal('')
   readonly focused = signal(false)
   readonly history = signal<string[]>([])
@@ -46,6 +47,8 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   ngOnDestroy () {
     if (this.blurTimer) clearTimeout(this.blurTimer)
     if (this.hotRefreshTimer) clearInterval(this.hotRefreshTimer)
+    if (this.suggestionTimer) clearTimeout(this.suggestionTimer)
+    this.suggestionGeneration += 1
   }
 
   onFocus () {
@@ -65,13 +68,19 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   onQueryChange (value: string) {
     this.query.set(value)
     if (this.suggestionTimer) clearTimeout(this.suggestionTimer)
+    const generation = ++this.suggestionGeneration
     const trimmed = value.trim()
     if (trimmed.length < 2) {
       this.suggestions.set([])
       this.suggestionLoading.set(false)
+      this.suggestionVisible.set(false)
       return
     }
-    this.suggestionTimer = setTimeout(() => this.fetchSuggestions(trimmed), 150)
+    this.suggestionVisible.set(false)
+    this.suggestionTimer = setTimeout(() => {
+      this.suggestionTimer = undefined
+      this.fetchSuggestions(trimmed, generation)
+    }, 150)
   }
 
   onKeydown (event: KeyboardEvent) {
@@ -87,13 +96,24 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
     }
   }
 
-  private fetchSuggestions (query: string) {
+  private fetchSuggestions (query: string, generation: number) {
     if (!query) return
+    if (generation !== this.suggestionGeneration) return
     this.suggestionLoading.set(true)
     this.http.get<{ data: string[] }>(`${environment.apiUrl}/api/v1/games/suggest?q=${encodeURIComponent(query)}`)
       .subscribe({
-        next: result => { this.suggestions.set(result.data.slice(0, 8)); this.suggestionLoading.set(false) },
-        error: () => { this.suggestions.set([]); this.suggestionLoading.set(false) }
+        next: result => {
+          if (generation !== this.suggestionGeneration) return
+          this.suggestions.set(result.data.slice(0, 8))
+          this.suggestionVisible.set(result.data.length > 0)
+          this.suggestionLoading.set(false)
+        },
+        error: () => {
+          if (generation !== this.suggestionGeneration) return
+          this.suggestions.set([])
+          this.suggestionVisible.set(false)
+          this.suggestionLoading.set(false)
+        }
       })
   }
 
@@ -110,6 +130,7 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
     this.query.set(search)
     this.rememberSearch(search)
     this.focused.set(false)
+    this.suggestionVisible.set(false)
     void this.router.navigate([ '/games/search' ], { queryParams: { search } })
   }
 

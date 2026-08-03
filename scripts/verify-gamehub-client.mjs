@@ -194,6 +194,15 @@ assert(
     !navigationHtml.includes('@if (history().length && !suggestionLoading() && !query().trim()) {'),
   'search focus must keep recent search history visible when the previous query is prefilled'
 )
+assert(
+  navigationTs.includes('private suggestionGeneration = 0') &&
+    navigationTs.includes('clearTimeout(this.suggestionTimer)') &&
+    navigationTs.includes('const generation = ++this.suggestionGeneration') &&
+    navigationTs.includes('this.fetchSuggestions(trimmed, generation)') &&
+    navigationTs.includes('this.suggestionVisible.set(result.data.length > 0)') &&
+    (navigationTs.match(/if \(generation !== this\.suggestionGeneration\) return/g) || []).length >= 2,
+  'search suggestions must ignore stale query responses and clear delayed work when the navigation is destroyed'
+)
 assert(!eventDetailTs.includes('返回活动列表') && !collectionDetailTs.includes('浏览全部专题') && !collectionDetailTs.includes('返回专题列表'), 'game detail states must not render legacy return buttons')
 
 const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
