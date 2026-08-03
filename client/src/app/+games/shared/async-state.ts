@@ -1,6 +1,5 @@
 import { signal, computed } from '@angular/core'
-import { Observable } from 'rxjs'
-import { forkJoin } from 'rxjs'
+import { forkJoin, Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { getGameActionErrorMessage } from '../game-action-feedback'
 
@@ -42,13 +41,10 @@ export interface AsyncState<T> {
   /** 从多个 Observable 并发加载并合并为对象 data；forkJoin 语义，全部完成才写入 */
   loadMulti<T2 extends Record<string, Observable<any>>> (sources: T2): void
   /** 加载更多：将 Observable<T[]> 的结果拼接到现有数组 data 末尾 */
-  loadMore (source$: Observable<T extends Array<infer U> ? U[] : never>): void
+  loadMore (source$: Observable<T extends (infer U)[] ? U[] : never>): void
   /** 重置为初始状态 */
   reset (): void
 }
-
-/** 从 Observable<T> 中解包出 T */
-type Unpacked<O> = O extends Observable<infer R> ? R : never
 
 /** 解析错误为展示消息：优先 getGameActionErrorMessage，其次 err.message，最后兜底 */
 function resolveErrorMessage (err: unknown): string {
@@ -73,6 +69,7 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
   const loading = signal(false)
   const error = signal('')
   const loadingMore = signal(false)
+  let requestGeneration = 0
 
   const hasError = computed(() => error().length > 0)
   const hasData = computed(() => data() !== null)
@@ -93,48 +90,59 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
     isEmpty,
     loadingMore,
     load (source$: Observable<T>) {
+      const generation = ++requestGeneration
       loading.set(true)
       error.set('')
+      loadingMore.set(false)
       source$.subscribe({
         next: result => {
+          if (generation !== requestGeneration) return
           data.set(result)
           loading.set(false)
         },
         error: err => {
+          if (generation !== requestGeneration) return
           loading.set(false)
           error.set(resolveErrorMessage(err))
         }
       })
     },
     loadMulti<T2 extends Record<string, Observable<any>>> (sources: T2) {
+      const generation = ++requestGeneration
       loading.set(true)
       error.set('')
+      loadingMore.set(false)
       const merged = forkJoin(sources).pipe(
         map(result => result as unknown as T)
       )
       merged.subscribe({
         next: result => {
+          if (generation !== requestGeneration) return
           data.set(result)
           loading.set(false)
         },
         error: err => {
+          if (generation !== requestGeneration) return
           loading.set(false)
           error.set(resolveErrorMessage(err))
         }
       })
     },
-    loadMore (source$: Observable<T extends Array<infer U> ? U[] : never>) {
+    loadMore (source$: Observable<T extends (infer U)[] ? U[] : never>) {
+      const generation = requestGeneration
       loadingMore.set(true)
       source$.subscribe({
         next: result => {
+          if (generation !== requestGeneration) return
           const current = data()
           const arr = Array.isArray(current) ? (current as unknown[]) : []
           // result 是数组；拼接后写回 data
-          const next = [...arr, ...(result as unknown[])] as unknown as T
+          const next = [ ...arr, ...(result as unknown[]) ] as unknown as T
           data.set(next)
           loadingMore.set(false)
         },
         error: err => {
+          if (generation !== requestGeneration) return
           loadingMore.set(false)
           // 加载更多失败只回写 loadingMore，不覆盖主 data 与 error
           // 避免已加载列表被清空；上层可据 loadingMore=false 自行提示
@@ -143,6 +151,7 @@ export function createAsyncState<T> (initial: T | null = null): AsyncState<T> {
       })
     },
     reset () {
+      requestGeneration += 1
       data.set(initial)
       loading.set(false)
       error.set('')

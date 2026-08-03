@@ -235,6 +235,7 @@ const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.sc
 const commentsTs = read('client/src/app/+games/game-comments.component.ts')
 const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
 const headerTs = read('client/src/app/header/header.component.ts')
+const asyncStateTs = read('client/src/app/+games/shared/async-state.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
@@ -503,6 +504,14 @@ assert(
 assert(
   (headerTs.match(/this\.gameNavLoaded\.delete\(popup\)/g) || []).length >= 4,
   'header game navigation popovers must be retryable after a failed request'
+)
+assert(
+  asyncStateTs.includes('let requestGeneration = 0') &&
+    (asyncStateTs.match(/const generation = \+\+requestGeneration/g) || []).length >= 2 &&
+    asyncStateTs.includes('const generation = requestGeneration') &&
+    (asyncStateTs.match(/if \(generation !== requestGeneration\) return/g) || []).length >= 6 &&
+    asyncStateTs.includes('requestGeneration += 1'),
+  'shared async state must ignore stale loads and reset in-flight responses'
 )
 assert(
   !headerScss.includes('background: #eaf8ff;') &&
