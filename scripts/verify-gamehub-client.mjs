@@ -246,6 +246,15 @@ assert(
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+const featuredFadeStyleStart = featuredScss.indexOf('.featured-cover-fade')
+const featuredFadeStyleEnd = featuredFadeStyleStart >= 0
+  ? featuredScss.indexOf('}', featuredFadeStyleStart)
+  : -1
+const featuredFadeStyle = featuredScss.slice(featuredFadeStyleStart, featuredFadeStyleEnd)
+assert(
+  featuredFadeStyle.includes('height: 10%'),
+  'featured carousel cover fade must cover exactly the bottom tenth of the cover'
+)
 assert(
   featuredHtml.includes("[attr.aria-current]=\"index === carouselIndex() ? 'true' : null\""),
   'featured carousel indicators must expose the active recommendation with aria-current'

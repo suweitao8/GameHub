@@ -178,10 +178,10 @@
   width: 100%;
 }
 
-/* Bottom 1/6 of cover: average-color fade that reaches full opacity at the footer edge */
+/* Bottom tenth of cover: average-color fade that reaches full opacity at the footer edge */
 .featured-cover-fade {
   bottom: 0;
-  height: 16.666%;
+  height: 10%;
   left: 0;
   pointer-events: none;
   position: absolute;
