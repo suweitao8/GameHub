@@ -217,6 +217,7 @@ const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.co
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 const gameCardHtml = read('client/src/app/+games/game-card.component.html')
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
+const notificationHtml = read('client/src/app/+games/game-notifications.component.html')
 assert(
   gameCardHtml.includes('[innerHTML]="game.title | highlight: searchTerm"') &&
     !gameCardHtml.includes('{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}'),
@@ -231,6 +232,13 @@ assert(
 )
 assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
+assert(
+  notificationHtml.includes('class="notification-item"') &&
+    notificationHtml.includes('(click)="markRead(notification)"') &&
+    !/<article class="notification-item"[^>]*role="button"/.test(notificationHtml) &&
+    !/<article class="notification-item"[^>]*tabindex="0"/.test(notificationHtml),
+  'notification rows must not expose a composite button role around their link and delete button'
+)
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
 const gamePlayTs = read('client/src/app/+games/game-play.component.ts')
 const gamePlayScss = read('client/src/app/+games/game-play.component.scss')
