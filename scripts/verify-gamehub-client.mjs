@@ -313,6 +313,15 @@ assert(
     gamesHomeScss.includes('min-width: 4.8rem;'),
   'home category links must use an order-independent fixed four-character button width'
 )
+assert(
+  gamesHomeScss.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
+    !gamesHomeScss.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
+  'desktop game grids must keep five columns across supported desktop widths'
+)
+assert(
+  /\.game-submit-button\s*\{[\s\S]*?font-weight: 400;[\s\S]*?\}/.test(headerScss),
+  'GameHub submit navigation text must use regular weight instead of bold styling'
+)
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
