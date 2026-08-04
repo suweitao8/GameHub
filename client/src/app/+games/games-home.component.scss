@@ -457,7 +457,6 @@
 @media (max-width: 1050px) {
   .game-grid {
     gap: 0.65rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
