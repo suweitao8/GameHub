@@ -299,6 +299,7 @@ const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
 const commentsStoreImplementation = commentsStoreTs.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '')
 const headerTs = read('client/src/app/header/header.component.ts')
 const headerHtml = read('client/src/app/header/header.component.html')
+const gameNavigationTs = read('client/src/app/header/game-navigation.component.ts')
 const asyncStateTs = read('client/src/app/+games/shared/async-state.ts')
 const activityFeedTs = read('client/src/app/+games/game-activity-feed.component.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
@@ -347,6 +348,14 @@ assert(
     gameCardTs.includes("racing: '竞速'") &&
     gameAuthorTs.includes("racing: '竞速'"),
   'racing category must be available and labeled consistently across discovery, rankings, cards, and author pages'
+)
+const clearHistoryStart = gameNavigationTs.indexOf('clearHistory ()')
+const clearHistoryEnd = gameNavigationTs.indexOf('\n  submitSearch', clearHistoryStart)
+assert(
+  clearHistoryStart >= 0 &&
+    clearHistoryEnd > clearHistoryStart &&
+    gameNavigationTs.slice(clearHistoryStart, clearHistoryEnd).includes("this.query.set('')"),
+  'clearing search history must also clear the visible search query'
 )
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')

@@ -119,6 +119,9 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
 
   clearHistory () {
     this.history.set([])
+    this.query.set('')
+    this.suggestions.set([])
+    this.suggestionVisible.set(false)
     this.writeHistory([])
   }
 
