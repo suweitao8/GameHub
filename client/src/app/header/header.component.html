@@ -58,9 +58,14 @@
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
         (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
+        (focusin)="scheduleGameAvatarMenu()" (focusout)="onGameAvatarFocusOut($event)"
         >
         @if (isGameExperience()) {
-          <button class="tertiary-button" type="button" [attr.aria-label]="loggedIn ? '打开个人主页' : '登录 GameHub'" (click)="openGameProfile($event)">
+          <button
+            class="tertiary-button" type="button" [attr.aria-label]="loggedIn ? '打开个人主页' : '登录 GameHub'"
+            [attr.aria-haspopup]="'dialog'" [attr.aria-expanded]="gameAvatarHoverVisible()"
+            (click)="openGameProfile($event)"
+          >
             <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || 'GameHub 玩家'" (error)="onGameAvatarError($event)">
           </button>
           @if (gameAvatarHoverVisible()) {

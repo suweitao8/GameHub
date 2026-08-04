@@ -423,6 +423,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.cancelGameNavHover()
   }
 
+  onGameAvatarFocusOut (event: FocusEvent) {
+    const container = event.currentTarget as HTMLElement | null
+    const nextTarget = event.relatedTarget as Node | null
+
+    if (container?.contains(nextTarget)) return
+
+    this.cancelGameAvatarHover()
+  }
+
   async copyGamePrompt (prompt: string) {
     try {
       if (navigator.clipboard?.writeText) {

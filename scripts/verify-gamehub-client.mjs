@@ -811,6 +811,13 @@ assert(
     !headerHtml.includes('(mouseleave)="cancelGameAvatarHover()"'),
   'header avatar hover must use one pointer-event path without duplicate mouse handlers'
 )
+assert(
+  headerHtml.includes('(focusin)="scheduleGameAvatarMenu()"') &&
+    headerHtml.includes('(focusout)="onGameAvatarFocusOut($event)"') &&
+    headerHtml.includes('[attr.aria-expanded]="gameAvatarHoverVisible()"') &&
+    headerTs.includes('onGameAvatarFocusOut (event: FocusEvent)'),
+  'header avatar menu must expose the same delayed popup through keyboard focus'
+)
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
     headerHtml.includes(`(pointerenter)="scheduleGameNavHover('${popup}')"`) &&
