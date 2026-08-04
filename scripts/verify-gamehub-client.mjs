@@ -622,6 +622,10 @@ assert(
 assert(gamePlayScss.includes('background: rgb(0 0 0 / 68%)') && gamePlayScss.includes('opacity: 0;') && gamePlayScss.includes('.game-stage:hover .game-player-controls'), 'game controls must be a hidden translucent overlay revealed on stage hover')
 assert(commentsTs.includes('bili-composer-tool') && commentsTs.includes('accept="image/*"') && commentsTs.includes('添加表情'), 'comment composer must expose emoji and image controls')
 assert(
+  commentsTs.includes('role="button"') && commentsTs.includes('tabindex="0"') && commentsTs.includes('activateImagePicker'),
+  'comment image control must be keyboard reachable and activate the file picker'
+)
+assert(
   commentsTs.includes('emojiOpen') && commentsTs.includes('class="bili-emoji-picker"') && commentsTs.includes('class="bili-emoji-option"') &&
     commentsTs.includes('(click)="toggleEmojiPicker($event)"') && commentsTs.includes('selectEmoji(emoji, commentInput') &&
     !commentsTs.includes('(click)="insertEmoji(commentInput)"'),

@@ -552,9 +552,16 @@ import { GameCommentsStore } from './game-comments-store'
                 }
               </div>
               <div class="bili-composer-tool-wrap">
-                <label class="bili-composer-tool" aria-label="上传图片" title="上传图片">
+                <label
+                  class="bili-composer-tool"
+                  role="button"
+                  tabindex="0"
+                  aria-label="上传图片"
+                  title="上传图片"
+                  (keydown)="activateImagePicker($event, commentImageInput)"
+                >
                   <my-global-icon iconName="upload" />
-                  <input type="file" accept="image/*" (change)="selectImage($event)">
+                  <input #commentImageInput type="file" accept="image/*" (change)="selectImage($event)">
                 </label>
               </div>
             </div>
@@ -722,6 +729,13 @@ export class GameCommentsComponent {
     const reader = new FileReader()
     reader.onload = () => this.imageDataUrl.set(String(reader.result || ''))
     reader.readAsDataURL(file)
+  }
+
+  activateImagePicker (event: KeyboardEvent, input: HTMLInputElement) {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    event.stopPropagation()
+    input.click()
   }
 
   clearImage () {
