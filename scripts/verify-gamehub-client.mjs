@@ -877,6 +877,11 @@ assert(
   'comment polling must preserve loaded pages while refreshing the latest comments'
 )
 assert(
+  /private refresh \(\) \{[\s\S]*?subscribe\(\{[\s\S]*?error: \(\) =>/.test(commentsStoreTs) &&
+    /private refresh \(\) \{[\s\S]*?subscribe\(\{[\s\S]*?error: \(\) =>/.test(discussStoreTs),
+  'comment and discussion polling must handle transient request failures without global console errors'
+)
+assert(
   !headerScss.includes('background: #eaf8ff;') &&
     /\.game-header-actions a\.game-header-action-active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
     /\.game-header-left-nav a\.active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss),

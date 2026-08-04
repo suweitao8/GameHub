@@ -351,7 +351,9 @@ export class GameCommentsStore implements OnDestroy {
         this.total.set(result.total)
         this.commentCount.set(result.commentCount ?? result.total)
         this.error.set('')
-      }
+      },
+      // Polling is best-effort: keep the last successful snapshot on a transient failure.
+      error: () => undefined
     })
   }
 

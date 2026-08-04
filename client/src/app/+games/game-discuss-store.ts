@@ -129,7 +129,9 @@ export class GameDiscussStore implements OnDestroy {
         this.messages.set(result.data)
         this.total.set(result.total)
         this.error.set('')
-      }
+      },
+      // Polling is best-effort: keep the last successful snapshot on a transient failure.
+      error: () => undefined
     })
   }
 
