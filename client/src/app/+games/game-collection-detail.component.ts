@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { environment } from '../../environments/environment'
 import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
+import { createAsyncState } from './shared'
 import type { Game } from './games.service'
 
 export type GameCollectionDetail = {
@@ -144,9 +145,11 @@ export type GameCollectionDetail = {
 export class GameCollectionDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)
   private readonly route = inject(ActivatedRoute)
-  collection = signal<GameCollectionDetail | null>(null)
-  loading = signal(false)
-  error = signal(false)
+  private readonly state = createAsyncState<GameCollectionDetail>()
+  /** 模板兼容 */
+  readonly collection = this.state.data
+  readonly loading = this.state.loading
+  readonly error = this.state.hasError
   private currentSlug = ''
 
   ngOnInit () {
@@ -164,17 +167,6 @@ export class GameCollectionDetailComponent implements OnInit {
   }
 
   private loadCollection (slug: string) {
-    this.loading.set(true)
-    this.error.set(false)
-    this.http.get<GameCollectionDetail>(`${environment.apiUrl}/api/v1/games/collections/${slug}`).subscribe({
-      next: (result) => {
-        this.collection.set(result)
-        this.loading.set(false)
-      },
-      error: () => {
-        this.error.set(true)
-        this.loading.set(false)
-      }
-    })
+    this.state.load(this.http.get<GameCollectionDetail>(`${environment.apiUrl}/api/v1/games/collections/${slug}`))
   }
 }

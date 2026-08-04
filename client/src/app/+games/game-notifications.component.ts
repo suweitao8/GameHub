@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router'
 import { GameNotificationBadgeService } from '../header/game-notification-badge.service'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { markAllGameNotificationsRead, markGameNotificationRead, removeGameNotification } from './game-notification-state'
+import { createAsyncState } from './shared'
 import { GameNotification, GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
@@ -20,11 +21,14 @@ export class GameNotificationsComponent implements OnInit {
   private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
   private readonly notificationBadge = inject(GameNotificationBadgeService)
-  readonly notifications = signal<GameNotification[]>([])
+  private readonly state = createAsyncState<{ notifications: GameNotification[]; unread: number }>()
+  /** 列表数据（兼容模板 notifications()） */
+  readonly notifications = computed(() => this.state.data()?.notifications ?? [])
   readonly selectedFilter = signal<NotificationFilter>('all')
   readonly unread = signal(0)
-  readonly loading = signal(true)
-  readonly error = signal('')
+  /** 模板兼容：loading 初始为 true */
+  readonly loading = this.state.loading
+  readonly error = this.state.error
   readonly feedback = signal('')
   readonly notificationLoading = signal<number | null>(null)
   readonly markAllLoading = signal(false)
@@ -38,6 +42,11 @@ export class GameNotificationsComponent implements OnInit {
         : notification.kind === filter)
   })
 
+  constructor () {
+    // 对齐原 signal(true)
+    this.state.loading.set(true)
+  }
+
   ngOnInit () {
     this.load()
   }
@@ -45,22 +54,23 @@ export class GameNotificationsComponent implements OnInit {
   load () {
     this.feedback.set('')
     if (!this.authService.isLoggedIn()) {
-      this.error.set('请先登录后查看 GameHub 消息。')
-      this.loading.set(false)
+      this.state.error.set('请先登录后查看 GameHub 消息。')
+      this.state.loading.set(false)
       return
     }
 
-    this.loading.set(true)
+    this.state.loading.set(true)
+    this.state.error.set('')
     this.gamesService.notifications().subscribe({
       next: result => {
-        this.notifications.set(result.data)
+        this.state.data.set({ notifications: result.data, unread: result.unread })
         this.unread.set(result.unread)
         this.notificationBadge.setUnread(result.unread)
-        this.loading.set(false)
+        this.state.loading.set(false)
       },
       error: error => {
-        this.error.set(getGameActionErrorMessage(error))
-        this.loading.set(false)
+        this.state.error.set(getGameActionErrorMessage(error))
+        this.state.loading.set(false)
       }
     })
   }
@@ -71,7 +81,7 @@ export class GameNotificationsComponent implements OnInit {
     this.gamesService.markNotificationRead(notification.id).subscribe({
       next: () => {
         const result = markGameNotificationRead(this.notifications(), notification.id)
-        this.notifications.set(result.notifications)
+        this.state.data.update(value => value ? { ...value, notifications: result.notifications } : value)
         if (result.changed) {
           this.unread.update(value => Math.max(0, value - 1))
           this.notificationBadge.decrement()
@@ -91,7 +101,7 @@ export class GameNotificationsComponent implements OnInit {
     this.markAllLoading.set(true)
     this.gamesService.markAllNotificationsRead().subscribe({
       next: () => {
-        this.notifications.set(markAllGameNotificationsRead(this.notifications()))
+        this.state.data.update(value => value ? { ...value, notifications: markAllGameNotificationsRead(value.notifications) } : value)
         this.unread.set(0)
         this.notificationBadge.clear()
         this.markAllLoading.set(false)
@@ -112,7 +122,7 @@ export class GameNotificationsComponent implements OnInit {
     this.gamesService.deleteNotification(notification.id).subscribe({
       next: () => {
         const wasUnread = !notification.read
-        this.notifications.set(removeGameNotification(this.notifications(), notification.id))
+        this.state.data.update(value => value ? { ...value, notifications: removeGameNotification(value.notifications, notification.id) } : value)
         if (wasUnread) {
           this.unread.update(value => Math.max(0, value - 1))
           this.notificationBadge.decrement()

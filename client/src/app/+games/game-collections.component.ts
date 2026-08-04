@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
+import { createAsyncState } from './shared'
 
 export type GameCollection = {
   id: number
@@ -173,26 +175,20 @@ export type GameCollection = {
 })
 export class GameCollectionsComponent implements OnInit {
   private readonly http = inject(HttpClient)
-  collections = signal<GameCollection[]>([])
-  loading = signal(false)
-  error = signal(false)
+  private readonly state = createAsyncState<GameCollection[]>([])
+  /** 模板兼容 */
+  readonly collections = computed(() => this.state.data() ?? [])
+  readonly loading = this.state.loading
+  readonly error = this.state.hasError
 
   ngOnInit () {
     this.loadCollections()
   }
 
   loadCollections () {
-    this.loading.set(true)
-    this.error.set(false)
-    this.http.get<{ total: number; data: GameCollection[] }>(`${environment.apiUrl}/api/v1/games/collections`).subscribe({
-      next: (result) => {
-        this.collections.set(result.data)
-        this.loading.set(false)
-      },
-      error: () => {
-        this.error.set(true)
-        this.loading.set(false)
-      }
-    })
+    this.state.load(
+      this.http.get<{ total: number; data: GameCollection[] }>(`${environment.apiUrl}/api/v1/games/collections`)
+        .pipe(map(result => result.data))
+    )
   }
 }

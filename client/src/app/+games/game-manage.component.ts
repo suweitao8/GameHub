@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
-import { Subscription } from 'rxjs'
 import { getGameActionErrorMessage } from './game-action-feedback'
+import { createAsyncState } from './shared'
 import { GamesService, Game } from './games.service'
 
 @Component({
@@ -12,11 +12,14 @@ import { GamesService, Game } from './games.service'
 })
 export class GameManageComponent implements OnInit, OnDestroy {
   private readonly gamesService = inject(GamesService)
-  readonly games = signal<Game[]>([])
+  private readonly state = createAsyncState<Game[]>([])
+  /** 列表数据（兼容模板/games() 引用） */
+  readonly games = computed(() => this.state.data() ?? [])
   readonly filteredGames = signal<Game[]>([])
-  readonly error = signal('')
+  /** 模板兼容：列表加载与操作共享同一错误态；loading 初始为 true */
+  readonly error = this.state.error
   readonly feedback = signal('')
-  readonly loading = signal(true)
+  readonly loading = this.state.loading
   readonly moderating = signal<string | null>(null)
   readonly removeTarget = signal<string | null>(null)
   readonly removing = signal<string | null>(null)
@@ -33,12 +36,17 @@ export class GameManageComponent implements OnInit, OnDestroy {
     { id: 'blocked' as const, label: '已封禁' }
   ]
 
+  constructor () {
+    // 对齐原 signal(true)
+    this.state.loading.set(true)
+  }
+
   ngOnInit () {
     this.gamesService.listForModerators().subscribe({
-      next: result => { this.games.set(result.data); this.applyFilter(); this.loading.set(false) },
+      next: result => { this.state.data.set(result.data); this.state.loading.set(false); this.applyFilter() },
       error: () => this.gamesService.listOwned().subscribe({
-        next: result => { this.games.set(result.data); this.ownerView.set(true); this.applyFilter(); this.loading.set(false) },
-        error: () => { this.error.set('只有管理员、审核员或游戏作者可以查看这里。'); this.loading.set(false) }
+        next: result => { this.state.data.set(result.data); this.ownerView.set(true); this.state.loading.set(false); this.applyFilter() },
+        error: () => { this.state.error.set('只有管理员、审核员或游戏作者可以查看这里。'); this.state.loading.set(false) }
       })
     })
   }
@@ -55,7 +63,7 @@ export class GameManageComponent implements OnInit, OnDestroy {
     this.moderating.set(actionKey)
     this.gamesService.moderate(game.uuid, action).subscribe({
       next: updated => {
-        this.games.update(items => items.map(item => item.uuid === updated.uuid ? updated : item))
+        this.state.data.update(items => (items || []).map(item => item.uuid === updated.uuid ? updated : item))
         this.applyFilter()
         this.feedback.set({ approve: '游戏已发布。', reject: '游戏已退回。', unlist: '游戏已下架。', block: '游戏已封禁。' }[action])
         this.moderating.set(null)
@@ -84,7 +92,7 @@ export class GameManageComponent implements OnInit, OnDestroy {
     this.feedback.set('')
     this.gamesService.remove(game.uuid).subscribe({
       next: () => {
-        this.games.update(items => items.filter(item => item.uuid !== game.uuid))
+        this.state.data.update(items => (items || []).filter(item => item.uuid !== game.uuid))
         this.applyFilter()
         this.feedback.set('游戏已下架，可在管理员审核后重新发布。')
         this.removing.set(null)
