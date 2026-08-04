@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
 import { map } from 'rxjs/operators'
-import { environment } from '../../environments/environment'
+import { GamesService } from './games.service'
 import { createAsyncState } from './shared'
 
 export type GameCollection = {
@@ -174,7 +173,7 @@ export type GameCollection = {
   `]
 })
 export class GameCollectionsComponent implements OnInit {
-  private readonly http = inject(HttpClient)
+  private readonly gamesService = inject(GamesService)
   private readonly state = createAsyncState<GameCollection[]>([])
   /** 模板兼容 */
   readonly collections = computed(() => this.state.data() ?? [])
@@ -187,8 +186,8 @@ export class GameCollectionsComponent implements OnInit {
 
   loadCollections () {
     this.state.load(
-      this.http.get<{ total: number; data: GameCollection[] }>(`${environment.apiUrl}/api/v1/games/collections`)
-        .pipe(map(result => result.data))
+      this.gamesService.listCollections()
+        .pipe(map(result => result.data as unknown as GameCollection[]))
     )
   }
 }

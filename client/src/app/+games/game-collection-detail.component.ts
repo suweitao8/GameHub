@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
-import { environment } from '../../environments/environment'
+import { map } from 'rxjs/operators'
 import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
 import { createAsyncState } from './shared'
-import type { Game } from './games.service'
+import { GamesService, type Game } from './games.service'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 export type GameCollectionDetail = {
@@ -144,7 +143,7 @@ export type GameCollectionDetail = {
   ` ]
 })
 export class GameCollectionDetailComponent implements OnInit {
-  private readonly http = inject(HttpClient)
+  private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
   private readonly destroyRef = inject(DestroyRef)
   private readonly state = createAsyncState<GameCollectionDetail>()
@@ -171,6 +170,8 @@ export class GameCollectionDetailComponent implements OnInit {
   }
 
   private loadCollection (slug: string) {
-    this.state.load(this.http.get<GameCollectionDetail>(`${environment.apiUrl}/api/v1/games/collections/${slug}`))
+    this.state.load(
+      this.gamesService.getCollection(slug).pipe(map(data => data as unknown as GameCollectionDetail))
+    )
   }
 }

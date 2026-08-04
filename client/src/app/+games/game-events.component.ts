@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute, RouterLink } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
 import { map } from 'rxjs/operators'
-import { environment } from '../../environments/environment'
+import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { createAsyncState } from './shared'
 
@@ -193,7 +192,7 @@ export type GameEvent = {
   `]
 })
 export class GameEventsComponent implements OnInit {
-  private readonly http = inject(HttpClient)
+  private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
   readonly eventsState = createAsyncState<GameEvent[]>()
   /** 模板兼容：直接返回 data，空数组兜底 */
@@ -216,8 +215,8 @@ export class GameEventsComponent implements OnInit {
   })
 
   ngOnInit () {
-    const data$ = this.http.get<{ total: number; data: GameEvent[] }>(`${environment.apiUrl}/api/v1/games/events`).pipe(
-      map(result => result.data)
+    const data$ = this.gamesService.listEvents().pipe(
+      map(result => result.data as unknown as GameEvent[])
     )
     this.eventsState.load(data$)
   }

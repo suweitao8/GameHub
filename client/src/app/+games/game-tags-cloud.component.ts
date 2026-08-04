@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
 import { map } from 'rxjs/operators'
-import { environment } from '../../environments/environment'
+import { GamesService } from './games.service'
 import { createAsyncState } from './shared'
 
 export type GameTagCloud = {
@@ -131,7 +130,7 @@ export type GameTagCloud = {
   `]
 })
 export class GameTagsCloudComponent implements OnInit {
-  private readonly http = inject(HttpClient)
+  private readonly gamesService = inject(GamesService)
   readonly tagsState = createAsyncState<GameTagCloud[]>()
   /** 模板兼容：直接返回 data */
   readonly tags = computed(() => this.tagsState.data() ?? [])
@@ -140,7 +139,7 @@ export class GameTagsCloudComponent implements OnInit {
   readonly loading = this.tagsState.loading
 
   ngOnInit () {
-    const sorted$ = this.http.get<GameTagCloud[]>(`${environment.apiUrl}/api/v1/games/tags`).pipe(
+    const sorted$ = this.gamesService.listTags().pipe(
       map(result => result.filter(item => item.gameCount >= 1).sort((a, b) => b.gameCount - a.gameCount))
     )
     this.tagsState.load(sorted$)
