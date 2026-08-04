@@ -355,4 +355,28 @@ export class GamesService {
   listReservations (): Observable<GameReservationList> {
     return this.http.get<GameReservationList>(`${GamesService.BASE_URL}/me/reservations`)
   }
+
+  // ---------------------------------------------------------------------------
+  // 发现：合集 / 活动 / 标签 / 攻略
+  // ---------------------------------------------------------------------------
+
+  listCollections (): Observable<GameCollectionList> {
+    return this.http.get<GameCollectionList>(`${GamesService.BASE_URL}/collections`)
+  }
+
+  getCollection (slug: string): Observable<GameCollectionDetail> {
+    return this.http.get<GameCollectionDetail>(`${GamesService.BASE_URL}/collections/${encodeURIComponent(slug)}`)
+  }
+
+  listEvents (): Observable<GameEventList> {
+    return this.http.get<GameEventList>(`${GamesService.BASE_URL}/events`)
+  }
+
+  getEvent (slug: string): Observable<GameEvent> {
+    return this.http.get<GameEvent>(`${GamesService.BASE_URL}/events/${encodeURIComponent(slug)}`)
+  }
+
+  listTags (): Observable<{ tag: string, gameCount: number }[]> {
+    return this.http.get<{ tag: string, gameCount: number }[]>(`${GamesService.BASE_URL}/tags`)
+  }
 }
