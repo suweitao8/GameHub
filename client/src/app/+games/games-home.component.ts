@@ -236,9 +236,11 @@ export class GamesHomeComponent implements OnInit {
 
   shuffleRecommendations () {
     const total = this.recommendedTotal()
-    const nextOffset = total > 0 && this.recommendedOffset() + 8 >= total
+    const pageSize = 8
+    const lastPageStart = Math.max(total - pageSize, 0)
+    const nextOffset = total > 0 && this.recommendedOffset() >= lastPageStart
       ? 0
-      : this.recommendedOffset() + 8
+      : Math.min(this.recommendedOffset() + pageSize, lastPageStart)
     this.recommendedOffset.set(nextOffset)
     this.loadGames()
   }

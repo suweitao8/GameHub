@@ -168,6 +168,12 @@ assert(
 )
 
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
+assert(
+  homeTs.includes('const pageSize = 8') &&
+    homeTs.includes('const lastPageStart = Math.max(total - pageSize, 0)') &&
+    homeTs.includes('Math.min(this.recommendedOffset() + pageSize, lastPageStart)'),
+  'recommended shuffle must wrap to a full final page instead of leaving the carousel with fewer than six items'
+)
 assert(homeHtml.includes('my-featured-carousel'), 'games-home must render the featured carousel')
 assert(homeHtml.includes('我玩过的') && homeHtml.includes('最新发布') && homeHtml.includes('热门游戏'), 'games-home must render the required feed sections')
 assert(
