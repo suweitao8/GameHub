@@ -4,7 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
 import { FormsModule } from '@angular/forms'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { isSupportedGameRuntimeFilename } from './games-api'
-import { GamesService } from './games.service'
+import { createAsyncState } from './shared'
+import { GamesService, Game } from './games.service'
 
 @Component({
   templateUrl: './game-edit.component.html',
@@ -16,10 +17,12 @@ export class GameEditComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly route = inject(ActivatedRoute)
   private readonly sanitizer = inject(DomSanitizer)
-  readonly loading = signal(true)
+  private readonly state = createAsyncState<Game>()
+  /** 模板兼容：loading 初始为 true，错误与提交共享同一信号 */
+  readonly loading = this.state.loading
+  readonly error = this.state.error
   readonly submitting = signal(false)
   readonly message = signal('')
-  readonly error = signal('')
   readonly fileError = signal('')
   readonly runtimePreview = signal<SafeResourceUrl | null>(null)
   readonly uuid = this.route.snapshot.paramMap.get('uuid') || ''
@@ -44,6 +47,11 @@ export class GameEditComponent implements OnInit {
     if (!this.category.trim()) return '请选择分类'
     return '保存修改'
   })
+
+  constructor () {
+    // 对齐原 signal(true)
+    this.state.loading.set(true)
+  }
 
   ngOnInit () {
     this.gamesService.get(this.uuid).subscribe({

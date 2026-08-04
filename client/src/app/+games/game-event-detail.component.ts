@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -36,6 +36,7 @@ export type EventParticipant = {
 @Component({
   selector: 'my-game-event-detail',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, GlobalIconComponent ],
   template: `
     <div class="event-detail-container">

@@ -1,4 +1,4 @@
-import { Component, inject, signal, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, input } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -6,6 +6,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 @Component({
   selector: 'my-game-reserve-button',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, GlobalIconComponent ],
   template: `
     <button class="reserve-button" [class.reserved]="reserved()"

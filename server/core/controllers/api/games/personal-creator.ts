@@ -54,7 +54,7 @@ async function getCreatorOverview (_req: express.Request, res: express.Response)
     coins: games.reduce((sum, game) => sum + Number(game.get?.('coinCount') || 0), 0),
     coinBalance: Math.max(0, coinBalance),
     favorites: games.reduce((sum, game) => sum + Number(game.get?.('favoriteCount') || 0), 0),
-    followers: Number((user.Account.Actor as any)?.followersCount || 0),
+    followers: Number((user.Account.Actor as { followersCount?: number } | undefined)?.followersCount || 0),
     games: games.map(formatGame)
   })
 }

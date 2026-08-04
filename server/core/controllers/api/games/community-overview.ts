@@ -122,7 +122,7 @@ async function listRelatedGames (req: express.Request, res: express.Response) {
   }
 
   const formatGame = (g: MGame) => {
-    const owner = (g as any).Owner
+    const owner = g.Owner
     return {
       uuid: g.uuid,
       title: g.title,

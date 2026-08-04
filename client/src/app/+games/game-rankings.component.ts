@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, computed, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import type { GameRanking } from './games.service'
@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators'
 @Component({
   selector: 'my-game-rankings',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, RouterModule ],
   template: `
     <div class="rankings-container">

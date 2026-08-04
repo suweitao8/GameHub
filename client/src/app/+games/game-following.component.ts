@@ -1,8 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
+import { map } from 'rxjs/operators'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { createAsyncState } from './shared'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 
 export type FollowedAuthor = {
@@ -18,6 +20,7 @@ export type FollowedAuthor = {
 @Component({
   selector: 'my-game-following',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="following-container">
@@ -154,27 +157,18 @@ export type FollowedAuthor = {
 })
 export class GameFollowingComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
-  following = signal<FollowedAuthor[]>([])
-  loading = signal(false)
-  error = signal(false)
+  private readonly state = createAsyncState<FollowedAuthor[]>([])
+  /** 模板兼容 */
+  readonly following = computed(() => this.state.data() ?? [])
+  readonly loading = this.state.loading
+  readonly error = this.state.hasError
 
   ngOnInit () {
     this.loadFollowing()
   }
 
   loadFollowing () {
-    this.loading.set(true)
-    this.error.set(false)
-    this.gamesService.listFollowing().subscribe({
-      next: (result) => {
-        this.following.set(result.data)
-        this.loading.set(false)
-      },
-      error: () => {
-        this.error.set(true)
-        this.loading.set(false)
-      }
-    })
+    this.state.load(this.gamesService.listFollowing().pipe(map(result => result.data)))
   }
 
   getAvatarUrl (author: FollowedAuthor) {

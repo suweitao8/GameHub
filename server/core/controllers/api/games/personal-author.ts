@@ -11,7 +11,7 @@ import type { MGame } from '@server/types/models/game/game.js'
 import { asyncMiddleware, authenticate, optionalAuthenticate } from '@server/middlewares/index.js'
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import express from 'express'
-import { col, fn, literal } from 'sequelize'
+import { col, fn, literal, type OrderItem } from 'sequelize'
 import { getUser, formatGame } from './game-shared.js'
 
 const personalAuthorRouter = express.Router()
@@ -28,7 +28,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
   if (!account?.Actor) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   const sort = req.query.sort === 'plays' || req.query.sort === 'favorites' ? req.query.sort : 'latest'
   const statsCol = (field: string) => `"StatsSummary"."${field}"`
-  const order = sort === 'plays'
+  const order: OrderItem[] = sort === 'plays'
     ? [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ]
     : sort === 'favorites'
       ? [ [ literal(statsCol('favorites')), 'DESC' ], [ 'publishedAt', 'DESC' ] ]
@@ -41,7 +41,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
       { model: AccountModel, required: true },
       { model: GameStatsSummaryModel, required: false }
     ],
-    order: order as any,
+    order,
     limit: 100
   })
   const user = getUser(res)

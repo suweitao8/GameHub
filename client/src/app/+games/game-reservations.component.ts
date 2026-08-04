@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { GamesService } from './games.service'
@@ -8,6 +8,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 @Component({
   selector: 'my-game-reservations',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="reservations-container">

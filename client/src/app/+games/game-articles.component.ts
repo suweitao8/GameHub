@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -22,6 +22,7 @@ export type GameArticle = {
 @Component({
   selector: 'my-game-articles',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, GlobalIconComponent],
   template: `
     <div class="articles-container">
