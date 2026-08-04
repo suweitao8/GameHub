@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router'
       <div class="game-community-content">
         <section class="game-about-hero">
           <div>
-            <p class="game-eyebrow">GAMEHUB COMMUNITY</p>
+            <p class="game-eyebrow">GameHub 社区</p>
             <h1>发现、制作并分享你的下一款小游戏</h1>
             <p>GameHub 是一个专注于 HTML 小游戏的社区。打开即玩，安全运行，也欢迎每一位创作者投稿。</p>
             <div class="game-about-actions">
@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router'
               <a class="game-about-secondary" routerLink="/games/upload">投稿游戏</a>
             </div>
           </div>
-          <div class="game-about-orbit" aria-hidden="true"><span>PLAY</span><span>CREATE</span><span>SHARE</span></div>
+          <div class="game-about-orbit" aria-hidden="true"><span>游玩</span><span>创作</span><span>分享</span></div>
         </section>
 
         <section class="game-about-stats" aria-label="GameHub 特点">
@@ -26,7 +26,7 @@ import { RouterLink } from '@angular/router'
 
         <section class="game-about-columns">
           <article class="game-about-card">
-            <p class="game-eyebrow">FOR PLAYERS</p>
+            <p class="game-eyebrow">玩家指南</p>
             <h2>玩家可以做什么</h2>
             <ul>
               <li>按类型、热度和发布时间寻找适合自己的游戏。</li>
@@ -36,7 +36,7 @@ import { RouterLink } from '@angular/router'
             <a routerLink="/games/library" [queryParams]="{ tab: 'recent' }">查看我的游玩记录 →</a>
           </article>
           <article class="game-about-card">
-            <p class="game-eyebrow">FOR CREATORS</p>
+            <p class="game-eyebrow">创作者指南</p>
             <h2>创作者可以做什么</h2>
             <ul>
               <li>上传单个不超过 20MB 的 HTML 文件，系统会在发布前自动检查。</li>
@@ -48,7 +48,7 @@ import { RouterLink } from '@angular/router'
         </section>
 
         <section class="game-about-rules">
-          <div><p class="game-eyebrow">COMMUNITY RULES</p><h2>社区规范</h2><p>请保持友善、尊重原创，不上传恶意代码、侵权内容或诱导外部跳转的页面。</p></div>
+          <div><p class="game-eyebrow">社区规则</p><h2>社区规范</h2><p>请保持友善、尊重原创，不上传恶意代码、侵权内容或诱导外部跳转的页面。</p></div>
           <div class="game-about-rule-list"><span>尊重作者署名和许可</span><span>不发布恶意或欺诈内容</span><span>举报问题并共同维护社区</span></div>
         </section>
       </div>

@@ -679,6 +679,20 @@ assert(gameTestsTs.includes('should not expose star rating distribution') && gam
 assert(!gamePlayScss.includes('.game-review-panel') && !gamePlayScss.includes('.review-score-picker') && !gamePlayScss.includes('.review-skeleton'), 'game detail styles must not retain dead star-review UI')
 assert(!gameAboutTs.includes('ZIP') && !gameAboutTs.includes('下载原始游戏包') && gameAboutTs.includes('单个 HTML 文件'), 'about page must describe single HTML uploads without ZIP or download claims')
 assert(
+  gameAboutTs.includes('GameHub 社区') &&
+    gameAboutTs.includes('游玩') &&
+    gameAboutTs.includes('创作') &&
+    gameAboutTs.includes('分享') &&
+    gameAboutTs.includes('玩家指南') &&
+    gameAboutTs.includes('创作者指南') &&
+    gameAboutTs.includes('社区规则') &&
+    !gameAboutTs.includes('GAMEHUB COMMUNITY') &&
+    !gameAboutTs.includes('FOR PLAYERS') &&
+    !gameAboutTs.includes('FOR CREATORS') &&
+    !gameAboutTs.includes('COMMUNITY RULES'),
+  'about page labels must stay localized for the Chinese GameHub experience'
+)
+assert(
   previewProbeTs.includes('private prepareGeneration = 0') &&
     previewProbeTs.includes('const generation = ++this.prepareGeneration') &&
     previewProbeTs.includes('if (generation !== this.prepareGeneration) return'),
@@ -781,6 +795,13 @@ assert(
   'legacy ZIP documents must be explicitly marked as historical and point to the current single-HTML contract'
 )
 assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
+assert(
+  loginHtml.includes('GameHub 账户') &&
+    loginHtml.includes('游玩 · 创作 · 分享') &&
+    !loginHtml.includes('GAMEHUB ACCOUNT') &&
+    !loginHtml.includes('PLAY · CREATE · SHARE'),
+  'login page labels must stay localized for the Chinese GameHub experience'
+)
 assert(
   commentsTs.includes('height: 0.7rem;') && commentsTs.includes('width: 0.7rem;') &&
     commentsTs.includes('.bili-meta-btn my-global-icon ::ng-deep svg'),
