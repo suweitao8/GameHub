@@ -319,6 +319,16 @@ assert(
   'desktop game grids must keep five columns across supported desktop widths'
 )
 assert(
+  gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
+    !gameSectionTs.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
+  'shared home sections must keep five columns across supported desktop widths'
+)
+assert(
+  !homeHtml.includes('[shuffleLabel]="recent().length > 1 ? \'换一批\' : undefined"') &&
+    !homeTs.includes('shuffleRecent ()'),
+  'recently played games must keep the server-provided latest-first order without shuffle controls'
+)
+assert(
   /\.game-submit-button\s*\{[\s\S]*?font-weight: 400;[\s\S]*?\}/.test(headerScss),
   'GameHub submit navigation text must use regular weight instead of bold styling'
 )
