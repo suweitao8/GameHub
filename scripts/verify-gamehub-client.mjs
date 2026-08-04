@@ -710,6 +710,13 @@ assert(
   'game upload preview must arm its completion fallback for the current iframe load without rejecting a valid blob URL'
 )
 assert(
+  /const svgObjectUrl = URL\.createObjectURL\(new Blob\(\[ svg \], \{ type: 'image\/svg\+xml' \}\)\)/.test(previewProbeTs) &&
+    /const svgObjectUrl = URL\.createObjectURL\(new Blob\(\[ svg \], \{ type: 'image\/svg\+xml' \}\)\)/.test(gameRuntimeTs) &&
+    previewProbeTs.includes('URL.revokeObjectURL(svgObjectUrl)') &&
+    gameRuntimeTs.includes('URL.revokeObjectURL(svgObjectUrl)'),
+  'HTML preview probes must load DOM screenshot SVGs through revocable blob URLs so isolated frames can render them'
+)
+assert(
   uploadTs.includes('readonly previewValidationError = this.previewProbe.error') &&
     uploadHtml.includes('{{ previewValidationError() }}') &&
     uploadHtml.includes('[disabled]="submitting() || !file || !!previewValidationError()"'),

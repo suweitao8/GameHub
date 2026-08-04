@@ -173,7 +173,10 @@ export class GamePreviewProbeService implements OnDestroy {
           ].join('')
           const svg = svgOpen + '<style>' + styles.replace(/<\\/style>/gi, '') + '</style>' + body + '</div></foreignObject></svg>'
           const image = new Image()
+          const svgObjectUrl = URL.createObjectURL(new Blob([ svg ], { type: 'image/svg+xml' }))
+          const revokeSvgObjectUrl = () => URL.revokeObjectURL(svgObjectUrl)
           image.onload = () => {
+            revokeSvgObjectUrl()
             const canvas = document.createElement('canvas')
             canvas.width = 1280
             canvas.height = 720
@@ -182,8 +185,8 @@ export class GamePreviewProbeService implements OnDestroy {
             context.drawImage(image, 0, 0, canvas.width, canvas.height)
             sendCanvas(canvas)
           }
-          image.onerror = () => undefined
-          image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+          image.onerror = () => revokeSvgObjectUrl()
+          image.src = svgObjectUrl
         }
         const inspect = () => {
           if (sendCanvas(document.querySelector('canvas'))) return

@@ -135,7 +135,10 @@ function injectPreviewProbe (source: string, token: string) {
         const svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="' + width + '" height="' + height + '"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:' + width + 'px;height:' + height + 'px;overflow:hidden;background:#f6f7f8;">' +
           '<style>' + styles.replace(/<\\/style>/gi, '') + '</style>' + body + '</div></foreignObject></svg>'
         const image = new Image()
+        const svgObjectUrl = URL.createObjectURL(new Blob([ svg ], { type: 'image/svg+xml' }))
+        const revokeSvgObjectUrl = () => URL.revokeObjectURL(svgObjectUrl)
         image.onload = () => {
+          revokeSvgObjectUrl()
           const canvas = document.createElement('canvas')
           canvas.width = 1280
           canvas.height = 720
@@ -144,8 +147,8 @@ function injectPreviewProbe (source: string, token: string) {
           context.drawImage(image, 0, 0, canvas.width, canvas.height)
           sendCanvas(canvas)
         }
-        image.onerror = () => undefined
-        image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
+        image.onerror = () => revokeSvgObjectUrl()
+        image.src = svgObjectUrl
       }
         const inspect = () => {
           if (sendCanvas(document.querySelector('canvas'))) return
