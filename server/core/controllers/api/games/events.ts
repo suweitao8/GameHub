@@ -6,6 +6,7 @@ import { authenticate, asyncMiddleware, optionalAuthenticate, apiRateLimiter } f
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import { ROUTE_CACHE_LIFETIME } from '@server/initializers/constants.js'
 import express from 'express'
+import { type WhereOptions } from 'sequelize'
 
 export const gameEventRouter = express.Router()
 
@@ -32,9 +33,10 @@ async function listEvents (req: express.Request, res: express.Response) {
     const type = req.query.type as string | undefined
     const status = req.query.status as string | undefined
 
-    const where: any = {}
-    if (type) where.type = type
-    if (status) where.status = status
+    const where: WhereOptions = {
+      ...(type ? { type } : {}),
+      ...(status ? { status } : {})
+    }
 
     const events = await GameEventModel.findAll({
       where,
