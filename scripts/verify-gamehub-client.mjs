@@ -626,6 +626,11 @@ assert(
   'comment image control must be keyboard reachable and activate the file picker'
 )
 assert(
+  commentsStoreTs.includes('private isCurrentRequest') &&
+    (commentsStoreTs.match(/!this\.isCurrentRequest\(uuid, generation\)/g) || []).length >= 10,
+  'comment mutations must ignore stale responses after switching games'
+)
+assert(
   commentsTs.includes('emojiOpen') && commentsTs.includes('class="bili-emoji-picker"') && commentsTs.includes('class="bili-emoji-option"') &&
     commentsTs.includes('(click)="toggleEmojiPicker($event)"') && commentsTs.includes('selectEmoji(emoji, commentInput') &&
     !commentsTs.includes('(click)="insertEmoji(commentInput)"'),

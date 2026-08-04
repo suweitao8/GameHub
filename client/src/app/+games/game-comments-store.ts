@@ -118,9 +118,12 @@ export class GameCommentsStore implements OnDestroy {
     if (!this.requireLogin()) return
     const text = this.draft().trim()
     if (!text || this.submitting()) return
+    const uuid = this.uuid
+    const generation = this.requestGeneration
     this.submitting.set(true)
-    this.gamesService.comment(this.uuid, text, image).subscribe({
+    this.gamesService.comment(uuid, text, image).subscribe({
       next: result => {
+        if (!this.isCurrentRequest(uuid, generation)) return
         this.comments.update(comments => [ result.comment, ...comments ])
         this.total.update(value => value + 1)
         this.commentCount.update(value => value + 1)
@@ -130,6 +133,7 @@ export class GameCommentsStore implements OnDestroy {
         this.submitting.set(false)
       },
       error: err => {
+        if (!this.isCurrentRequest(uuid, generation)) return
         this.submitting.set(false)
         this.feedback.set(getGameActionErrorMessage(err))
       }
@@ -141,9 +145,12 @@ export class GameCommentsStore implements OnDestroy {
     const parentId = this.replyTo()
     const text = this.draft().trim()
     if (!parentId || !text || this.submitting()) return
+    const uuid = this.uuid
+    const generation = this.requestGeneration
     this.submitting.set(true)
-    this.gamesService.reply(this.uuid, parentId, text, image).subscribe({
+    this.gamesService.reply(uuid, parentId, text, image).subscribe({
       next: result => {
+        if (!this.isCurrentRequest(uuid, generation)) return
         this.comments.update(comments => comments.map(comment => comment.id === parentId
           ? { ...comment, totalReplies: (comment.totalReplies || 0) + 1 }
           : comment))
@@ -158,6 +165,7 @@ export class GameCommentsStore implements OnDestroy {
         this.submitting.set(false)
       },
       error: err => {
+        if (!this.isCurrentRequest(uuid, generation)) return
         this.submitting.set(false)
         this.feedback.set(getGameActionErrorMessage(err))
       }
@@ -166,9 +174,17 @@ export class GameCommentsStore implements OnDestroy {
 
   toggleLike (comment: GameComment) {
     if (!this.requireLogin()) return
-    this.gamesService.likeComment(this.uuid, comment.id, !comment.liked).subscribe({
-      next: value => this.updateComment(comment.id, { liked: value.liked, likes: value.likes }),
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+    const uuid = this.uuid
+    const generation = this.requestGeneration
+    this.gamesService.likeComment(uuid, comment.id, !comment.liked).subscribe({
+      next: value => {
+        if (!this.isCurrentRequest(uuid, generation)) return
+        this.updateComment(comment.id, { liked: value.liked, likes: value.likes })
+      },
+      error: err => {
+        if (!this.isCurrentRequest(uuid, generation)) return
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
@@ -182,9 +198,17 @@ export class GameCommentsStore implements OnDestroy {
       return
     }
 
-    this.gamesService.replies(this.uuid, comment.id).subscribe({
-      next: result => this.replies.update(replies => ({ ...replies, [comment.id]: result.data })),
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+    const uuid = this.uuid
+    const generation = this.requestGeneration
+    this.gamesService.replies(uuid, comment.id).subscribe({
+      next: result => {
+        if (!this.isCurrentRequest(uuid, generation)) return
+        this.replies.update(replies => ({ ...replies, [comment.id]: result.data }))
+      },
+      error: err => {
+        if (!this.isCurrentRequest(uuid, generation)) return
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
@@ -196,8 +220,11 @@ export class GameCommentsStore implements OnDestroy {
     if (!this.requireLogin()) return
     const comment = this.deleteTarget()
     if (!comment) return
-    this.gamesService.deleteComment(this.uuid, comment.id).subscribe({
+    const uuid = this.uuid
+    const generation = this.requestGeneration
+    this.gamesService.deleteComment(uuid, comment.id).subscribe({
       next: () => {
+        if (!this.isCurrentRequest(uuid, generation)) return
         const isRootComment = this.comments().some(item => item.id === comment.id)
         this.comments.update(comments => comments.filter(item => item.id !== comment.id))
         this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
@@ -208,7 +235,10 @@ export class GameCommentsStore implements OnDestroy {
         this.feedback.set('评论已删除')
         this.deleteTarget.set(null)
       },
-      error: err => this.feedback.set(getGameActionErrorMessage(err))
+      error: err => {
+        if (!this.isCurrentRequest(uuid, generation)) return
+        this.feedback.set(getGameActionErrorMessage(err))
+      }
     })
   }
 
@@ -263,6 +293,10 @@ export class GameCommentsStore implements OnDestroy {
     this.replies.update(replies => Object.fromEntries(Object.entries(replies).map(([ id, items ]) => [
       id, items.map(item => item.id === commentId ? { ...item, ...patch } : item)
     ])))
+  }
+
+  private isCurrentRequest (uuid: string, generation: number) {
+    return generation === this.requestGeneration && uuid === this.uuid
   }
 
   private mergeRefreshedComments (refreshed: GameComment[]) {
