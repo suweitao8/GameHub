@@ -301,6 +301,18 @@ const activityFeedTs = read('client/src/app/+games/game-activity-feed.component.
 const headerScss = read('client/src/app/header/header.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
+assert(
+  (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
+    (homeHtml.match(/\[class\.category-length-3\]/g) || []).length >= 2,
+  'home category links must bind length-aware spacing classes in both populated and empty states'
+)
+assert(
+  !gamesHomeScss.includes('.home-category-links a:nth-child(6)') &&
+    gamesHomeScss.includes('display: inline-flex;') &&
+    gamesHomeScss.includes('width: 4.8rem;') &&
+    gamesHomeScss.includes('min-width: 4.8rem;'),
+  'home category links must use an order-independent fixed four-character button width'
+)
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
