@@ -11,9 +11,11 @@ import { GameActivityModel } from '@server/models/game/game-activity.js'
 import { GameCommentReactionModel } from '@server/models/game/game-comment-reaction.js'
 import { GameCommentModel } from '@server/models/game/game-comment.js'
 import type { MGame } from '@server/types/models/game/game.js'
+import type { MUserAccountUrl } from '@server/types/models/user/user.js'
 import { asyncMiddleware, authenticate, gameCommentRateLimiter, gameRatingRateLimiter, optionalAuthenticate } from '@server/middlewares/index.js'
 import { gameUUIDValidator } from '@server/middlewares/validators/games.js'
 import express from 'express'
+import { type WhereOptions } from 'sequelize'
 import { commentAccountInclude, type CommentSortOption, getPublishedGame, getUser } from './community-shared.js'
 
 type OrderItem = [ string, string ] | [ string, string, string ]
@@ -41,8 +43,13 @@ export { communityCommentsRouter }
 async function getCommentForGame (game: MGame | null, commentId: number, includeDeleted = false) {
   if (!game || !Number.isInteger(commentId)) return null
 
-  const where: any = { gameId: game.id, id: commentId }
-  if (!includeDeleted) where.deletedAt = null
+  // deletedAt is an optional column filter; spread conditionally to keep the object a
+  // single literal rather than mutating a Record (which would force a wider type).
+  const where: WhereOptions = {
+    gameId: game.id,
+    id: commentId,
+    ...(!includeDeleted ? { deletedAt: null } : {})
+  }
 
   return GameCommentModel.findOne({
     where,
@@ -279,7 +286,7 @@ async function deleteComment (req: express.Request, res: express.Response) {
   return res.status(HttpStatusCode.NO_CONTENT_204).end()
 }
 
-async function formatComments (comments: GameCommentModel[], game: MGame, user: any) {
+async function formatComments (comments: GameCommentModel[], game: MGame, user: MUserAccountUrl | undefined) {
   const commentIds = comments.map(comment => comment.id)
   const [ userReactions, replyCounts ] = await Promise.all([
     user && commentIds.length

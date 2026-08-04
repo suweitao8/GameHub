@@ -9,7 +9,7 @@ import type { MGame } from '@server/types/models/game/game.js'
 import { asyncMiddleware, optionalAuthenticate } from '@server/middlewares/index.js'
 import { cacheRoute } from '@server/middlewares/cache/cache.js'
 import express from 'express'
-import { Op } from 'sequelize'
+import { Op, type WhereOptions } from 'sequelize'
 import { getUser, formatGame } from './game-shared.js'
 
 const discoveryRouter = express.Router()
@@ -170,8 +170,11 @@ async function listFeaturedGames (req: express.Request, res: express.Response) {
     const count = Math.min(20, Math.max(1, Number(req.query.count) || 10))
     const category = req.query.category as string | undefined
 
-    const where: any = { status: 'published', featured: true }
-    if (category) where.category = category
+    const where: WhereOptions = {
+      status: 'published',
+      featured: true,
+      ...(category ? { category } : {})
+    }
 
     const data = await GameModel.findAll<MGame>({
       subQuery: false,

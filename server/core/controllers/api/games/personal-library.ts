@@ -6,9 +6,15 @@ import { GameStatsSummaryModel } from '@server/models/game/game-stats-summary.js
 import { GameFavoriteModel } from '@server/models/game/game-favorite.js'
 import { GameRecentModel } from '@server/models/game/game-recent.js'
 import { AccountModel } from '@server/models/account/account.js'
+import type { MGame } from '@server/types/models/game/game.js'
 import { asyncMiddleware, authenticate } from '@server/middlewares/index.js'
 import express from 'express'
 import { getUser, formatGame } from './game-shared.js'
+
+// A favorite/recent row joined with its nested published Game (the include used below
+// eagerly loads GameModel as `row.Game`). Narrowing here avoids `<any>` on findAll.
+type FavoriteRow = GameFavoriteModel & { Game: MGame }
+type RecentRow = GameRecentModel & { Game: MGame }
 
 const personalLibraryRouter = express.Router()
 
@@ -22,7 +28,7 @@ async function listFavoriteGames (_req: express.Request, res: express.Response) 
   const user = getUser(res)
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
 
-  const rows = await GameFavoriteModel.findAll<any>({
+  const rows = await GameFavoriteModel.findAll<FavoriteRow>({
     subQuery: false,
     where: { accountId: user.Account.id },
     include: [ {
@@ -46,7 +52,7 @@ async function listRecentGames (_req: express.Request, res: express.Response) {
   const user = getUser(res)
   if (!user) return res.sendStatus(HttpStatusCode.UNAUTHORIZED_401)
 
-  const rows = await GameRecentModel.findAll<any>({
+  const rows = await GameRecentModel.findAll<RecentRow>({
     subQuery: false,
     where: { accountId: user.Account.id },
     include: [ {
