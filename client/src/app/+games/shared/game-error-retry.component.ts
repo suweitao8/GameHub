@@ -37,7 +37,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       width: 2.5rem;
     }
     .game-error-text {
-      color: #999;
+      color: #8c8c8c;
       font-size: 0.9rem;
       margin: 0;
     }

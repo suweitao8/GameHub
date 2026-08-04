@@ -4,7 +4,7 @@
   justify-content: center;
   min-width: 0;
   flex: 1;
-  color: var(--game-text, #4e5969);
+  color: var(--game-text, #1e1e1e);
 }
 
 .game-navigation-search {
@@ -27,7 +27,7 @@
 .game-navigation-search:focus-within {
   background: #fff;
   border-color: #cfd3d8;
-  box-shadow: 0 0 0 2px rgb(78 89 105 / 8%);
+  box-shadow: 0 0 0 2px rgb(0 174 236 / 10%);
 }
 
 .game-navigation-search input {
@@ -38,7 +38,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--game-text, #4e5969);
+  color: var(--game-text, #1e1e1e);
   font-size: 0.88rem;
   padding: 0.45rem 2.35rem 0.45rem 0.55rem;
 }
@@ -98,7 +98,7 @@
   border: 1px solid #e3e5e7;
   border-radius: 8px;
   box-shadow: 0 10px 28px rgb(25 30 40 / 12%);
-  color: var(--game-text, #4e5969);
+  color: var(--game-text, #1e1e1e);
   left: 0;
   padding: 0.85rem 0.9rem 0.8rem;
   position: absolute;
@@ -109,8 +109,15 @@
 }
 
 @keyframes searchPanelIn {
-  0% { opacity: 0; transform: translateY(-6px) scale(0.96); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .game-search-panel-heading {
@@ -219,14 +226,26 @@
   white-space: nowrap;
   width: 100%; }
 .game-search-suggestions button:hover,
-.game-search-suggestions button:focus-visible { color: #00aeec; }
+.game-search-suggestions button:focus-visible {
+  color: #00aeec;
+}
 .suggestion-shimmer span { animation: suggestionPulse 1.2s infinite;
   background: #f0f1f2;
   border-radius: 4px;
   display: block;
   height: 0.7rem;
   width: 70%; }
-@keyframes suggestionPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+@keyframes suggestionPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
 
 @media (max-width: 560px) {
   .game-search-hot-list { grid-template-columns: 1fr; }

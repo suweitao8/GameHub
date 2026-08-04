@@ -49,7 +49,7 @@ import { GameCommentsStore } from './game-comments-store'
       margin-bottom: 1rem;
     }
     .bili-comment-header h2 {
-      color: #18191c;
+      color: #1e1e1e;
       font-size: 1.15rem;
       font-weight: 600;
       margin: 0;
@@ -74,7 +74,7 @@ import { GameCommentsStore } from './game-comments-store'
       padding: 0;
     }
     .bili-comment-sort button.active {
-      color: #18191c;
+      color: #1e1e1e;
       font-weight: 600;
     }
     .bili-sort-sep {
@@ -116,7 +116,7 @@ import { GameCommentsStore } from './game-comments-store'
       background: #f1f2f3;
       border: 0;
       border-radius: 8px;
-      color: #18191c;
+      color: #1e1e1e;
       font-size: 0.9rem;
       min-height: 2.75rem;
       padding: 0.65rem 0.9rem;
@@ -338,7 +338,7 @@ import { GameCommentsStore } from './game-comments-store'
       background: #fb7299;
     }
     .bili-comment-text {
-      color: #18191c;
+      color: #1e1e1e;
       font-size: 0.92rem;
       line-height: 1.65;
       margin: 0 0 0.4rem;

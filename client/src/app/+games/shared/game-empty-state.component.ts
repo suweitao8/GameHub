@@ -37,13 +37,13 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       width: 3rem;
     }
     .game-empty-title {
-      color: #666;
+      color: #646464;
       font-size: 1rem;
       font-weight: 600;
       margin: 0;
     }
     .game-empty-desc {
-      color: #999;
+      color: #8c8c8c;
       font-size: 0.85rem;
       margin: 0;
     }

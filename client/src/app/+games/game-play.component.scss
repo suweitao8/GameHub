@@ -401,7 +401,7 @@
   min-width: 0;
 }
 .related-game-copy strong {
-  color: #18191c;
+  color: #1e1e1e;
   display: -webkit-box;
   font-size: 0.82rem;
   -webkit-box-orient: vertical;
@@ -673,7 +673,7 @@
 .related-game-cover img { height: 100%;
   object-fit: cover;
   width: 100%; }
-.related-game-cover-placeholder { color: #6b7280;
+.related-game-cover-placeholder { color: #8c8c8c;
   font-size: 1.75rem;
   font-weight: 700;
   text-transform: uppercase; }
@@ -1047,7 +1047,7 @@
   --game-detail-gap: 16px;
   --game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr);
   --game-stage-height: clamp(360px, 44vw, 680px);
-  --game-text: #303133;
+  --game-text: #1e1e1e;
   --game-text-button: #646464;
   --game-muted: #646464;
 

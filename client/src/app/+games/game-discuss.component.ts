@@ -84,7 +84,7 @@ import { GameDiscussStore } from './game-discuss-store'
       min-width: 0;
     }
     .wechat-message-name {
-      color: #646970;
+      color: #646464;
       display: block;
       font-size: 0.7rem;
       margin: 0 0 0.2rem;
@@ -94,7 +94,7 @@ import { GameDiscussStore } from './game-discuss-store'
       background: #eeeef0;
       border: 1px solid #e3e5e7;
       border-radius: 0.25rem 0.65rem 0.65rem;
-      color: #303133;
+      color: #1e1e1e;
       font-size: 0.82rem;
       line-height: 1.45;
       overflow-wrap: anywhere;
@@ -105,7 +105,7 @@ import { GameDiscussStore } from './game-discuss-store'
       background: #9df29f;
       border-color: #9df29f;
       border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
-      color: #303133;
+      color: #1e1e1e;
     }
     .wechat-time-separator {
       align-self: center;
