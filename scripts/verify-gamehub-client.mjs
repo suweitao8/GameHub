@@ -57,10 +57,10 @@ function assertBundleContract (body, label) {
 // 1) GameHub home and banner asset contracts
 const homeHtml = read('client/src/app/+games/games-home.component.html')
 const homeTs = read('client/src/app/+games/games-home.component.ts')
+const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const gameSectionTs = read('client/src/app/+games/games-home/game-section.component.ts')
 const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
 const gameMetaTagsTs = read('client/src/app/+games/services/game-meta-tags.ts')
-const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const navigationTs = read('client/src/app/header/game-navigation.component.ts')
 const navigationHtml = read('client/src/app/header/game-navigation.component.html')
 const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
@@ -261,6 +261,9 @@ assert(
 )
 const gameCardHtml = read('client/src/app/+games/game-card.component.html')
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
+const gameCardTs = read('client/src/app/+games/game-card.component.ts')
+const gameAuthorTs = read('client/src/app/+games/game-author.component.ts')
+const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const notificationHtml = read('client/src/app/+games/game-notifications.component.html')
 assert(
   gameCardHtml.includes('[innerHTML]="game.title | highlight: searchTerm"') &&
@@ -338,13 +341,19 @@ assert(
   !gameFollowingTs.includes('following-handle') && !gameFollowingTs.includes('&#64;{{ author.handle }}'),
   'following author cards must not expose internal @handle text'
 )
+assert(
+  homeConstantsTs.includes("id: 'racing', title: '竞速'") &&
+    gameRankingsTs.includes("id: 'racing', label: '竞速'") &&
+    gameCardTs.includes("racing: '竞速'") &&
+    gameAuthorTs.includes("racing: '竞速'"),
+  'racing category must be available and labeled consistently across discovery, rankings, cards, and author pages'
+)
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
 const gameStatsSummaryTs = read('server/core/models/game/game-stats-summary.ts')
 const gameSharedTs = read('server/core/controllers/api/games/game-shared.ts')
 const gameDiscoveryTs = read('server/core/controllers/api/games/game-discovery.ts')
 const gameDiscoveryServiceTs = read('client/src/app/+games/services/game-discovery.service.ts')
-const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const gameRankingModelTs = read('packages/models/src/games/game-ranking.model.ts')
 const gameCreatorModelTs = read('packages/models/src/games/game-creator.model.ts')
 const gameCreatorHtml = read('client/src/app/+games/game-creator.component.html')
