@@ -83,7 +83,7 @@
       }
 
       @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !publishedAfter() && view() !== 'following' && recent().length) {
-        <my-game-section class="recent-games-section" [games]="recent().slice(0, 5)" heading="我玩过的" [searchTerm]="search()" [compact]="true" [shuffleLabel]="recent().length > 1 ? '换一批' : undefined" (shuffle)="shuffleRecent()" />
+        <my-game-section class="recent-games-section" [games]="recent().slice(0, 5)" heading="我玩过的" [searchTerm]="search()" [compact]="true" />
       }
 
       @if (sort() === 'recommended' && !searchMode() && !category() && view() !== 'following') {

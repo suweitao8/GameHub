@@ -146,10 +146,6 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       .game-grid { gap: 0.8rem; }
     }
 
-    @media (max-width: 1050px) {
-      .game-grid { gap: 0.65rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    }
-
     @media (max-width: 720px) {
       .game-grid { gap: 0.4rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }

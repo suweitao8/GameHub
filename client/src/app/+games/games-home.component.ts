@@ -290,10 +290,6 @@ export class GamesHomeComponent implements OnInit {
     this.latest.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
   }
 
-  shuffleRecent () {
-    this.recent.update(games => games.length > 1 ? [ ...games.slice(1), games[0] ] : games)
-  }
-
   private buildRecentPlayedList (serverRecent: Game[], pool: Game[]) {
     if (serverRecent.length) {
       return this.uniqueGamesByUuid(serverRecent)
