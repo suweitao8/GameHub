@@ -80,6 +80,7 @@ export type GameEventAdmin = {
               <button type="button" (click)="showForm.set(false)">取消</button>
               <button type="submit" class="primary">创建</button>
             </div>
+            @if (formFeedback()) { <p class="form-feedback" role="alert">{{ formFeedback() }}</p> }
           </form>
         }
 
@@ -184,6 +185,7 @@ export class GameEventAdminComponent implements OnInit {
   events = signal<GameEventAdmin[]>([])
   loading = signal(false)
   showForm = signal(false)
+  formFeedback = signal('')
 
   // Form fields
   formTitle = signal('')
@@ -230,8 +232,11 @@ export class GameEventAdminComponent implements OnInit {
         this.showForm.set(false)
         this.resetForm()
         this.loadEvents()
+        this.formFeedback.set('')
       },
-      error: () => {}
+      error: () => {
+        this.formFeedback.set('保存失败，请检查 Slug 是否唯一后重试')
+      }
     })
   }
 
@@ -239,7 +244,7 @@ export class GameEventAdminComponent implements OnInit {
     if (!confirm('确定删除这个活动吗？')) return
     this.http.delete(`${environment.apiUrl}/api/v1/games/events/${slug}`).subscribe({
       next: () => this.loadEvents(),
-      error: () => {}
+      error: () => { this.formFeedback.set('删除失败，请稍后重试') }
     })
   }
 

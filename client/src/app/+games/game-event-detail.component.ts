@@ -66,12 +66,15 @@ export type EventParticipant = {
             <div class="event-actions">
               @if (ev.status === 'upcoming' || ev.status === 'ongoing') {
                 @if (joined()) {
-                  <button type="button" class="event-action-btn secondary" (click)="leaveEvent()">取消报名</button>
+                  <button type="button" class="event-action-btn secondary" [disabled]="joinLoading()" (click)="leaveEvent()">
+                    {{ joinLoading() ? '处理中…' : '取消报名' }}
+                  </button>
                 } @else {
-                  <button type="button" class="event-action-btn primary" (click)="joinEvent()">
-                    {{ ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants ? '名额已满' : '立即报名' }}
+                  <button type="button" class="event-action-btn primary" [disabled]="joinLoading() || (ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants)" (click)="joinEvent()">
+                    {{ joinLoading() ? '处理中…' : ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants ? '名额已满' : '立即报名' }}
                   </button>
                 }
+                @if (actionFeedback()) { <p class="event-action-feedback" role="alert">{{ actionFeedback() }}</p> }
               }
             </div>
           </div>
@@ -272,6 +275,8 @@ export class GameEventDetailComponent implements OnInit {
   participants = signal<EventParticipant[]>([])
   participantsLoading = signal(false)
   joined = signal(false)
+  joinLoading = signal(false)
+  actionFeedback = signal('')
 
   ngOnInit () {
     this.route.paramMap
@@ -326,26 +331,38 @@ export class GameEventDetailComponent implements OnInit {
   joinEvent () {
     const slug = this.event()?.slug
     if (!slug) return
+    this.joinLoading.set(true)
+    this.actionFeedback.set('')
     this.http.post<{ joined: boolean }>(`${environment.apiUrl}/api/v1/games/events/${slug}/join`, {}).subscribe({
       next: () => {
         this.joined.set(true)
+        this.joinLoading.set(false)
         this.event.update(ev => ev ? { ...ev, participantCount: ev.participantCount + 1 } : ev)
         this.loadParticipants(slug)
       },
-      error: () => {}
+      error: () => {
+        this.joinLoading.set(false)
+        this.actionFeedback.set('加入失败，请稍后重试')
+      }
     })
   }
 
   leaveEvent () {
     const slug = this.event()?.slug
     if (!slug) return
+    this.joinLoading.set(true)
+    this.actionFeedback.set('')
     this.http.delete(`${environment.apiUrl}/api/v1/games/events/${slug}/join`).subscribe({
       next: () => {
         this.joined.set(false)
+        this.joinLoading.set(false)
         this.event.update(ev => ev ? { ...ev, participantCount: Math.max(0, ev.participantCount - 1) } : ev)
         this.loadParticipants(slug)
       },
-      error: () => {}
+      error: () => {
+        this.joinLoading.set(false)
+        this.actionFeedback.set('退出失败，请稍后重试')
+      }
     })
   }
 

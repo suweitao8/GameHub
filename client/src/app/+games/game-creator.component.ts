@@ -31,7 +31,7 @@ export class GameCreatorComponent implements OnInit {
     })
     this.gamesService.getUserLevel().subscribe({
       next: value => this.levelInfo.set(value),
-      error: () => {}
+      error: () => { /* 等级数据加载失败不阻塞页面，静默处理 */ }
     })
     this.gamesService.notifications().subscribe({
       next: value => this.recentNotifications.set(value.data.filter(item => item.kind === 'comment' || item.kind === 'reply').slice(0, 5))
