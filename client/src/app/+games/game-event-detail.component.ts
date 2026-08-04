@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment'
 import { AuthService } from '@app/core/auth/auth.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 export type GameEventDetail = {
   id: number
@@ -265,6 +266,7 @@ export class GameEventDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)
   private readonly route = inject(ActivatedRoute)
   private readonly authService = inject(AuthService)
+  private readonly destroyRef = inject(DestroyRef)
   event = signal<GameEventDetail | null>(null)
   loading = signal(false)
   participants = signal<EventParticipant[]>([])
@@ -272,15 +274,17 @@ export class GameEventDetailComponent implements OnInit {
   joined = signal(false)
 
   ngOnInit () {
-    this.route.paramMap.subscribe(params => {
-      const slug = params.get('slug')
-      if (!slug) return
-      this.loadEvent(slug)
-      this.loadParticipants(slug)
-      if (this.authService.isLoggedIn()) {
-        this.checkJoined(slug)
-      }
-    })
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        const slug = params.get('slug')
+        if (!slug) return
+        this.loadEvent(slug)
+        this.loadParticipants(slug)
+        if (this.authService.isLoggedIn()) {
+          this.checkJoined(slug)
+        }
+      })
   }
 
   loadEvent (slug: string) {

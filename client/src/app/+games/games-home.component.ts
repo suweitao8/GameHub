@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { forkJoin, of } from 'rxjs'
 import { catchError } from 'rxjs/operators'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
 import { GamesService, Game } from './games.service'
@@ -31,6 +32,7 @@ export class GamesHomeComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   private readonly http = inject(HttpClient)
   private readonly recommendService = inject(GameRecommendService)
+  private readonly destroyRef = inject(DestroyRef)
 
   readonly latest = signal<Game[]>([])
   readonly popular = signal<Game[]>([])
@@ -61,17 +63,19 @@ export class GamesHomeComponent implements OnInit {
     const isCommunityRoute = routePath === 'community'
     this.communityRoute.set(isCommunityRoute)
     this.searchMode.set(routePath === 'search')
-    this.route.queryParamMap.subscribe(params => {
-      this.view.set(params.get('view') || (isCommunityRoute ? 'following' : ''))
-      this.category.set(params.get('category') || '')
-      this.search.set(params.get('search') || '')
-      this.publishedAfter.set(params.get('publishedAfter') || '')
-      const requestedSort = params.get('sort') as GamesListParams['sort']
-      const validSorts = [ 'recommended', 'latest', 'popular' ]
-      this.sort.set(validSorts.includes(requestedSort || '') ? requestedSort : 'recommended')
-      this.recommendedOffset.set(0)
-      this.loadGames()
-    })
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+        this.view.set(params.get('view') || (isCommunityRoute ? 'following' : ''))
+        this.category.set(params.get('category') || '')
+        this.search.set(params.get('search') || '')
+        this.publishedAfter.set(params.get('publishedAfter') || '')
+        const requestedSort = params.get('sort') as GamesListParams['sort']
+        const validSorts = [ 'recommended', 'latest', 'popular' ]
+        this.sort.set(validSorts.includes(requestedSort || '') ? requestedSort : 'recommended')
+        this.recommendedOffset.set(0)
+        this.loadGames()
+      })
   }
 
   loadGames () {

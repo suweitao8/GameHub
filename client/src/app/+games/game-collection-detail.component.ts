@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -7,6 +7,7 @@ import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
 import { createAsyncState } from './shared'
 import type { Game } from './games.service'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 export type GameCollectionDetail = {
   id: number
@@ -145,6 +146,7 @@ export type GameCollectionDetail = {
 export class GameCollectionDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)
   private readonly route = inject(ActivatedRoute)
+  private readonly destroyRef = inject(DestroyRef)
   private readonly state = createAsyncState<GameCollectionDetail>()
   /** 模板兼容 */
   readonly collection = this.state.data
@@ -153,7 +155,9 @@ export class GameCollectionDetailComponent implements OnInit {
   private currentSlug = ''
 
   ngOnInit () {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
       const slug = params.get('slug')
       if (!slug) return
       this.currentSlug = slug
