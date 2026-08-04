@@ -1,7 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
-import { AuthService } from '@app/core/auth/auth.service'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -19,7 +18,7 @@ export type FollowedAuthor = {
 @Component({
   selector: 'my-game-following',
   standalone: true,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="following-container">
       <div class="following-header">
@@ -29,7 +28,7 @@ export type FollowedAuthor = {
 
       @if (loading()) {
         <div class="following-skeleton">
-          @for (i of [1,2,3,4,5]; track $index) { <div class="following-item shimmer"></div> }
+          @for (i of [ 1, 2, 3, 4, 5 ]; track $index) { <div class="following-item shimmer"></div> }
         </div>
       } @else if (error()) {
         <div class="following-error">
@@ -50,10 +49,7 @@ export type FollowedAuthor = {
                 <img [src]="getAvatarUrl(author)" [alt]="author.displayName + '头像'">
               </div>
               <div class="following-info">
-                <div class="following-name">
-                  <strong>{{ author.displayName }}</strong>
-                  <span class="following-handle">&#64;{{ author.handle }}</span>
-                </div>
+                <div class="following-name"><strong>{{ author.displayName }}</strong></div>
                 <p class="following-desc">{{ author.description || '正在制作有趣的网页小游戏。' }}</p>
                 <div class="following-stats">
                   <span><my-global-icon iconName="gamepad" />{{ author.games }} 个作品</span>
@@ -69,7 +65,7 @@ export type FollowedAuthor = {
       }
     </div>
   `,
-  styles: [`
+  styles: [ `
     .following-container { max-width: 900px; margin: 0 auto; padding: 1rem; }
 
     .following-header { margin-bottom: 1.5rem; }
@@ -111,7 +107,6 @@ export type FollowedAuthor = {
 
     .following-name { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
     .following-name strong { font-size: 1rem; }
-    .following-handle { color: var(--game-muted); font-size: 0.8rem; }
 
     .following-desc {
       color: var(--game-muted);
@@ -143,15 +138,22 @@ export type FollowedAuthor = {
     .following-empty a:hover { text-decoration: underline; }
 
     .following-error { text-align: center; padding: 3rem; color: var(--game-danger); }
-    .following-error button { margin-top: 1rem; padding: 0.5rem 1rem; border: 1px solid var(--game-danger); background: #fff; color: var(--game-danger); border-radius: 6px; cursor: pointer; }
+    .following-error button {
+      background: #fff;
+      border: 1px solid var(--game-danger);
+      border-radius: 6px;
+      color: var(--game-danger);
+      cursor: pointer;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+    }
 
     .following-skeleton { display: flex; flex-direction: column; gap: 0.75rem; }
     .following-skeleton .following-item { height: 5rem; border-radius: var(--game-radius); }
-  `]
+  ` ]
 })
 export class GameFollowingComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
-  private readonly authService = inject(AuthService)
   following = signal<FollowedAuthor[]>([])
   loading = signal(false)
   error = signal(false)

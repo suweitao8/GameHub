@@ -302,6 +302,7 @@ const headerScss = read('client/src/app/header/header.component.scss')
 const gameNavigationScss = read('client/src/app/header/game-navigation.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
+const gameFollowingTs = read('client/src/app/+games/game-following.component.ts')
 assert(
   (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
     (homeHtml.match(/\[class\.category-length-3\]/g) || []).length >= 2,
@@ -332,6 +333,10 @@ assert(
 assert(
   /\.game-submit-button\s*\{[\s\S]*?font-weight: 400;[\s\S]*?\}/.test(headerScss),
   'GameHub submit navigation text must use regular weight instead of bold styling'
+)
+assert(
+  !gameFollowingTs.includes('following-handle') && !gameFollowingTs.includes('&#64;{{ author.handle }}'),
+  'following author cards must not expose internal @handle text'
 )
 const gameCommunityOverviewTs = read('server/core/controllers/api/games/community-overview.ts')
 const gameCommunityModelTs = read('packages/models/src/games/game-community.model.ts')
