@@ -267,9 +267,9 @@
 .home-feed-tabs a {
   align-items: center;
   background: #f1f2f3;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--game-border);
   border-radius: 6px;
-  color: #646464;
+  color: var(--game-muted);
   cursor: pointer;
   display: inline-flex;
   font-size: 0.88rem;
@@ -297,7 +297,7 @@
 
 .home-feed-tabs a:hover,
 .home-feed-tabs a:focus-visible {
-  color: #1e1e1e;
+  color: var(--game-text);
   filter: brightness(0.97);
   outline: none;
 }

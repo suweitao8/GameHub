@@ -16,9 +16,9 @@
 .section-side-action {
   align-items: center;
   background: #f6f7f8;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--game-border);
   border-radius: 8px;
-  color: #646464;
+  color: var(--game-muted);
   cursor: pointer;
   display: flex;
   flex-direction: column;
