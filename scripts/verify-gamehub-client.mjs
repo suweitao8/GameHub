@@ -997,6 +997,31 @@ if (existsSync(join(root, 'client/dist/browser'))) {
   )
 }
 
+const gamehubPaletteSources = [
+  appScss,
+  headerScss,
+  gameCommunityTokens,
+  gamesHomeScss,
+  gamePlayScss,
+  discussTs,
+  commentsTs,
+  featuredScss,
+  gameSectionTs
+].join('\n')
+assert(
+  appScss.includes('--game-text: #303133') &&
+    appScss.includes('--game-text-button: #646464') &&
+    appScss.includes('--game-text-hint: #8c8c8c') &&
+    headerScss.includes('--game-text-primary: #303133') &&
+    headerScss.includes('--game-text-secondary: #646464') &&
+    gameCommunityTokens.includes('--game-muted: #646464'),
+  'GameHub shared palette must use #303133 primary, #646464 secondary, and #8c8c8c hint text'
+)
+assert(
+  !/(#4e5969|#61666d|#6b6f75|#9499a0)/i.test(gamehubPaletteSources),
+  'GameHub surfaces must not retain the legacy inconsistent text gray palette'
+)
+
 // 6) Optional live HTTP: entry scripts must be application/javascript (not SPA HTML fallback)
 const verifyBase = process.env.GAMEHUB_VERIFY_BASE
 if (verifyBase) {
