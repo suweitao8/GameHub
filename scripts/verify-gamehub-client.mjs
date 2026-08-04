@@ -299,6 +299,7 @@ const headerHtml = read('client/src/app/header/header.component.html')
 const asyncStateTs = read('client/src/app/+games/shared/async-state.ts')
 const activityFeedTs = read('client/src/app/+games/game-activity-feed.component.ts')
 const headerScss = read('client/src/app/header/header.component.scss')
+const gameNavigationScss = read('client/src/app/header/game-navigation.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
 assert(
@@ -440,7 +441,7 @@ assert(
     /\.discuss-composer button:disabled\s*\{/.test(discussTs),
   'discussion send button must be disabled and gray for empty text or an in-flight request'
 )
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #1e1e1e;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
 assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
 assert(
   commentsStoreTs.includes('private requestGeneration = 0') &&
@@ -521,8 +522,8 @@ assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.in
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
-assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #646464'), 'game colors must use the shared charcoal primary and gray secondary text')
-assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #646464'), 'detail page must apply the shared charcoal palette within the component scope')
+assert(gameCommunityTokens.includes('--game-text: #1e1e1e') && gameCommunityTokens.includes('--game-muted: #646464'), 'game colors must use the shared deep-black primary and gray secondary text')
+assert(gamePlayScss.includes('--game-text: #1e1e1e') && gamePlayScss.includes('--game-muted: #646464'), 'detail page must apply the shared deep-black palette within the component scope')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
 assert(
@@ -560,8 +561,8 @@ assert(
   gameEmptyStateTs.includes('GlobalIconComponent') && gameEmptyStateTs.includes('<my-global-icon') && !gameEmptyStateTs.includes("icon = '🎮'"),
   'game empty state must use a shared library icon instead of an emoji glyph'
 )
-assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: #303133;/.test(discussTs), 'other discussion messages must use the picked light gray background with black text')
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #303133;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
+assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: #1e1e1e;/.test(discussTs), 'other discussion messages must use the picked light gray background with black text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #1e1e1e;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
 assert(gamePlayScss.includes('width: 90%;') && !gamePlayScss.includes('max-width: 1280px;'), 'detail page must follow the homepage 5 percent side spacing without a narrower desktop cap')
 assert(/\.game-play-page \.game-title-developer\s*\{[\s\S]*justify-self: end;[\s\S]*width: 100%;/.test(gamePlayScss), 'developer card must share the discussion sidebar right boundary')
 assert(gameCommunityModelTs.includes('favorites: number') && gameCommunityModelTs.includes('shares: number'), 'game community model must expose favorite and share counts')
@@ -1010,25 +1011,28 @@ if (existsSync(join(root, 'client/dist/browser'))) {
 const gamehubPaletteSources = [
   appScss,
   headerScss,
+  gameNavigationScss,
   gameCommunityTokens,
   gamesHomeScss,
   gamePlayScss,
   discussTs,
   commentsTs,
   featuredScss,
-  gameSectionTs
+  gameSectionTs,
+  gameEmptyStateTs,
+  gameErrorRetryTs
 ].join('\n')
 assert(
-  appScss.includes('--game-text: #303133') &&
+  appScss.includes('--game-text: #1e1e1e') &&
     appScss.includes('--game-text-button: #646464') &&
     appScss.includes('--game-text-hint: #8c8c8c') &&
-    headerScss.includes('--game-text-primary: #303133') &&
+    headerScss.includes('--game-text-primary: #1e1e1e') &&
     headerScss.includes('--game-text-secondary: #646464') &&
     gameCommunityTokens.includes('--game-muted: #646464'),
-  'GameHub shared palette must use #303133 primary, #646464 secondary, and #8c8c8c hint text'
+  'GameHub shared palette must use #1e1e1e primary, #646464 secondary, and #8c8c8c hint text'
 )
 assert(
-  !/(#4e5969|#61666d|#6b6f75|#9499a0)/i.test(gamehubPaletteSources),
+  !/(#303133|#18191c|#4e5969|#61666d|#646970|#6b6f75|#6b7280|#9499a0|#666(?:\b|;)|#999(?:\b|;)|rgb\(78 89 105)/i.test(gamehubPaletteSources),
   'GameHub surfaces must not retain the legacy inconsistent text gray palette'
 )
 
