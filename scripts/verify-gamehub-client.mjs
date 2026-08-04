@@ -705,6 +705,11 @@ assert(
   'game upload preview must ignore iframe load events while a new file is still preparing'
 )
 assert(
+  !previewProbeTs.includes('iframe && this.objectUrl && iframe.src !== this.objectUrl') &&
+    previewProbeTs.includes('this.timer = setTimeout(() =>'),
+  'game upload preview must arm its completion fallback for the current iframe load without rejecting a valid blob URL'
+)
+assert(
   uploadTs.includes('readonly previewValidationError = this.previewProbe.error') &&
     uploadHtml.includes('{{ previewValidationError() }}') &&
     uploadHtml.includes('[disabled]="submitting() || !file || !!previewValidationError()"'),

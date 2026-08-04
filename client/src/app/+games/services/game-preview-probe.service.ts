@@ -75,9 +75,7 @@ export class GamePreviewProbeService implements OnDestroy {
   /** Called when the preview iframe finishes loading — arms the capture timeout. */
   onPreviewLoaded (event: Event) {
     if (!this.previewReady) return
-
-    const iframe = event.target as HTMLIFrameElement | null
-    if (iframe && this.objectUrl && iframe.src !== this.objectUrl) return
+    if (!(event.target instanceof HTMLIFrameElement)) return
 
     this.step.set(3)
     this.previewStatus.set('正在检测运行错误…')
