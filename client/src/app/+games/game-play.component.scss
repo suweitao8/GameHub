@@ -410,7 +410,7 @@
   overflow: hidden;
 }
 .related-game-copy span {
-  color: #9499a0;
+  color: #8c8c8c;
   font-size: 0.72rem;
 }
 .related-game-meta {
@@ -1048,8 +1048,8 @@
   --game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr);
   --game-stage-height: clamp(360px, 44vw, 680px);
   --game-text: #303133;
-  --game-text-button: #6b6f75;
-  --game-muted: #6b6f75;
+  --game-text-button: #646464;
+  --game-muted: #646464;
 
   box-sizing: border-box;
   padding: 16px 0 56px;

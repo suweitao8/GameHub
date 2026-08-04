@@ -55,7 +55,7 @@ import { GameCommentsStore } from './game-comments-store'
       margin: 0;
     }
     .bili-comment-count {
-      color: #9499a0;
+      color: #8c8c8c;
       font-size: 0.95rem;
       font-weight: 500;
       margin-left: 0.35rem;
@@ -68,7 +68,7 @@ import { GameCommentsStore } from './game-comments-store'
     .bili-comment-sort button {
       background: transparent;
       border: 0;
-      color: #9499a0;
+      color: #8c8c8c;
       cursor: pointer;
       font-size: 0.88rem;
       padding: 0;
@@ -154,7 +154,7 @@ import { GameCommentsStore } from './game-comments-store'
       border: 0;
       border-radius: 4px;
       box-sizing: border-box;
-      color: #61666d;
+      color: #646464;
       cursor: pointer;
       display: inline-flex;
       flex: 0 0 2rem;
@@ -240,7 +240,7 @@ import { GameCommentsStore } from './game-comments-store'
       width: 3rem;
     }
     .bili-composer-image span {
-      color: #61666d;
+      color: #646464;
       flex: 1;
       font-size: 0.78rem;
       min-width: 0;
@@ -252,7 +252,7 @@ import { GameCommentsStore } from './game-comments-store'
       align-items: center;
       background: transparent;
       border: 0;
-      color: #9499a0;
+      color: #8c8c8c;
       cursor: pointer;
       display: inline-flex;
       font-size: 0;
@@ -292,7 +292,7 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-send-btn:disabled {
       background: #e3e5e7;
-      color: #9499a0;
+      color: #8c8c8c;
       cursor: not-allowed;
     }
     .bili-comment-list {
@@ -322,7 +322,7 @@ import { GameCommentsStore } from './game-comments-store'
       margin-bottom: 0.25rem;
     }
     .bili-comment-user strong {
-      color: #61666d;
+      color: #646464;
       font-size: 0.86rem;
       font-weight: 600;
     }
@@ -347,20 +347,20 @@ import { GameCommentsStore } from './game-comments-store'
     }
     .bili-comment-meta {
       align-items: center;
-      color: #9499a0;
+      color: #8c8c8c;
       display: flex;
       flex-wrap: wrap;
       font-size: 0.78rem;
       gap: 0.85rem;
     }
     .bili-comment-meta time {
-      color: #9499a0;
+      color: #8c8c8c;
     }
     .bili-meta-btn {
       align-items: center;
       background: transparent;
       border: 0;
-      color: #9499a0;
+      color: #8c8c8c;
       cursor: pointer;
       display: inline-flex;
       gap: 0.2rem;

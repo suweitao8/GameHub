@@ -28,8 +28,8 @@
 .root {
   --co-logo-size: 34px;
   --co-root-padding: 1.5rem;
-  --game-text-primary: #4e5969;
-  --game-text-secondary: #61666d;
+  --game-text-primary: #303133;
+  --game-text-secondary: #646464;
 
   position: relative;
   color: pvar(--header-fg-500);
@@ -46,7 +46,7 @@
   --co-root-padding: 0 1rem;
   --game-brand: #00aeec;
   --game-header-nav-gap: 0.2rem;
-  --game-header-nav-foreground: #61666d;
+  --game-header-nav-foreground: #646464;
 
   background-color: #e5f7ff;
   background-image: url('../../assets/images/gamehub-header-banner-10x1.png');
@@ -75,13 +75,13 @@
 
 :host-context(.game-experience.game-header-scrolled) .root {
   --co-root-padding: 0 1rem;
-  --game-header-nav-foreground: #61666d;
+  --game-header-nav-foreground: #646464;
 
   background-image: none;
   background-color: #fff;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 4px 14px rgb(25 30 40 / 10%);
-  color: #4e5969;
+  color: #303133;
   height: var(--header-height);
 }
 

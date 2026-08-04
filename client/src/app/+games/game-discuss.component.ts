@@ -109,7 +109,7 @@ import { GameDiscussStore } from './game-discuss-store'
     }
     .wechat-time-separator {
       align-self: center;
-      color: #9499a0;
+      color: #8c8c8c;
       display: block;
       font-size: 0.66rem;
       line-height: 20px;
@@ -164,7 +164,7 @@ import { GameDiscussStore } from './game-discuss-store'
     }
     .discuss-composer button:disabled {
       background: #e3e5e7;
-      color: #9499a0;
+      color: #8c8c8c;
       cursor: not-allowed;
     }
 

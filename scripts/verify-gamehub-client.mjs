@@ -511,8 +511,8 @@ assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.in
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
-assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #6b6f75'), 'game colors must use softened charcoal primary and gray secondary text')
-assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #6b6f75'), 'detail page must apply its charcoal palette within the component scope')
+assert(gameCommunityTokens.includes('--game-text: #303133') && gameCommunityTokens.includes('--game-muted: #646464'), 'game colors must use the shared charcoal primary and gray secondary text')
+assert(gamePlayScss.includes('--game-text: #303133') && gamePlayScss.includes('--game-muted: #646464'), 'detail page must apply the shared charcoal palette within the component scope')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
 assert(

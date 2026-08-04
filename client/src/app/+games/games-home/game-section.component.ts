@@ -58,7 +58,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       background: #f6f7f8;
       border: 1px solid #e3e5e7;
       border-radius: 8px;
-      color: #61666d;
+      color: #646464;
       cursor: pointer;
       display: flex;
       flex-direction: column;
