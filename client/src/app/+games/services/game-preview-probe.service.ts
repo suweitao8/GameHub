@@ -1,5 +1,4 @@
-import { inject, Injectable, OnDestroy, signal } from '@angular/core'
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { Injectable, OnDestroy, signal } from '@angular/core'
 
 type PreviewCompleteCallback = (runtimeScreenshot?: string) => void
 
@@ -15,9 +14,7 @@ type PreviewCompleteCallback = (runtimeScreenshot?: string) => void
  */
 @Injectable({ providedIn: 'root' })
 export class GamePreviewProbeService implements OnDestroy {
-  private readonly sanitizer = inject(DomSanitizer)
-
-  readonly previewUrl = signal<SafeResourceUrl | null>(null)
+  readonly previewSource = signal('')
   readonly previewStatus = signal('')
   readonly previewError = signal('')
   readonly error = signal('')
@@ -25,7 +22,6 @@ export class GamePreviewProbeService implements OnDestroy {
   /** Captured runtime screenshot data URL (canvas capture path only). */
   readonly runtimeScreenshot = signal('')
 
-  private objectUrl = ''
   private timer: ReturnType<typeof setTimeout> | undefined
   private token = ''
   private prepareGeneration = 0
@@ -42,9 +38,7 @@ export class GamePreviewProbeService implements OnDestroy {
     const generation = ++this.prepareGeneration
     if (this.timer) clearTimeout(this.timer)
     this.timer = undefined
-    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
-    this.objectUrl = ''
-    this.previewUrl.set(null)
+    this.previewSource.set('')
     this.previewReady = false
     this.previewError.set('')
     this.runtimeScreenshot.set('')
@@ -60,14 +54,12 @@ export class GamePreviewProbeService implements OnDestroy {
       return
     }
 
-    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
     this.token = crypto.randomUUID()
     this.handled = false
     this.runtimeScreenshot.set('')
     const wrapped = this.wrapDocument(source, this.token)
-    this.objectUrl = URL.createObjectURL(new Blob([ wrapped ], { type: 'text/html' }))
     this.previewReady = true
-    this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.objectUrl))
+    this.previewSource.set(wrapped)
     this.step.set(3)
     this.previewStatus.set('正在启动游戏…')
   }
@@ -89,9 +81,7 @@ export class GamePreviewProbeService implements OnDestroy {
     this.prepareGeneration += 1
     if (this.timer) clearTimeout(this.timer)
     this.timer = undefined
-    if (this.objectUrl) URL.revokeObjectURL(this.objectUrl)
-    this.objectUrl = ''
-    this.previewUrl.set(null)
+    this.previewSource.set('')
     this.previewReady = false
     this.previewStatus.set('')
     this.error.set('')

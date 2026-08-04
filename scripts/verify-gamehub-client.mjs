@@ -674,10 +674,9 @@ assert(
   'game preview probes must inject before case-insensitive closing body tags'
 )
 assert(
-  previewProbeTs.includes('URL.revokeObjectURL(this.objectUrl)') &&
-    previewProbeTs.includes('this.previewUrl.set(null)') &&
+  previewProbeTs.includes('this.previewSource.set(\'\')') &&
     previewProbeTs.includes('this.onComplete = undefined'),
-  'game upload preview must revoke object URLs and clear callbacks when reset'
+  'game upload preview must clear srcdoc content and callbacks when reset'
 )
 assert(uploadHtml.includes('(load)="onPreviewLoaded($event)"') && uploadTs.includes('onPreviewLoaded (event: Event)'), 'game upload preview must ignore stale iframe load events')
 assert(!uploadHtml.includes('class="upload-preview-frame"') || !uploadHtml.includes('loading="lazy"'), 'game upload preview iframe must load eagerly so safety checks cannot be skipped off-screen')
@@ -715,6 +714,12 @@ assert(
     previewProbeTs.includes('URL.revokeObjectURL(svgObjectUrl)') &&
     gameRuntimeTs.includes('URL.revokeObjectURL(svgObjectUrl)'),
   'HTML preview probes must load DOM screenshot SVGs through revocable blob URLs so isolated frames can render them'
+)
+assert(
+  previewProbeTs.includes('readonly previewSource = signal(\'\')') &&
+    uploadTs.includes('readonly previewSource = this.previewProbe.previewSource') &&
+    uploadHtml.includes('[srcdoc]="previewSource()"'),
+  'HTML upload previews must use sandboxed srcdoc content so the uploaded DOM is rendered before screenshot probing'
 )
 assert(
   uploadTs.includes('readonly previewValidationError = this.previewProbe.error') &&

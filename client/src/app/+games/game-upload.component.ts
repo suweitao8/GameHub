@@ -33,7 +33,7 @@ export class GameUploadComponent implements OnDestroy {
   readonly dragActive = signal(false)
 
   // Expose probe + cover service state to the template.
-  readonly previewUrl = this.previewProbe.previewUrl
+  readonly previewSource = this.previewProbe.previewSource
   readonly previewStatus = this.previewProbe.previewStatus
   readonly previewError = this.previewProbe.previewError
   readonly previewValidationError = this.previewProbe.error
