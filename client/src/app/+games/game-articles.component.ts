@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { createAsyncState } from './shared'
 
 export type GameArticle = {
   id: number
@@ -167,18 +169,17 @@ export type GameArticle = {
 })
 export class GameArticlesComponent implements OnInit {
   private readonly http = inject(HttpClient)
-  articles = signal<GameArticle[]>([])
-  loading = signal(false)
+  readonly articlesState = createAsyncState<GameArticle[]>()
+  /** 模板兼容：直接返回 data，空数组兜底 */
+  readonly articles = computed(() => this.articlesState.data() ?? [])
+  /** 模板兼容：底层 state 的 loading 别名 */
+  readonly loading = this.articlesState.loading
 
   ngOnInit () {
-    this.loading.set(true)
-    this.http.get<{ total: number; data: GameArticle[] }>(`${environment.apiUrl}/api/v1/games/articles`).subscribe({
-      next: (result) => {
-        this.articles.set(result.data)
-        this.loading.set(false)
-      },
-      error: () => this.loading.set(false)
-    })
+    const data$ = this.http.get<{ total: number; data: GameArticle[] }>(`${environment.apiUrl}/api/v1/games/articles`).pipe(
+      map(result => result.data)
+    )
+    this.articlesState.load(data$)
   }
 
   formatNumber (num: number): string {

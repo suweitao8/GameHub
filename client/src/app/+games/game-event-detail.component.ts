@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import { AuthService } from '@app/core/auth/auth.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { createAsyncState } from './shared'
 
 export type GameEventDetail = {
   id: number
@@ -270,10 +272,15 @@ export class GameEventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   private readonly authService = inject(AuthService)
   private readonly destroyRef = inject(DestroyRef)
-  event = signal<GameEventDetail | null>(null)
-  loading = signal(false)
-  participants = signal<EventParticipant[]>([])
-  participantsLoading = signal(false)
+  readonly eventState = createAsyncState<GameEventDetail>()
+  /** 模板兼容：直接返回 data（null 时进入 not-found 分支） */
+  readonly event = computed(() => this.eventState.data())
+  /** 模板兼容：底层 state 的 loading 别名 */
+  readonly loading = this.eventState.loading
+  readonly participantsState = createAsyncState<EventParticipant[]>()
+  /** 模板兼容：直接返回 data，空数组兜底 */
+  readonly participants = computed(() => this.participantsState.data() ?? [])
+  readonly participantsLoading = this.participantsState.loading
   joined = signal(false)
   joinLoading = signal(false)
   actionFeedback = signal('')
@@ -293,27 +300,14 @@ export class GameEventDetailComponent implements OnInit {
   }
 
   loadEvent (slug: string) {
-    this.loading.set(true)
-    this.http.get<GameEventDetail>(`${environment.apiUrl}/api/v1/games/events/${slug}`).subscribe({
-      next: (result) => {
-        this.event.set(result)
-        this.loading.set(false)
-      },
-      error: () => {
-        this.loading.set(false)
-      }
-    })
+    this.eventState.load(this.http.get<GameEventDetail>(`${environment.apiUrl}/api/v1/games/events/${slug}`))
   }
 
   loadParticipants (slug: string) {
-    this.participantsLoading.set(true)
-    this.http.get<{ total: number; data: EventParticipant[] }>(`${environment.apiUrl}/api/v1/games/events/${slug}/participants`).subscribe({
-      next: (result) => {
-        this.participants.set(result.data)
-        this.participantsLoading.set(false)
-      },
-      error: () => this.participantsLoading.set(false)
-    })
+    const data$ = this.http.get<{ total: number; data: EventParticipant[] }>(`${environment.apiUrl}/api/v1/games/events/${slug}/participants`).pipe(
+      map(result => result.data)
+    )
+    this.participantsState.load(data$)
   }
 
   checkJoined (slug: string) {
@@ -337,7 +331,7 @@ export class GameEventDetailComponent implements OnInit {
       next: () => {
         this.joined.set(true)
         this.joinLoading.set(false)
-        this.event.update(ev => ev ? { ...ev, participantCount: ev.participantCount + 1 } : ev)
+        this.eventState.data.update(ev => ev ? { ...ev, participantCount: ev.participantCount + 1 } : ev)
         this.loadParticipants(slug)
       },
       error: () => {
@@ -356,7 +350,7 @@ export class GameEventDetailComponent implements OnInit {
       next: () => {
         this.joined.set(false)
         this.joinLoading.set(false)
-        this.event.update(ev => ev ? { ...ev, participantCount: Math.max(0, ev.participantCount - 1) } : ev)
+        this.eventState.data.update(ev => ev ? { ...ev, participantCount: Math.max(0, ev.participantCount - 1) } : ev)
         this.loadParticipants(slug)
       },
       error: () => {

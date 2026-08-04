@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
+import { createAsyncState } from './shared'
 
 export type GameTagCloud = {
   tag: string
@@ -130,21 +132,18 @@ export type GameTagCloud = {
 })
 export class GameTagsCloudComponent implements OnInit {
   private readonly http = inject(HttpClient)
-  tags = signal<GameTagCloud[]>([])
-  loading = signal(false)
-  filteredTags = signal<GameTagCloud[]>([])
+  readonly tagsState = createAsyncState<GameTagCloud[]>()
+  /** 模板兼容：直接返回 data */
+  readonly tags = computed(() => this.tagsState.data() ?? [])
+  readonly filteredTags = computed(() => this.tags().slice(0, 20))
+  /** 模板兼容：底层 state 的 loading 别名 */
+  readonly loading = this.tagsState.loading
 
   ngOnInit () {
-    this.loading.set(true)
-    this.http.get<GameTagCloud[]>(`${environment.apiUrl}/api/v1/games/tags`).subscribe({
-      next: (result) => {
-        const sorted = result.filter(item => item.gameCount >= 1).sort((a, b) => b.gameCount - a.gameCount)
-        this.tags.set(sorted)
-        this.filteredTags.set(sorted.slice(0, 20))
-        this.loading.set(false)
-      },
-      error: () => this.loading.set(false)
-    })
+    const sorted$ = this.http.get<GameTagCloud[]>(`${environment.apiUrl}/api/v1/games/tags`).pipe(
+      map(result => result.filter(item => item.gameCount >= 1).sort((a, b) => b.gameCount - a.gameCount))
+    )
+    this.tagsState.load(sorted$)
   }
 
   getTagSize (item: GameTagCloud): number {

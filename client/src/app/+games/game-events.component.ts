@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { createAsyncState } from './shared'
 
 export type GameEvent = {
   id: number
@@ -193,8 +195,11 @@ export type GameEvent = {
 export class GameEventsComponent implements OnInit {
   private readonly http = inject(HttpClient)
   private readonly route = inject(ActivatedRoute)
-  events = signal<GameEvent[]>([])
-  loading = signal(false)
+  readonly eventsState = createAsyncState<GameEvent[]>()
+  /** 模板兼容：直接返回 data，空数组兜底 */
+  readonly events = computed(() => this.eventsState.data() ?? [])
+  /** 模板兼容：底层 state 的 loading 别名 */
+  readonly loading = this.eventsState.loading
   currentFilter = signal<'all' | 'upcoming' | 'ongoing' | 'ended'>('all')
 
   filters = [
@@ -211,14 +216,10 @@ export class GameEventsComponent implements OnInit {
   })
 
   ngOnInit () {
-    this.loading.set(true)
-    this.http.get<{ total: number; data: GameEvent[] }>(`${environment.apiUrl}/api/v1/games/events`).subscribe({
-      next: (result) => {
-        this.events.set(result.data)
-        this.loading.set(false)
-      },
-      error: () => this.loading.set(false)
-    })
+    const data$ = this.http.get<{ total: number; data: GameEvent[] }>(`${environment.apiUrl}/api/v1/games/events`).pipe(
+      map(result => result.data)
+    )
+    this.eventsState.load(data$)
   }
 
   setFilter (filter: 'all' | 'upcoming' | 'ongoing' | 'ended') {
