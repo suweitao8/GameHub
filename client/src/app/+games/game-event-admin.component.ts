@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -24,6 +24,7 @@ export type GameEventAdmin = {
 @Component({
   selector: 'my-game-event-admin',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, GlobalIconComponent],
   template: `
     <div class="event-admin-container">

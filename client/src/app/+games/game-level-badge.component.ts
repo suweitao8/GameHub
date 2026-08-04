@@ -1,9 +1,10 @@
-import { Component, input, computed } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input, computed } from '@angular/core'
 import type { GameLevelInfo } from './games.service'
 
 @Component({
   selector: 'my-game-level-badge',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [],
   template: `
     @if (levelInfo()) {

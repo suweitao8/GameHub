@@ -6,6 +6,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 @Component({
   selector: 'my-game-watch-later',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ RouterLink, GlobalIconComponent ],
   template: `
     <main class="game-community-page library-page">

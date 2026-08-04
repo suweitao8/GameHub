@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { GamesService } from './games.service'
@@ -18,6 +18,7 @@ export type FollowedAuthor = {
 @Component({
   selector: 'my-game-following',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="following-container">

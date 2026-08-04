@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, signal, OnInit, computed } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import type { GameAnalytics } from './games.service'
@@ -10,6 +10,7 @@ type TimeRange = '7d' | '30d' | '90d'
 @Component({
   selector: 'my-game-analytics-dashboard',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="analytics-dashboard">
