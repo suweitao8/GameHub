@@ -279,4 +279,125 @@ describe('Test games API', function () {
       expect(result.data).to.be.an('array')
     })
   })
+
+  // ---------------------------------------------------------------------------
+  // Personal space (me/*)
+  // ---------------------------------------------------------------------------
+
+  describe('Personal space', function () {
+    it('should reject personal endpoints without auth', async function () {
+      const res = await fetch(`${server.url}/api/v1/games/me/favorites`)
+      expect(res.status).to.equal(HttpStatusCode.UNAUTHORIZED_401)
+    })
+
+    it('should list favorites with auth', async function () {
+      if (!server.accessToken) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/me/favorites`, {
+        headers: { Authorization: `Bearer ${server.accessToken}` }
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.be.an('array')
+    })
+
+    it('should list recent games with auth', async function () {
+      if (!server.accessToken) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/me/recent`, {
+        headers: { Authorization: `Bearer ${server.accessToken}` }
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.be.an('array')
+    })
+
+    it('should get user level info', async function () {
+      if (!server.accessToken) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/me/level`, {
+        headers: { Authorization: `Bearer ${server.accessToken}` }
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result).to.have.property('exp')
+      expect(result).to.have.property('levelInfo')
+      expect(result).to.have.property('dailyLoginAvailable')
+    })
+
+    it('should list notifications with auth', async function () {
+      if (!server.accessToken) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/me/notifications`, {
+        headers: { Authorization: `Bearer ${server.accessToken}` }
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.be.an('array')
+    })
+
+    it('should get creator overview with auth', async function () {
+      if (!server.accessToken) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/me/overview`, {
+        headers: { Authorization: `Bearer ${server.accessToken}` }
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result).to.have.property('games')
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // Community write operations
+  // ---------------------------------------------------------------------------
+
+  describe('Community write operations', function () {
+    it('should follow a game author', async function () {
+      if (!server.accessToken || !publishedGameUuid) this.skip()
+
+      const detail = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}`)
+      const game = await detail.json()
+      if (!game.author?.id) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/author/${game.author.id}/follow`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${server.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+    })
+
+    it('should reject coining own game', async function () {
+      if (!server.accessToken || !publishedGameUuid) this.skip()
+
+      // publishedGameUuid was uploaded by root, so root owns it
+      const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/coin`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${server.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: 1 })
+      })
+      expect(res.status).to.equal(HttpStatusCode.FORBIDDEN_403)
+    })
+
+    it('should reject invalid coin amount', async function () {
+      if (!server.accessToken || !publishedGameUuid) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/coin`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${server.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: 5 })
+      })
+      expect(res.status).to.equal(HttpStatusCode.BAD_REQUEST_400)
+    })
+  })
 })
