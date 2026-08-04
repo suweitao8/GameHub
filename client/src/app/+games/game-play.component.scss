@@ -401,7 +401,7 @@
   min-width: 0;
 }
 .related-game-copy strong {
-  color: #1e1e1e;
+  color: var(--game-text);
   display: -webkit-box;
   font-size: 0.82rem;
   -webkit-box-orient: vertical;
@@ -410,7 +410,7 @@
   overflow: hidden;
 }
 .related-game-copy span {
-  color: #8c8c8c;
+  color: var(--game-text-hint);
   font-size: 0.72rem;
 }
 .related-game-meta {
@@ -673,7 +673,7 @@
 .related-game-cover img { height: 100%;
   object-fit: cover;
   width: 100%; }
-.related-game-cover-placeholder { color: #8c8c8c;
+.related-game-cover-placeholder { color: var(--game-text-hint);
   font-size: 1.75rem;
   font-weight: 700;
   text-transform: uppercase; }
