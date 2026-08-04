@@ -100,8 +100,8 @@ async function getGame (req: express.Request, res: express.Response) {
     const commentCount = await GameCommentModel.count({
       where: { gameId: game.id, deletedAt: null }
     })
-    const gameWithStats = game as any
-    gameWithStats.setDataValue('gameComments', commentCount)
+    // 'gameComments' is a virtual stats column from literal() aggregate, not a model attribute
+    game.setDataValue('gameComments' as keyof GameModel, commentCount)
 
     return res.json(formatGame(game))
   })
@@ -148,7 +148,7 @@ async function getGameSEO (req: express.Request, res: express.Response) {
     ? game.description.slice(0, 197) + '...'
     : game.description
 
-  const owner = (game as any).Owner
+  const owner = game.Owner
   const authorName = owner?.getDisplayName?.() || owner?.name || ''
 
   const stats = await GameStatsSummaryModel.findOne({ where: { gameId: game.id }, raw: true })

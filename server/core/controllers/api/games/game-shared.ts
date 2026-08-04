@@ -40,8 +40,8 @@ export function getUser (res: express.Response) {
 }
 
 export function formatGame (game: MGame) {
-  const owner = (game as any).Owner
-  const statsSummary = (game as any).StatsSummary
+  const owner = game.Owner
+  const statsSummary = game.StatsSummary
   const readStat = (alias: string, field: string) => {
     const value = game.get?.(alias) ?? statsSummary?.get?.(field) ?? statsSummary?.[field]
     return Number(value) || 0
