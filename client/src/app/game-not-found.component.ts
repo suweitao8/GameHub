@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router'
   template: `
     <main class="game-community-page game-not-found-page">
       <section class="game-community-content game-not-found-card" aria-labelledby="game-not-found-title">
-        <p class="game-eyebrow">GAMEHUB</p>
+        <p class="game-eyebrow">GameHub</p>
         <h1 id="game-not-found-title">这个页面不存在</h1>
         <p>链接可能已经失效，或者该内容还没有加入 GameHub。</p>
         <div class="game-not-found-actions">

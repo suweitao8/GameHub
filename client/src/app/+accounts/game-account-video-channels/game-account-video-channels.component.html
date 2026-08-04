@@ -11,7 +11,7 @@
       <div class="game-account-profile">
         <my-actor-avatar [actor]="account()" actorType="account" [size]="112"></my-actor-avatar>
         <div class="game-account-profile-copy">
-          <p class="game-eyebrow">CREATOR SPACE</p>
+          <p class="game-eyebrow">创作空间</p>
           <h1 id="game-account-title">{{ account().displayName }}</h1>
           <p class="game-account-handle">&#64;{{ account().nameWithHost }}</p>
           @if (accountDescriptionHTML()) {
@@ -36,7 +36,7 @@
     <section class="game-community-content game-account-content">
       <header class="game-section-heading">
         <div>
-          <p class="game-eyebrow">PUBLISHED CHANNELS</p>
+          <p class="game-eyebrow">已发布频道</p>
           <h2>频道与作品</h2>
           <p>从这个创作者的频道里，找到下一款想试玩的游戏。</p>
         </div>
@@ -53,7 +53,7 @@
                   <my-actor-avatar [actor]="channel" actorType="channel" [size]="64"></my-actor-avatar>
                 </a>
                 <div class="game-channel-copy">
-                  <p class="game-eyebrow">CHANNEL</p>
+                  <p class="game-eyebrow">频道</p>
                   <h3><a [routerLink]="getChannelLink()">{{ channel.displayName }}</a></h3>
                   <p class="game-channel-handle">&#64;{{ channel.nameWithHost }}</p>
                 </div>

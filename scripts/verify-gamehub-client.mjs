@@ -388,6 +388,10 @@ const legacyGamePackageSpec = read('docs/superpowers/specs/2026-07-18-html-game-
 const legacyGamePackagePlan = read('docs/superpowers/plans/2026-07-18-html-game-package-upload-plan.md')
 const gameRequirementsDoc = read('support/doc/development/gamehub-requirements-bilibili-benchmark.md')
 const loginHtml = read('client/src/app/+login/login.component.html')
+const gameAccountHomeTs = read('client/src/app/game-account-home.component.ts')
+const gameAccountSettingsTs = read('client/src/app/game-account-settings.component.ts')
+const gameNotFoundTs = read('client/src/app/game-not-found.component.ts')
+const gameAccountChannelsHtml = read('client/src/app/+accounts/game-account-video-channels/game-account-video-channels.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
 const communityCommentsTs = read('server/core/controllers/api/games/community-comments.ts')
 const gameDiscoveryServerTs = read('server/core/controllers/api/games/game-discovery.ts')
@@ -801,6 +805,27 @@ assert(
     !loginHtml.includes('GAMEHUB ACCOUNT') &&
     !loginHtml.includes('PLAY · CREATE · SHARE'),
   'login page labels must stay localized for the Chinese GameHub experience'
+)
+const gameEyebrowStyleStart = gameCommunityTokens.indexOf('.game-eyebrow {')
+const gameEyebrowStyleEnd = gameCommunityTokens.indexOf('}', gameEyebrowStyleStart)
+const gameEyebrowStyle = gameCommunityTokens.slice(gameEyebrowStyleStart, gameEyebrowStyleEnd)
+assert(
+  gameEyebrowStyleStart >= 0 && !gameEyebrowStyle.includes('text-transform: uppercase'),
+  'GameHub eyebrow labels must preserve brand casing instead of forcing uppercase text'
+)
+assert(
+  gameAccountHomeTs.includes('GameHub 账户') &&
+    !gameAccountHomeTs.includes('GAMEHUB ACCOUNT') &&
+    gameAccountSettingsTs.includes('GameHub 账户') &&
+    !gameAccountSettingsTs.includes('GAMEHUB ACCOUNT') &&
+    gameNotFoundTs.includes('>GameHub</p>') &&
+    !gameNotFoundTs.includes('>GAMEHUB</p>') &&
+    gameAccountChannelsHtml.includes('创作空间') &&
+    gameAccountChannelsHtml.includes('已发布频道') &&
+    gameAccountChannelsHtml.includes('频道') &&
+    !gameAccountChannelsHtml.includes('CREATOR SPACE') &&
+    !gameAccountChannelsHtml.includes('PUBLISHED CHANNELS'),
+  'GameHub account surfaces must not expose stray English labels'
 )
 assert(
   commentsTs.includes('height: 0.7rem;') && commentsTs.includes('width: 0.7rem;') &&

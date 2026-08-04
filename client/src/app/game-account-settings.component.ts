@@ -19,7 +19,7 @@ import { filter } from 'rxjs/operators'
     <main class="game-community-page game-settings-page">
       <div class="game-community-content">
         <header class="game-settings-header">
-          <p class="game-eyebrow">GAMEHUB ACCOUNT</p>
+          <p class="game-eyebrow">GameHub 账户</p>
           <h1>账户设置</h1>
           <p>管理登录安全和账户相关选项。</p>
         </header>

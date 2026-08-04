@@ -9,7 +9,7 @@ import { buildGameAvatarDataUrl } from './shared/game-avatar'
       <div class="game-community-content">
         <header class="game-account-header">
           <div>
-            <p class="game-eyebrow">GAMEHUB ACCOUNT</p>
+            <p class="game-eyebrow">GameHub 账户</p>
             <h1>个人中心</h1>
             <p>管理你的 GameHub 主页、作品和社区互动。</p>
           </div>
@@ -28,7 +28,10 @@ import { buildGameAvatarDataUrl } from './shared/game-avatar'
               @if (currentUser.account?.id) {
                 <a [routerLink]="['/games/author', currentUser.account.id]">查看我的主页 →</a>
               } @else {
-                <span class="game-account-profile-unavailable shimmer" style="display:inline-block;height:1.2rem;width:6rem;border-radius:4px;background:#eceff3"></span>
+                <span
+                  class="game-account-profile-unavailable shimmer"
+                  style="display:inline-block;height:1.2rem;width:6rem;border-radius:4px;background:#eceff3"
+                ></span>
               }
               <a routerLink="/my-account/settings">账户设置</a>
             </div>
