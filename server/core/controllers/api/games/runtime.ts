@@ -117,38 +117,88 @@ function injectPreviewProbe (source: string, token: string) {
       const sendCanvas = canvas => {
         if (captured || !canvas || !canvas.width || !canvas.height) return false
         try {
+          const dataUrl = canvas.toDataURL('image/png')
           captured = true
-          send({ kind: 'canvas', dataUrl: canvas.toDataURL('image/png') })
+          send({ kind: 'canvas', dataUrl })
           return true
         } catch {
           return false
         }
       }
-      const captureDom = () => {
-        if (captured) return
+      const renderDomToCanvas = () => {
+        if (captured) return true
         const width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0, 640)
         const height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0, 360)
-        const styles = Array.from(document.querySelectorAll('style')).map(style => style.textContent || '').join('\\n')
-        const bodyElement = document.body?.cloneNode(true)
-        bodyElement?.querySelectorAll('script, iframe').forEach(element => element.remove())
-        const body = bodyElement?.innerHTML || document.documentElement.innerHTML
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xhtml="http://www.w3.org/1999/xhtml" width="' + width + '" height="' + height + '"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:' + width + 'px;height:' + height + 'px;overflow:hidden;background:#f6f7f8;">' +
-          '<style>' + styles.replace(/<\\/style>/gi, '') + '</style>' + body + '</div></foreignObject></svg>'
-        const image = new Image()
-        const svgObjectUrl = URL.createObjectURL(new Blob([ svg ], { type: 'image/svg+xml' }))
-        const revokeSvgObjectUrl = () => URL.revokeObjectURL(svgObjectUrl)
-        image.onload = () => {
-          revokeSvgObjectUrl()
-          const canvas = document.createElement('canvas')
-          canvas.width = 1280
-          canvas.height = 720
-          const context = canvas.getContext('2d')
-          if (!context) return
-          context.drawImage(image, 0, 0, canvas.width, canvas.height)
-          sendCanvas(canvas)
+        const canvas = document.createElement('canvas')
+        canvas.width = 1280
+        canvas.height = 720
+        const context = canvas.getContext('2d')
+        const body = document.body
+        if (!context || !body) return false
+        const scaleX = canvas.width / width
+        const scaleY = canvas.height / height
+        const getColor = value => value && value !== 'transparent' && value !== 'rgba(0, 0, 0, 0)' ? value : ''
+        const visible = element => {
+          const rect = element.getBoundingClientRect()
+          const style = getComputedStyle(element)
+          return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity || 1) > 0
         }
-        image.onerror = () => revokeSvgObjectUrl()
-        image.src = svgObjectUrl
+        const elements = Array.from(document.querySelectorAll('body *')).filter(visible).slice(0, 100)
+        context.save()
+        context.scale(scaleX, scaleY)
+        context.fillStyle = getColor(getComputedStyle(body).backgroundColor) || '#f6f7f8'
+        context.fillRect(0, 0, width, height)
+        elements.forEach(element => {
+          const style = getComputedStyle(element)
+          const rect = element.getBoundingClientRect()
+          const background = getColor(style.backgroundColor)
+          if (background) {
+            context.fillStyle = background
+            context.beginPath()
+            if (typeof context.roundRect === 'function') context.roundRect(rect.x, rect.y, rect.width, rect.height, parseFloat(style.borderRadius) || 0)
+            else context.rect(rect.x, rect.y, rect.width, rect.height)
+            context.fill()
+          }
+          if (style.borderStyle !== 'none' && parseFloat(style.borderTopWidth) > 0) {
+            context.strokeStyle = getColor(style.borderTopColor) || '#d9dce1'
+            context.lineWidth = parseFloat(style.borderTopWidth)
+            context.strokeRect(rect.x, rect.y, rect.width, rect.height)
+          }
+        })
+        elements.filter(element => element.children.length === 0 || /^(H1|H2|H3|BUTTON|LABEL)$/.test(element.tagName)).forEach(element => {
+          const text = (element.textContent || '').replace(/[ \t\r\n]+/g, ' ').trim().slice(0, 180)
+          if (!text) return
+          const style = getComputedStyle(element)
+          const rect = element.getBoundingClientRect()
+          const fontSize = Math.max(12, parseFloat(style.fontSize) || 16)
+          const lineHeight = Math.max(fontSize * 1.25, parseFloat(style.lineHeight) || fontSize * 1.25)
+          const maxWidth = Math.max(40, rect.width - 8)
+          context.fillStyle = getColor(style.color) || '#30343b'
+          context.font = (style.fontWeight || '400') + ' ' + fontSize + 'px ' + (style.fontFamily || 'Arial')
+          context.textBaseline = 'top'
+          let line = ''
+          let lineY = rect.y
+          let lineCount = 0
+          for (const character of Array.from(text)) {
+            const next = line + character
+            if (line && context.measureText(next).width > maxWidth) {
+              context.fillText(line, rect.x, lineY)
+              line = character
+              lineY += lineHeight
+              lineCount += 1
+              if (lineCount >= 4) break
+            } else {
+              line = next
+            }
+          }
+          if (line && lineCount < 4) context.fillText(line, rect.x, lineY)
+        })
+        context.restore()
+        return sendCanvas(canvas)
+      }
+      const captureDom = () => {
+        if (captured) return true
+        return renderDomToCanvas()
       }
         const inspect = () => {
           if (sendCanvas(document.querySelector('canvas'))) return

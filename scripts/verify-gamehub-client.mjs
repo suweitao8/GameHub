@@ -709,11 +709,13 @@ assert(
   'game upload preview must arm its completion fallback for the current iframe load without rejecting a valid blob URL'
 )
 assert(
-  /const svgObjectUrl = URL\.createObjectURL\(new Blob\(\[ svg \], \{ type: 'image\/svg\+xml' \}\)\)/.test(previewProbeTs) &&
-    /const svgObjectUrl = URL\.createObjectURL\(new Blob\(\[ svg \], \{ type: 'image\/svg\+xml' \}\)\)/.test(gameRuntimeTs) &&
-    previewProbeTs.includes('URL.revokeObjectURL(svgObjectUrl)') &&
-    gameRuntimeTs.includes('URL.revokeObjectURL(svgObjectUrl)'),
-  'HTML preview probes must load DOM screenshot SVGs through revocable blob URLs so isolated frames can render them'
+  previewProbeTs.includes('const renderDomToCanvas = () =>') &&
+    gameRuntimeTs.includes('const renderDomToCanvas = () =>') &&
+    previewProbeTs.includes('renderDomToCanvas()') &&
+    gameRuntimeTs.includes('renderDomToCanvas()') &&
+    !previewProbeTs.includes('<foreignObject') &&
+    !gameRuntimeTs.includes('<foreignObject'),
+  'HTML preview probes must render DOM screenshots directly to a canvas without unsupported SVG foreignObject content'
 )
 assert(
   previewProbeTs.includes('readonly previewSource = signal<SafeHtml | null>(null)') &&
