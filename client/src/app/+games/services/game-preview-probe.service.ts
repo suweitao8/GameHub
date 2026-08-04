@@ -1,4 +1,5 @@
-import { Injectable, OnDestroy, signal } from '@angular/core'
+import { inject, Injectable, OnDestroy, signal } from '@angular/core'
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
 
 type PreviewCompleteCallback = (runtimeScreenshot?: string) => void
 
@@ -14,7 +15,9 @@ type PreviewCompleteCallback = (runtimeScreenshot?: string) => void
  */
 @Injectable({ providedIn: 'root' })
 export class GamePreviewProbeService implements OnDestroy {
-  readonly previewSource = signal('')
+  private readonly sanitizer = inject(DomSanitizer)
+
+  readonly previewSource = signal<SafeHtml | null>(null)
   readonly previewStatus = signal('')
   readonly previewError = signal('')
   readonly error = signal('')
@@ -38,7 +41,7 @@ export class GamePreviewProbeService implements OnDestroy {
     const generation = ++this.prepareGeneration
     if (this.timer) clearTimeout(this.timer)
     this.timer = undefined
-    this.previewSource.set('')
+    this.previewSource.set(null)
     this.previewReady = false
     this.previewError.set('')
     this.runtimeScreenshot.set('')
@@ -59,7 +62,7 @@ export class GamePreviewProbeService implements OnDestroy {
     this.runtimeScreenshot.set('')
     const wrapped = this.wrapDocument(source, this.token)
     this.previewReady = true
-    this.previewSource.set(wrapped)
+    this.previewSource.set(this.sanitizer.bypassSecurityTrustHtml(wrapped))
     this.step.set(3)
     this.previewStatus.set('正在启动游戏…')
   }
@@ -81,7 +84,7 @@ export class GamePreviewProbeService implements OnDestroy {
     this.prepareGeneration += 1
     if (this.timer) clearTimeout(this.timer)
     this.timer = undefined
-    this.previewSource.set('')
+    this.previewSource.set(null)
     this.previewReady = false
     this.previewStatus.set('')
     this.error.set('')

@@ -674,7 +674,7 @@ assert(
   'game preview probes must inject before case-insensitive closing body tags'
 )
 assert(
-  previewProbeTs.includes('this.previewSource.set(\'\')') &&
+  previewProbeTs.includes('this.previewSource.set(null)') &&
     previewProbeTs.includes('this.onComplete = undefined'),
   'game upload preview must clear srcdoc content and callbacks when reset'
 )
@@ -716,9 +716,10 @@ assert(
   'HTML preview probes must load DOM screenshot SVGs through revocable blob URLs so isolated frames can render them'
 )
 assert(
-  previewProbeTs.includes('readonly previewSource = signal(\'\')') &&
+  previewProbeTs.includes('readonly previewSource = signal<SafeHtml | null>(null)') &&
     uploadTs.includes('readonly previewSource = this.previewProbe.previewSource') &&
-    uploadHtml.includes('[srcdoc]="previewSource()"'),
+    uploadHtml.includes('[srcdoc]="previewSource()"') &&
+    previewProbeTs.includes('bypassSecurityTrustHtml(wrapped)'),
   'HTML upload previews must use sandboxed srcdoc content so the uploaded DOM is rendered before screenshot probing'
 )
 assert(
