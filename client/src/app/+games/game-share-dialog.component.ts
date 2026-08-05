@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core'
 import { Game, GamesService } from './games.service'
 
 /**
@@ -13,7 +13,7 @@ import { Game, GamesService } from './games.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './game-share-dialog.component.scss',
   template: `
-    @if (isOpen()) {
+    @if (open()) {
       <div class="share-dialog-overlay" (click)="requestClose()">
         <div class="share-dialog" (click)="$event.stopPropagation()">
           <div class="share-dialog-header">
@@ -21,7 +21,7 @@ import { Game, GamesService } from './games.service'
             <button type="button" class="share-close-btn" (click)="requestClose()">&times;</button>
           </div>
           <div class="share-dialog-body">
-            <p class="share-game-title">{{ gameSignal()?.title }}</p>
+            <p class="share-game-title">{{ game()?.title }}</p>
             <div class="share-url-box">
               <input type="text" [value]="url()" readonly (click)="$event.target.select()">
               <button type="button" [class.copied]="copied()" (click)="copyUrl()">
@@ -48,27 +48,27 @@ import { Game, GamesService } from './games.service'
 export class GameShareDialogComponent {
   private readonly gamesService = inject(GamesService)
 
-  readonly gameSignal = signal<Game | null>(null)
-  @Input() set game (value: Game | null) { this.gameSignal.set(value) }
+  readonly game = input<Game | null>(null)
 
   /** Two-way controlled visibility: `<my-game-share-dialog [(open)]="shareOpen" />`. */
-  @Input() set open (value: boolean) {
-    this.isOpen.set(value)
-    if (!value) this.copied.set(false)
-  }
-  readonly isOpen = signal(false)
+  readonly open = input(false)
 
-  @Output() openChange = new EventEmitter<boolean>()
-  @Output() close = new EventEmitter<void>()
-  @Output() error = new EventEmitter<void>()
+  readonly openChange = output<boolean>()
+  readonly close = output<void>()
+  readonly error = output<void>()
 
   readonly url = signal('')
   readonly copied = signal(false)
 
+  // 关闭时清除 copied 状态（替代原 setter 副作用）
+  private readonly closeEffect = effect(() => {
+    if (!this.open()) this.copied.set(false)
+  })
+
   private readonly encoder = encodeURIComponent
 
   encodedUrl () { return this.encoder(this.url()) }
-  encodedTitle () { return this.encoder(this.gameSignal()?.title || '') }
+  encodedTitle () { return this.encoder(this.game()?.title || '') }
 
   requestClose () {
     this.openChange.emit(false)
@@ -77,7 +77,7 @@ export class GameShareDialogComponent {
 
   /** Trigger the share flow. Returns true if the dialog was shown. */
   async share (): Promise<boolean> {
-    const current = this.gameSignal()
+    const current = this.game()
     if (!current) return false
     try {
       const result = await this.gamesService.share(current.uuid).toPromise()
@@ -87,7 +87,8 @@ export class GameShareDialogComponent {
         return false
       }
       this.url.set(resolved)
-      this.isOpen.set(true)
+      // Trigger share via openChange (parent controls the open state)
+      this.openChange.emit(true)
       this.openChange.emit(true)
       return true
     } catch {
