@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, signal, WritableSignal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, inject, input, output, signal, WritableSignal, Input } from '@angular/core'
 import { Router, RouterLink } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
 import { Game, GameCommunity, GamesService } from './games.service'
@@ -57,32 +57,32 @@ import { getGameActionErrorMessage } from './game-action-feedback'
           </div>
           <div class="game-description-content">
             @if (descriptionTab() === 'overview') {
-              <p>{{ game?.description || '作者还没有填写简介。' }}</p>
-              @if (game?.tags?.length) {
+              <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
+              @if (game()?.tags?.length) {
                 <div class="game-tags description-tags">
-                  @for (tag of game!.tags!; track tag) {
+                  @for (tag of game()!.tags!; track tag) {
                     <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
                   }
                 </div>
               }
             } @else {
               <dl class="game-description-table">
-                <div><dt>操作说明</dt><dd>{{ game?.instructions || '作者还没有填写操作说明。' }}</dd></div>
+                <div><dt>操作说明</dt><dd>{{ game()?.instructions || '作者还没有填写操作说明。' }}</dd></div>
               </dl>
             }
           </div>
         </section>
       </section>
-    } @else if (communityError) {
-      <p class="feedback" role="alert">{{ communityError }}</p>
+    } @else if (communityError()) {
+      <p class="feedback" role="alert">{{ communityError() }}</p>
       <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
         <h2 id="game-description-title">简介</h2>
-        <p>{{ game?.description || '作者还没有填写简介。' }}</p>
+        <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
       </section>
     } @else {
       <section class="game-description-panel game-description-fallback" aria-labelledby="game-description-title">
         <h2 id="game-description-title">简介</h2>
-        <p>{{ game?.description || '作者还没有填写简介。' }}</p>
+        <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
       </section>
     }
   `
@@ -94,11 +94,11 @@ export class GameCommunityPanelComponent {
 
   /** Shared community signal, owned by the host. Read/written in place. */
   @Input({ required: true }) community!: WritableSignal<GameCommunity | null>
-  @Input({ required: true }) uuid = ''
-  @Input() game: Game | null = null
-  @Input() communityError = ''
+  readonly uuid = input.required<string>()
+  readonly game = input<Game | null>(null)
+  readonly communityError = input('')
 
-  @Output() share = new EventEmitter<void>()
+  readonly share = output<void>()
 
   readonly coinLoading = signal(false)
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)
@@ -112,8 +112,8 @@ export class GameCommunityPanelComponent {
     if (!current) return
     const next = current.rating === 'like' ? 'none' : 'like'
     this.actionLoading.set('rate')
-    this.gamesService.rate(this.uuid, next).subscribe({
-      next: () => this.gamesService.community(this.uuid).subscribe({
+    this.gamesService.rate(this.uuid(), next).subscribe({
+      next: () => this.gamesService.community(this.uuid()).subscribe({
         next: value => {
           this.community.set(value)
           this.actionFeedback.set(next === 'like' ? '点赞成功' : next === 'none' ? '已取消点赞' : '已记录你的反馈')
@@ -137,7 +137,7 @@ export class GameCommunityPanelComponent {
     const current = this.community()
     if (!current) return
     this.actionLoading.set('favorite')
-    this.gamesService.favorite(this.uuid, !current.favorite).subscribe({
+    this.gamesService.favorite(this.uuid(), !current.favorite).subscribe({
       next: value => {
         this.community.update(state => state
           ? {
@@ -162,7 +162,7 @@ export class GameCommunityPanelComponent {
     if (!state || this.actionLoading() !== null) return
     this.actionLoading.set('coin')
     this.coinLoading.set(true)
-    this.gamesService.coin(this.uuid, 1).subscribe({
+    this.gamesService.coin(this.uuid(), 1).subscribe({
       next: value => {
         this.actionLoading.set(null)
         this.coinLoading.set(false)
