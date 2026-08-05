@@ -151,7 +151,9 @@
       </div><!-- /.game-stage-row -->
       </div><!-- /.play-main -->
 
-      <my-game-share-dialog [(open)]="shareOpen" [game]="game()" />
+      @defer (when shareOpen()) {
+        <my-game-share-dialog [(open)]="shareOpen" [game]="game()" />
+      }
     </div>
   }
 </main>
