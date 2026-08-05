@@ -1,0 +1,46 @@
+.games-home {
+  padding-bottom: 4rem;
+}
+
+.games-home > .game-community-content {
+  padding-top: 0.85rem;
+}
+
+.compact-section-heading {
+  align-items: center;
+  margin-bottom: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.game-section-heading.compact-section-heading {
+  margin-top: 1.25rem;
+}
+
+.compact-section-heading h2 {
+  font-size: 1.25rem;
+}
+
+.game-grid {
+  display: grid;
+  column-gap: 1rem;
+  row-gap: 0.62rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.recent-games-section .game-section-heading h2 {
+  font-weight: 700;
+}
+
+.game-state {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  margin-top: 2rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.game-state h2 { margin: 0; }
+.game-state p { color: var(--game-muted);
+  margin: 0.6rem 0 1.2rem; }
+.game-state.error { color: var(--game-danger); }

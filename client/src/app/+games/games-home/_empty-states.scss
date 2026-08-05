@@ -1,0 +1,108 @@
+.category-empty {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+  min-height: calc(100vh - 8rem);
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.category-empty-spacer {
+  display: block;
+  min-height: calc(100vh - 8rem);
+  width: 100%;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-title {
+  color: var(--game-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.empty-desc {
+  color: var(--game-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.empty-cta {
+  background: var(--game-brand);
+  border-radius: 6px;
+  color: #fff;
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+
+.empty-cta:hover { background: var(--game-brand-deep); }
+
+.game-empty-feed {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  color: var(--game-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 12rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-feed-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.empty-feed-title {
+  color: var(--game-text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.empty-feed-desc {
+  color: var(--game-muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.game-empty-feed a {
+  background: var(--game-brand);
+  border-radius: 6px;
+  color: #fff;
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  text-decoration: none;
+  margin-top: 0.5rem;
+  transition: background-color 160ms ease;
+}
+
+.game-empty-feed a:hover { background: var(--game-brand-deep); }
+
+.game-state button,
+.game-state a {
+  background: var(--game-brand);
+  border: 1px solid var(--game-brand);
+  border-radius: 7px;
+  color: #fff;
+  font-weight: 700;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
