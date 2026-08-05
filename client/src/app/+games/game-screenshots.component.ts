@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, Input, OnDestroy, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, HostListener, inject, input, OnDestroy, signal } from '@angular/core'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 /**
@@ -59,15 +59,21 @@ export class GameScreenshotsComponent implements OnDestroy {
 
   private timer: ReturnType<typeof setInterval> | undefined
 
-  @Input({ required: true }) set screenshotsInput (value: string[] | undefined | null) {
+  readonly screenshotsInput = input.required<string[] | undefined | null>()
+  readonly pausedInput = input(false)
+
+  // 当截图变化时重置索引并重启轮播（替代原 setter 副作用）
+  private readonly screenshotsEffect = effect(() => {
+    const value = this.screenshotsInput()
     this.screenshots.set(value ? [ ...value ] : [])
     this.activeIndex.set(0)
     this.startCarousel()
-  }
+  })
 
-  @Input() set pausedInput (value: boolean) {
-    this.paused.set(value)
-  }
+  // 同步外部暂停信号到内部 paused
+  private readonly pausedEffect = effect(() => {
+    this.paused.set(this.pausedInput())
+  })
 
   ngOnDestroy () {
     this.stopCarousel()
