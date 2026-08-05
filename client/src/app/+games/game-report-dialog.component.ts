@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core'
 import { Router } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
 import { GamesService } from './games.service'
@@ -15,7 +15,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './game-report-dialog.component.scss',
   template: `
-    @if (isOpen()) {
+    @if (open()) {
       <div class="report-dialog-overlay" (click)="requestClose()">
         <div class="report-dialog" (click)="$event.stopPropagation()">
           <div class="report-dialog-header">
@@ -62,27 +62,28 @@ export class GameReportDialogComponent {
   ]
 
   /** Game uuid to report against. */
-  @Input({ required: true }) uuid = ''
+  readonly uuid = input.required<string>()
 
   /** Two-way controlled visibility: `<my-game-report-dialog [(open)]="reportOpen" />`. */
-  @Input() set open (value: boolean) {
-    this.isOpen.set(value)
-    if (value) {
-      this.reason.set('')
-      this.predefined.set([])
-      this.feedback.set('')
-    }
-  }
-  readonly isOpen = signal(false)
+  readonly open = input(false)
 
-  @Output() openChange = new EventEmitter<boolean>()
-  @Output() close = new EventEmitter<void>()
-  @Output() submitted = new EventEmitter<void>()
+  readonly openChange = output<boolean>()
+  readonly close = output<void>()
+  readonly submitted = output<void>()
 
   readonly reason = signal('')
   readonly predefined = signal<string[]>([])
   readonly submitting = signal(false)
   readonly feedback = signal('')
+
+  // 当 open 变为 true 时重置表单（替代原 setter 副作用）
+  private readonly openEffect = effect(() => {
+    if (this.open()) {
+      this.reason.set('')
+      this.predefined.set([])
+      this.feedback.set('')
+    }
+  })
 
   requestClose () {
     this.openChange.emit(false)
@@ -104,7 +105,7 @@ export class GameReportDialogComponent {
     }
     this.submitting.set(true)
     this.gamesService.report(
-      this.uuid,
+      this.uuid(),
       text || this.predefined().join(', '),
       this.predefined()
     ).subscribe({
