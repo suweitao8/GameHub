@@ -400,4 +400,41 @@ describe('Test games API', function () {
       expect(res.status).to.equal(HttpStatusCode.BAD_REQUEST_400)
     })
   })
+
+  // ---------------------------------------------------------------------------
+  // SEO & Discovery details
+  // ---------------------------------------------------------------------------
+
+  describe('SEO & discovery details', function () {
+    it('should return SEO metadata for a game', async function () {
+      if (!publishedGameUuid) this.skip()
+
+      const res = await fetch(`${server.url}/api/v1/games/${publishedGameUuid}/seo`)
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const seo = await res.json()
+      expect(seo).to.have.property('title')
+      expect(seo).to.have.property('description')
+      expect(seo).to.have.property('image')
+      expect(seo).to.have.property('url')
+    })
+
+    it('should return search suggestions', async function () {
+      const res = await fetch(`${server.url}/api/v1/games/suggest?q=%E6%B5%8B%E8%AF%95`)
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.be.an('array')
+    })
+
+    it('should reject short suggest query', async function () {
+      const res = await fetch(`${server.url}/api/v1/games/suggest?q=a`)
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+      const result = await res.json()
+      expect(result.data).to.have.lengthOf(0)
+    })
+
+    it('should return public feed', async function () {
+      const res = await fetch(`${server.url}/api/v1/games/feed/public?count=5`)
+      expect(res.status).to.equal(HttpStatusCode.OK_200)
+    })
+  })
 })
