@@ -62,76 +62,7 @@ type TimeRange = '7d' | '30d' | '90d'
       }
     </div>
   `,
-  styles: [ `
-    .analytics-dashboard { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
-
-    .analytics-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .analytics-header h2 { font-size: 1.5rem; margin: 0 0 0.25rem; }
-    .analytics-subtitle { color: var(--game-muted); font-size: 0.85rem; margin: 0; }
-
-    .analytics-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
-
-    .time-range-selector {
-      display: flex;
-      background: var(--game-surface);
-      border: 1px solid var(--game-border);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-
-    .time-range-selector button {
-      padding: 0.4rem 0.75rem;
-      border: none;
-      background: transparent;
-      font-size: 0.82rem;
-      color: var(--game-muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .time-range-selector button.active {
-      background: var(--game-brand);
-      color: #fff;
-    }
-
-    .export-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.4rem 0.85rem;
-      border: 1px solid var(--game-border);
-      border-radius: 6px;
-      background: #fff;
-      color: var(--game-text);
-      font-size: 0.82rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .export-btn:hover { border-color: var(--game-brand); color: var(--game-brand); }
-    .export-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .export-btn my-global-icon { height: 0.85rem; width: 0.85rem; }
-
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-    }
-
-    /* Loading */
-    .analytics-loading { padding: 1rem; }
-    .skeleton-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .skeleton-kpi { height: 4rem; border-radius: var(--game-radius); background: var(--game-border); }
-    .skeleton-chart { height: 12rem; border-radius: var(--game-radius); background: var(--game-border); }
-  ` ]
+  styleUrl: './game-analytics-dashboard.component.scss'
 })
 export class GameAnalyticsDashboardComponent implements OnInit {
   private readonly gamesService = inject(GamesService)

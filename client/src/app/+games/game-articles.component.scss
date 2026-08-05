@@ -1,0 +1,91 @@
+.articles-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+
+.articles-header { margin-bottom: 1.5rem; }
+.articles-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.articles-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.article-card {
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.article-card:hover {
+  border-color: var(--game-brand);
+  box-shadow: var(--game-shadow);
+  transform: translateY(-2px);
+}
+
+.article-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--game-surface); }
+.article-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.article-cover-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--game-brand), #34d399);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.article-info { padding: 0.85rem; display: flex; flex-direction: column; flex: 1; }
+
+.article-info h3 { font-size: 0.95rem; margin: 0 0 0.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.article-info p {
+  color: var(--game-muted);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.article-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.article-category {
+  background: var(--game-brand-soft);
+  border-radius: 4px;
+  color: var(--game-brand-deep);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  font-weight: 600;
+}
+
+.article-stats {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--game-muted);
+}
+
+.article-stats span { display: inline-flex; align-items: center; gap: 0.2rem; }
+.article-stats my-global-icon { height: 0.75rem; width: 0.75rem; }
+
+.articles-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
+.articles-empty span { display: block; font-size: 1.1rem; margin-bottom: 0.5rem; }
+.articles-empty p { font-size: 0.82rem; margin: 0; }
+
+.articles-grid .article-card-skeleton { height: 240px; border-radius: var(--game-radius); background: var(--game-border); }

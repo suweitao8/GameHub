@@ -1,0 +1,131 @@
+/* Screenshot gallery */
+.game-screenshots { width: 100%; }
+
+.screenshot-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.screenshot-main {
+  border-radius: var(--game-radius);
+  overflow: hidden;
+  background: var(--game-surface);
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+}
+
+.screenshot-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #17191e;
+}
+
+.screenshot-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.screenshot-thumbs button {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: var(--game-surface);
+  transition: border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.screenshot-thumbs button.active { border-color: var(--game-brand); }
+.screenshot-thumbs button:hover:not(.active) { border-color: var(--game-border); }
+
+.screenshot-thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Screenshot Lightbox */
+.screenshot-lightbox {
+  align-items: center;
+  background: rgb(0 0 0 / 90%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 200;
+}
+
+.screenshot-lightbox img {
+  max-height: 85vh;
+  max-width: 90vw;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0;
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+  z-index: 2;
+}
+
+.lightbox-close:hover { color: var(--game-brand); }
+
+.lightbox-nav {
+  align-items: center;
+  background: rgb(255 255 255 / 10%);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 3rem;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background-color 160ms ease;
+  width: 3rem;
+  z-index: 2;
+}
+
+.lightbox-nav:hover { background: rgb(255 255 255 / 20%); }
+
+.lightbox-nav my-global-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.lightbox-prev { left: 1.5rem; }
+.lightbox-next { right: 1.5rem; }
+
+.lightbox-counter {
+  background: rgb(0 0 0 / 50%);
+  border-radius: 999px;
+  bottom: 1.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.85rem;
+  position: absolute;
+}
+
+@media (max-width: 600px) {
+  .lightbox-nav { height: 2.5rem; width: 2.5rem; }
+  .lightbox-nav my-global-icon { height: 1.2rem; width: 1.2rem; }
+  .lightbox-prev { left: 0.5rem; }
+  .lightbox-next { right: 0.5rem; }
+  .lightbox-close { right: 0.75rem; top: 0.75rem; font-size: 1.5rem; }
+}

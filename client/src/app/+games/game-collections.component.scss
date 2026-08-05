@@ -1,0 +1,97 @@
+.collections-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+
+.collections-header { margin-bottom: 1.5rem; }
+.collections-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.collections-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--game-radius);
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.collection-card:hover { border-color: var(--game-brand); transform: translateY(-2px); }
+
+.collection-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
+.collection-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.collection-cover-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--game-brand), #34d399);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.collection-info { padding: 0.75rem; }
+.collection-info h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+.collection-info p { font-size: 0.8rem; color: var(--game-muted); margin: 0 0 0.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.collection-count { font-size: 0.75rem; color: var(--game-muted); }
+
+.collections-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
+
+.collections-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.collection-skeleton-card {
+  border-radius: var(--game-radius);
+  border: 1px solid var(--game-border);
+  overflow: hidden;
+  background: var(--game-surface);
+  padding-bottom: 0.75rem;
+}
+
+.collection-skeleton-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #e2e8f0;
+}
+
+.collection-skeleton-text {
+  height: 0.9rem;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin: 0.6rem 0.75rem 0;
+  width: 70%;
+}
+
+.collection-skeleton-text.short {
+  width: 40%;
+}
+
+.collections-error {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--game-muted);
+}
+
+.collections-error span { display: block; font-size: 1.1rem; margin-bottom: 0.5rem; }
+.collections-error p { margin: 0 0 1rem; }
+.collections-error button {
+  background: var(--game-brand);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.55rem 1.25rem;
+}

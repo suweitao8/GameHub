@@ -1,0 +1,80 @@
+.tags-cloud-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.tags-cloud-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.tags-cloud-header h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tags-cloud-header p {
+  color: var(--game-muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.tags-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.tag-pill {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 999px;
+  color: var(--game-text);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.4rem 0.75rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, transform 120ms ease;
+}
+
+.tag-pill:hover {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  color: var(--game-brand-deep);
+  transform: scale(1.05);
+}
+
+.tag-count {
+  background: var(--game-border);
+  border-radius: 999px;
+  color: var(--game-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+}
+
+.tags-cloud-empty {
+  color: var(--game-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.tags-cloud-skeleton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: center;
+}
+
+.tag-skeleton {
+  width: 4rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  background: #eceff3;
+}

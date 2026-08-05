@@ -76,71 +76,7 @@ export type GameCollectionDetail = {
       }
     </div>
   `,
-  styles: [ `
-    .collection-detail-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-
-    .collection-header { margin-bottom: 1.5rem; }
-    .collection-cover { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--game-radius); overflow: hidden; margin-bottom: 0.75rem; }
-    .collection-cover img { width: 100%; height: 100%; object-fit: cover; }
-
-    .collection-info h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .collection-info p { color: var(--game-muted); font-size: 0.9rem; margin: 0 0 0.5rem; }
-    .collection-info span { font-size: 0.8rem; color: var(--game-muted); }
-
-    .collection-games .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-
-    .collection-skeleton-header { margin-bottom: 1.5rem; }
-    .collection-skeleton-cover {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: var(--game-radius);
-      background: #e2e8f0;
-      margin-bottom: 0.75rem;
-    }
-    .collection-skeleton-text { height: 1rem; width: 60%; border-radius: 4px; background: #e2e8f0; margin-bottom: 0.5rem; }
-    .collection-skeleton-text.short { width: 30%; }
-    .collection-skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-
-    .collection-not-found { text-align: center; padding: 3rem; }
-    .collection-not-found span { display: block; font-size: 1.1rem; color: var(--game-muted); }
-
-    .collection-empty {
-      align-items: center;
-      background: #fff;
-      border: 1px solid var(--game-border);
-      border-radius: var(--game-radius);
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      justify-content: center;
-      min-height: calc(100vh - 8rem);
-      padding: 3rem 1rem;
-      text-align: center;
-    }
-    .collection-empty span { font-size: 1.1rem; color: var(--game-muted); }
-
-    .collection-error {
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      justify-content: center;
-      min-height: calc(100vh - 8rem);
-      padding: 3rem 1rem;
-      text-align: center;
-    }
-    .collection-error span { font-size: 1.1rem; color: var(--game-muted); }
-    .collection-error p { margin: 0; color: var(--game-muted); }
-    .collection-error button {
-      background: var(--game-brand);
-      border: 0;
-      border-radius: 6px;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 600;
-      padding: 0.55rem 1.25rem;
-    }
-  ` ]
+  styleUrl: './game-collection-detail.component.scss'
 })
 export class GameCollectionDetailComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
