@@ -1,0 +1,171 @@
+// All @media responsive rules consolidated from across the original stylesheet.
+// Comments mark the block each rule originally belonged to.
+// Brepoints and selectors are unchanged from the original SCSS.
+
+/* Original block: layout / stage-row / title-bar */
+@media (max-width: 980px) {
+  .game-stage-row {
+    grid-template-columns: 1fr;
+  }
+  .game-title-bar {
+    grid-template-columns: 1fr;
+  }
+  .play-side {
+    position: static;
+  }
+}
+
+/* Original block: related-game-grid */
+@media (max-width: 600px) {
+  .related-game-grid { grid-template-columns: 1fr; }
+}
+
+/* Original block: author-games-grid */
+@media (max-width: 900px) {
+  .author-games-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .author-games-grid { grid-template-columns: 1fr; }
+}
+
+/* Original block: layout — content width */
+@media (max-width: 1050px) {
+  .game-play-page .game-community-content,
+  .game-play-page .game-play-layout { width: 94%; }
+}
+
+/* Original block: layout / runtime-frame / game-info / chat-composer */
+@media (max-width: 900px) {
+  .game-details {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .game-details-tools {
+    align-items: stretch;
+    width: 100%;
+  }
+  .game-stage {
+    height: max(420px, 62vh);
+    min-height: 420px;
+  }
+  .game-stage iframe {
+    height: 100%;
+    min-height: 0;
+  }
+  .game-stats {
+    flex-direction: row;
+    text-align: left;
+  }
+  .chat-composer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .game-play-page .game-play-layout {
+    display: flex;
+    flex-direction: column;
+    width: 94%;
+  }
+  .play-side {
+    height: auto;
+    width: 100%;
+  }
+  .play-side my-game-discuss {
+    height: auto;
+    min-height: 260px;
+  }
+}
+
+/* Original block: skeleton sidebars */
+@media (max-width: 600px) {
+  .game-skeleton-sidebars { grid-template-columns: 1fr; }
+}
+
+/* Original block: related-articles-list */
+@media (max-width: 720px) {
+  .related-articles-list { grid-template-columns: 1fr; }
+}
+
+/* Original block: title-bar / game-developer-card / chat-composer (mobile optimizations) */
+@media (max-width: 600px) {
+  .game-title-bar h1 { font-size: 1.35rem; }
+  .game-title-meta {
+    flex-wrap: wrap;
+    font-size: 0.72rem;
+    gap: 0.25rem 0.6rem;
+  }
+  .game-title-meta > span { font-size: 0.72rem; }
+  .game-developer-card {
+    padding: 0.6rem;
+  }
+  .developer-identity img {
+    height: 2.2rem;
+    width: 2.2rem;
+  }
+  .chat-composer {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .chat-composer input { width: 100%; }
+  .chat-composer button { width: 100%; }
+  .keyboard-shortcuts-hint { display: none; }
+}
+
+/* Original block: detail-page layout contract — content width + stage-row + title-bar + stage + play-side */
+@media (max-width: 980px) {
+  .game-play-page .game-community-content,
+  .game-play-page .game-play-layout { width: calc(100% - 32px); }
+
+  .game-play-page .game-stage-row,
+  .game-play-page .game-title-bar { grid-template-columns: 1fr; }
+
+  .game-play-page .game-title-developer { grid-column: 1; }
+
+  .game-play-page .game-stage { height: clamp(320px, 62vw, 560px); }
+
+  .game-play-page .play-side,
+  .game-play-page .play-side my-game-discuss {
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .game-play-page .play-side my-game-discuss { min-height: 320px; }
+}
+
+@media (max-width: 600px) {
+  .game-play-page {
+    padding-top: 16px;
+  }
+
+  .game-play-page .game-community-content,
+  .game-play-page .game-play-layout { width: calc(100% - 24px); }
+
+  .game-play-page .game-title-bar { padding-bottom: 12px; }
+
+  .game-play-page .game-title-meta { gap: 4px 12px; }
+
+  .game-play-page .game-title-developer {
+    min-height: 64px;
+  }
+
+  .game-play-page .developer-identity {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .game-play-page .developer-identity img {
+    height: 40px;
+    width: 40px;
+  }
+
+  .game-play-page .game-stage { height: 320px; }
+
+  .game-play-page .game-player-controls {
+    padding: 0 8px;
+  }
+
+  .game-play-page .game-player-controls-left,
+  .game-play-page .game-player-controls-right { gap: 6px; }
+
+  .game-play-page .game-comments,
+  .game-play-page .bili-comment-panel { padding: 14px 12px 16px; }
+}

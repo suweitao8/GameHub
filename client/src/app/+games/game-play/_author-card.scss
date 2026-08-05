@@ -1,0 +1,138 @@
+// Author/developer card in the title bar.
+
+.game-developer-card { align-items: center;
+  align-self: start;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  display: grid;
+  gap: 0.45rem 0.65rem;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  padding: 0; }
+.game-title-developer {
+  align-self: start;
+}
+.developer-identity { align-items: center;
+  display: contents;
+  min-width: 0; }
+.developer-identity img {
+  aspect-ratio: 1;
+  background: var(--game-brand-soft);
+  border: 0;
+  border-radius: 50%;
+  display: block;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  height: 3rem;
+  image-rendering: auto;
+  object-fit: cover;
+  object-position: center;
+  width: 3rem; }
+.developer-identity div { display: grid;
+  gap: 0.15rem;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0; }
+.developer-identity a { color: var(--game-text);
+  font-weight: 700;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap; }
+.developer-identity span,
+.developer-owner-label,
+.developer-loading { color: var(--game-muted);
+  font-size: 0.75rem; }
+.developer-follow-button { background: var(--game-brand);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 700;
+  grid-column: 2;
+  grid-row: 2;
+  min-height: 2rem;
+  padding: 0.35rem 0.8rem;
+  width: 100%; }
+.developer-follow-button.active { background: var(--game-brand-soft);
+  color: var(--game-brand-deep); }
+.developer-follow-button:disabled {
+  cursor: default;
+}
+.developer-owner-label {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* GameHub detail-page layout contract overrides for developer card */
+.game-play-page .game-title-developer {
+  align-items: center;
+  display: flex;
+  grid-column: 2;
+  justify-self: end;
+  min-height: 73px;
+  max-width: 100%;
+  margin-left: auto;
+  width: 100%;
+}
+
+.game-play-page .developer-identity {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 48px minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
+}
+
+.game-play-page .developer-identity img {
+  align-self: center;
+  grid-column: 1;
+  grid-row: auto;
+  height: 48px;
+  width: 48px;
+}
+
+.game-play-page .developer-profile {
+  align-content: center;
+  display: grid;
+  gap: 2px;
+  grid-column: 2;
+  grid-row: auto;
+  min-width: 0;
+  padding-top: 0;
+}
+
+.game-play-page .developer-identity a {
+  line-height: 20px;
+}
+
+.game-play-page .developer-identity span {
+  line-height: 18px;
+}
+
+.game-play-page .developer-follow-button {
+  background: #fff;
+  border: 1px solid var(--game-brand);
+  border-radius: 4px;
+  color: var(--game-brand);
+  font-size: 0.78rem;
+  line-height: 20px;
+  min-height: 28px;
+  grid-column: auto;
+  grid-row: auto;
+  padding: 3px 10px;
+  justify-self: start;
+  width: max-content;
+  min-width: 80px;
+}
+
+.game-play-page .developer-follow-button:hover,
+.game-play-page .developer-follow-button:focus-visible {
+  background: var(--game-brand-soft);
+}
+
+.game-play-page .developer-follow-button.active {
+  background: var(--game-brand-soft);
+  color: var(--game-brand-deep);
+}

@@ -1,0 +1,150 @@
+// Game runtime iframe stage, loading bar, start overlay, and player controls.
+
+.game-stage { background: #6e4d3b;
+  border-radius: var(--game-radius);
+  height: max(520px, min(70vh, 760px));
+  min-height: min(70vh, 760px);
+  overflow: hidden;
+  position: relative; }
+.game-play-page .game-stage { width: 100%; }
+.game-stage iframe { background: #8f6a52;
+  border: 0;
+  display: block;
+  height: 100%;
+  min-height: 0;
+  width: 100%; }
+.game-stage iframe:focus { outline: 3px solid var(--game-brand);
+  outline-offset: -3px; }
+.frame-loading { align-items: center;
+  color: #d6d9df;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1; }
+
+.frame-loading-bar {
+  background: rgb(255 255 255 / 15%);
+  bottom: 0;
+  height: 3px;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+}
+
+.frame-loading-fill {
+  animation: frameLoadingProgress 2s ease-in-out infinite;
+  background: var(--game-brand);
+  height: 100%;
+  width: 40%;
+}
+
+@keyframes frameLoadingProgress {
+  0% { left: -40%; }
+  50% { left: 60%; }
+  100% { left: 100%; }
+}
+.game-community-page button.start-game-overlay { background: var(--game-brand);
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  left: 50%;
+  padding: 0.85rem 1.35rem;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2; }
+.start-game-overlay:hover { filter: brightness(1.06); }
+.start-game-overlay { align-items: center;
+  display: inline-flex;
+  gap: 0.35rem; }
+.start-game-overlay my-global-icon { height: 1rem;
+  width: 1rem; }
+.game-player-controls { align-items: center;
+  background: rgb(0 0 0 / 68%);
+  bottom: 0;
+  color: #fff;
+  display: flex;
+  font-size: 0.78rem;
+  justify-content: space-between;
+  left: 0;
+  opacity: 0;
+  padding: 0.4rem 0.7rem;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  transform: translateY(8px);
+  transition: opacity 180ms ease, transform 180ms ease;
+  z-index: 3; }
+.game-stage:hover .game-player-controls,
+.game-stage:focus-within .game-player-controls,
+.game-player-controls:hover,
+.game-player-controls:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.game-player-controls-left,
+.game-player-controls-right { align-items: center;
+  display: flex;
+  gap: 0.7rem; }
+.game-volume-control { align-items: center;
+  display: inline-flex;
+  gap: 0.15rem; }
+.game-player-controls button { background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1;
+  min-width: 1.3rem;
+  padding: 0.25rem; }
+.game-player-controls button:hover,
+.game-player-controls button:focus-visible { background: rgb(255 255 255 / 12%);
+  color: #fff;
+  outline: 2px solid rgb(255 255 255 / 75%);
+  outline-offset: 1px; }
+.game-player-controls button my-global-icon { color: inherit;
+  height: 1rem;
+  width: 1rem; }
+.game-player-controls button my-global-icon ::ng-deep svg { stroke-width: 2.1; }
+.game-volume-control input { accent-color: #fff;
+  height: 1rem;
+  opacity: 0;
+  padding: 0;
+  transition: opacity 160ms ease, width 160ms ease;
+  width: 0; }
+.game-volume-control:hover input,
+.game-volume-control:focus-within input { opacity: 1;
+  width: 4rem; }
+.game-player-controls-left span {
+  color: #c9ccd2;
+  font-size: 0.75rem;
+}
+
+/* GameHub detail-page layout contract overrides for stage + controls */
+.game-play-page .game-stage {
+  aspect-ratio: auto;
+  height: var(--game-stage-height);
+  min-height: 0;
+}
+
+.game-play-page .game-stage iframe {
+  height: 100%;
+}
+
+.game-play-page .game-player-controls {
+  height: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.game-play-page .game-player-controls-left,
+.game-play-page .game-player-controls-right {
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}

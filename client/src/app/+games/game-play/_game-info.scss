@@ -1,0 +1,161 @@
+// Game info cards: title, description, stats, tags, comments panels,
+// chat/discuss styles, section headings.
+
+.game-title-score my-global-icon {
+  color: #ffb400;
+}
+.game-title-bar h1 { font-size: clamp(1.45rem, 2.2vw, 2rem);
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem; }
+.game-title-meta { align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  gap: 0.35rem 1rem; }
+.game-title-meta > span { align-items: center;
+  display: inline-flex;
+  gap: 0.28rem;
+  line-height: 1; }
+.game-title-meta my-global-icon {
+  color: inherit;
+  display: inline-flex;
+  flex: 0 0 0.9rem;
+  height: 0.9rem;
+  line-height: 0;
+  width: 0.9rem; }
+.game-title-meta my-global-icon ::ng-deep svg {
+  display: block;
+  height: 100%;
+  width: 100%; }
+.game-details { align-items: flex-start;
+  display: flex;
+  gap: 1.25rem;
+  justify-content: space-between; }
+.game-actions,
+.interaction-row,
+.coin-row { display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem; }
+.game-actions button,
+.interaction-row button,
+.coin-row button { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 7px;
+  color: var(--game-text);
+  padding: 0.58rem 0.8rem; }
+.game-actions button:last-child { background: var(--game-brand);
+  border-color: var(--game-brand);
+  color: #fff;
+  font-weight: 700; }
+.game-details { padding: 1.2rem 0 0.8rem; }
+.game-play-page .game-details { grid-column: 1;
+  grid-row: 2; }
+.game-details-copy { min-width: 0; }
+.game-details-tools { align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; }
+.game-details h1 { font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.04em;
+  margin: 0 0 0.5rem; }
+.description,
+.game-stats,
+.game-info-card p { align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  text-align: center; }
+.description { margin: 0;
+  max-width: 700px; }
+.game-stats { display: flex;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  gap: 0.3rem 0.9rem;
+  margin-top: 0.75rem; }
+.game-community-panel,
+.game-comments,
+.game-info-card { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius);
+  margin-top: 1rem;
+  padding: 1rem; }
+.game-play-page .game-community-panel { background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0; }
+.game-play-page .game-community-panel { width: 100%; }
+.author-line { color: var(--game-brand);
+  display: inline-block;
+  margin-top: 0.8rem;
+  text-decoration: none; }
+.section-heading { align-items: end;
+  display: flex;
+  justify-content: space-between; }
+.game-play-page .game-comments,
+.game-play-page .bili-comment-panel {
+  background: #fff;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
+  display: flex;
+  flex-direction: column;
+  /* Stay in left column only — never span full width */
+  grid-column: auto;
+  margin-top: 1rem;
+  max-height: none;
+  padding: 1rem 1.1rem 1.25rem;
+  width: 100%;
+}
+
+.game-play-page .game-comments,
+.game-play-page .bili-comment-panel {
+  margin-top: 0;
+  padding: 16px 18px 20px;
+}
+
+.game-play-page .game-community-panel {
+  margin-top: 0;
+}
+
+/* Game tags */
+.game-tags-panel { margin-bottom: 1.5rem; }
+.game-tags-panel h2 { font-size: 1rem;
+  margin-bottom: 0.5rem; }
+
+/* GameHub detail-page layout contract overrides for title copy/meta */
+.game-play-page .game-title-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  top: 4px;
+}
+
+.game-play-page .game-title-bar h1 {
+  line-height: 1.25;
+  margin: 0;
+}
+
+.game-play-page .game-title-meta {
+  gap: 4px 12px;
+  min-height: 20px;
+}
+
+.game-play-page .game-title-meta > span {
+  gap: 4px;
+  line-height: 20px;
+  min-height: 20px;
+}
+
+.game-play-page .game-title-meta my-global-icon {
+  flex-basis: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.game-play-page .game-title-meta time {
+  line-height: 20px;
+}
