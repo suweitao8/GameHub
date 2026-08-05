@@ -1,28 +1,6 @@
 import { Routes } from '@angular/router'
-import { GamesHomeComponent } from './games-home.component'
 import { GamesService } from './games.service'
-import { GamePlayComponent } from './game-play.component'
-import { GameUploadComponent } from './game-upload.component'
-import { GameManageComponent } from './game-manage.component'
-import { GameLibraryComponent } from './game-library.component'
-import { GameEditComponent } from './game-edit.component'
-import { GameAuthorComponent } from './game-author.component'
-import { GameCreatorComponent } from './game-creator.component'
-import { GameNotificationsComponent } from './game-notifications.component'
 import { GameLoginGuard } from './game-login.guard'
-import { GameActivityFeedComponent } from './game-activity-feed.component'
-import { GameReservationsComponent } from './game-reservations.component'
-import { GameRankingsComponent } from './game-rankings.component'
-import { GameAnalyticsDashboardComponent } from './game-analytics-dashboard.component'
-import { GameCollectionsComponent } from './game-collections.component'
-import { GameCollectionDetailComponent } from './game-collection-detail.component'
-import { GameEventsComponent } from './game-events.component'
-import { GameEventDetailComponent } from './game-event-detail.component'
-import { GameEventAdminComponent } from './game-event-admin.component'
-import { GameFollowingComponent } from './game-following.component'
-import { GameArticlesComponent } from './game-articles.component'
-import { GameTagsCloudComponent } from './game-tags-cloud.component'
-import { GameWatchLaterComponent } from './game-watch-later.component'
 
 export default [
   {
@@ -31,133 +9,133 @@ export default [
     children: [
       {
         path: 'author/:accountId',
-        component: GameAuthorComponent,
+        loadComponent: () => import('./game-author.component').then(m => m.GameAuthorComponent),
         data: { meta: { title: $localize`Author space` } }
       },
       {
         path: 'creator',
-        component: GameCreatorComponent,
+        loadComponent: () => import('./game-creator.component').then(m => m.GameCreatorComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Creator center` } }
       },
       {
         path: 'analytics',
-        component: GameAnalyticsDashboardComponent,
+        loadComponent: () => import('./game-analytics-dashboard.component').then(m => m.GameAnalyticsDashboardComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Analytics dashboard` } }
       },
       {
         path: 'notifications',
-        component: GameNotificationsComponent,
+        loadComponent: () => import('./game-notifications.component').then(m => m.GameNotificationsComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`GameHub notifications` } }
       },
       {
         path: 'edit/:uuid',
-        component: GameEditComponent,
+        loadComponent: () => import('./game-edit.component').then(m => m.GameEditComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Edit game` } }
       },
       {
         path: 'library',
-        component: GameLibraryComponent,
+        loadComponent: () => import('./game-library.component').then(m => m.GameLibraryComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My games` } }
       },
       {
         path: 'upload',
-        component: GameUploadComponent,
+        loadComponent: () => import('./game-upload.component').then(m => m.GameUploadComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Upload game` } }
       },
       {
         path: 'manage',
-        component: GameManageComponent,
+        loadComponent: () => import('./game-manage.component').then(m => m.GameManageComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Moderate games` } }
       },
       {
-        path: 'search',
-        component: GamesHomeComponent,
-        data: { meta: { title: $localize`Search games` } }
-      },
-      {
-        path: 'community',
-        component: GamesHomeComponent,
-        data: { meta: { title: $localize`GameHub community` } }
-      },
-      {
         path: 'rankings',
-        component: GameRankingsComponent,
+        loadComponent: () => import('./game-rankings.component').then(m => m.GameRankingsComponent),
         data: { meta: { title: $localize`Game rankings` } }
       },
       {
         path: 'activity',
-        component: GameActivityFeedComponent,
+        loadComponent: () => import('./game-activity-feed.component').then(m => m.GameActivityFeedComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Community activity` } }
       },
       {
         path: 'reservations',
-        component: GameReservationsComponent,
+        loadComponent: () => import('./game-reservations.component').then(m => m.GameReservationsComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My reservations` } }
       },
       {
         path: 'collections',
-        component: GameCollectionsComponent,
+        loadComponent: () => import('./game-collections.component').then(m => m.GameCollectionsComponent),
         data: { meta: { title: $localize`Game collections` } }
       },
       {
         path: 'collection/:slug',
-        component: GameCollectionDetailComponent,
+        loadComponent: () => import('./game-collection-detail.component').then(m => m.GameCollectionDetailComponent),
         data: { meta: { title: $localize`Collection` } }
       },
       {
         path: 'articles',
-        component: GameArticlesComponent,
+        loadComponent: () => import('./game-articles.component').then(m => m.GameArticlesComponent),
         data: { meta: { title: $localize`Game articles` } }
       },
       {
         path: 'tags',
-        component: GameTagsCloudComponent,
+        loadComponent: () => import('./game-tags-cloud.component').then(m => m.GameTagsCloudComponent),
         data: { meta: { title: $localize`Popular tags` } }
       },
       {
         path: 'events',
-        component: GameEventsComponent,
+        loadComponent: () => import('./game-events.component').then(m => m.GameEventsComponent),
         data: { meta: { title: $localize`Game events` } }
       },
       {
         path: 'event/:slug',
-        component: GameEventDetailComponent,
+        loadComponent: () => import('./game-event-detail.component').then(m => m.GameEventDetailComponent),
         data: { meta: { title: $localize`Event detail` } }
       },
       {
         path: 'event-admin',
-        component: GameEventAdminComponent,
+        loadComponent: () => import('./game-event-admin.component').then(m => m.GameEventAdminComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Event admin` } }
       },
       {
         path: 'following',
-        component: GameFollowingComponent,
+        loadComponent: () => import('./game-following.component').then(m => m.GameFollowingComponent),
         canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`My following` } }
       },
       {
         path: 'watch-later',
-        component: GameWatchLaterComponent,
+        loadComponent: () => import('./game-watch-later.component').then(m => m.GameWatchLaterComponent),
         data: { meta: { title: $localize`Watch later` } }
       },
       {
+        path: 'search',
+        loadComponent: () => import('./games-home.component').then(m => m.GamesHomeComponent),
+        data: { meta: { title: $localize`Search games` } }
+      },
+      {
+        path: 'community',
+        loadComponent: () => import('./games-home.component').then(m => m.GamesHomeComponent),
+        data: { meta: { title: $localize`GameHub community` } }
+      },
+      {
         path: '',
-        component: GamesHomeComponent,
+        loadComponent: () => import('./games-home.component').then(m => m.GamesHomeComponent),
         data: { meta: { title: $localize`Discover games` } }
       },
       {
         path: ':uuid',
-        component: GamePlayComponent,
+        loadComponent: () => import('./game-play.component').then(m => m.GamePlayComponent),
         data: { meta: { title: $localize`Play game` } }
       }
     ]
