@@ -82,20 +82,9 @@ export class GamesHomeComponent implements OnInit {
     const generation = ++this.requestGeneration
     this.loadingMore.set(false)
 
-    if (this.communityRoute()) {
-      this.latest.set([])
-      this.popular.set([])
-      this.recent.set([])
-      this.recommended.set([])
-      this.loading.set(false)
-      return
-    }
-
-    if (this.view() === 'categories') {
-      this.latest.set([])
-      this.popular.set([])
-      this.recent.set([])
-      this.recommended.set([])
+    // Early exit: community route or category directory view show no discovery feed
+    if (this.communityRoute() || this.view() === 'categories') {
+      this.clearFeedSignals()
       this.loading.set(false)
       return
     }
@@ -110,86 +99,34 @@ export class GamesHomeComponent implements OnInit {
       count: 8
     }
 
-    if (this.view() === 'following') {
-      this.gamesService.list({ ...common, sort: 'latest' }).subscribe({
+    // Determine the effective sort for the primary list
+    let effectiveSort: GamesListParams['sort'] | null = null
+    if (this.view() === 'following') effectiveSort = 'latest'
+    else if (this.searchMode() && this.sort() === 'recommended') effectiveSort = 'recommended'
+    else if (this.sort() !== 'recommended') effectiveSort = this.sort()
+    else if (this.category()) effectiveSort = 'popular'
+
+    // Single-source views (following / search / non-recommended sort / category)
+    if (effectiveSort) {
+      const sort = effectiveSort
+      const params: GamesListParams = sort === 'popular' && this.category()
+        ? { ...common, count: 16, sort }
+        : { ...common, sort }
+
+      this.gamesService.list(params).subscribe({
         next: result => {
           if (!this.isCurrentRequest(generation)) return
           this.recommended.set(result.data)
           this.recommendedTotal.set(result.total)
-          this.popular.set([])
-          this.latest.set([])
-          this.recent.set([])
+          this.clearFeedSignals(true)
           this.loading.set(false)
         },
-        error: () => {
-          if (!this.isCurrentRequest(generation)) return
-          this.error.set('加载失败，请稍后重试')
-          this.loading.set(false)
-        }
+        error: () => this.handleLoadError(generation)
       })
       return
     }
 
-    if (this.searchMode() && this.sort() === 'recommended') {
-      this.gamesService.list({ ...common, sort: 'recommended' }).subscribe({
-        next: result => {
-          if (!this.isCurrentRequest(generation)) return
-          this.recommended.set(result.data)
-          this.recommendedTotal.set(result.total)
-          this.popular.set([])
-          this.latest.set([])
-          this.recent.set([])
-          this.loading.set(false)
-        },
-        error: () => {
-          if (!this.isCurrentRequest(generation)) return
-          this.error.set('加载失败，请稍后重试')
-          this.loading.set(false)
-        }
-      })
-      return
-    }
-
-    if (this.sort() !== 'recommended') {
-      this.gamesService.list({ ...common, sort: this.sort() }).subscribe({
-        next: result => {
-          if (!this.isCurrentRequest(generation)) return
-          this.recommended.set(result.data)
-          this.recommendedTotal.set(result.total)
-          this.popular.set([])
-          this.latest.set([])
-          this.recent.set([])
-          this.loading.set(false)
-        },
-        error: () => {
-          if (!this.isCurrentRequest(generation)) return
-          this.error.set('加载失败，请稍后重试')
-          this.loading.set(false)
-        }
-      })
-      return
-    }
-
-    if (this.category()) {
-      this.gamesService.list({ ...common, count: 16, sort: 'popular' }).subscribe({
-        next: result => {
-          if (!this.isCurrentRequest(generation)) return
-          this.recommended.set(result.data)
-          this.recommendedTotal.set(result.total)
-          this.popular.set([])
-          this.latest.set([])
-          this.recent.set([])
-          this.loading.set(false)
-        },
-        error: () => {
-          if (!this.isCurrentRequest(generation)) return
-          this.error.set('加载失败，请稍后重试')
-          this.loading.set(false)
-        }
-      })
-      return
-    }
-
+    // Default discovery view: load multiple sections concurrently
     forkJoin({
       latest: this.gamesService.list({ ...common, count: 5, sort: 'latest' }).pipe(
         catchError(() => of({ total: 0, data: [] as Game[] }))
@@ -230,12 +167,21 @@ export class GamesHomeComponent implements OnInit {
         this.recommendedTotal.set(result.recommended.total)
         this.loading.set(false)
       },
-      error: () => {
-        if (!this.isCurrentRequest(generation)) return
-        this.error.set('加载失败，请稍后重试')
-        this.loading.set(false)
-      }
+      error: () => this.handleLoadError(generation)
     })
+  }
+
+  private clearFeedSignals (keepRecommended = false) {
+    if (!keepRecommended) this.recommended.set([])
+    this.popular.set([])
+    this.latest.set([])
+    this.recent.set([])
+  }
+
+  private handleLoadError (generation: number) {
+    if (!this.isCurrentRequest(generation)) return
+    this.error.set('加载失败，请稍后重试')
+    this.loading.set(false)
   }
 
   shuffleRecommendations () {
