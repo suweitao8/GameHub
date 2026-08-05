@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core'
 import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-icons/global-icon.component'
 
 /**
@@ -13,8 +13,8 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
   imports: [ GlobalIconComponent ],
   template: `
     <div class="game-error-state">
-      <span class="game-error-icon" aria-hidden="true"><my-global-icon [iconName]="icon" /></span>
-      <p class="game-error-text">{{ message }}</p>
+      <span class="game-error-icon" aria-hidden="true"><my-global-icon [iconName]="icon()" /></span>
+      <p class="game-error-text">{{ message() }}</p>
       <button type="button" class="game-error-retry-btn" (click)="retry.emit()">
         重试
       </button>
@@ -31,18 +31,18 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       text-align: center;
     }
     .game-error-icon {
-      color: #fb7299;
+      color: var(--game-accent);
       display: inline-flex;
       height: 2.5rem;
       width: 2.5rem;
     }
     .game-error-text {
-      color: #8c8c8c;
+      color: var(--game-text-hint);
       font-size: 0.9rem;
       margin: 0;
     }
     .game-error-retry-btn {
-      background: #00aeec;
+      background: var(--game-brand);
       border: 0;
       border-radius: 4px;
       color: #fff;
@@ -52,12 +52,12 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       transition: background 160ms ease;
     }
     .game-error-retry-btn:hover {
-      background: #0090c4;
+      background: var(--game-brand-deep);
     }
   ` ]
 })
 export class GameErrorRetryComponent {
-  @Input() message = '加载失败，请稍后重试'
-  @Input() icon: GlobalIconName = 'alert'
-  @Output() retry = new EventEmitter<void>()
+  readonly message = input('加载失败，请稍后重试')
+  readonly icon = input<GlobalIconName>('alert')
+  readonly retry = output<void>()
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Input, OnDestroy, OnInit, signal, inject } from '@angular/core'
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, signal, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { Game } from './games.service'
@@ -12,8 +12,8 @@ import { HighlightPipe } from './highlight.pipe'
   imports: [ GlobalIconComponent, RouterLink, HighlightPipe ]
 })
 export class GameCardComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) game!: Game
-  @Input() searchTerm: string | undefined
+  readonly game = input.required<Game>()
+  readonly searchTerm = input<string | undefined>(undefined)
   readonly coverUnavailable = signal(false)
   readonly isVisible = signal(false)
 
@@ -60,7 +60,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
   }
 
   categoryLabel () {
-    return this.categoryLabels[this.game.category] || '小游戏'
+    return this.categoryLabels[this.game().category] || '小游戏'
   }
 
   onCoverError () {

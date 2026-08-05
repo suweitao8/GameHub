@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, input } from '@angular/core'
 import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-icons/global-icon.component'
 
 /**
@@ -13,10 +13,10 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
   imports: [ GlobalIconComponent ],
   template: `
     <div class="game-empty-state">
-      <span class="game-empty-icon" aria-hidden="true"><my-global-icon [iconName]="icon" /></span>
-      <p class="game-empty-title">{{ title }}</p>
-      @if (description) {
-        <p class="game-empty-desc">{{ description }}</p>
+      <span class="game-empty-icon" aria-hidden="true"><my-global-icon [iconName]="icon()" /></span>
+      <p class="game-empty-title">{{ title() }}</p>
+      @if (description()) {
+        <p class="game-empty-desc">{{ description() }}</p>
       }
     </div>
   `,
@@ -37,20 +37,20 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       width: 3rem;
     }
     .game-empty-title {
-      color: #646464;
+      color: var(--game-muted);
       font-size: 1rem;
       font-weight: 600;
       margin: 0;
     }
     .game-empty-desc {
-      color: #8c8c8c;
+      color: var(--game-text-hint);
       font-size: 0.85rem;
       margin: 0;
     }
   ` ]
 })
 export class GameEmptyStateComponent {
-  @Input() icon: GlobalIconName = 'gamepad'
-  @Input() title = '暂无内容'
-  @Input() description = ''
+  readonly icon = input<GlobalIconName>('gamepad')
+  readonly title = input('暂无内容')
+  readonly description = input('')
 }
