@@ -59,6 +59,20 @@
 .developer-follow-button:disabled {
   cursor: default;
 }
+.developer-report-button {
+  background: transparent;
+  border: 1px solid var(--game-border);
+  border-radius: 6px;
+  color: var(--game-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+.developer-report-button:hover {
+  border-color: var(--game-danger);
+  color: var(--game-danger);
+}
 .developer-owner-label {
   grid-column: 2;
   grid-row: 2;

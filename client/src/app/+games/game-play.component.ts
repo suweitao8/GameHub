@@ -13,6 +13,7 @@ import { GameRecommendService } from './game-recommend.service'
 import { updateGameMetaTags } from './services/game-meta-tags'
 import { GameScreenshotsComponent } from './game-screenshots.component'
 import { GameShareDialogComponent } from './game-share-dialog.component'
+import { GameReportDialogComponent } from './game-report-dialog.component'
 import { GameCommentsComponent } from './game-comments.component'
 import { GameDiscussComponent } from './game-discuss.component'
 import { GameCommunityPanelComponent } from './game-community-panel.component'
@@ -26,7 +27,7 @@ import { GameDiscussStore } from './game-discuss-store'
   providers: [ GameCommentsStore, GameDiscussStore ],
   imports: [
     DatePipe, GlobalIconComponent, RouterLink,
-    GameScreenshotsComponent, GameShareDialogComponent,
+    GameScreenshotsComponent, GameShareDialogComponent, GameReportDialogComponent,
     GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent
   ]
 })
@@ -66,6 +67,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly gameStarted = signal(false)
   readonly showBackToTop = signal(false)
   readonly shareOpen = signal(false)
+  readonly reportOpen = signal(false)
   readonly inWatchLater = signal(false)
   readonly watchLaterFeedback = signal('')
 
