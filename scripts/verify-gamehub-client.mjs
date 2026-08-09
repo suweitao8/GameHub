@@ -581,6 +581,7 @@ assert(gamePlayScss.includes('box-sizing: border-box'), 'game detail layout must
 assert(gamePlayHtml.includes('frameError()'), 'game-play must render an iframe-specific error state')
 assert(gamePlayHtml.includes('重新连接'), 'game-play iframe error state must expose a reconnect action')
 assert(gamePlayHtml.includes('aria-live="polite"'), 'game-play runtime status must be announced politely')
+assert(gamePlayHtml.includes('sandbox="allow-scripts allow-pointer-lock"') && !gamePlayHtml.includes('allow-fullscreen'), 'game-play iframe must keep a valid sandbox and use allow for fullscreen')
 assert(gamePlayTs.includes('readonly frameError = signal(false)'), 'game-play must own an iframe-specific error signal')
 assert(gamePlayTs.includes('this.frameError.set(false)'), 'game-play must clear the iframe error before retrying')
 assert(gamePlayTs.includes('this.normalizeRuntimeUrl(url)'), 'game-play must normalize local runtime hosts for the active browser origin')
