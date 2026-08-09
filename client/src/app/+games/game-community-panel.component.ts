@@ -105,7 +105,7 @@ export class GameCommunityPanelComponent {
   readonly game = input<Game | null>(null)
   readonly communityError = input('')
 
-  readonly share = output<void>()
+  readonly share = output()
 
   readonly coinLoading = signal(false)
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)

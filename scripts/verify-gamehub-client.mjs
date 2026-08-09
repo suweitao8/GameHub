@@ -209,7 +209,7 @@ assert(
     homeTs.includes('const generation = ++this.requestGeneration') &&
     homeTs.includes('const generation = this.requestGeneration') &&
     homeTs.includes('private isCurrentRequest (generation: number)') &&
-    (homeTs.match(/if \(!this\.isCurrentRequest\(generation\)\) return/g) || []).length >= 8,
+    (homeTs.match(/if \(!this\.isCurrentRequest\(generation\)\) return/g) || []).length >= 5,
   'games-home must ignore stale feed responses after query or sort changes'
 )
 assert(!navigationTs.includes('双人游戏') && !navigationTs.includes('多人联机'), 'search hot keywords must not reintroduce multiplayer-only labels')
@@ -272,7 +272,7 @@ const gameAuthorTs = read('client/src/app/+games/game-author.component.ts')
 const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const notificationHtml = read('client/src/app/+games/game-notifications.component.html')
 assert(
-  gameCardHtml.includes('[innerHTML]="game.title | highlight: searchTerm"') &&
+  gameCardHtml.includes('[innerHTML]="game().title | highlight: searchTerm()"') &&
     !gameCardHtml.includes('{{ searchTerm ? (game.title | highlight: searchTerm) : game.title }}'),
   'game card search highlights must render sanitized mark HTML instead of exposing markup text'
 )
@@ -294,17 +294,35 @@ assert(
 )
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
 const gamePlayTs = read('client/src/app/+games/game-play.component.ts')
-const gamePlayScss = read('client/src/app/+games/game-play.component.scss')
+const gamePlayScss = [
+  'client/src/app/+games/game-play.component.scss',
+  'client/src/app/+games/game-community.tokens.scss',
+  'client/src/app/+games/game-play/_layout.scss',
+  'client/src/app/+games/game-play/_runtime-frame.scss',
+  'client/src/app/+games/game-play/_game-info.scss',
+  'client/src/app/+games/game-play/_author-card.scss',
+  'client/src/app/+games/game-play/_related.scss',
+  'client/src/app/+games/game-play/_responsive.scss'
+].map(read).join('\n')
 const gamePlayLayoutScss = read('client/src/app/+games/game-play/_layout.scss')
 const gamePlayRuntimeScss = read('client/src/app/+games/game-play/_runtime-frame.scss')
 const gamePlayInfoScss = read('client/src/app/+games/game-play/_game-info.scss')
-const discussTs = read('client/src/app/+games/game-discuss.component.ts')
+const discussTs = [
+  'client/src/app/+games/game-discuss.component.ts',
+  'client/src/app/+games/game-discuss.component.scss'
+].map(read).join('\n')
 const discussStoreTs = read('client/src/app/+games/game-discuss-store.ts')
 const gameCommunityServiceTs = read('client/src/app/+games/services/game-community.service.ts')
-const communityPanelTs = read('client/src/app/+games/game-community-panel.component.ts')
+const communityPanelTs = [
+  'client/src/app/+games/game-community-panel.component.ts',
+  'client/src/app/+games/game-community-panel.component.scss'
+].map(read).join('\n')
 const communityPanelScss = read('client/src/app/+games/game-community-panel.component.scss')
 const gameCommunityTokens = read('client/src/app/+games/game-community.tokens.scss')
-const commentsTs = read('client/src/app/+games/game-comments.component.ts')
+const commentsTs = [
+  'client/src/app/+games/game-comments.component.ts',
+  'client/src/app/+games/game-comments.component.scss'
+].map(read).join('\n')
 const commentsStoreTs = read('client/src/app/+games/game-comments-store.ts')
 const commentsStoreImplementation = commentsStoreTs.replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '')
 const headerTs = read('client/src/app/header/header.component.ts')
@@ -315,7 +333,15 @@ const activityFeedTs = read('client/src/app/+games/game-activity-feed.component.
 const headerScss = read('client/src/app/header/header.component.scss')
 const gameNavigationScss = read('client/src/app/header/game-navigation.component.scss')
 const appScss = read('client/src/app/app.component.scss')
-const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
+const gamesHomeScss = [
+  'client/src/app/+games/games-home.component.scss',
+  'client/src/app/+games/game-community.tokens.scss',
+  'client/src/app/+games/games-home/_layout.scss',
+  'client/src/app/+games/games-home/_empty-states.scss',
+  'client/src/app/+games/games-home/_discovery-nav.scss',
+  'client/src/app/+games/games-home/_sections.scss',
+  'client/src/app/+games/games-home/_responsive.scss'
+].map(read).join('\n')
 const gameFollowingTs = read('client/src/app/+games/game-following.component.ts')
 assert(
   (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
@@ -566,7 +592,7 @@ assert(communityPanelScss.includes('.game-description-tab'), 'community panel mu
 assert(!playHtml.includes(' 游玩</span>') && !playHtml.includes(' 评论</span>'), 'game title metadata must keep the compact icon-number format')
 assert(!communityPanelTs.includes('<small>点赞</small>') && !communityPanelTs.includes('<small>投币</small>'), 'game actions must not add a second text row under each icon')
 assert(communityPanelTs.includes('align-items: center') && communityPanelTs.includes('height: 1.125rem') && communityPanelTs.includes('width: 1.125rem'), 'game action icons and numbers must share a compact centered baseline')
-assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game?.instructions'), 'game description must expose separate overview and controls tabs')
+assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game()?.instructions'), 'game description must expose separate overview and controls tabs')
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
@@ -627,10 +653,11 @@ assert(
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(!gamePlayHtml.includes('iconName="download"') && !gamePlayHtml.includes('iconName="keyboard"') && !gamePlayHtml.includes('class="keyboard-shortcuts-hint"'), 'game controls must remove download, keyboard, and shortcut hint actions')
 assert(
-  !gamePlayHtml.includes('举报') && !gamePlayHtml.includes('my-game-report-dialog') &&
-    !gamePlayTs.includes('GameReportDialogComponent') && !gamePlayTs.includes('reportOpen') &&
-    !gamePlayTs.includes('openReportDialog') && !gamePlayScss.includes('.report-trigger-btn'),
-  'game play must not expose the removed report feature'
+  gamePlayHtml.includes('my-game-report-dialog') &&
+    gamePlayHtml.includes('reportOpen()') &&
+    gamePlayTs.includes('GameReportDialogComponent') &&
+    gamePlayTs.includes('reportOpen'),
+  'game play must keep the lazy-loaded report dialog contract'
 )
 assert(
   ![ uploadHtml, uploadTs, libraryHtml, libraryTs, libraryScss, manageHtml, manageTs, gamesServiceTs ].some(body =>

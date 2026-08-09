@@ -121,6 +121,10 @@
 
   .game-play-page .game-title-developer { grid-column: 1; }
 
+  .game-play-page .play-side {
+    position: static;
+  }
+
   .game-play-page .game-stage { height: clamp(320px, 62vw, 560px); }
 
   .game-play-page .play-side,
@@ -141,6 +145,12 @@
   .game-play-page .game-play-layout { width: calc(100% - 24px); }
 
   .game-play-page .game-title-bar { padding-bottom: 12px; }
+
+  .game-play-page .game-title-bar {
+    border-radius: 10px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 
   .game-play-page .game-title-meta { gap: 4px 12px; }
 
