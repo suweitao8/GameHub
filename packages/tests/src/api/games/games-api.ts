@@ -40,6 +40,17 @@ describe('Test games API', function () {
     return res
   }
 
+  async function uploadGameWithDefaults (server: PeerTubeServer, token: string) {
+    const body = new FormData()
+    body.append('gamefile', new Blob([ sampleHtml ]), 'quick-game.html')
+
+    return fetch(`${server.url}/api/v1/games`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body
+    })
+  }
+
   before(async function () {
     this.timeout(120000)
 
@@ -71,6 +82,18 @@ describe('Test games API', function () {
       })
 
       expect(res.status).to.equal(HttpStatusCode.UNAUTHORIZED_401)
+    })
+
+    it('should upload a game with only an HTML file', async function () {
+      const res = await uploadGameWithDefaults(server, userAccessToken)
+
+      expect(res.status).to.equal(HttpStatusCode.CREATED_201)
+      const game = await res.json()
+      expect(game.title).to.equal('Test')
+      expect(game.description).to.equal('')
+      expect(game.instructions).to.equal('')
+      expect(game.category).to.equal('other')
+      expect(game.tags).to.deep.equal([])
     })
 
     it('should upload a game', async function () {

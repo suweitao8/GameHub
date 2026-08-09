@@ -70,6 +70,20 @@ export class GameRuntimeValidationError extends Error {
   }
 }
 
+export function deriveGameTitle (filename: string, content: Buffer) {
+  const documentTitle = parse(content.toString('utf8')).querySelector('title')?.text.trim()
+  const filenameTitle = basename(filename, extname(filename)).replace(/[_.-]+/g, ' ').trim()
+  const candidate = documentTitle || filenameTitle || '未命名游戏'
+  const safeTitle = candidate
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return (safeTitle || '未命名游戏').slice(0, 120)
+}
+
 export function validateSingleHtmlGame (input: GameRuntimeInput): ValidatedHtml {
   const maxFileSizeBytes = input.maxFileSizeBytes ?? DEFAULT_GAME_MAX_FILE_SIZE_BYTES
 

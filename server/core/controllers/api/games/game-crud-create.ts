@@ -7,6 +7,7 @@ import { traceGameOperation } from '@server/lib/games/game-tracing.js'
 import { awardExp } from '@server/lib/games/game-exp.js'
 import {
   cleanupStoredGameAssets,
+  deriveGameTitle,
   GameRuntimeValidationError,
   MAX_SCREENSHOTS,
   storeGameCover,
@@ -30,12 +31,28 @@ const auditLogger = auditLoggerFactory('games')
 const createRouter = express.Router()
 
 createRouter.post('/preview', authenticate, gameUploadRateLimiter, gameFile, asyncMiddleware(previewGame))
-createRouter.post('/', authenticate, gameUploadRateLimiter, gameFile, gameCreateValidator, asyncMiddleware(createGame))
+createRouter.post('/', authenticate, gameUploadRateLimiter, gameFile, applyGameCreateDefaults, gameCreateValidator, asyncMiddleware(createGame))
 
 export { createRouter }
 
 function getPreviewRuntimeUrl (token: string) {
   return new URL(`/api/v1/games/preview/${token}/runtime/`, CONFIG.GAMES.RUNTIME_ORIGIN).toString()
+}
+
+async function applyGameCreateDefaults (req: express.Request, _res: express.Response, next: express.NextFunction) {
+  try {
+    req.body ||= {}
+    const file = req.files?.['gamefile']?.[0]
+    const title = typeof req.body.title === 'string' ? req.body.title.trim() : ''
+    if (!title && file) req.body.title = deriveGameTitle(file.originalname, await readFile(file.path))
+    if (req.body.description === undefined) req.body.description = ''
+    if (req.body.instructions === undefined) req.body.instructions = ''
+    if (typeof req.body.category !== 'string' || !req.body.category.trim()) req.body.category = 'other'
+    if (req.body.tags === undefined) req.body.tags = ''
+    next()
+  } catch (error) {
+    next(error)
+  }
 }
 
 async function previewGame (req: express.Request, res: express.Response) {
