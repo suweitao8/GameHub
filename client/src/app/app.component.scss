@@ -36,8 +36,7 @@
 }
 
 .game-experience {
-  --header-height: 56px;
-  --game-header-expanded-height: 200px;
+  --header-height: 64px;
   --game-page-bg: #fff;
   --game-card-bg: #fff;
   --game-text: #1e1e1e;
@@ -62,10 +61,10 @@
   background: var(--game-page-bg);
 
   @media (min-width: 761px) {
-    --header-height: 200px;
+    --header-height: 64px;
 
     &.game-header-scrolled {
-      --header-height: 50px;
+      --header-height: 56px;
     }
 
     > .root-header {

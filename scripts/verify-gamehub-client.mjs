@@ -431,6 +431,7 @@ const gameShareControllerTs = read('server/core/controllers/api/games/game-share
 const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
 const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
 const uploadHtml = read('client/src/app/+games/game-upload.component.html')
+const uploadScss = read('client/src/app/+games/game-upload.component.scss')
 const uploadTs = read('client/src/app/+games/game-upload.component.ts')
 const previewProbeTs = read('client/src/app/+games/services/game-preview-probe.service.ts')
 const gameRuntimeTs = read('server/core/controllers/api/games/runtime.ts')
@@ -811,6 +812,12 @@ assert(
   'quick game upload must not expose the old metadata, preview, or manual cover controls'
 )
 assert(
+  /\.upload-header\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?text-align:\s*center;/.test(uploadScss) &&
+    /\.upload-card\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*720px;/.test(uploadScss) &&
+    uploadScss.includes('width: 100%;'),
+  'quick game upload must center its heading and card within a readable responsive width'
+)
+assert(
   uploadTs.includes('isSupportedGameRuntimeFilename') &&
     uploadTs.includes('20 * 1024 * 1024') &&
     uploadTs.includes('this.gamesService.create(file, ') &&
@@ -984,14 +991,14 @@ assert(
   'GameHub navigation must keep a transparent selected and hover state while only animating the icon'
 )
 assert(
-  headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
-    headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
-    headerScss.includes('background-position: center top;') &&
+  !headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
+    !headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
     headerScss.includes('height: var(--header-height);') &&
-    appScss.includes('--header-height: 200px;') &&
-    appScss.includes('--header-height: 50px;') &&
+    appScss.includes('--header-height: 64px;') &&
+    appScss.includes('--header-height: 56px;') &&
+    !appScss.includes('--header-height: 200px;') &&
     gamesHomeScss.includes('top: var(--header-height);'),
-  'GameHub desktop header must show the fixed-ratio 200px banner, collapse to 50px after scrolling, and keep the discovery nav below it'
+  'GameHub navigation must use a compact solid header without the legacy banner and keep the discovery nav below it'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
