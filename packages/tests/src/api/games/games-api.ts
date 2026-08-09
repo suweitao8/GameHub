@@ -8,8 +8,6 @@ import {
   setAccessTokensToServers
 } from '@peertube/peertube-server-commands'
 import { expect } from 'chai'
-import { writeFileSync } from 'fs'
-import { join } from 'path'
 
 describe('Test games API', function () {
   let server: PeerTubeServer
@@ -20,9 +18,6 @@ describe('Test games API', function () {
   const sampleHtml = '<!DOCTYPE html><html><head><title>Test</title></head><body><canvas id="c"></canvas><script>console.log("test game")</script></body></html>'
 
   async function uploadGame (server: PeerTubeServer, token: string, title: string) {
-    const filePath = join(server.storePath, 'test-game.html')
-    writeFileSync(filePath, sampleHtml)
-
     const body = new FormData()
     body.append('gamefile', new Blob([ sampleHtml ]), 'test-game.html')
     body.append('title', title)
@@ -40,9 +35,14 @@ describe('Test games API', function () {
     return res
   }
 
-  async function uploadGameWithDefaults (server: PeerTubeServer, token: string) {
+  async function uploadGameWithDefaults (
+    server: PeerTubeServer,
+    token: string,
+    content = sampleHtml,
+    filename = 'quick-game.html'
+  ) {
     const body = new FormData()
-    body.append('gamefile', new Blob([ sampleHtml ]), 'quick-game.html')
+    body.append('gamefile', new Blob([ content ]), filename)
 
     return fetch(`${server.url}/api/v1/games`, {
       method: 'POST',
@@ -54,7 +54,7 @@ describe('Test games API', function () {
   before(async function () {
     this.timeout(120000)
 
-    server = await createSingleServer(1)
+    server = await createSingleServer(1, { secrets: { peertube: '0123456789abcdef'.repeat(4) } })
     await setAccessTokensToServers([ server ])
 
     // Create test users
@@ -86,14 +86,27 @@ describe('Test games API', function () {
 
     it('should upload a game with only an HTML file', async function () {
       const res = await uploadGameWithDefaults(server, userAccessToken)
-
-      expect(res.status).to.equal(HttpStatusCode.CREATED_201)
       const game = await res.json()
+
+      expect(res.status, JSON.stringify(game)).to.equal(HttpStatusCode.CREATED_201)
       expect(game.title).to.equal('Test')
       expect(game.description).to.equal('')
       expect(game.instructions).to.equal('')
       expect(game.category).to.equal('other')
       expect(game.tags).to.deep.equal([])
+    })
+
+    it('falls back to the filename when the HTML title is unsafe', async function () {
+      const res = await uploadGameWithDefaults(
+        server,
+        userAccessToken,
+        '<!DOCTYPE html><title>data:text/html,<script>alert(1)</script></title>',
+        'fallback-game.html'
+      )
+      const game = await res.json()
+
+      expect(res.status, JSON.stringify(game)).to.equal(HttpStatusCode.CREATED_201)
+      expect(game.title).to.equal('fallback game')
     })
 
     it('should upload a game', async function () {
@@ -135,7 +148,7 @@ describe('Test games API', function () {
     })
 
     it('should return 404 for unknown UUID', async function () {
-      const res = await fetch(`${server.url}/api/v1/games/nonexistent-uuid-12345`)
+      const res = await fetch(`${server.url}/api/v1/games/00000000-0000-4000-8000-000000000000`)
       expect(res.status).to.equal(HttpStatusCode.NOT_FOUND_404)
     })
 

@@ -299,7 +299,7 @@ assert(
 assert(
   uploadTs.includes('isSupportedGameRuntimeFilename') &&
     uploadTs.includes('20 * 1024 * 1024') &&
-    uploadTs.includes('this.gamesService.create(this.file, '),
+    uploadTs.includes('this.gamesService.create(file, '),
   'quick game upload must validate the single HTML limit and submit without required metadata'
 )
 ```
@@ -327,7 +327,7 @@ import { CoverGeneratorService } from './services/cover-generator.service'
 // 移除 previewProbe、steps、可编辑元数据和手动封面状态。
 ```
 
-`prepareSelectedFile` 必须清空旧文件和结果，拒绝非 HTML 或超过 20MB 的文件；接受文件后用 `File.text()` 读取 `<title>`，失败时使用文件名去扩展名，作为内部标题和自动封面文字。`submit` 只在文件存在且未提交时执行：尝试调用 `generateAutomaticCover(title)`，然后调用 `this.gamesService.create(this.file, { title, category: 'other', description: '', instructions: '', tags: '', cover })`；封面生成返回 `null` 或抛错时仍调用 `create`，错误通过现有 `getUploadError` 映射。
+`prepareSelectedFile` 必须清空旧文件和结果，拒绝非 HTML 或超过 20MB 的文件；接受文件后用 `File.text()` 读取 `<title>`，失败或标题不安全时使用文件名去扩展名，作为内部标题和自动封面文字。`submit` 只在文件存在且未提交时执行：先固定当前文件并等待标题读取完成，尝试调用 `generateAutomaticCover(title)`，然后调用 `this.gamesService.create(file, { title, category: 'other', description: '', instructions: '', tags: '', cover })`；封面生成返回 `null` 或抛错时仍调用 `create`，错误通过现有 `getUploadError` 映射。
 
 实现键盘和拖拽入口：
 
@@ -370,7 +370,7 @@ onFileDrop (event: DragEvent) {
 </div>
 ```
 
-选中文件后显示文件名、`文件大小`、标题提示和 `移除文件` 按钮；提交按钮使用 `[disabled]="submitting() || !file"`，提交中显示 `正在上传并检查…`；成功状态显示审核文案与 `[routerLink]="['/games', game.uuid]"` 的 `打开游戏`。
+选中文件后显示文件名、`文件大小`、标题提示和 `移除文件` 按钮；提交按钮使用 `[disabled]="submitting() || !file || !!createdGame()"`，提交中显示 `正在上传并检查…`，成功后显示 `已提交`；成功状态显示审核文案与 `[routerLink]="['/games', game.uuid]"` 的 `打开游戏`。
 
 - [ ] **Step 5: 实现上传区状态样式**
 

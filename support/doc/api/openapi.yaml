@@ -9110,7 +9110,7 @@ paths:
       tags:
         - Games
       summary: Upload a game
-      description: Uploads a new HTML game package with metadata. Requires authentication.
+      description: Uploads a new HTML game package. Only gamefile is required; omitted metadata defaults from the HTML title or filename and can be edited later. Requires authentication.
       operationId: createGame
       security:
         - OAuth2: []
@@ -9120,21 +9120,25 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [title, category, gamefile]
+              required: [gamefile]
               properties:
                 title:
+                  description: Optional display title. Defaults to the HTML title, then the filename.
                   type: string
                 description:
+                  description: Optional game description. Defaults to an empty string.
                   type: string
                 instructions:
+                  description: Optional control instructions. Defaults to an empty string.
                   type: string
                 category:
+                  description: Optional category. Defaults to other.
                   type: string
                 tags:
                   type: string
-                  description: Comma-separated list of tags
+                  description: Optional comma-separated list of tags. Defaults to empty.
                 gamefile:
-                  description: The HTML game package to upload.
+                  description: The single self-contained HTML game file to upload. This is the only required field.
                   type: string
                   format: binary
             encoding:

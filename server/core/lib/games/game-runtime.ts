@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'crypto'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { basename, dirname, extname, join, relative, resolve, sep, posix } from 'path'
 import { parse } from 'node-html-parser'
+import { isGameTitleValid } from '@server/helpers/custom-validators/games.js'
 
 export const DEFAULT_GAME_MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
 export const DEFAULT_GAME_BACKGROUND_COLOR = '#8f6a52'
@@ -78,10 +79,23 @@ export function deriveGameTitle (filename: string, content: Buffer) {
     .replace(/[<>]/g, '')
     .replace(/javascript:/gi, '')
     .replace(/on\w+\s*=/gi, '')
+    .replace(/\p{Cc}/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+    .slice(0, 120)
 
-  return (safeTitle || '未命名游戏').slice(0, 120)
+  if (isGameTitleValid(safeTitle)) return safeTitle
+
+  const safeFilenameTitle = filenameTitle
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+    .replace(/\p{Cc}/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120)
+
+  return isGameTitleValid(safeFilenameTitle) ? safeFilenameTitle : '未命名游戏'
 }
 
 export function validateSingleHtmlGame (input: GameRuntimeInput): ValidatedHtml {

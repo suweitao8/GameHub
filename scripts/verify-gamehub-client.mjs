@@ -767,25 +767,6 @@ assert(
     previewProbeTs.includes('this.onComplete = undefined'),
   'game upload preview must clear srcdoc content and callbacks when reset'
 )
-assert(uploadHtml.includes('(load)="onPreviewLoaded($event)"') && uploadTs.includes('onPreviewLoaded (event: Event)'), 'game upload preview must ignore stale iframe load events')
-assert(!uploadHtml.includes('class="upload-preview-frame"') || !uploadHtml.includes('loading="lazy"'), 'game upload preview iframe must load eagerly so safety checks cannot be skipped off-screen')
-assert(
-  uploadTs.includes('private previewGeneration = 0') &&
-    uploadTs.includes('this.previewGeneration += 1') &&
-    uploadTs.includes('finishPreview(screenshot, generation)') &&
-    uploadTs.includes('generation !== this.previewGeneration'),
-  'game upload cover generation must ignore stale file lifecycle results'
-)
-assert(
-  uploadTs.includes('this.coverGenerator.coverPreview.set(\'\')') &&
-    uploadTs.includes('this.coverGenerator.coverSource.set(\'generated\')') &&
-    uploadTs.includes('this.coverGenerator.coverSource() === \'manual\''),
-  'game upload must clear cross-page cover state and preserve a manually selected cover'
-)
-assert(
-  /onCoverChange \(event: Event\) \{[\s\S]*const cover = \(event\.target as HTMLInputElement\)\.files\?\.\[0\] \|\| null[\s\S]*if \(!cover\) \{[\s\S]*this\.coverGenerator\.coverSource\.set\(\'generated\'\)[\s\S]*this\.coverGenerator\.setCoverPreview\(null\)[\s\S]*return/.test(uploadTs),
-  'clearing an optional manual cover must restore automatic cover state'
-)
 assert(
   previewProbeTs.includes('private previewReady = false') &&
     previewProbeTs.includes('if (!this.previewReady) return') &&
@@ -808,29 +789,42 @@ assert(
 )
 assert(
   previewProbeTs.includes('readonly previewSource = signal<SafeHtml | null>(null)') &&
-    uploadTs.includes('readonly previewSource = this.previewProbe.previewSource') &&
-    uploadHtml.includes('[srcdoc]="previewSource()"') &&
     previewProbeTs.includes('bypassSecurityTrustHtml(wrapped)'),
-  'HTML upload previews must use sandboxed srcdoc content so the uploaded DOM is rendered before screenshot probing'
+  'the retained HTML preview probe must still use sandboxed srcdoc content'
 )
 assert(
-  uploadTs.includes('readonly previewValidationError = this.previewProbe.error') &&
-    uploadHtml.includes('{{ previewValidationError() }}') &&
-    uploadHtml.includes('[disabled]="submitting() || !file || !!previewValidationError()"'),
-  'game upload must expose preview validation errors and block submission until they are fixed'
+  uploadHtml.includes('accept=".html,.htm,text/html,application/xhtml+xml"') &&
+    uploadHtml.includes('dragover') && uploadHtml.includes('onFileDrop') &&
+    uploadHtml.includes('onFilePickerKeydown') && uploadHtml.includes('提交游戏'),
+  'game upload must expose a single HTML drop zone with click, drag, and keyboard submission paths'
 )
 assert(
-  uploadTs.includes('private prepareSelectedFile (file: File | null)') &&
-    uploadTs.includes('this.resetForNewFile()') &&
-    uploadTs.includes('this.fileSize.set(file?.size || 0)') &&
-    uploadTs.includes('this.previewProbe.reset()'),
-  'game upload must clear the previous preview and cover before validating a newly selected file'
+  uploadHtml.includes('文件大小') && uploadHtml.includes('移除文件') &&
+    uploadHtml.includes('正在上传并检查') && uploadHtml.includes('打开游戏'),
+  'game upload must expose file state, loading feedback, and a success link'
 )
 assert(
-  uploadTs.includes('private hasUnsavedChanges ()') &&
-    uploadTs.includes('if (!this.hasUnsavedChanges()) return') &&
-    uploadTs.includes('this.submitting() || this.createdGame()'),
-  'game upload must warn only when there are actual unsaved fields or a file submission in progress'
+  !uploadHtml.includes('upload-steps') && !uploadHtml.includes('upload-preview-frame') &&
+    !uploadHtml.includes('name="title"') && !uploadHtml.includes('name="description"') &&
+    !uploadHtml.includes('name="instructions"') && !uploadHtml.includes('name="category"') &&
+    !uploadHtml.includes('name="tags"') && !uploadHtml.includes('coverfile'),
+  'quick game upload must not expose the old metadata, preview, or manual cover controls'
+)
+assert(
+  uploadTs.includes('isSupportedGameRuntimeFilename') &&
+    uploadTs.includes('20 * 1024 * 1024') &&
+    uploadTs.includes('this.gamesService.create(file, ') &&
+    uploadTs.includes('titleReadPromise') &&
+    uploadTs.includes('DOMParser') &&
+    uploadTs.includes('data:text\\/html') &&
+    uploadTs.includes('\\p{Cc}'),
+  'quick game upload must validate the single HTML limit and submit with automatic metadata'
+)
+assert(
+  uploadTs.includes('onFilePickerKeydown') && uploadTs.includes('event.key !== \'Enter\'') &&
+    uploadTs.includes('event.key !== \' \'') && uploadTs.includes('files.length > 1') &&
+    uploadTs.includes('uploadDropZone?.nativeElement.focus') && uploadHtml.includes('#uploadDropZone'),
+  'quick game upload must provide keyboard activation, reject multiple dropped files, and restore focus after removal'
 )
 assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&

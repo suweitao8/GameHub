@@ -1,151 +1,128 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, signal } from '@angular/core'
-import { FormsModule } from '@angular/forms'
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, OnDestroy, signal, ViewChild } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Game, GamesService } from './games.service'
+import { isSupportedGameRuntimeFilename } from './games-api'
 import { CoverGeneratorService } from './services/cover-generator.service'
-import { GamePreviewProbeService } from './services/game-preview-probe.service'
+
+const MAX_GAME_FILE_SIZE = 20 * 1024 * 1024
 
 @Component({
   templateUrl: './game-upload.component.html',
   styleUrl: './game-upload.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ FormsModule, RouterLink ]
+  imports: [ RouterLink ]
 })
 export class GameUploadComponent implements OnDestroy {
   private readonly gamesService = inject(GamesService)
-  private readonly previewProbe = inject(GamePreviewProbeService)
   private readonly coverGenerator = inject(CoverGeneratorService)
+  @ViewChild('uploadDropZone') private uploadDropZone?: ElementRef<HTMLDivElement>
 
   file: File | null = null
-  title = ''
-  description = ''
-  instructions = ''
-  category = 'arcade'
-  tags = ''
-  cover: File | null = null
 
+  readonly title = signal('')
   readonly submitting = signal(false)
   readonly message = signal('')
   readonly error = signal('')
   readonly fileSize = signal(0)
   readonly createdGame = signal<Game | null>(null)
-  readonly uploadProgress = signal(0)
   readonly dragActive = signal(false)
 
-  // Expose probe + cover service state to the template.
-  readonly previewSource = this.previewProbe.previewSource
-  readonly previewStatus = this.previewProbe.previewStatus
-  readonly previewError = this.previewProbe.previewError
-  readonly previewValidationError = this.previewProbe.error
-  readonly step = this.previewProbe.step
-  readonly coverPreview = this.coverGenerator.coverPreview
-  readonly coverSource = this.coverGenerator.coverSource
-  private previewGeneration = 0
+  private fileGeneration = 0
+  private titleReadPromise: Promise<void> | null = null
 
   @HostListener('window:beforeunload', [ '$event' ])
   onBeforeUnload (event: BeforeUnloadEvent) {
     if (!this.hasUnsavedChanges()) return
     event.preventDefault()
-    event.returnValue = '你有未保存的修改，确定离开吗？'
+    event.returnValue = '你有一个尚未提交的 HTML 游戏。'
     return event.returnValue
   }
 
   ngOnDestroy () {
-    // Both services are root-scoped, so clear their state when this route is
-    // destroyed. Otherwise a later upload can briefly render an old cover.
-    this.previewGeneration += 1
-    this.previewProbe.reset()
+    this.fileGeneration += 1
     this.resetCoverState()
   }
 
   onFileChange (event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0]
-    if (file) this.prepareSelectedFile(file)
+    const input = event.target as HTMLInputElement
+    this.prepareSelectedFile(input.files?.[0] || null)
+    input.value = ''
+  }
+
+  onFilePickerKeydown (event: KeyboardEvent, input: HTMLInputElement) {
+    if (this.submitting()) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    input.click()
   }
 
   onFileDrop (event: DragEvent) {
     this.dragActive.set(false)
-    const file = event.dataTransfer?.files?.[0]
-    if (!file) return
+    if (this.submitting()) return
 
-    this.prepareSelectedFile(file)
-  }
-
-  onCoverChange (event: Event) {
-    const cover = (event.target as HTMLInputElement).files?.[0] || null
-    this.cover = cover
-    if (!cover) {
-      this.coverGenerator.coverSource.set('generated')
-      this.coverGenerator.setCoverPreview(null)
+    const files = event.dataTransfer?.files
+    if (!files?.length) return
+    if (files.length > 1) {
+      this.error.set('一次只能投稿一个 HTML 文件。')
       return
     }
 
-    this.coverGenerator.coverSource.set('manual')
-    this.coverGenerator.setCoverPreview(cover)
+    this.prepareSelectedFile(files[0])
   }
 
-  async regenerateCover () {
-    if (!this.title.trim()) {
-      this.error.set('请先填写游戏名称，再生成封面。')
-      return
-    }
-
-    this.error.set('')
-    this.step.set(4)
-    this.previewStatus.set('正在生成封面…')
-    this.cover = await this.coverGenerator.regenerateCover(this.title, this.previewProbe.runtimeScreenshot())
-    this.step.set(5)
-    this.previewStatus.set('封面已生成')
-  }
-
-  onPreviewLoaded (event: Event) {
-    this.previewProbe.onPreviewLoaded(event)
+  removeFile () {
+    if (this.submitting()) return
+    this.resetForNewFile()
+    this.uploadDropZone?.nativeElement.focus()
   }
 
   async submit () {
-    if (!this.file || !this.title.trim()) {
-      this.error.set('请选择单个 HTML 文件并填写标题。')
+    const file = this.file
+    if (!file) {
+      this.error.set('请选择一个 HTML 文件。')
       return
     }
+    if (this.submitting()) return
+
     this.submitting.set(true)
-    this.uploadProgress.set(0)
-    this.step.set(2)
-    this.previewStatus.set('正在上传并检查文件…')
-    this.uploadProgress.set(12)
     this.error.set('')
     this.message.set('')
-    let cover = this.cover
-    if (!cover) {
-      this.step.set(4)
-      this.previewStatus.set('正在生成封面…')
-      this.uploadProgress.set(35)
-      cover = await this.coverGenerator.generateAutomaticCover(this.title)
-      this.cover = cover
+    this.createdGame.set(null)
+
+    await this.titleReadPromise
+    if (this.file !== file) {
+      this.submitting.set(false)
+      return
     }
-    this.step.set(5)
-    this.previewStatus.set('正在提交审核…')
-    this.uploadProgress.set(65)
-    this.gamesService.create(this.file, {
-      title: this.title.trim(),
-      description: this.description.trim(),
-      instructions: this.instructions.trim(),
-      category: this.category.trim() || 'other',
-      tags: this.tags,
+
+    const title = this.title().trim() || this.getFilenameTitle(file.name)
+    let cover: File | null = null
+    try {
+      cover = await this.coverGenerator.generateAutomaticCover(title)
+    } catch {
+      // Automatic cover generation is optional; the HTML file remains submitable.
+    }
+
+    if (this.file !== file) {
+      this.submitting.set(false)
+      return
+    }
+
+    this.gamesService.create(file, {
+      title,
+      description: '',
+      instructions: '',
+      category: 'other',
+      tags: '',
       cover
     }).subscribe({
       next: game => {
-        this.uploadProgress.set(100)
         this.submitting.set(false)
-        this.step.set(6)
-        this.previewStatus.set('上传成功')
         this.createdGame.set(game)
         this.message.set(game.status === 'published' ? '上传成功，游戏已发布。' : '上传成功，等待管理员审核。')
       },
       error: error => {
-        this.uploadProgress.set(0)
         this.submitting.set(false)
-        this.step.set(1)
-        this.previewStatus.set('')
         this.error.set(this.getUploadError(error) || '上传失败，请检查游戏文件和资源引用。')
       }
     })
@@ -155,71 +132,87 @@ export class GameUploadComponent implements OnDestroy {
     return value < 1024 * 1024 ? `${Math.ceil(value / 1024)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`
   }
 
-  precentsText () {
-    return `上传中... ${this.uploadProgress()}%`
+  private prepareSelectedFile (file: File | null) {
+    this.resetForNewFile()
+    if (!file) return
+
+    if (!isSupportedGameRuntimeFilename(file.name.trim())) {
+      this.error.set('只支持单个 .html 或 .htm 文件。')
+      return
+    }
+    if (file.size > MAX_GAME_FILE_SIZE) {
+      this.error.set('HTML 文件不能超过 20MB。')
+      return
+    }
+
+    this.file = file
+    this.fileSize.set(file.size)
+    const generation = this.fileGeneration
+    this.title.set(this.getFilenameTitle(file.name))
+    this.titleReadPromise = this.readHtmlTitle(file, generation)
+  }
+
+  private async readHtmlTitle (file: File, generation: number) {
+    try {
+      const source = await file.text()
+      if (generation !== this.fileGeneration || this.file !== file) return
+
+      const title = this.extractHtmlTitle(source)
+      if (title) this.title.set(title)
+    } catch {
+      // The filename fallback is already available and is sufficient to submit.
+    }
+  }
+
+  private extractHtmlTitle (source: string) {
+    let rawTitle: string
+    try {
+      rawTitle = new DOMParser().parseFromString(source, 'text/html').querySelector('title')?.textContent || ''
+    } catch {
+      rawTitle = source.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || ''
+    }
+
+    return this.normalizeTitle(rawTitle)
+  }
+
+  private getFilenameTitle (filename: string) {
+    const title = filename.replace(/\.[^.]+$/, '').replace(/[_.-]+/g, ' ').trim()
+    return this.normalizeTitle(title || '未命名游戏') || '未命名游戏'
   }
 
   private resetForNewFile () {
-    this.previewGeneration += 1
+    this.fileGeneration += 1
     this.file = null
+    this.titleReadPromise = null
+    this.title.set('')
     this.fileSize.set(0)
+    this.dragActive.set(false)
     this.error.set('')
+    this.message.set('')
     this.createdGame.set(null)
-    this.cover = null
     this.resetCoverState()
-    this.previewProbe.reset()
-  }
-
-  private prepareSelectedFile (file: File | null) {
-    this.resetForNewFile()
-    this.file = file
-    this.fileSize.set(file?.size || 0)
-    if (!file) return
-
-    if (!/\.html?$/i.test(file.name.trim())) {
-      this.error.set('只支持单个 .html 或 .htm 文件。')
-      this.file = null
-      this.fileSize.set(0)
-      return
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      this.error.set('HTML 文件不能超过 20MB。')
-      this.file = null
-      this.fileSize.set(0)
-      return
-    }
-
-    const generation = this.previewGeneration
-    void this.previewProbe.prepare(file, screenshot => this.finishPreview(screenshot, generation))
   }
 
   private hasUnsavedChanges () {
-    if (this.submitting() || this.createdGame()) return false
-
-    return !!this.file || !!this.cover || !!this.title.trim() || !!this.description.trim() ||
-      !!this.instructions.trim() || !!this.tags.trim()
-  }
-
-  private async finishPreview (dataUrl: string | undefined, generation: number) {
-    if (generation !== this.previewGeneration || !this.file || this.coverGenerator.coverSource() === 'manual') return
-
-    this.step.set(4)
-    this.previewStatus.set('正在生成封面…')
-    const cover = dataUrl
-      ? await this.coverGenerator.coverFromScreenshot(dataUrl, this.title)
-      : await this.coverGenerator.generateAutomaticCover(this.title)
-    if (generation !== this.previewGeneration || !this.file || this.coverGenerator.coverSource() === 'manual') return
-
-    this.cover = cover
-    this.coverGenerator.coverSource.set(dataUrl ? 'runtime' : 'generated')
-    this.coverGenerator.setCoverPreview(this.cover)
-    this.step.set(5)
-    this.previewStatus.set(dataUrl ? '已生成运行截图封面' : '已生成 GameHub 封面')
+    return !!this.file && !this.submitting() && !this.createdGame()
   }
 
   private resetCoverState () {
     this.coverGenerator.coverPreview.set('')
     this.coverGenerator.coverSource.set('generated')
+  }
+
+  private normalizeTitle (value: string) {
+    const normalized = value
+      .replace(/[<>]/g, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/\p{Cc}/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 120)
+
+    return /<script\b|javascript:|on\w+\s*=|data:text\/html/i.test(normalized) ? '' : normalized
   }
 
   private getUploadError (error: unknown) {

@@ -1,22 +1,69 @@
 <main class="game-community-page upload-page">
   <div class="game-community-content">
-    <header class="upload-header"><div><p class="game-eyebrow">创作中心</p><h1>上传你的 HTML 游戏</h1><p>像投稿一样简单：一个文件，打开即玩。</p></div></header>
-    <ol class="upload-steps" aria-label="上传步骤"><li [class.current]="step() === 1"><b>1</b>选择文件</li><li [class.current]="step() === 2"><b>2</b>系统检查</li><li [class.current]="step() === 3"><b>3</b>启动检测</li><li [class.current]="step() === 4"><b>4</b>生成封面</li><li [class.current]="step() >= 5"><b>5</b>填写信息</li><li [class.current]="step() === 6"><b>6</b>完成</li></ol>@if (submitting()) { <div class="upload-progress-bar" aria-label="上传进度" role="progressbar" [attr.aria-valuenow]="uploadProgress()" aria-valuemin="0" aria-valuemax="100"><div class="upload-progress-fill" [style.width.%]="uploadProgress()"></div><span class="upload-progress-text">{{ precentsText() }}</span></div> }
-    @if (previewStatus()) { <p class="upload-status" [class.error]="previewError()" role="status">{{ previewStatus() }}</p> } @if (previewValidationError()) { <p class="form-error" role="alert">{{ previewValidationError() }}</p> }
-    <div class="upload-layout">
-      <aside class="upload-guide"><h2>上传前请确认</h2><ul><li>只支持单个 HTML 文件，大小不能超过 20MB</li><li>HTML 内的样式和脚本需要写在同一个文件中</li><li>不支持外部网络请求、页面跳转或表单提交</li><li>存档保存在玩家当前浏览器</li><li>系统会在隔离环境中检查运行安全</li></ul><p>不上传封面时，系统会根据实际运行画面或标题自动生成 GameHub 封面。</p></aside>
-      <form (submit)="$event.preventDefault(); submit()" class="game-form">
-        <label class="file-picker" [class.dragover]="dragActive()" (dragover)="$event.preventDefault(); dragActive.set(true)" (dragleave)="$event.preventDefault(); dragActive.set(false)" (drop)="$event.preventDefault(); onFileDrop($event)">游戏文件<input type="file" accept=".html,.htm,text/html,application/xhtml+xml" (change)="onFileChange($event)"><span>{{ file ? file.name + ' · ' + formatBytes(fileSize()) : '拖拽 HTML 文件到此，或点击选择（最大 20MB）' }}</span></label>
-        @if (previewSource()) { <iframe class="upload-preview-frame" [srcdoc]="previewSource()" title="游戏运行预览" sandbox="allow-scripts allow-pointer-lock allow-fullscreen" referrerpolicy="no-referrer" (load)="onPreviewLoaded($event)"></iframe> }
-        <div class="field-grid"><label>游戏名称<input name="title" [(ngModel)]="title" maxlength="120" required placeholder="例如：橘子星球"></label><label>分类<select name="category" [(ngModel)]="category"><option value="arcade">动作</option><option value="adventure">冒险</option><option value="shooter">射击</option><option value="puzzle">解谜</option><option value="casual">休闲</option><option value="rpg">角色扮演</option><option value="strategy">策略</option><option value="simulation">模拟</option><option value="sandbox">沙盒</option><option value="racing">竞速</option><option value="sports">体育</option><option value="card">卡牌</option><option value="music">音乐</option><option value="horror">恐怖</option><option value="board">桌游</option></select></label></div>
-        <label>标签<input name="tags" [(ngModel)]="tags" placeholder="动作, 解谜"></label>
-        <label>封面图（可选）<input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverChange($event)"></label>
-        <div class="cover-preview-area">@if (coverPreview()) { <img [src]="coverPreview()" alt="游戏封面预览"><div><span>{{ coverSource() === 'runtime' ? '系统运行截图封面' : coverSource() === 'manual' ? '自定义封面' : 'GameHub 自动封面' }}</span><button type="button" (click)="regenerateCover()">重新生成封面</button></div> } @else { <button type="button" class="cover-generate-button" (click)="regenerateCover()" [disabled]="!title.trim()">生成封面预览</button> }</div>
-        <label>简介<textarea name="description" [(ngModel)]="description" rows="4" placeholder="一句话介绍你的游戏"></textarea></label>
-        <label>操作说明<textarea name="instructions" [(ngModel)]="instructions" rows="4" placeholder="键盘、鼠标或触屏如何操作"></textarea></label>
-        @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> } @if (message()) { <p class="form-success" role="status">{{ message() }}</p> } @if (createdGame(); as game) { <div class="upload-success-links"><a [routerLink]="['/games', game.uuid]">打开游戏</a></div> }
-        <button type="submit" [disabled]="submitting() || !file || !!previewValidationError()">{{ submitting() ? '正在检查并提交…' : '提交审核并发布' }}</button>
-      </form>
-    </div>
+    <header class="upload-header">
+      <p class="game-eyebrow">创作中心</p>
+      <h1>上传 HTML 游戏</h1>
+      <p>选择一个文件，剩下的交给 GameHub。</p>
+    </header>
+
+    <form class="upload-card" (submit)="$event.preventDefault(); submit()" aria-labelledby="upload-title">
+      <h2 id="upload-title">快速投稿</h2>
+      <p class="upload-intro">不需要填写复杂信息，HTML 文件通过检查后就会进入审核流程。</p>
+
+      <div
+        #uploadDropZone
+        class="upload-drop-zone"
+        [class.dragover]="dragActive()"
+        [class.has-file]="!!file"
+        [class.disabled]="submitting()"
+        role="button"
+        tabindex="0"
+        aria-label="选择 HTML 游戏文件"
+        aria-describedby="upload-requirements"
+        [attr.aria-disabled]="submitting()"
+        (click)="fileInput.click()"
+        (keydown)="onFilePickerKeydown($event, fileInput)"
+        (dragover)="$event.preventDefault(); dragActive.set(true)"
+        (dragleave)="$event.preventDefault(); dragActive.set(false)"
+        (drop)="$event.preventDefault(); onFileDrop($event)"
+      >
+        <input #fileInput class="upload-file-input" type="file" accept=".html,.htm,text/html,application/xhtml+xml" tabindex="-1" [disabled]="submitting()" (change)="onFileChange($event)">
+        @if (file) {
+          <span class="upload-file-icon" aria-hidden="true">✓</span>
+          <strong>已选择 HTML 文件</strong>
+          <span>点击或拖入其他文件替换</span>
+        } @else {
+          <span class="upload-file-icon" aria-hidden="true">↑</span>
+          <strong>拖拽 HTML 文件到这里</strong>
+          <span>或点击选择文件</span>
+        }
+      </div>
+
+      <p id="upload-requirements" class="upload-requirements">只支持单个 .html 或 .htm 文件，最大 20MB；系统会在隔离环境中检查联网、跳转和资源引用。</p>
+
+      @if (file) {
+        <div class="selected-file" aria-live="polite">
+          <div class="selected-file-copy">
+            <strong>{{ file.name }}</strong>
+            <span>文件大小：{{ formatBytes(fileSize()) }}</span>
+            @if (title()) { <span>投稿标题：{{ title() }}</span> }
+          </div>
+          <button type="button" class="remove-file-button" [disabled]="submitting()" (click)="removeFile()">移除文件</button>
+        </div>
+      }
+
+      @if (submitting()) {
+        <p class="upload-status" role="status" aria-live="polite">正在上传并检查…</p>
+      }
+      @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+      @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
+      @if (createdGame(); as game) {
+        <a class="upload-success-link" [routerLink]="['/games', game.uuid]">打开游戏</a>
+      }
+
+      <button class="submit-button" type="submit" [disabled]="submitting() || !file || !!createdGame()" [attr.aria-busy]="submitting()">
+        {{ submitting() ? '正在上传并检查…' : createdGame() ? '已提交' : '提交游戏' }}
+      </button>
+    </form>
   </div>
 </main>

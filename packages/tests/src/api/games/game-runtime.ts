@@ -6,6 +6,7 @@ import { join, resolve } from 'path'
 import {
   getGameRuntimeHeaders,
   cleanupStoredGameAssets,
+  deriveGameTitle,
   injectGameDefaultBackground,
   injectGameRuntimeBridge,
   storeGameRuntimePackage,
@@ -14,6 +15,17 @@ import {
 } from '../../../../../server/core/lib/games/game-runtime.js'
 
 describe('Game runtime security', function () {
+  it('derives a safe title from the HTML title and falls back to the filename', function () {
+    expect(deriveGameTitle('ignored-name.html', Buffer.from('<html><head><title>  Space &amp; Time  </title></head></html>')))
+      .to.equal('Space & Time')
+    expect(deriveGameTitle('space_adventure-v2.html', Buffer.from('<html><body>game</body></html>')))
+      .to.equal('space adventure v2')
+    expect(deriveGameTitle('safe-fallback.html', Buffer.from('<title>data:text/html,<script>alert(1)</script></title>')))
+      .to.equal('safe fallback')
+    expect(deriveGameTitle('control-title.html', Buffer.from('<title>Game\u0000Hub</title>')))
+      .to.equal('Game Hub')
+  })
+
   it('uses a 20 MB default limit for a single HTML file', function () {
     expect(validateSingleHtmlGame({
       filename: 'game.html',

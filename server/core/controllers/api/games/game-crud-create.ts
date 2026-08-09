@@ -51,6 +51,7 @@ async function applyGameCreateDefaults (req: express.Request, _res: express.Resp
     if (req.body.tags === undefined) req.body.tags = ''
     next()
   } catch (error) {
+    cleanUpReqFiles(req)
     next(error)
   }
 }
