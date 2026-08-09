@@ -47,15 +47,22 @@ import { getGameActionErrorMessage } from './game-action-feedback'
           <h2 id="game-description-title" class="visually-hidden">游戏信息</h2>
           <div class="game-description-tabs" role="tablist" aria-label="游戏信息分类">
             <button type="button" class="game-description-tab" role="tab"
+              id="game-description-overview-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'overview'"
               [attr.aria-selected]="descriptionTab() === 'overview'"
               (click)="descriptionTab.set('overview')">简介</button>
             <button type="button" class="game-description-tab" role="tab"
+              id="game-description-controls-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'controls'"
               [attr.aria-selected]="descriptionTab() === 'controls'"
               (click)="descriptionTab.set('controls')">操作</button>
           </div>
-          <div class="game-description-content">
+          <div
+            id="game-description-panel"
+            class="game-description-content"
+            role="tabpanel"
+            [attr.aria-labelledby]="descriptionTab() === 'overview' ? 'game-description-overview-tab' : 'game-description-controls-tab'"
+          >
             @if (descriptionTab() === 'overview') {
               <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
               @if (game()?.tags?.length) {

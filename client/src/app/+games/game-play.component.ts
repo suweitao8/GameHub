@@ -65,6 +65,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
+  readonly frameError = signal(false)
   readonly showBackToTop = signal(false)
   readonly shareOpen = signal(false)
   readonly reportOpen = signal(false)
@@ -101,6 +102,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.loading.set(true)
     this.loadingError.set(false)
     this.frameLoading.set(true)
+    this.frameError.set(false)
     this.runtimeUrl.set(null)
     this.community.set(null)
     this.communityError.set('')
@@ -155,6 +157,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   startGame () {
+    if (this.frameError()) return
     this.gameStarted.set(true)
     if (this.playRecordedFor !== this.currentUuid) {
       this.playRecordedFor = this.currentUuid
@@ -219,6 +222,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!currentGame) return
     this.reloadKey++
     this.frameLoading.set(true)
+    this.frameError.set(false)
     this.gameStarted.set(false)
     this.loadingError.set(false)
     this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
@@ -226,9 +230,17 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   retryLoadGame () { this.loadGame(this.currentUuid) }
 
-  onFrameLoaded () { this.frameLoading.set(false); this.syncGameVolume() }
+  onFrameLoaded () {
+    this.frameLoading.set(false)
+    this.frameError.set(false)
+    this.syncGameVolume()
+  }
 
-  onFrameError () { this.frameLoading.set(false); this.loadingError.set(true) }
+  onFrameError () {
+    this.frameLoading.set(false)
+    this.frameError.set(true)
+    this.gameStarted.set(false)
+  }
 
   async enterFullscreen () {
     const frame = this.iframe()?.nativeElement
