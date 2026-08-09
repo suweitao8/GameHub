@@ -583,6 +583,8 @@ assert(gamePlayHtml.includes('重新连接'), 'game-play iframe error state must
 assert(gamePlayHtml.includes('aria-live="polite"'), 'game-play runtime status must be announced politely')
 assert(gamePlayTs.includes('readonly frameError = signal(false)'), 'game-play must own an iframe-specific error signal')
 assert(gamePlayTs.includes('this.frameError.set(false)'), 'game-play must clear the iframe error before retrying')
+assert((gamePlayTs.match(/normalizeRuntimeUrl\(/g) || []).length >= 2, 'game-play must normalize local runtime hosts for the active browser origin')
+assert(gamePlayTs.includes('const localHosts = [ \'localhost\', \'127.0.0.1\', \'::1\' ]'), 'runtime host normalization must stay limited to loopback hosts')
 assert(!gamePlayTs.includes('onFrameError () { this.frameLoading.set(false); this.loadingError.set(true) }'), 'iframe errors must not replace the whole game page')
 assert(gamePlayLayoutScss.includes('--game-detail-surface'), 'game-play layout must define a detail surface token')
 assert(gamePlayRuntimeScss.includes('.frame-error-card'), 'game runtime must style a local error card')
