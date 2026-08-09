@@ -69,7 +69,8 @@ API 加载错误继续使用页面级 `loadingError`。新增独立的 `frameErr
 - `client/src/app/+games/game-play.component.ts`：拆分 iframe 错误状态，重试时清理状态。
 - `client/src/app/+games/game-play/_layout.scss`：页面表面、标题区、网格和侧栏层级。
 - `client/src/app/+games/game-play/_runtime-frame.scss`：试玩舞台、错误卡片、控制条和 reduced-motion。
-- `client/src/app/+games/game-play/_game-info.scss`：互动操作、tab、描述面板的视觉一致性。
+- `client/src/app/+games/game-play/_game-info.scss`：详情页标题、评论和父层信息区的视觉一致性。
+- `client/src/app/+games/game-community-panel.component.scss`：互动操作、tab、描述面板的视觉一致性。
 - `scripts/verify-gamehub-client.mjs`：增加游戏详情页状态与可访问性结构契约。
 
 ## 验证

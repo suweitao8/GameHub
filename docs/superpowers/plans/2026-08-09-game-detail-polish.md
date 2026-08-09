@@ -25,6 +25,7 @@ const playScss = read('client/src/app/+games/game-play.component.scss')
 const playLayoutScss = read('client/src/app/+games/game-play/_layout.scss')
 const playRuntimeScss = read('client/src/app/+games/game-play/_runtime-frame.scss')
 const playInfoScss = read('client/src/app/+games/game-play/_game-info.scss')
+const communityPanelScss = read('client/src/app/+games/game-community-panel.component.scss')
 assert(playHtml.includes('frameError()'), 'game-play must render an iframe-specific error state')
 assert(playHtml.includes('重新连接'), 'game-play iframe error state must expose a reconnect action')
 assert(playHtml.includes('aria-live="polite"'), 'game-play runtime status must be announced politely')
@@ -34,7 +35,8 @@ assert(!playTs.includes('onFrameError () { this.frameLoading.set(false); this.lo
 assert(playLayoutScss.includes('--game-detail-surface'), 'game-play layout must define a detail surface token')
 assert(playRuntimeScss.includes('.frame-error-card'), 'game runtime must style a local error card')
 assert(playRuntimeScss.includes('prefers-reduced-motion'), 'game runtime motion must respect reduced-motion preferences')
-assert(playInfoScss.includes('.game-description-tab'), 'game info tabs must keep an explicit visual contract')
+assert(playInfoScss.includes('.game-title-meta'), 'game-play info styles must keep an explicit title contract')
+assert(communityPanelScss.includes('.game-description-tab'), 'community panel must own its tab visual contract')
 ```
 
 - [ ] **Step 2: 运行断言确认旧代码失败**
@@ -114,12 +116,13 @@ Expected: exit code 0。
 
 **Files:**
 - Modify: `client/src/app/+games/game-play/_game-info.scss`
+- Modify: `client/src/app/+games/game-community-panel.component.scss`
 - Modify: `client/src/app/+games/game-play/_related.scss`
 - Modify: `client/src/app/+games/game-play/_responsive.scss`
 
 - [ ] **Step 1: 统一互动操作和 tab 状态**
 
-让操作按钮有默认、hover、focus-visible、active、disabled 五种状态；异步禁用态保留当前计数但降低透明度。tab 使用清晰的底部 active indicator，描述面板保留可读的空状态。
+让 `game-community-panel.component.scss` 中的操作按钮有默认、hover、focus-visible、active、disabled 五种状态；异步禁用态保留当前计数但降低透明度。tab 使用清晰的底部 active indicator，描述面板保留可读的空状态；详情页 `_game-info.scss` 只负责父组件标题和评论表面。
 
 - [ ] **Step 2: 降低侧栏视觉噪音**
 
