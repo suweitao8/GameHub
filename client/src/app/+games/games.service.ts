@@ -126,7 +126,7 @@ export class GamesService {
       .pipe(catchError(err => this.restExtractor.handleError(err)))
   }
 
-  create (file: File, metadata: GameUploadMetadata): Observable<Game> {
+  create (file: File, metadata: GameUploadMetadata = {}): Observable<Game> {
     const body = buildGameUploadFormData(file, metadata)
     return this.http.post<Game>(GamesService.BASE_URL, body).pipe(map(normalizeGame))
   }

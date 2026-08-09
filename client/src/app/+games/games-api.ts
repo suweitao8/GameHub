@@ -9,23 +9,23 @@ export type GamesListParams = {
 }
 
 export type GameUploadMetadata = {
-  title: string
-  description: string
-  instructions: string
-  category: string
-  tags: string
+  title?: string
+  description?: string
+  instructions?: string
+  category?: string
+  tags?: string
   cover?: File | null
 }
 
-export function buildGameUploadFormData (file: File, metadata: GameUploadMetadata) {
+export function buildGameUploadFormData (file: File, metadata: GameUploadMetadata = {}) {
   const body = new FormData()
   body.append('gamefile', file, file.name)
   if (metadata.cover) body.append('coverfile', metadata.cover, metadata.cover.name)
-  body.append('title', metadata.title)
-  body.append('description', metadata.description)
-  body.append('instructions', metadata.instructions)
-  body.append('category', metadata.category)
-  body.append('tags', metadata.tags)
+  if (metadata.title !== undefined) body.append('title', metadata.title)
+  if (metadata.description !== undefined) body.append('description', metadata.description)
+  if (metadata.instructions !== undefined) body.append('instructions', metadata.instructions)
+  if (metadata.category !== undefined) body.append('category', metadata.category)
+  if (metadata.tags !== undefined) body.append('tags', metadata.tags)
   return body
 }
 

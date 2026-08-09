@@ -32,6 +32,14 @@ describe('Games client API contract', function () {
     expect(Array.from(form.keys())).to.deep.equal([ 'gamefile', 'coverfile', 'title', 'description', 'instructions', 'category', 'tags' ])
   })
 
+  it('builds a multipart request with only the game file for quick uploads', function () {
+    const game = new File([ '<!doctype html><title>Quick game</title>' ], 'quick-game.html', { type: 'text/html' })
+    const form = buildGameUploadFormData(game)
+
+    expect(Array.from(form.keys())).to.deep.equal([ 'gamefile' ])
+    expect(form.get('gamefile')).to.be.instanceOf(File)
+  })
+
   it('turns rejected GameHub actions into an actionable Chinese message', function () {
     expect(getGameActionErrorMessage({ status: 401 })).to.equal('请先登录后再进行这项操作。')
     expect(getGameActionErrorMessage({ status: 403, error: { error: 'Authors cannot rate their own game' } }))
