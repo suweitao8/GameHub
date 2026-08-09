@@ -342,6 +342,7 @@ const gamesHomeScss = [
   'client/src/app/+games/games-home/_sections.scss',
   'client/src/app/+games/games-home/_responsive.scss'
 ].map(read).join('\n')
+const gamesHomeDiscoveryNavScss = read('client/src/app/+games/games-home/_discovery-nav.scss')
 const gameFollowingTs = read('client/src/app/+games/game-following.component.ts')
 assert(
   (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
@@ -990,8 +991,9 @@ assert(
     headerScss.includes('height: var(--header-height);') &&
     appScss.includes('--header-height: 200px;') &&
     appScss.includes('--header-height: 50px;') &&
-    gamesHomeScss.includes('top: var(--header-height);'),
-  'GameHub desktop header must show the fixed-ratio 200px banner, collapse to 50px after scrolling, and keep the discovery nav below it'
+    !/\.home-discovery-nav\s*\{[\s\S]*?position:\s*(?:sticky|fixed);/.test(gamesHomeDiscoveryNavScss) &&
+    /\.home-category-links\s*\{[\s\S]*?overflow-x:\s*auto;/.test(gamesHomeDiscoveryNavScss),
+  'GameHub desktop header must show the fixed-ratio 200px banner, collapse to 50px after scrolling, let the discovery nav scroll with page content, and keep category links horizontally scrollable'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
