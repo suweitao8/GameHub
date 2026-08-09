@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http'
 import { DatePipe } from '@angular/common'
 import {
   ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild
@@ -34,6 +35,7 @@ import { GameDiscussStore } from './game-discuss-store'
 export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)
   private readonly router = inject(Router)
+  private readonly http = inject(HttpClient)
   private readonly authService = inject(AuthService)
   private readonly gamesService = inject(GamesService)
   private readonly sanitizer = inject(DomSanitizer)
@@ -49,6 +51,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private reloadKey = 0
   private playRecordedFor = ''
   private loadGeneration = 0
+  private runtimeRequestUrl = ''
+  private runtimeProbeGeneration = 0
+  private runtimeProbe: { unsubscribe: () => void } | undefined
   /** Current game uuid, exposed read-only for child component bindings. */
   currentUuid = ''
 
@@ -65,6 +70,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
   readonly gameStarted = signal(false)
+  readonly frameError = signal(false)
   readonly showBackToTop = signal(false)
   readonly shareOpen = signal(false)
   readonly reportOpen = signal(false)
@@ -84,6 +90,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   ngOnDestroy () {
     this.loadGeneration += 1
+    this.cancelRuntimeProbe()
+    this.runtimeProbeGeneration += 1
     this.subscriptions.forEach(s => s.unsubscribe())
     window.removeEventListener('scroll', this.onScroll)
   }
@@ -94,6 +102,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   loadGame (uuid: string) {
     const generation = ++this.loadGeneration
+    this.cancelRuntimeProbe()
+    this.runtimeProbeGeneration += 1
     if (!uuid) return
     this.currentUuid = uuid
     this.commentsStore.setUuid(uuid)
@@ -101,6 +111,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.loading.set(true)
     this.loadingError.set(false)
     this.frameLoading.set(true)
+    this.frameError.set(false)
+    this.runtimeRequestUrl = ''
     this.runtimeUrl.set(null)
     this.community.set(null)
     this.communityError.set('')
@@ -116,7 +128,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.recommendService.recordView(game)
         this.updateMetaTags(game)
         this.gameStarted.set(false)
-        this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
+        this.setRuntimeUrl(game.runtimeUrl)
         this.loading.set(false)
         this.commentsStore.init(uuid)
         this.gamesService.community(uuid).subscribe({
@@ -155,6 +167,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   startGame () {
+    if (this.frameError()) return
     this.gameStarted.set(true)
     if (this.playRecordedFor !== this.currentUuid) {
       this.playRecordedFor = this.currentUuid
@@ -219,16 +232,27 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     if (!currentGame) return
     this.reloadKey++
     this.frameLoading.set(true)
+    this.frameError.set(false)
     this.gameStarted.set(false)
     this.loadingError.set(false)
-    this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
+    this.setRuntimeUrl(currentGame.runtimeUrl)
   }
 
   retryLoadGame () { this.loadGame(this.currentUuid) }
 
-  onFrameLoaded () { this.frameLoading.set(false); this.syncGameVolume() }
+  onFrameLoaded () {
+    if (this.frameError()) return
+    this.frameLoading.set(false)
+    this.syncGameVolume()
+  }
 
-  onFrameError () { this.frameLoading.set(false); this.loadingError.set(true) }
+  onFrameError () {
+    this.cancelRuntimeProbe()
+    this.runtimeProbeGeneration += 1
+    this.frameLoading.set(false)
+    this.frameError.set(true)
+    this.gameStarted.set(false)
+  }
 
   async enterFullscreen () {
     const frame = this.iframe()?.nativeElement
@@ -241,6 +265,63 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private withReloadKey (url: string) {
     return `${url}${url.includes('?') ? '&' : '?'}reload=${this.reloadKey}`
+  }
+
+  private setRuntimeUrl (url: string) {
+    this.cancelRuntimeProbe()
+    const generation = ++this.runtimeProbeGeneration
+    this.runtimeRequestUrl = this.withReloadKey(this.normalizeRuntimeUrl(url))
+    this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.runtimeRequestUrl))
+    this.verifyFrameAvailability(this.runtimeRequestUrl, generation)
+  }
+
+  private normalizeRuntimeUrl (url: string) {
+    const runtimeUrl = new URL(url, window.location.origin)
+    const runtimeHost = runtimeUrl.hostname.replace(/^\[|\]$/g, '')
+    const currentHost = window.location.hostname.replace(/^\[|\]$/g, '')
+    if (this.isLoopbackHost(runtimeHost) && this.isLoopbackHost(currentHost)) {
+      runtimeUrl.hostname = currentHost.includes(':') ? `[${currentHost}]` : currentHost
+    }
+    return runtimeUrl.toString()
+  }
+
+  private isLoopbackHost (hostname: string) {
+    const localHosts = [ 'localhost', '127.0.0.1', '::1' ]
+    return localHosts.includes(hostname.replace(/^\[|\]$/g, ''))
+  }
+
+  private isRuntimeProbeEligible (url: string) {
+    const runtimeUrl = new URL(url, window.location.origin)
+    const pageUrl = new URL(window.location.origin)
+    return runtimeUrl.origin === pageUrl.origin ||
+      (this.isLoopbackHost(runtimeUrl.hostname) && this.isLoopbackHost(pageUrl.hostname))
+  }
+
+  private verifyFrameAvailability (requestUrl: string, generation: number) {
+    if (!requestUrl) return
+    if (!this.isRuntimeProbeEligible(requestUrl)) return
+    this.runtimeProbe = this.http.head(requestUrl, { observe: 'response', withCredentials: false }).subscribe({
+      next: response => {
+        if (generation !== this.runtimeProbeGeneration || requestUrl !== this.runtimeRequestUrl) return
+        this.runtimeProbe = undefined
+        const contentType = response.headers.get('content-type') || ''
+        if (response.status < 200 || response.status >= 300 || !contentType.includes('text/html')) {
+          this.markFrameError(requestUrl, generation)
+        }
+      },
+      error: () => this.markFrameError(requestUrl, generation)
+    })
+  }
+
+  private markFrameError (requestUrl: string, generation: number) {
+    if (generation !== this.runtimeProbeGeneration || requestUrl !== this.runtimeRequestUrl) return
+    this.runtimeProbe = undefined
+    this.onFrameError()
+  }
+
+  private cancelRuntimeProbe () {
+    this.runtimeProbe?.unsubscribe()
+    this.runtimeProbe = undefined
   }
 
   private setGameVolume (volume: number) {

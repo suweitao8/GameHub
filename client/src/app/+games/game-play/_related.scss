@@ -153,6 +153,38 @@
   width: 0.72rem;
 }
 
+/* Detail-page polish: keep secondary content useful without competing with play. */
+.game-play-page .play-side .related-section {
+  background: var(--game-detail-surface, #fff);
+  border-color: var(--game-border);
+  border-radius: var(--game-detail-radius, 12px);
+  box-shadow: none;
+  padding: 14px;
+}
+
+.game-play-page .play-side .related-game-row {
+  border-radius: 8px;
+  min-height: 58px;
+  padding: 6px;
+  transition: background-color 160ms ease;
+}
+
+.game-play-page .play-side .related-game-row:hover,
+.game-play-page .play-side .related-game-row:focus-visible {
+  background: var(--game-detail-surface-muted, #f6f8fa);
+}
+
+.game-play-page .play-side .related-game-thumb {
+  border-radius: 8px;
+  flex-basis: 5.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-play-page .play-side .related-game-row {
+    transition-duration: 1ms;
+  }
+}
+
 .author-games-section { grid-column: 2;
   grid-row: 7; }
 .author-games-grid { display: grid;

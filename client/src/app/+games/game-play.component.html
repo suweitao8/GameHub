@@ -73,10 +73,20 @@
       <div class="stage-column">
       <section class="game-stage" aria-label="游戏运行区域">
         @if (frameLoading()) { <div class="frame-loading" role="status"><div class="frame-skeleton shimmer" style="height:100%;width:100%;border-radius:8px;background:#eceff3"></div><div class="frame-loading-bar" aria-hidden="true"><div class="frame-loading-fill"></div></div></div> }
-        <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts allow-pointer-lock allow-fullscreen" allow="fullscreen" referrerpolicy="no-referrer" loading="lazy" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
-        @if (!gameStarted() && !frameLoading()) { <button type="button" class="start-game-overlay" (click)="startGame()"><my-global-icon iconName="play" />开始游戏</button> }
-        <div class="game-player-controls" aria-label="游戏播放控制">
-          <div class="game-player-controls-left"><button type="button" aria-label="开始游戏" (click)="startGame()"><my-global-icon iconName="play" /></button><button type="button" aria-label="重新开始" (click)="reloadGame()"><my-global-icon iconName="refresh" /></button><span>{{ gameStarted() ? '正在游玩' : '准备就绪' }}</span></div>
+        <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts allow-pointer-lock" allow="fullscreen" referrerpolicy="no-referrer" loading="lazy" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
+        @if (frameError() && !frameLoading()) {
+          <div class="frame-error-card" role="alert">
+            <span class="frame-error-icon" aria-hidden="true">!</span>
+            <div class="frame-error-copy">
+              <strong>试玩暂时不可用</strong>
+              <p>游戏载入失败，可以重新连接后再试。</p>
+            </div>
+            <button type="button" class="frame-error-retry" (click)="reloadGame()">重新连接</button>
+          </div>
+        }
+        @if (!gameStarted() && !frameLoading() && !frameError()) { <button type="button" class="start-game-overlay" (click)="startGame()"><my-global-icon iconName="play" />开始游戏</button> }
+        <div class="game-player-controls" [class.visible]="frameError()" aria-label="游戏播放控制">
+          <div class="game-player-controls-left"><button type="button" aria-label="开始游戏" (click)="startGame()"><my-global-icon iconName="play" /></button><button type="button" aria-label="重新开始" (click)="reloadGame()"><my-global-icon iconName="refresh" /></button><span aria-live="polite">{{ gameStarted() ? '正在游玩' : frameError() ? '试玩不可用' : '准备就绪' }}</span></div>
           <div class="game-player-controls-right"><div class="game-volume-control"><button type="button" [attr.aria-label]="soundEnabled() ? '关闭声音' : '打开声音'" (click)="toggleGameSound()"><my-global-icon iconName="volume-2" /></button><input type="range" min="0" max="1" step="0.05" [value]="gameVolume()" aria-label="调整游戏音量" (input)="onGameVolumeChange($event)"></div><button type="button" aria-label="全屏试玩" (click)="enterFullscreen()"><my-global-icon iconName="fullscreen" /></button></div>
         </div>
       </section>

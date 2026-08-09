@@ -148,3 +148,173 @@
   gap: 12px;
   height: 100%;
 }
+
+/* Detail-page polish: make the runtime state readable before the first click. */
+.game-play-page .game-stage {
+  background: #101820;
+  border-radius: var(--game-detail-radius);
+  box-shadow: 0 12px 28px rgb(15 23 32 / 14%);
+}
+
+.game-play-page .game-stage iframe {
+  background: #101820;
+}
+
+.game-play-page .frame-loading {
+  background: rgb(16 24 32 / 88%);
+}
+
+.game-play-page .frame-skeleton {
+  background: linear-gradient(110deg, rgb(255 255 255 / 8%), rgb(255 255 255 / 16%), rgb(255 255 255 / 8%)) !important;
+  background-size: 200% 100% !important;
+}
+
+.frame-error-card {
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgb(242 93 142 / 35%);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+  display: flex;
+  gap: 12px;
+  left: 50%;
+  max-width: calc(100% - 32px);
+  padding: 16px 18px;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100% - 32px));
+  z-index: 4;
+}
+
+.frame-error-icon {
+  align-items: center;
+  background: var(--game-accent-soft);
+  border-radius: 50%;
+  color: var(--game-accent-deep);
+  display: inline-flex;
+  flex: 0 0 36px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.frame-error-copy {
+  min-width: 0;
+}
+
+.frame-error-copy strong {
+  color: var(--game-text);
+  display: block;
+  font-size: 0.95rem;
+}
+
+.frame-error-copy p {
+  color: var(--game-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+.frame-error-retry {
+  background: var(--game-brand);
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  flex: 0 0 auto;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-height: 44px;
+  padding: 8px 14px;
+}
+
+.frame-error-retry:hover,
+.frame-error-retry:focus-visible {
+  background: var(--game-brand-hover);
+  color: #fff;
+}
+
+.game-play-page .game-player-controls {
+  background: rgb(8 14 20 / 88%);
+  height: 52px;
+  min-height: 52px;
+}
+
+.game-play-page .game-player-controls.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.game-play-page .game-player-controls button {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.game-play-page .game-volume-control input {
+  opacity: 1;
+  width: 4.5rem;
+}
+
+@media (hover: none) {
+  .game-play-page .game-player-controls {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .frame-error-card {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .frame-error-copy {
+    flex: 1 1 calc(100% - 60px);
+  }
+
+  .frame-error-retry {
+    flex: 1 1 100%;
+  }
+
+  .game-play-page .game-player-controls {
+    padding: 0 8px;
+  }
+
+  .game-play-page .game-player-controls-left,
+  .game-play-page .game-player-controls-right {
+    gap: 4px;
+  }
+
+  .game-play-page .game-player-controls-left span {
+    max-width: 72px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .game-play-page .game-volume-control input {
+    width: 3.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-play-page .game-player-controls,
+  .game-play-page .frame-loading-fill,
+  .game-play-page .action-feedback {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .game-play-page .game-player-controls {
+    transform: none;
+  }
+}

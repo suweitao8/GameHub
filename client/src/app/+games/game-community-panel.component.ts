@@ -47,15 +47,26 @@ import { getGameActionErrorMessage } from './game-action-feedback'
           <h2 id="game-description-title" class="visually-hidden">游戏信息</h2>
           <div class="game-description-tabs" role="tablist" aria-label="游戏信息分类">
             <button type="button" class="game-description-tab" role="tab"
+              id="game-description-overview-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'overview'"
               [attr.aria-selected]="descriptionTab() === 'overview'"
+              [attr.tabindex]="descriptionTab() === 'overview' ? 0 : -1"
+              (keydown)="onDescriptionTabKeydown($event, 'overview')"
               (click)="descriptionTab.set('overview')">简介</button>
             <button type="button" class="game-description-tab" role="tab"
+              id="game-description-controls-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'controls'"
               [attr.aria-selected]="descriptionTab() === 'controls'"
+              [attr.tabindex]="descriptionTab() === 'controls' ? 0 : -1"
+              (keydown)="onDescriptionTabKeydown($event, 'controls')"
               (click)="descriptionTab.set('controls')">操作</button>
           </div>
-          <div class="game-description-content">
+          <div
+            id="game-description-panel"
+            class="game-description-content"
+            role="tabpanel"
+            [attr.aria-labelledby]="descriptionTab() === 'overview' ? 'game-description-overview-tab' : 'game-description-controls-tab'"
+          >
             @if (descriptionTab() === 'overview') {
               <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
               @if (game()?.tags?.length) {
@@ -98,12 +109,28 @@ export class GameCommunityPanelComponent {
   readonly game = input<Game | null>(null)
   readonly communityError = input('')
 
-  readonly share = output<void>()
+  readonly share = output()
 
   readonly coinLoading = signal(false)
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)
   readonly actionFeedback = signal('')
   readonly descriptionTab = signal<'overview' | 'controls'>('overview')
+
+  onDescriptionTabKeydown (event: KeyboardEvent, current: 'overview' | 'controls') {
+    const tabs = [ 'overview', 'controls' ] as const
+    const currentIndex = tabs.indexOf(current)
+    const nextIndex = event.key === 'ArrowRight'
+      ? (currentIndex + 1) % tabs.length
+      : event.key === 'ArrowLeft'
+        ? (currentIndex + tabs.length - 1) % tabs.length
+        : -1
+    if (nextIndex < 0) return
+
+    event.preventDefault()
+    const next = tabs[nextIndex]
+    this.descriptionTab.set(next)
+    document.getElementById(`game-description-${next}-tab`)?.focus()
+  }
 
   toggleRate () {
     if (!this.requireLogin()) return
