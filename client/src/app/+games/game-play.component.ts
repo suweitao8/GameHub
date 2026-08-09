@@ -118,7 +118,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.recommendService.recordView(game)
         this.updateMetaTags(game)
         this.gameStarted.set(false)
-        this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(game.runtimeUrl)))
+        const runtimeUrl = this.normalizeRuntimeUrl(game.runtimeUrl)
+        this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(runtimeUrl)))
         this.loading.set(false)
         this.commentsStore.init(uuid)
         this.gamesService.community(uuid).subscribe({
@@ -225,7 +226,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.frameError.set(false)
     this.gameStarted.set(false)
     this.loadingError.set(false)
-    this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(currentGame.runtimeUrl)))
+    const runtimeUrl = this.normalizeRuntimeUrl(currentGame.runtimeUrl)
+    this.runtimeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(this.withReloadKey(runtimeUrl)))
   }
 
   retryLoadGame () { this.loadGame(this.currentUuid) }
@@ -253,6 +255,16 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private withReloadKey (url: string) {
     return `${url}${url.includes('?') ? '&' : '?'}reload=${this.reloadKey}`
+  }
+
+  private normalizeRuntimeUrl (url: string) {
+    const runtimeUrl = new URL(url, window.location.origin)
+    const localHosts = [ 'localhost', '127.0.0.1', '::1' ]
+    const currentHost = window.location.hostname
+    if (localHosts.includes(runtimeUrl.hostname) && localHosts.includes(currentHost)) {
+      runtimeUrl.hostname = currentHost
+    }
+    return runtimeUrl.toString()
   }
 
   private setGameVolume (volume: number) {
