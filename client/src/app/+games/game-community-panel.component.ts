@@ -50,11 +50,15 @@ import { getGameActionErrorMessage } from './game-action-feedback'
               id="game-description-overview-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'overview'"
               [attr.aria-selected]="descriptionTab() === 'overview'"
+              [attr.tabindex]="descriptionTab() === 'overview' ? 0 : -1"
+              (keydown)="onDescriptionTabKeydown($event, 'overview')"
               (click)="descriptionTab.set('overview')">简介</button>
             <button type="button" class="game-description-tab" role="tab"
               id="game-description-controls-tab" aria-controls="game-description-panel"
               [class.active]="descriptionTab() === 'controls'"
               [attr.aria-selected]="descriptionTab() === 'controls'"
+              [attr.tabindex]="descriptionTab() === 'controls' ? 0 : -1"
+              (keydown)="onDescriptionTabKeydown($event, 'controls')"
               (click)="descriptionTab.set('controls')">操作</button>
           </div>
           <div
@@ -111,6 +115,22 @@ export class GameCommunityPanelComponent {
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)
   readonly actionFeedback = signal('')
   readonly descriptionTab = signal<'overview' | 'controls'>('overview')
+
+  onDescriptionTabKeydown (event: KeyboardEvent, current: 'overview' | 'controls') {
+    const tabs = [ 'overview', 'controls' ] as const
+    const currentIndex = tabs.indexOf(current)
+    const nextIndex = event.key === 'ArrowRight'
+      ? (currentIndex + 1) % tabs.length
+      : event.key === 'ArrowLeft'
+        ? (currentIndex + tabs.length - 1) % tabs.length
+        : -1
+    if (nextIndex < 0) return
+
+    event.preventDefault()
+    const next = tabs[nextIndex]
+    this.descriptionTab.set(next)
+    document.getElementById(`game-description-${next}-tab`)?.focus()
+  }
 
   toggleRate () {
     if (!this.requireLogin()) return
