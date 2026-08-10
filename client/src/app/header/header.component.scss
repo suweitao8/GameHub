@@ -653,7 +653,8 @@ my-game-navigation {
 }
 
 .game-submit-button:hover,
-.game-submit-button:focus-visible {
+.game-submit-button:focus-visible,
+.game-submit-button.game-submit-button-active {
   background: var(--game-accent-deep, #e95b86);
   box-shadow: 0 2px 8px rgb(251 114 153 / 28%);
   color: #fff !important;

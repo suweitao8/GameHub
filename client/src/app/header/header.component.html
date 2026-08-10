@@ -217,7 +217,15 @@
     <my-button title="Open menu" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
 
     @if (isGameExperience()) {
-      <a class="game-submit-button" routerLink="/games/upload">投稿</a>
+      <a
+        class="game-submit-button"
+        href="/games/upload"
+        routerLink="/games/upload"
+        routerLinkActive="game-submit-button-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        title="投稿游戏"
+        aria-label="投稿游戏"
+      >投稿</a>
     }
   </div>
 </div>

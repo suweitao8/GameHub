@@ -133,11 +133,17 @@ assert(
 
 // 3) High-priority feature presence (source + routes)
 const routes = read('client/src/app/+games/routes.ts')
+const gameLoginGuardTs = read('client/src/app/+games/game-login.guard.ts')
 assert(routes.includes("path: 'watch-later'"), 'routes must register watch-later')
 assert(routes.includes('GameWatchLaterComponent'), 'routes must use GameWatchLaterComponent')
 assert(routes.includes("path: 'rankings'"), 'routes must register rankings')
 assert(routes.includes('GameAuthorComponent'), 'routes must register author space')
 assert(routes.includes('GamePlayComponent'), 'routes must register game play')
+assert(
+  routes.includes("path: 'upload'") && routes.includes('GameUploadComponent') &&
+    gameLoginGuardTs.includes("queryParams: { returnUrl: state.url }"),
+  'game upload must stay registered behind a login guard that preserves the requested return URL'
+)
 
 const watchLater = read('client/src/app/+games/watch-later.service.ts')
 assert(watchLater.includes('class WatchLaterService') || watchLater.includes('export class WatchLaterService'), 'WatchLaterService must exist')
@@ -501,6 +507,15 @@ assert(
 assert(
   /\.game-submit-button\s*\{[\s\S]*?font-weight: 400;[\s\S]*?\}/.test(headerScss),
   'GameHub submit navigation text must use regular weight instead of bold styling'
+)
+assert(
+  headerHtml.includes('class="game-submit-button"') &&
+    headerHtml.includes('href="/games/upload"') &&
+    headerHtml.includes('routerLink="/games/upload"') &&
+    headerHtml.includes('routerLinkActive="game-submit-button-active"') &&
+    headerHtml.includes('title="投稿游戏"') &&
+    headerHtml.includes('aria-label="投稿游戏"'),
+  'GameHub submit navigation must keep a native upload fallback, SPA routing, active state, and an accessible label'
 )
 assert(
   !gameFollowingTs.includes('following-handle') && !gameFollowingTs.includes('&#64;{{ author.handle }}'),
