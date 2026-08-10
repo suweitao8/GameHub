@@ -49,6 +49,7 @@
   --game-header-nav-foreground: #646464;
 
   background-color: #fff;
+  background-image: none;
   box-sizing: border-box;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 2px 10px rgb(25 30 40 / 8%);
@@ -73,12 +74,10 @@
   --co-root-padding: 0 1rem;
   --game-header-nav-foreground: #646464;
 
-  background-image: none;
   background-color: #fff;
   border-bottom: 1px solid #eceef0;
   box-shadow: 0 4px 14px rgb(25 30 40 / 10%);
   color: #1e1e1e;
-  height: var(--header-height);
 }
 
 :host-context(.game-experience) .root::before {

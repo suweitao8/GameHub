@@ -57,15 +57,15 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       align-items: center;
       background: #f6f7f8;
       border: 1px solid #e3e5e7;
-      border-radius: 8px;
+      border-radius: 6px;
       color: #646464;
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      gap: 0.55rem;
+      gap: 0.35rem;
       justify-content: center;
-      min-height: 7.25rem;
-      padding: 0.7rem 0.2rem;
+      min-height: 5rem;
+      padding: 0.45rem 0.2rem;
       position: absolute;
       right: 0;
       top: 0;
@@ -101,9 +101,9 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       display: inline-flex;
       flex: 0 0 auto;
       justify-content: center;
-      height: 1.05rem;
+      height: 0.65rem;
       order: -1;
-      width: 1.05rem;
+      width: 0.65rem;
     }
 
     .section-side-action-icon ::ng-deep svg {
@@ -112,10 +112,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     .section-side-action-label {
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.12em;
-      line-height: 1.35;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
       text-orientation: mixed;
       writing-mode: vertical-rl;
     }
@@ -147,6 +147,8 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     @media (max-width: 720px) {
+      .section-with-side-action { padding-right: 3.1rem; }
+      .section-side-action { min-width: 2.75rem; width: 2.75rem; }
       .game-grid { gap: 0.4rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 

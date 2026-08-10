@@ -69,7 +69,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly relatedCoverBroken = signal<Record<string, boolean>>({})
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
-  readonly gameStarted = signal(false)
   readonly frameError = signal(false)
   readonly showBackToTop = signal(false)
   readonly shareOpen = signal(false)
@@ -127,7 +126,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         this.game.set(game)
         this.recommendService.recordView(game)
         this.updateMetaTags(game)
-        this.gameStarted.set(false)
         this.setRuntimeUrl(game.runtimeUrl)
         this.loading.set(false)
         this.commentsStore.init(uuid)
@@ -166,16 +164,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     })
   }
 
-  startGame () {
-    if (this.frameError()) return
-    this.gameStarted.set(true)
-    if (this.playRecordedFor !== this.currentUuid) {
-      this.playRecordedFor = this.currentUuid
-      this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => { this.playRecordedFor = '' } })
-    }
-    this.focusGame()
-  }
-
   toggleGameSound () { this.setGameVolume(this.gameVolume() > 0 ? 0 : 1) }
 
   onGameVolumeChange (event: Event) { this.setGameVolume(Number((event.target as HTMLInputElement).value)) }
@@ -195,8 +183,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     setTimeout(() => this.watchLaterFeedback.set(''), 2000)
   }
 
-  focusGame () { this.iframe()?.nativeElement.focus() }
-
   formatBigNumber (value: number | undefined) {
     if (!value || value < 1) return '0'
     if (value >= 10000) return (value / 10000).toFixed(1) + '万'
@@ -215,10 +201,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement
     if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
     if (!this.game() || this.loading()) return
-    if (event.code === 'Space') {
-      event.preventDefault()
-      this.gameStarted() ? this.reloadGame() : this.startGame()
-    } else if (event.key === 'f' || event.key === 'F') {
+    if (event.key === 'f' || event.key === 'F') {
       event.preventDefault()
       this.enterFullscreen()
     } else if (event.key === 'r' || event.key === 'R') {
@@ -233,7 +216,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.reloadKey++
     this.frameLoading.set(true)
     this.frameError.set(false)
-    this.gameStarted.set(false)
     this.loadingError.set(false)
     this.setRuntimeUrl(currentGame.runtimeUrl)
   }
@@ -243,6 +225,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   onFrameLoaded () {
     if (this.frameError()) return
     this.frameLoading.set(false)
+    if (this.playRecordedFor !== this.currentUuid) {
+      this.playRecordedFor = this.currentUuid
+      this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => { this.playRecordedFor = '' } })
+    }
     this.syncGameVolume()
   }
 
@@ -251,7 +237,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.runtimeProbeGeneration += 1
     this.frameLoading.set(false)
     this.frameError.set(true)
-    this.gameStarted.set(false)
   }
 
   async enterFullscreen () {

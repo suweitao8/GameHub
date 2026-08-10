@@ -317,7 +317,8 @@ export class GamesService {
   // ---------------------------------------------------------------------------
 
   author (accountId: string, sort: 'latest' | 'plays' | 'favorites' = 'latest'): Observable<GameAuthor> {
-    return this.http.get<GameAuthor>(`${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`).pipe(
+    const url = `${GamesService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}&authorStatsVersion=2`
+    return this.http.get<GameAuthor>(url).pipe(
       map(result => ({ ...result, data: result.data.map(game => normalizeGame(game)) }))
     )
   }

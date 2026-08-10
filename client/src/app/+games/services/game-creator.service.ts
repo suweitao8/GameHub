@@ -19,7 +19,7 @@ export class GameCreatorService {
 
   author (accountId: string, sort: 'latest' | 'plays' | 'favorites' = 'latest'): Observable<GameAuthor> {
     return this.http.get<GameAuthor>(
-      `${GameCreatorService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}`
+      `${GameCreatorService.BASE_URL}/author/${encodeURIComponent(accountId)}?sort=${sort}&authorStatsVersion=2`
     ).pipe(
       map(result => ({ ...result, data: result.data.map(game => normalizeGame(game)) }))
     )

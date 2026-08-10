@@ -38,12 +38,10 @@
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {
     <div class="game-community-content game-empty-layout">
       <nav class="home-discovery-nav" aria-label="游戏内容导航">
-        <div class="home-feed-tabs">
+        <div class="home-discovery-links">
           <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
           <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-        </div>
-        <div class="home-category-links" aria-label="游戏分类">
-          @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
+          @for (item of categories; track item.id) { <a class="home-category-tab" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
         </div>
       </nav>
       <div class="category-empty" aria-label="暂无游戏">
@@ -64,12 +62,10 @@
   } @else {
     <div class="game-community-content">
       <nav class="home-discovery-nav" aria-label="游戏内容导航">
-        <div class="home-feed-tabs">
+        <div class="home-discovery-links">
           <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
           <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-        </div>
-        <div class="home-category-links" aria-label="游戏分类">
-          @for (item of categories; track item.id) { <a routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
+          @for (item of categories; track item.id) { <a class="home-category-tab" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
         </div>
       </nav>
 

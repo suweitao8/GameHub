@@ -10,6 +10,7 @@ export interface GameAuthor {
     displayName: string
     description: string
     handle: string
+    followingCount: number
     followers: number
   }
   stats: {
