@@ -121,8 +121,6 @@
 
   .game-play-page .game-title-developer { grid-column: 1; }
 
-  .game-play-page .game-stage { height: clamp(320px, 62vw, 560px); }
-
   .game-play-page .play-side,
   .game-play-page .play-side my-game-discuss {
     flex: 0 0 auto;
@@ -156,8 +154,6 @@
     height: 40px;
     width: 40px;
   }
-
-  .game-play-page .game-stage { height: 320px; }
 
   .game-play-page .game-player-controls {
     padding: 0 8px;

@@ -55,6 +55,7 @@ async function getAuthor (req: express.Request, res: express.Response) {
       displayName: account.getDisplayName(),
       description: account.description || '',
       handle: account.Actor.getIdentifier(),
+      followingCount: account.Actor.followingCount || 0,
       followers: account.Actor.followersCount || 0
     },
     stats: {

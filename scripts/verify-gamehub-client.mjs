@@ -135,9 +135,35 @@ assert(
 )
 
 const playHtml = read('client/src/app/+games/game-play.component.html')
+const playTsForControls = read('client/src/app/+games/game-play.component.ts')
+const playRuntimeFrameScss = read('client/src/app/+games/game-play/_runtime-frame.scss')
+const playResponsiveScss = read('client/src/app/+games/game-play/_responsive.scss')
 assert(playHtml.includes('game-stage') && playHtml.includes('<iframe'), 'game-play must render the HTML game stage')
 assert(playHtml.includes('developer-profile'), 'game-play developer card must group identity text and follow action for vertical centering')
 assert(playHtml.includes('onRelatedCoverError'), 'game-play related covers must fall back when an image request fails')
+const playerControlsLeft = playHtml.match(/<div class="game-player-controls-left">([\s\S]*?)<\/div>/)?.[1] || ''
+assert(
+  playerControlsLeft.includes('aria-label="重新加载"') &&
+    !playerControlsLeft.includes('aria-label="开始游戏"') &&
+    !playerControlsLeft.includes('准备就绪') &&
+    !playerControlsLeft.includes('正在游玩') &&
+    playHtml.includes('<div class="game-player-controls-right">') &&
+    playHtml.includes('调整游戏音量') &&
+    playHtml.includes('aria-label="全屏试玩"') &&
+    !playHtml.includes('start-game-overlay') &&
+    !playTsForControls.includes('gameStarted') &&
+    !playTsForControls.includes('startGame') &&
+    !playRuntimeFrameScss.includes('start-game-overlay'),
+  'game-play controls must omit the start overlay, keep reload on the left, and keep volume/fullscreen on the right'
+)
+assert(
+  playRuntimeFrameScss.includes('aspect-ratio: 16 / 9;') &&
+    playRuntimeFrameScss.includes('height: auto;') &&
+    !playRuntimeFrameScss.includes('height: var(--game-stage-height);') &&
+    !playResponsiveScss.includes('.game-play-page .game-stage { height: clamp') &&
+    !playResponsiveScss.includes('.game-play-page .game-stage { height: 320px;'),
+  'game-play stage height must be derived from its width with a 16:9 aspect ratio'
+)
 const reservationsTs = read('client/src/app/+games/game-reservations.component.ts')
 assert(
   reservationsTs.includes('iconName="message-circle"') && reservationsTs.includes('{{ item.game.comments || 0 }} 评论') &&
@@ -158,13 +184,72 @@ assert(
 )
 
 const authorHtml = read('client/src/app/+games/game-author.component.html')
-assert(authorHtml.includes('author-pinned') || authorHtml.includes('pinned-badge'), 'author page must show pinned works')
+const authorScss = read('client/src/app/+games/game-author.component.scss')
+const authorModel = read('packages/models/src/games/game-author.model.ts')
+const authorController = read('server/core/controllers/api/games/personal-author.ts')
+const authorGamesServiceTs = read('client/src/app/+games/games.service.ts')
+const authorCreatorServiceTs = read('client/src/app/+games/services/game-creator.service.ts')
+assert(
+  authorHtml.includes('class="author-hero"') &&
+    authorHtml.includes('class="author-hero-banner"') &&
+    authorHtml.includes('class="author-navigation-row"') &&
+    authorHtml.includes('class="author-home-tab"') &&
+    authorHtml.includes('class="author-stats-bar"') &&
+    authorHtml.includes('关注数') &&
+    authorHtml.includes('粉丝数') &&
+    authorHtml.includes('获赞数') &&
+    authorHtml.includes('游玩数') &&
+    authorHtml.includes('author()!.account.followingCount') &&
+    authorHtml.includes('author()!.account.followers') &&
+    authorHtml.includes('author()!.stats.likes') &&
+    authorHtml.includes('author()!.stats.plays') &&
+    authorHtml.includes('class="author-main"') &&
+    authorHtml.includes('@for (game of author()!.data') &&
+    /<div class="author-filter-row"[^>]*>\s*<span class="author-game-count">\{\{ author\(\)!\.stats\.games \}\} 个作品<\/span>[\s\S]*最新发布[\s\S]*最多游玩[\s\S]*最多收藏[\s\S]*<\/div>/.test(authorHtml) &&
+    !authorHtml.includes('这里展示 {{ author()!.account.displayName }} 开发的全部网页小游戏。') &&
+    !authorHtml.includes('作者主页') &&
+    !authorHtml.includes('全部游戏') &&
+    !authorHtml.includes('class="author-section-heading"') &&
+    !authorHtml.includes('class="author-tabs"') &&
+    !authorHtml.includes('selectTab(') &&
+    !authorHtml.includes('author-activity-panel') &&
+    !authorHtml.includes('author-collections') &&
+    !authorHtml.includes('class="author-sidebar"') &&
+    !authorHtml.includes('class="author-pinned"'),
+  'author page must expose a single homepage with real statistics, sorting, and the complete game grid without removed panels'
+)
+assert(
+  authorScss.includes('.author-hero') &&
+    authorScss.includes('.author-hero-banner') &&
+    authorScss.includes('.author-navigation-row') &&
+    authorScss.includes('.author-home-tab') &&
+    authorScss.includes('.author-game-count') &&
+    /\.author-filter-row\s*\{[\s\S]*?overflow-x: auto;/.test(authorScss) &&
+    !authorScss.includes('.author-section-heading') &&
+    !authorScss.includes('.author-section-kicker') &&
+    authorScss.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
+    authorScss.includes('@media (max-width: 640px)') &&
+    !authorScss.includes('grid-template-columns: minmax(0, 1fr) 240px;') &&
+    !authorScss.includes('.author-sidebar') &&
+    !authorScss.includes('.author-pinned'),
+  'author page must define the responsive hero and full-width five-column game grid'
+)
+assert(
+  authorModel.includes('followingCount: number') &&
+    authorController.includes('followingCount: account.Actor.followingCount || 0'),
+  'author API must expose the real following count for the creator statistics row'
+)
+assert(
+  authorGamesServiceTs.includes('authorStatsVersion=2') && authorCreatorServiceTs.includes('authorStatsVersion=2'),
+  'author data requests must version the response shape so browsers do not reuse the pre-statistics cache entry'
+)
 assert(!authorHtml.includes('account.handle'), 'author page must not render an account handle in the visible profile')
 assert(
-  authorHtml.includes('{{ formatNumber(author()!.data[0].comments || 0) }} 评论') &&
-    !authorHtml.includes('{{ formatNumber(author()!.data[0].likes || 0) }} 点赞') &&
-    !authorHtml.includes('{{ formatNumber(author()!.data[0].favorites || 0) }} 收藏'),
-  'author pinned game stats must use play and comment counts instead of the legacy like/favorite stats'
+  !authorHtml.includes('author-tab-panel') &&
+    !authorHtml.includes('author-collection') &&
+    !authorHtml.includes('pinned-card') &&
+    !authorHtml.includes('author-side-card'),
+  'author home must not keep activity, collection, pinned, or sidebar-only markup'
 )
 
 assert(homeTs.includes('GameRecommendService') && homeTs.includes('recommendService'), 'games-home must wire GameRecommendService personalization')
@@ -268,7 +353,6 @@ assert(
 const gameCardHtml = read('client/src/app/+games/game-card.component.html')
 const gameCardScss = read('client/src/app/+games/game-card.component.scss')
 const gameCardTs = read('client/src/app/+games/game-card.component.ts')
-const gameAuthorTs = read('client/src/app/+games/game-author.component.ts')
 const gameRankingsTs = read('client/src/app/+games/game-rankings.component.ts')
 const notificationHtml = read('client/src/app/+games/game-notifications.component.html')
 assert(
@@ -312,6 +396,7 @@ const headerScss = read('client/src/app/header/header.component.scss')
 const gameNavigationScss = read('client/src/app/header/game-navigation.component.scss')
 const appScss = read('client/src/app/app.component.scss')
 const gamesHomeScss = read('client/src/app/+games/games-home.component.scss')
+const gamesHomeDiscoveryNavScss = read('client/src/app/+games/games-home/_discovery-nav.scss')
 const gameFollowingTs = read('client/src/app/+games/game-following.component.ts')
 assert(
   (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
@@ -319,11 +404,15 @@ assert(
   'home category links must bind length-aware spacing classes in both populated and empty states'
 )
 assert(
-  !gamesHomeScss.includes('.home-category-links a:nth-child(6)') &&
-    gamesHomeScss.includes('display: inline-flex;') &&
-    gamesHomeScss.includes('width: 4.8rem;') &&
-    gamesHomeScss.includes('min-width: 4.8rem;'),
-  'home category links must use an order-independent fixed four-character button width'
+  (homeHtml.match(/class="home-discovery-links"/g) || []).length === 2 &&
+    gamesHomeDiscoveryNavScss.includes('.home-discovery-links') &&
+    gamesHomeDiscoveryNavScss.includes('grid-auto-columns: minmax(clamp(3.8rem, 5vw, 4.2rem), 1fr);') &&
+    gamesHomeDiscoveryNavScss.includes('grid-auto-flow: column;') &&
+    gamesHomeDiscoveryNavScss.includes('overflow-x: auto;') &&
+    !gamesHomeDiscoveryNavScss.includes('width: 4.8rem;') &&
+    !gamesHomeDiscoveryNavScss.includes('.home-feed-tabs') &&
+    !gamesHomeDiscoveryNavScss.includes('.home-category-links'),
+  'games discovery navigation must distribute all feed and category links across available width with a responsive horizontal overflow fallback'
 )
 assert(
   gamesHomeScss.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
@@ -334,6 +423,21 @@ assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
     !gameSectionTs.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
   'shared home sections must keep five columns across supported desktop widths'
+)
+assert(
+  gameSectionTs.includes('min-height: 5rem;') &&
+    gameSectionTs.includes('width: 2.25rem;') &&
+    gameSectionTs.includes('height: 0.65rem;') &&
+    gameSectionTs.includes('font-size: 0.68rem;') &&
+    gameSectionTs.includes('letter-spacing: 0.04em;') &&
+    !gameSectionTs.includes('min-height: 7.25rem;') &&
+    featuredScss.includes('min-height: 5rem;') &&
+    featuredScss.includes('width: 2.25rem;') &&
+    featuredScss.includes('height: 0.65rem;') &&
+    featuredScss.includes('font-size: 0.68rem;') &&
+    featuredScss.includes('letter-spacing: 0.04em;') &&
+    !featuredScss.includes('min-height: 7.25rem;'),
+  'shuffle actions must use the compact vertical button sizing in shared and featured home sections'
 )
 assert(
   !homeHtml.includes('[shuffleLabel]="recent().length > 1 ? \'换一批\' : undefined"') &&
@@ -351,9 +455,8 @@ assert(
 assert(
   homeConstantsTs.includes("id: 'racing', title: '竞速'") &&
     gameRankingsTs.includes("id: 'racing', label: '竞速'") &&
-    gameCardTs.includes("racing: '竞速'") &&
-    gameAuthorTs.includes("racing: '竞速'"),
-  'racing category must be available and labeled consistently across discovery, rankings, cards, and author pages'
+    gameCardTs.includes("racing: '竞速'"),
+  'racing category must be available and labeled consistently across discovery, rankings, and cards'
 )
 const clearHistoryStart = gameNavigationTs.indexOf('clearHistory ()')
 const clearHistoryEnd = gameNavigationTs.indexOf('\n  submitSearch', clearHistoryStart)
@@ -934,14 +1037,14 @@ assert(
   'GameHub navigation must keep a transparent selected and hover state while only animating the icon'
 )
 assert(
-  headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
-    headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
-    headerScss.includes('background-position: center top;') &&
+  headerScss.includes('background-color: #fff;') &&
+    headerScss.includes('background-image: none;') &&
     headerScss.includes('height: var(--header-height);') &&
-    appScss.includes('--header-height: 200px;') &&
-    appScss.includes('--header-height: 50px;') &&
-    gamesHomeScss.includes('top: var(--header-height);'),
-  'GameHub desktop header must show the fixed-ratio 200px banner, collapse to 50px after scrolling, and keep the discovery nav below it'
+    appScss.includes('--header-height: 56px;') &&
+    !appScss.includes('--header-height: 200px;') &&
+    !appScss.includes('--header-height: 50px;') &&
+    gamesHomeDiscoveryNavScss.includes('top: var(--header-height);'),
+  'GameHub desktop header must keep a white background, no banner image, a fixed 56px height, and the discovery nav below it'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&

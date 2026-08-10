@@ -2,11 +2,11 @@
   @if (loading()) {
     <div class="game-community-content author-state">
       <div class="author-skeleton-cover shimmer"></div>
-      <div class="author-skeleton-tabs">
-        <div class="author-skeleton-tab shimmer"></div>
-        <div class="author-skeleton-tab shimmer"></div>
-        <div class="author-skeleton-tab shimmer"></div>
-        <div class="author-skeleton-tab shimmer"></div>
+      <div class="author-skeleton-stats">
+        <div class="author-skeleton-stat shimmer"></div>
+        <div class="author-skeleton-stat shimmer"></div>
+        <div class="author-skeleton-stat shimmer"></div>
+        <div class="author-skeleton-stat shimmer"></div>
       </div>
       <div class="game-grid">@for (i of [1,2,3,4,5,6]; track $index) { <my-game-skeleton /> }</div>
     </div>
@@ -17,107 +17,58 @@
       <button type="button" (click)="retryLoad()">重新加载</button>
     </div>
   } @else {
-    <section class="author-cover">
-      <div class="author-cover-glow" aria-hidden="true"></div>
-      <div class="game-community-content author-cover-inner">
+    <section class="author-hero">
+      <div class="author-hero-banner" aria-hidden="true"></div>
+      <div class="game-community-content author-hero-inner">
         <div class="author-identity">
           <img class="author-large-avatar" [src]="getAvatarUrl()" [alt]="author()!.account.displayName + '头像'">
           <div class="author-profile">
+            <span class="author-profile-kicker">GameHub 创作者</span>
             <h1>{{ author()!.account.displayName }}</h1>
             <p>{{ author()!.account.description || '正在制作有趣的网页小游戏。' }}</p>
+            <div class="author-profile-meta">
+              <span>{{ formatNumber(author()!.stats.games) }} 个作品</span>
+              <span>{{ formatNumber(author()!.account.followers) }} 位关注者</span>
+            </div>
           </div>
         </div>
         @if (!isOwnAuthor()) { <div class="follow-action"> <button type="button" class="follow-button" [class.following]="author()!.following" [disabled]="followLoading()" (click)="toggleFollow()">{{ followLoading() ? '处理中…' : author()!.following ? '已关注' : '+ 关注' }}</button> @if (actionFeedback()) { <p class="author-feedback" role="alert">{{ actionFeedback() }}</p> } </div> }
       </div>
     </section>
     <div class="game-community-content author-content">
-      <!-- Stats Bar -->
-      <div class="author-stats-bar">
-        <div class="author-stat">
-          <span class="author-stat-value">{{ formatNumber(author()!.stats.games) }}</span>
-          <span class="author-stat-label">作品</span>
-        </div>
-        <div class="author-stat">
-          <span class="author-stat-value">{{ formatNumber(author()!.stats.plays) }}</span>
-          <span class="author-stat-label">总游玩</span>
-        </div>
-        <div class="author-stat">
-          <span class="author-stat-value">{{ formatNumber(author()!.stats.likes) }}</span>
-          <span class="author-stat-label">获赞</span>
-        </div>
-        <div class="author-stat">
-          <span class="author-stat-value">{{ formatNumber(author()!.stats.favorites) }}</span>
-          <span class="author-stat-label">被收藏</span>
-        </div>
-        <div class="author-stat">
-          <span class="author-stat-value">{{ formatNumber(author()!.account.followers) }}</span>
-          <span class="author-stat-label">粉丝</span>
+      <div class="author-navigation-row">
+        <div class="author-home-tab" aria-current="page">主页</div>
+        <div class="author-stats-bar" aria-label="作者数据">
+          <div class="author-stat">
+            <span class="author-stat-value">{{ formatNumber(author()!.account.followingCount || 0) }}</span>
+            <span class="author-stat-label">关注数</span>
+          </div>
+          <div class="author-stat">
+            <span class="author-stat-value">{{ formatNumber(author()!.account.followers) }}</span>
+            <span class="author-stat-label">粉丝数</span>
+          </div>
+          <div class="author-stat">
+            <span class="author-stat-value">{{ formatNumber(author()!.stats.likes) }}</span>
+            <span class="author-stat-label">获赞数</span>
+          </div>
+          <div class="author-stat">
+            <span class="author-stat-value">{{ formatNumber(author()!.stats.plays) }}</span>
+            <span class="author-stat-label">游玩数</span>
+          </div>
         </div>
       </div>
-
-      <nav class="author-tabs" aria-label="作者空间导航">
-        <button type="button" [class.active]="tab() === 'home'" (click)="selectTab('home')">主页</button>
-        <button type="button" [class.active]="tab() === 'activity'" (click)="selectTab('activity')">动态</button>
-        <button type="button" [class.active]="tab() === 'games'" (click)="selectTab('games')">投稿 <span>{{ author()!.stats.games }}</span></button>
-        <button type="button" [class.active]="tab() === 'collections'" (click)="selectTab('collections')">合集</button>
-      </nav>
-      @if (tab() === 'activity') {
-        <section class="author-tab-panel author-activity-panel">
-          <div class="author-section-heading"><div><h2>作品动态</h2><p>记录 {{ author()!.account.displayName }} 最近发布和维护的游戏。</p></div></div>
-          <div class="author-activity-list">
-            @for (game of author()!.data; track game.uuid) {
-              <a class="author-activity-item" [routerLink]="['/games', game.uuid]"><span class="author-activity-date">{{ (game.publishedAt || game.createdAt) | date:'yyyy-MM-dd' }}</span><strong>发布了《{{ game.title }}》</strong><span>{{ game.description || '查看这个网页小游戏。' }}</span></a>
-            } @empty { <p class="author-empty">暂时还没有作品动态。</p> }
-          </div>
-        </section>
-      } @else if (tab() === 'collections') {
-        <section class="author-tab-panel">
-          <div class="author-section-heading"><div><h2>作品合集</h2><p>按游戏类型整理 {{ author()!.account.displayName }} 的作品。</p></div></div>
-          <div class="author-collections">
-            @for (collection of collections(); track collection.category) {
-              <section class="author-collection"><header><h3>{{ categoryLabel(collection.category) }}</h3><span>{{ collection.games.length }} 个作品</span></header><div class="game-grid">@for (game of collection.games; track game.uuid) { <my-game-card [game]="game" /> }</div></section>
-            } @empty { <p class="author-empty">作者还没有可展示的合集。</p> }
-          </div>
-        </section>
-      } @else {
-      <div class="author-layout">
-        <section class="author-main" id="home">
-          <div class="author-section-heading"><div><h2>{{ tab() === 'games' ? '发布的游戏' : '作者主页' }}</h2><p>{{ tab() === 'games' ? '探索作者发布的 HTML 小游戏作品' : '从作者主页开始，发现值得试玩的作品。' }}</p></div><span>{{ author()!.stats.games }} 个作品</span></div>
-          <div class="author-filter-row" role="group" aria-label="作品排序">
-            <button type="button" [class.active]="sort() === 'latest'" (click)="selectSort('latest')">最新发布</button>
-            <button type="button" [class.active]="sort() === 'plays'" (click)="selectSort('plays')">最多游玩</button>
-            <button type="button" [class.active]="sort() === 'favorites'" (click)="selectSort('favorites')">最多收藏</button>
-          </div>
-          @if (author()!.data.length) {
-            <div class="author-pinned">
-              <span class="pinned-badge">置顶</span>
-              <a class="pinned-card" [routerLink]="['/games', author()!.data[0].uuid]">
-                <div class="pinned-cover">
-                  @if (author()!.data[0].coverPath) {
-                    <img [src]="author()!.data[0].coverPath" [alt]="author()!.data[0].title" loading="lazy">
-                  } @else {
-                    <span class="pinned-placeholder">{{ author()!.data[0].title.charAt(0) }}</span>
-                  }
-                </div>
-                <div class="pinned-info">
-                  <h3>{{ author()!.data[0].title }}</h3>
-                  <p>{{ author()!.data[0].description || '暂无简介' }}</p>
-                  <div class="pinned-stats">
-                    <span>{{ formatNumber(author()!.data[0].playCount || 0) }} 游玩</span>
-                    <span>{{ formatNumber(author()!.data[0].comments || 0) }} 评论</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-          }
-          <div class="game-grid">@for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }</div>
-        </section>
-        <aside class="author-sidebar">
-          <section class="author-side-card"><h2>个人资料</h2><dl><div><dt>昵称</dt><dd>{{ author()!.account.displayName }}</dd></div><div><dt>粉丝</dt><dd>{{ author()!.account.followers }}</dd></div></dl></section>
-          <section class="author-side-card"><h2>创作数据</h2><dl><div><dt>总游玩</dt><dd>{{ author()!.stats.plays }}</dd></div><div><dt>获赞</dt><dd>{{ author()!.stats.likes }}</dd></div><div><dt>投币</dt><dd>{{ author()!.stats.coins }}</dd></div></dl></section>
-        </aside>
-      </div>
-      }
+      <section class="author-main" id="home">
+        <div class="author-filter-row" role="group" aria-label="作品排序">
+          <span class="author-game-count">{{ author()!.stats.games }} 个作品</span>
+          <button type="button" [class.active]="sort() === 'latest'" (click)="selectSort('latest')">最新发布</button>
+          <button type="button" [class.active]="sort() === 'plays'" (click)="selectSort('plays')">最多游玩</button>
+          <button type="button" [class.active]="sort() === 'favorites'" (click)="selectSort('favorites')">最多收藏</button>
+        </div>
+        <div class="game-grid">
+          @for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }
+          @empty { <p class="author-empty">作者还没有发布游戏。</p> }
+        </div>
+      </section>
     </div>
   }
 </main>

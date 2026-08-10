@@ -1,4 +1,4 @@
-// Game runtime iframe stage, loading bar, start overlay, and player controls.
+// Game runtime iframe stage, loading bar, and player controls.
 
 .game-stage { background: #6e4d3b;
   border-radius: var(--game-radius);
@@ -46,24 +46,6 @@
   50% { left: 60%; }
   100% { left: 100%; }
 }
-.game-community-page button.start-game-overlay { background: var(--game-brand);
-  border: 0;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 800;
-  left: 50%;
-  padding: 0.85rem 1.35rem;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2; }
-.start-game-overlay:hover { filter: brightness(1.06); }
-.start-game-overlay { align-items: center;
-  display: inline-flex;
-  gap: 0.35rem; }
-.start-game-overlay my-global-icon { height: 1rem;
-  width: 1rem; }
 .game-player-controls { align-items: center;
   background: rgb(0 0 0 / 68%);
   bottom: 0;
@@ -127,8 +109,8 @@
 
 /* GameHub detail-page layout contract overrides for stage + controls */
 .game-play-page .game-stage {
-  aspect-ratio: auto;
-  height: var(--game-stage-height);
+  aspect-ratio: 16 / 9;
+  height: auto;
   min-height: 0;
 }
 
