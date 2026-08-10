@@ -702,6 +702,15 @@ assert(gamePlayHtml.includes('[disabled]="community()!.isOwner"'), 'developer ca
 assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
 assert(gamePlayScss.includes('.play-side my-game-discuss'), 'discussion sidebar must define its own stage-height region')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
+assert(
+  gamePlayScss.includes('grid-template-columns: minmax(0, 1fr) 48px;') &&
+    /\.game-play-page \.developer-identity img \{[\s\S]*?grid-column: 2;/.test(gamePlayScss) &&
+    /\.game-play-page \.developer-profile \{[\s\S]*?grid-column: 1;[\s\S]*?text-align: right;/.test(gamePlayScss) &&
+    gamePlayScss.includes('box-shadow: var(--game-detail-avatar-shadow);') &&
+    gamePlayScss.includes('--game-detail-avatar-shadow:') &&
+    gamePlayScss.includes('grid-template-columns: minmax(0, 1fr) 40px;'),
+  'developer avatar must align to the right edge with a right-side shadowed slot on desktop and mobile'
+)
 assert(gamePlayScss.includes('--game-detail-gap: 16px'), 'game play must define the shared detail-page spacing rhythm')
 assert(gamePlayScss.includes('--game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr)'), 'game play must keep a shared 4:1 stage/sidebar layout')
 assert(gamePlayScss.includes('aspect-ratio: 16 / 9'), 'game stage must use a stable 16:9 layout ratio')

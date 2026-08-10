@@ -156,7 +156,7 @@
   }
 
   .game-play-page .developer-identity {
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 40px;
   }
 
   .game-play-page .developer-identity img {

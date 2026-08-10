@@ -94,16 +94,19 @@
   align-items: center;
   display: grid;
   gap: 10px;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 48px;
   min-width: 0;
   width: 100%;
 }
 
 .game-play-page .developer-identity img {
   align-self: center;
-  grid-column: 1;
+  border-radius: 50%;
+  box-shadow: var(--game-detail-avatar-shadow);
+  grid-column: 2;
   grid-row: auto;
   height: 48px;
+  justify-self: end;
   width: 48px;
 }
 
@@ -111,10 +114,12 @@
   align-content: center;
   display: grid;
   gap: 2px;
-  grid-column: 2;
+  grid-column: 1;
   grid-row: auto;
+  justify-items: end;
   min-width: 0;
   padding-top: 0;
+  text-align: right;
 }
 
 .game-play-page .developer-identity a {
@@ -136,7 +141,7 @@
   grid-column: auto;
   grid-row: auto;
   padding: 3px 10px;
-  justify-self: start;
+  justify-self: end;
   width: max-content;
   min-width: 80px;
 }
