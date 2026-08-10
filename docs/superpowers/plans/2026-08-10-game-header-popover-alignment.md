@@ -83,6 +83,7 @@ Expected: FAIL at the new header popover alignment assertion because the current
   left: 50%;
   padding: 0.45rem 0;
   right: auto;
+  width: 18rem;
 }
 
 .game-header-history-popover {
@@ -130,7 +131,7 @@ Expected: server build, light client build, lint/schema/contracts all pass. Exis
 
 - [ ] **Step 3: 检查投稿按钮与窄屏布局**
 
-在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.scrollWidth` 不超过 `window.innerWidth`，且历史/创作中心弹窗没有被新的定位规则截断。
+在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.scrollWidth` 不超过 `window.innerWidth`，且历史/创作中心弹窗没有被新的定位规则截断。创作中心弹窗使用 `18rem` 宽度以保留图标中心锚点并给右侧视口留出边距，两个提示词按钮文案必须完整显示。
 
 - [ ] **Step 4: 运行完整交付门禁**
 
