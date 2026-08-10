@@ -101,9 +101,9 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       display: inline-flex;
       flex: 0 0 auto;
       justify-content: center;
-      height: 0.65rem;
+      height: 0.95rem;
       order: -1;
-      width: 0.65rem;
+      width: 0.95rem;
     }
 
     .section-side-action-icon ::ng-deep svg {
