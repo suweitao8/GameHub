@@ -288,12 +288,12 @@
 @keyframes game-popover-fade-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-0.35rem);
+    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(-0.35rem);
   }
 
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(0);
   }
 }
 
@@ -305,6 +305,9 @@
 }
 
 .game-header-popover {
+  --game-popover-edge-shift: 0%;
+  --game-popover-x: -50%;
+
   background: #fff;
   border: 1px solid #e3e5e7;
   border-radius: 8px;
@@ -316,7 +319,7 @@
   padding: 0.45rem 0;
   position: absolute;
   top: calc(100% + 0.5rem);
-  transform: translateX(-50%);
+  transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));
   width: 360px;
   z-index: 55;
 }
@@ -327,7 +330,7 @@
   border-top: 1px solid #e3e5e7;
   content: '';
   height: 0.6rem;
-  left: 50%;
+  left: calc(50% + var(--game-popover-edge-shift));
   position: absolute;
   top: -0.35rem;
   transform: translateX(-50%) rotate(45deg);
@@ -535,18 +538,35 @@
 }
 
 .game-header-creator-popover {
-  left: auto;
+  left: 50%;
   padding: 0.45rem 0;
-  position: fixed;
-  right: 10px;
-  top: 61px;
-  transform: none;
+  right: auto;
+  width: 13rem;
 }
 
 .game-header-history-popover {
-  left: auto;
-  right: 0;
-  transform: none;
+  left: 50%;
+  right: auto;
+}
+
+// Keep the panel inside the layout viewport near the mobile breakpoint while
+// moving its arrow back to the action center via --game-popover-edge-shift.
+@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px) {
+  .game-header-popover {
+    --game-popover-edge-shift: 3rem;
+  }
+}
+
+@media screen and (min-width: $mobile-view + 31px) and (max-width: $mobile-view + 60px) {
+  .game-header-popover {
+    --game-popover-edge-shift: 2rem;
+  }
+}
+
+@media screen and (min-width: $mobile-view + 61px) and (max-width: $small-view) {
+  .game-header-popover {
+    --game-popover-edge-shift: 0.5rem;
+  }
 }
 
 .game-prompt-list {
@@ -572,12 +592,6 @@
   background: #dfe2e5;
   border-color: #c9cdd1;
   outline: 0;
-}
-
-.game-header-action-wrap:last-child .game-header-popover::before {
-  left: auto;
-  right: 2.8rem;
-  transform: rotate(45deg);
 }
 
 my-game-navigation {
@@ -629,6 +643,7 @@ my-game-navigation {
   font-weight: 400;
   height: 34px;
   justify-content: center;
+  line-height: 1;
   // Separate from 创作中心 more clearly than the default header action gap
   margin-left: 0.85rem;
   min-height: 34px;

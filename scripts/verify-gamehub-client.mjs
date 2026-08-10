@@ -30,6 +30,30 @@ function assert (cond, msg) {
   if (!cond) failures.push(msg)
 }
 
+function readCssBlock (source, selector) {
+  let selectorStart = source.indexOf(selector)
+  while (selectorStart >= 0) {
+    const selectorTail = source.slice(selectorStart + selector.length)
+    if (/^\s*\{/.test(selectorTail)) {
+      const blockStart = source.indexOf('{', selectorStart + selector.length)
+      let depth = 0
+      for (let index = blockStart; index < source.length; index++) {
+        if (source[index] === '{') depth += 1
+        if (source[index] !== '}') continue
+
+        depth -= 1
+        if (depth === 0) return source.slice(blockStart + 1, index)
+      }
+
+      return ''
+    }
+
+    selectorStart = source.indexOf(selector, selectorStart + selector.length)
+  }
+
+  return ''
+}
+
 function collectFiles (dir, suffix) {
   if (!existsSync(dir)) return []
 
@@ -902,6 +926,40 @@ assert(
     headerScss.includes('my-global-icon ::ng-deep tabler-icon') &&
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a normalized icon box aligned with the navigation text'
+)
+const popoverFadeInKeyframe = readCssBlock(headerScss, '@keyframes game-popover-fade-in')
+const popoverFadeInFrom = readCssBlock(popoverFadeInKeyframe, 'from')
+const popoverFadeInTo = readCssBlock(popoverFadeInKeyframe, 'to')
+const basePopoverBlock = readCssBlock(headerScss, '.game-header-popover')
+const historyPopoverBlock = readCssBlock(headerScss, '.game-header-history-popover')
+const creatorPopoverBlock = readCssBlock(headerScss, '.game-header-creator-popover')
+const submitButtonBlock = readCssBlock(headerScss, '.game-submit-button')
+assert(
+  basePopoverBlock.includes('--game-popover-x: -50%;') &&
+    basePopoverBlock.includes('--game-popover-edge-shift: 0%;') &&
+    popoverFadeInFrom.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
+    popoverFadeInTo.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
+    basePopoverBlock.includes('position: absolute;') &&
+    basePopoverBlock.includes('transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));') &&
+    headerScss.includes('left: calc(50% + var(--game-popover-edge-shift));') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 31px) and (max-width: $mobile-view + 60px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 61px) and (max-width: $small-view)') &&
+    headerScss.includes('--game-popover-edge-shift: 3rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 2rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 0.5rem;') &&
+    historyPopoverBlock.includes('left: 50%;') &&
+    historyPopoverBlock.includes('right: auto;') &&
+    !historyPopoverBlock.includes('transform: none;') &&
+    creatorPopoverBlock.includes('left: 50%;') &&
+    creatorPopoverBlock.includes('right: auto;') &&
+    !creatorPopoverBlock.includes('position: fixed;') &&
+    !creatorPopoverBlock.includes('transform: none;') &&
+    !creatorPopoverBlock.includes('top: 61px;') &&
+    !headerScss.includes('.game-header-action-wrap:last-child .game-header-popover::before') &&
+    submitButtonBlock.includes('align-items: center;') &&
+    submitButtonBlock.includes('line-height: 1;'),
+  'GameHub header popovers must stay centered on their action icons and the submit label must use an explicit centered line-height'
 )
 assert(
   (headerTs.match(/this\.gameNavLoaded\.delete\(popup\)/g) || []).length >= 4,
