@@ -22,16 +22,53 @@
 
 - [ ] **Step 1: 增加弹窗与投稿按钮的目标契约**
 
-在已有 `headerScss` 读取和 header 导航断言附近增加以下断言。它要求基础弹窗使用 `--game-popover-x`，动画复用该变量；历史和创作中心回到 action wrapper 中心；不再使用会覆盖箭头定位的最后一个 action 特殊规则；投稿按钮明确设置 `line-height: 1` 和 `align-items: center`。
+在已有 `headerScss` 读取和 header 导航断言附近增加轻量的 CSS block 读取器，使用括号深度解析，并只接受选择器后直接跟 `{` 的命中，避免误命中 `:focus-visible` 等伪类。分别读取基础弹窗、fade-in 的 `from/to`、历史、创作中心和投稿按钮 block，再断言定位契约：基础弹窗使用 `--game-popover-x`，动画两端复用该变量；历史和创作中心回到 action wrapper 中心；不再使用会覆盖箭头定位的最后一个 action 特殊规则；投稿按钮明确设置 `line-height: 1` 和 `align-items: center`。
 
 ```js
+function readCssBlock (source, selector) {
+  let selectorStart = source.indexOf(selector)
+  while (selectorStart >= 0) {
+    const selectorTail = source.slice(selectorStart + selector.length)
+    if (/^\s*\{/.test(selectorTail)) {
+      const blockStart = source.indexOf('{', selectorStart + selector.length)
+      let depth = 0
+      for (let index = blockStart; index < source.length; index++) {
+        if (source[index] === '{') depth += 1
+        if (source[index] !== '}') continue
+        depth -= 1
+        if (depth === 0) return source.slice(blockStart + 1, index)
+      }
+      return ''
+    }
+    selectorStart = source.indexOf(selector, selectorStart + selector.length)
+  }
+  return ''
+}
+
+const popoverFadeInKeyframe = readCssBlock(headerScss, '@keyframes game-popover-fade-in')
+const popoverFadeInFrom = readCssBlock(popoverFadeInKeyframe, 'from')
+const popoverFadeInTo = readCssBlock(popoverFadeInKeyframe, 'to')
+const basePopoverBlock = readCssBlock(headerScss, '.game-header-popover')
+const historyPopoverBlock = readCssBlock(headerScss, '.game-header-history-popover')
+const creatorPopoverBlock = readCssBlock(headerScss, '.game-header-creator-popover')
+const submitButtonBlock = readCssBlock(headerScss, '.game-submit-button')
 assert(
-  headerScss.includes('--game-popover-x: -50%;') &&
-    /@keyframes game-popover-fade-in\s*\{[\s\S]*?translateX\(var\(--game-popover-x\)\)/.test(headerScss) &&
-    /\.game-header-history-popover\s*\{[\s\S]*?left:\s*50%;[\s\S]*?right:\s*auto;/.test(headerScss) &&
-    /\.game-header-creator-popover\s*\{[\s\S]*?left:\s*50%;[\s\S]*?position:\s*absolute;/.test(headerScss) &&
+  basePopoverBlock.includes('--game-popover-x: -50%;') &&
+    popoverFadeInFrom.includes('translateX(var(--game-popover-x))') &&
+    popoverFadeInTo.includes('translateX(var(--game-popover-x))') &&
+    basePopoverBlock.includes('position: absolute;') &&
+    basePopoverBlock.includes('transform: translateX(var(--game-popover-x));') &&
+    historyPopoverBlock.includes('left: 50%;') &&
+    historyPopoverBlock.includes('right: auto;') &&
+    !historyPopoverBlock.includes('transform: none;') &&
+    creatorPopoverBlock.includes('left: 50%;') &&
+    creatorPopoverBlock.includes('right: auto;') &&
+    !creatorPopoverBlock.includes('position: fixed;') &&
+    !creatorPopoverBlock.includes('transform: none;') &&
+    !creatorPopoverBlock.includes('top: 61px;') &&
     !headerScss.includes('.game-header-action-wrap:last-child .game-header-popover::before') &&
-    /\.game-submit-button\s*\{[\s\S]*?align-items:\s*center;[\s\S]*?line-height:\s*1;/.test(headerScss),
+    submitButtonBlock.includes('align-items: center;') &&
+    submitButtonBlock.includes('line-height: 1;'),
   'GameHub header popovers must stay centered on their action icons and the submit label must use an explicit centered line-height'
 )
 ```
@@ -83,7 +120,7 @@ Expected: FAIL at the new header popover alignment assertion because the current
   left: 50%;
   padding: 0.45rem 0;
   right: auto;
-  width: 18rem;
+  width: 13rem;
 }
 
 .game-header-history-popover {
@@ -131,7 +168,7 @@ Expected: server build, light client build, lint/schema/contracts all pass. Exis
 
 - [ ] **Step 3: 检查投稿按钮与窄屏布局**
 
-在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.scrollWidth` 不超过 `window.innerWidth`，且历史/创作中心弹窗没有被新的定位规则截断。创作中心弹窗使用 `18rem` 宽度以保留图标中心锚点并给右侧视口留出边距，两个提示词按钮文案必须完整显示。
+在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.scrollWidth` 不超过 `window.innerWidth`，且历史/创作中心弹窗没有被新的定位规则截断。创作中心弹窗使用 `13rem` 宽度以保留图标中心锚点并给右侧视口留出边距，两个提示词按钮文案必须完整显示。
 
 - [ ] **Step 4: 运行完整交付门禁**
 
