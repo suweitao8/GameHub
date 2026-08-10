@@ -106,7 +106,9 @@
 
 .shuffle-button my-global-icon ::ng-deep svg {
   display: block;
+  height: 100% !important;
   stroke-width: 2.2;
+  width: 100% !important;
 }
 
 .shuffle-button span {

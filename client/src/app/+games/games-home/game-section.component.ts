@@ -108,7 +108,9 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
 
     .section-side-action-icon ::ng-deep svg {
       display: block;
+      height: 100% !important;
       stroke-width: 2.2;
+      width: 100% !important;
     }
 
     .section-side-action-label {
