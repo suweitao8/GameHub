@@ -22,7 +22,7 @@
 
 - [ ] **Step 1: 增加弹窗与投稿按钮的目标契约**
 
-在已有 `headerScss` 读取和 header 导航断言附近增加轻量的 CSS block 读取器，使用括号深度解析，并只接受选择器后直接跟 `{` 的命中，避免误命中 `:focus-visible` 等伪类。分别读取基础弹窗、fade-in 的 `from/to`、历史、创作中心和投稿按钮 block，再断言定位契约：基础弹窗使用 `--game-popover-x`，动画两端复用该变量；历史和创作中心回到 action wrapper 中心；不再使用会覆盖箭头定位的最后一个 action 特殊规则；投稿按钮明确设置 `line-height: 1` 和 `align-items: center`。
+在已有 `headerScss` 读取和 header 导航断言附近增加轻量的 CSS block 读取器，使用括号深度解析，并只接受选择器后直接跟 `{` 的命中，避免误命中 `:focus-visible` 等伪类。分别读取基础弹窗、fade-in 的 `from/to`、历史、创作中心和投稿按钮 block，再断言定位契约：基础弹窗使用 `--game-popover-x` 和 `--game-popover-edge-shift`，动画两端复用该组合；箭头使用反向补偿继续指向 action wrapper 中心；历史和创作中心回到 action wrapper 中心；不再使用会覆盖箭头定位的最后一个 action 特殊规则；投稿按钮明确设置 `line-height: 1` 和 `align-items: center`。
 
 ```js
 function readCssBlock (source, selector) {
@@ -54,10 +54,18 @@ const creatorPopoverBlock = readCssBlock(headerScss, '.game-header-creator-popov
 const submitButtonBlock = readCssBlock(headerScss, '.game-submit-button')
 assert(
   basePopoverBlock.includes('--game-popover-x: -50%;') &&
-    popoverFadeInFrom.includes('translateX(var(--game-popover-x))') &&
-    popoverFadeInTo.includes('translateX(var(--game-popover-x))') &&
+    basePopoverBlock.includes('--game-popover-edge-shift: 0%;') &&
+    popoverFadeInFrom.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
+    popoverFadeInTo.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
     basePopoverBlock.includes('position: absolute;') &&
-    basePopoverBlock.includes('transform: translateX(var(--game-popover-x));') &&
+    basePopoverBlock.includes('transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));') &&
+    headerScss.includes('left: calc(50% + var(--game-popover-edge-shift));') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 31px) and (max-width: $mobile-view + 60px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 61px) and (max-width: $small-view)') &&
+    headerScss.includes('--game-popover-edge-shift: 3rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 2rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 0.5rem;') &&
     historyPopoverBlock.includes('left: 50%;') &&
     historyPopoverBlock.includes('right: auto;') &&
     !historyPopoverBlock.includes('transform: none;') &&
@@ -90,24 +98,29 @@ Expected: FAIL at the new header popover alignment assertion because the current
 
 - [ ] **Step 1: 让基础弹窗和动画共享横向偏移**
 
-在 `.game-header-popover` 的声明块顶部增加 `--game-popover-x: -50%;`，把基础 `transform` 改为 `translateX(var(--game-popover-x))`。将 `@keyframes game-popover-fade-in` 的起止状态都改为使用同一个变量，再叠加现有的纵向位移：
+在 `.game-header-popover` 的声明块顶部增加 `--game-popover-x: -50%;` 和默认值为 `0%` 的 `--game-popover-edge-shift`，把基础 `transform` 改为减去边缘保护偏移。将 `@keyframes game-popover-fade-in` 的起止状态都改为使用同一个组合，再叠加现有的纵向位移；箭头对边缘保护偏移做反向补偿：
 
 ```scss
 .game-header-popover {
+  --game-popover-edge-shift: 0%;
   --game-popover-x: -50%;
-  transform: translateX(var(--game-popover-x));
+  transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));
 }
 
 @keyframes game-popover-fade-in {
   from {
     opacity: 0;
-    transform: translateX(var(--game-popover-x)) translateY(-0.35rem);
+    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(-0.35rem);
   }
 
   to {
     opacity: 1;
-    transform: translateX(var(--game-popover-x)) translateY(0);
+    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(0);
   }
+}
+
+.game-header-popover::before {
+  left: calc(50% + var(--game-popover-edge-shift));
 }
 ```
 
@@ -129,7 +142,9 @@ Expected: FAIL at the new header popover alignment assertion because the current
 }
 ```
 
-删除 `.game-header-action-wrap:last-child .game-header-popover::before` 特殊覆盖，让创作中心也使用基础箭头的 `left: 50%` 和 `translateX(-50%)`，从而与图标中心一致。
+删除 `.game-header-action-wrap:last-child .game-header-popover::before` 特殊覆盖，让创作中心也使用基础箭头的中心定位和边缘保护补偿，从而与图标中心一致。
+
+在移动端隐藏断点上方的三个窄屏区间分别设置 `--game-popover-edge-shift` 为 `3rem`、`2rem` 和 `0.5rem`。这只移动弹窗主体，基础箭头通过反向变量仍指向入口中心；超过 `$small-view` 后恢复默认的完全中心对齐。
 
 - [ ] **Step 3: 明确投稿按钮的文字行高**
 
@@ -168,7 +183,7 @@ Expected: server build, light client build, lint/schema/contracts all pass. Exis
 
 - [ ] **Step 3: 检查投稿按钮与窄屏布局**
 
-在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.scrollWidth` 不超过 `window.innerWidth`，且历史/创作中心弹窗没有被新的定位规则截断。创作中心弹窗使用 `13rem` 宽度以保留图标中心锚点并给右侧视口留出边距，两个提示词按钮文案必须完整显示。
+在桌面端和窄屏桌面端检查 `.game-submit-button`：按钮高度、宽度、颜色保持不变，文字行盒位于按钮垂直中心；检查页面 `document.documentElement.clientWidth` 和 `window.innerWidth`，且历史/创作中心弹窗的主体左右边界均在 layout viewport 内。窄屏边缘保护只移动主体，箭头仍应落在入口中心；创作中心弹窗使用 `13rem` 宽度，两个提示词按钮文案必须完整显示。
 
 - [ ] **Step 4: 运行完整交付门禁**
 

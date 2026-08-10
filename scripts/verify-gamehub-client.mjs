@@ -936,10 +936,18 @@ const creatorPopoverBlock = readCssBlock(headerScss, '.game-header-creator-popov
 const submitButtonBlock = readCssBlock(headerScss, '.game-submit-button')
 assert(
   basePopoverBlock.includes('--game-popover-x: -50%;') &&
-    popoverFadeInFrom.includes('translateX(var(--game-popover-x))') &&
-    popoverFadeInTo.includes('translateX(var(--game-popover-x))') &&
+    basePopoverBlock.includes('--game-popover-edge-shift: 0%;') &&
+    popoverFadeInFrom.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
+    popoverFadeInTo.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
     basePopoverBlock.includes('position: absolute;') &&
-    basePopoverBlock.includes('transform: translateX(var(--game-popover-x));') &&
+    basePopoverBlock.includes('transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));') &&
+    headerScss.includes('left: calc(50% + var(--game-popover-edge-shift));') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 31px) and (max-width: $mobile-view + 60px)') &&
+    headerScss.includes('@media screen and (min-width: $mobile-view + 61px) and (max-width: $small-view)') &&
+    headerScss.includes('--game-popover-edge-shift: 3rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 2rem;') &&
+    headerScss.includes('--game-popover-edge-shift: 0.5rem;') &&
     historyPopoverBlock.includes('left: 50%;') &&
     historyPopoverBlock.includes('right: auto;') &&
     !historyPopoverBlock.includes('transform: none;') &&
