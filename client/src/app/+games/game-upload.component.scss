@@ -1,62 +1,105 @@
 @use './game-community.tokens';
 
+/* ---------------------------------------------------------------------------
+   GameHub form-page layout contract
+   对齐 game-play 详情页的 surface/radius/shadow 层级,让投稿页和平台
+   其他内页保持一致的视觉节奏,而不是一张"飘着的白纸"。
+   --------------------------------------------------------------------------- */
 .upload-page {
-  padding: clamp(2rem, 6vw, 4rem) 1rem 4rem;
+  --game-form-surface: #fff;
+  --game-form-surface-muted: #f6f8fa;   /* 灰底,让白卡浮起 */
+  --game-form-radius: 12px;             /* 主表单卡用大圆角,对齐详情页 */
+  --game-form-radius-sm: 6px;           /* 内部小元素用小圆角 */
+  --game-form-shadow: 0 8px 24px rgb(25 30 40 / 6%);
+  --game-form-gap: 1.25rem;
+  --game-form-field-gap: 1rem;
+
+  background: var(--game-form-surface-muted);
+  padding: clamp(1.5rem, 4vw, 2.5rem) 0 4rem;
 }
 
 .upload-page > .game-community-content {
   margin-inline: auto;
-  max-width: 720px;
-  width: 100%;
+  max-width: 760px;
+  width: 90%;
 }
 
+/* ---------------------------------------------------------------------------
+   Header:左对齐 + eyebrow,对齐平台内页调性
+   --------------------------------------------------------------------------- */
 .upload-header {
-  margin: 0 auto 1.75rem;
-  max-width: 720px;
-  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 .upload-header h1 {
-  font-size: clamp(2rem, 5vw, 3.2rem);
-  letter-spacing: -0.04em;
+  font-size: clamp(1.6rem, 3.5vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
 .upload-header p:not(.game-eyebrow) {
   color: var(--game-muted);
-  font-size: 1.05rem;
-  margin: 0.65rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0.5rem 0 0;
 }
 
-.upload-card {
-  background: var(--game-card-bg);
+/* ---------------------------------------------------------------------------
+   表单容器:多个 section 卡片纵向堆叠
+   --------------------------------------------------------------------------- */
+.upload-form {
+  display: grid;
+  gap: var(--game-form-gap);
+}
+
+.form-section {
+  background: var(--game-form-surface);
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
-  box-shadow: var(--game-shadow);
-  display: grid;
-  gap: 1rem;
-  margin-inline: auto;
-  max-width: 720px;
-  padding: clamp(1rem, 3vw, 1.75rem);
-  width: 100%;
+  border-radius: var(--game-form-radius);
+  box-shadow: var(--game-form-shadow);
+  overflow: hidden;
 }
 
-.upload-card h2 {
-  font-size: 1.35rem;
+/* section 标题区:左对齐 + 4px 品牌竖条签名 */
+.form-section-heading {
+  align-items: center;
+  border-bottom: 1px solid var(--game-border);
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  position: relative;
+}
+
+.form-section-heading::before {
+  background: var(--game-brand);
+  border-radius: 2px;
+  content: '';
+  flex: 0 0 4px;
+  height: 1.1rem;
+}
+
+.form-section-heading h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
   margin: 0;
 }
 
-.upload-intro {
+.form-section-heading p {
   color: var(--game-muted);
-  line-height: 1.65;
+  font-size: 0.82rem;
   margin: 0;
 }
 
-.upload-form-fields {
+.form-section-body {
   display: grid;
-  gap: 1.1rem;
+  gap: var(--game-form-field-gap);
+  padding: 1.25rem;
 }
 
+/* ---------------------------------------------------------------------------
+   字段标签
+   --------------------------------------------------------------------------- */
 .field-group {
   display: grid;
   gap: 0.5rem;
@@ -64,21 +107,42 @@
 
 .field-label {
   color: var(--game-text);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
+.field-label-optional {
+  color: var(--game-text-hint);
+  font-size: 0.72rem;
+  font-weight: 400;
+  margin-left: 0.35rem;
+}
+
+.field-hint {
+  color: var(--game-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.field-hint.error {
+  color: var(--game-danger);
+}
+
+/* ---------------------------------------------------------------------------
+   HTML 拖拽区
+   --------------------------------------------------------------------------- */
 .upload-drop-zone {
   align-items: center;
   background: var(--game-brand-soft);
-  border: 2px dashed var(--game-brand);
-  border-radius: var(--game-radius);
+  border: 2px dashed color-mix(in srgb, var(--game-brand) 45%, transparent);
+  border-radius: var(--game-form-radius-sm);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.4rem;
   justify-content: center;
-  min-height: 180px;
+  min-height: 160px;
   padding: 1.5rem 1rem;
   text-align: center;
   transition: background-color 160ms ease, border-color 160ms ease;
@@ -86,8 +150,8 @@
 
 .upload-drop-zone:hover,
 .upload-drop-zone.dragover {
-  background: var(--game-accent-soft);
-  border-color: var(--game-accent);
+  background: color-mix(in srgb, var(--game-brand) 8%, transparent);
+  border-color: var(--game-brand);
 }
 
 .upload-drop-zone:focus-visible {
@@ -96,7 +160,8 @@
 }
 
 .upload-drop-zone.has-file {
-  background: var(--game-card-bg);
+  background: var(--game-form-surface);
+  border-color: var(--game-border);
   border-style: solid;
 }
 
@@ -118,39 +183,34 @@
   align-items: center;
   background: var(--game-brand);
   border-radius: 50%;
-  color: var(--game-card-bg);
+  color: #fff;
   display: inline-flex;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 800;
-  height: 3.25rem;
+  height: 2.75rem;
   justify-content: center;
   line-height: 1;
-  margin-bottom: 0.35rem;
-  width: 3.25rem;
+  margin-bottom: 0.3rem;
+  width: 2.75rem;
+}
+
+.upload-file-icon.has-file {
+  background: var(--game-success);
 }
 
 .upload-drop-zone strong {
   color: var(--game-text);
-  font-size: 1.05rem;
+  font-size: 1rem;
 }
 
 .upload-drop-zone > span:last-child {
   color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
-.field-hint {
-  color: var(--game-muted);
-  font-size: 0.82rem;
-  line-height: 1.55;
-  margin: 0;
-}
-
-.field-hint.error {
-  color: var(--game-danger);
-}
-
-/* 封面上传区 */
+/* ---------------------------------------------------------------------------
+   封面上传区
+   --------------------------------------------------------------------------- */
 .cover-upload {
   display: grid;
   gap: 0.5rem;
@@ -161,10 +221,10 @@
   background-position: center;
   background-size: cover;
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
+  border-radius: var(--game-form-radius-sm);
   height: 0;
   overflow: hidden;
-  padding-bottom: 56.25%; // 16:9
+  padding-bottom: 56.25%; /* 16:9 */
   position: relative;
   width: 100%;
 }
@@ -176,13 +236,13 @@
   border-radius: 50%;
   color: #fff;
   display: inline-flex;
-  font-size: 0.9rem;
-  height: 2rem;
+  font-size: 0.85rem;
+  height: 1.85rem;
   justify-content: center;
   position: absolute;
-  right: 0.6rem;
-  top: 0.6rem;
-  width: 2rem;
+  right: 0.5rem;
+  top: 0.5rem;
+  width: 1.85rem;
 }
 
 .cover-remove:hover:not(:disabled) {
@@ -197,22 +257,22 @@
 .cover-picker {
   align-items: center;
   background: var(--game-brand-soft);
-  border: 2px dashed var(--game-brand);
-  border-radius: var(--game-radius);
+  border: 2px dashed color-mix(in srgb, var(--game-brand) 45%, transparent);
+  border-radius: var(--game-form-radius-sm);
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
   justify-content: center;
-  min-height: 140px;
-  padding: 1.25rem 1rem;
+  min-height: 120px;
+  padding: 1.1rem 1rem;
   text-align: center;
   transition: background-color 160ms ease, border-color 160ms ease;
 }
 
 .cover-picker:hover {
-  background: var(--game-accent-soft);
-  border-color: var(--game-accent);
+  background: color-mix(in srgb, var(--game-brand) 8%, transparent);
+  border-color: var(--game-brand);
 }
 
 .cover-picker input[type='file'] {
@@ -224,81 +284,98 @@
 }
 
 .cover-picker-icon {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
 }
 
-/* 文本输入字段(对齐编辑页风格) */
-.upload-card label {
+/* ---------------------------------------------------------------------------
+   文本输入字段:输入区用浅灰底,增强识别度
+   --------------------------------------------------------------------------- */
+.form-section label {
   display: grid;
   gap: 0.4rem;
   position: relative;
 }
 
-.upload-card .field-label,
-.upload-card > .upload-form-fields > label > :first-child,
-.upload-card > .upload-form-fields > .field-group > .field-label {
+.form-section label > :first-child:not(input):not(textarea):not(select) {
   color: var(--game-text);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
-.upload-card input[type='text'],
-.upload-card input:not([type]),
-.upload-card textarea,
-.upload-card select {
-  background: var(--game-card-bg);
+.form-section input[type='text'],
+.form-section input:not([type]),
+.form-section textarea,
+.form-section select {
+  background: var(--game-form-surface-muted);
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
+  border-radius: var(--game-form-radius-sm);
   color: var(--game-text);
-  font-size: 0.95rem;
-  padding: 0.6rem 0.7rem;
-  transition: border-color 160ms ease;
+  font-size: 0.92rem;
+  padding: 0.6rem 0.75rem;
+  transition: border-color 160ms ease, background-color 160ms ease;
   width: 100%;
 }
 
-.upload-card input:focus,
-.upload-card textarea:focus,
-.upload-card select:focus {
+.form-section input:focus,
+.form-section textarea:focus,
+.form-section select:focus {
+  background: var(--game-form-surface);
   border-color: var(--game-brand);
   outline: none;
 }
 
-.upload-card textarea {
-  min-height: 96px;
+.form-section textarea {
+  min-height: 84px;
   resize: vertical;
+}
+
+/* 标题 + 分类同一行(桌面) */
+.form-row {
+  display: grid;
+  gap: var(--game-form-field-gap);
+  grid-template-columns: 1fr 180px;
 }
 
 .char-count {
   color: var(--game-text-hint);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   position: absolute;
-  right: 0.4rem;
-  top: 0.4rem;
+  right: 0.3rem;
+  top: 0.3rem;
 }
 
+/* ---------------------------------------------------------------------------
+   自动检测提示条
+   --------------------------------------------------------------------------- */
 .detection-note {
-  align-items: center;
+  align-items: flex-start;
   background: var(--game-brand-soft);
-  border: 1px solid color-mix(in srgb, var(--game-brand) 30%, transparent);
-  border-radius: var(--game-radius);
+  border: 1px solid color-mix(in srgb, var(--game-brand) 25%, transparent);
+  border-radius: var(--game-form-radius-sm);
   color: var(--game-brand-deep);
   display: flex;
-  font-size: 0.82rem;
-  gap: 0.4rem;
+  font-size: 0.8rem;
+  gap: 0.45rem;
   line-height: 1.55;
-  margin: -0.3rem 0 0;
-  padding: 0.55rem 0.7rem;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
 }
 
 .detection-icon {
-  font-size: 0.95rem;
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+  line-height: 1.55;
 }
 
+/* ---------------------------------------------------------------------------
+   文字按钮 / 移除链接
+   --------------------------------------------------------------------------- */
 .link-button {
   background: transparent;
   border: 0;
   color: var(--game-brand);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   justify-self: start;
   padding: 0;
 }
@@ -316,13 +393,30 @@
   margin-top: -0.2rem;
 }
 
+/* ---------------------------------------------------------------------------
+   提交区 + 状态消息
+   --------------------------------------------------------------------------- */
+.form-actions {
+  align-items: center;
+  background: var(--game-form-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-form-radius);
+  box-shadow: var(--game-form-shadow);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 1rem 1.25rem;
+}
+
 .upload-status,
 .form-error,
 .form-success {
-  border-radius: var(--game-radius);
+  border-radius: var(--game-form-radius-sm);
+  flex: 1 1 100%;
   line-height: 1.55;
   margin: 0;
-  padding: 0.75rem 0.85rem;
+  padding: 0.65rem 0.8rem;
 }
 
 .upload-status {
@@ -343,6 +437,7 @@
 .upload-success-link {
   color: var(--game-brand-deep);
   font-weight: 700;
+  margin-right: auto;
   text-decoration: none;
 }
 
@@ -353,11 +448,11 @@
 .submit-button {
   background: var(--game-brand);
   border: 0;
-  border-radius: var(--game-radius);
-  color: var(--game-card-bg);
+  border-radius: var(--game-form-radius-sm);
+  color: #fff;
   font-weight: 700;
-  min-height: 48px;
-  padding: 0.75rem 1.2rem;
+  min-height: 44px;
+  padding: 0.7rem 1.8rem;
   transition: background-color 160ms ease, opacity 160ms ease;
 }
 
@@ -375,17 +470,40 @@
   opacity: 0.55;
 }
 
+/* ---------------------------------------------------------------------------
+   响应式 + 无障碍
+   --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .upload-drop-zone,
   .cover-picker,
-  .submit-button {
+  .submit-button,
+  .form-section input,
+  .form-section textarea,
+  .form-section select {
     transition: none;
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
   .char-count {
     position: static;
     text-align: right;
+  }
+
+  .form-section-heading {
+    flex-wrap: wrap;
+  }
+
+  .form-section-heading p {
+    flex-basis: 100%;
+    margin-top: 0.25rem;
+  }
+
+  .submit-button {
+    width: 100%;
   }
 }

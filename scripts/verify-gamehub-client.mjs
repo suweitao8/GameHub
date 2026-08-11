@@ -969,10 +969,12 @@ assert(
   'game upload must allow an optional single cover upload with image type validation'
 )
 assert(
-  /\.upload-header\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?text-align:\s*center;/.test(uploadScss) &&
-    /\.upload-card\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*720px;/.test(uploadScss) &&
-    uploadScss.includes('width: 100%;'),
-  'game upload must center its heading and card within a readable responsive width'
+  /\.upload-page\s*\{[\s\S]*?background:\s*var\(--game-form-surface-muted\)/.test(uploadScss) &&
+    /\.upload-page\s*\{[\s\S]*?--game-form-radius:\s*12px;/.test(uploadScss) &&
+    /\.upload-page\s*> \.game-community-content\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*760px;[\s\S]*?width:\s*90%;/.test(uploadScss) &&
+    /\.form-section\s*\{[\s\S]*?border-radius:\s*var\(--game-form-radius\);[\s\S]*?box-shadow:\s*var\(--game-form-shadow\)/.test(uploadScss) &&
+    /\.form-section-heading::before\s*\{[\s\S]*?background:\s*var\(--game-brand\)/.test(uploadScss),
+  'game upload must use a gray surface with elevated white form-section cards, a 12px radius, and a brand accent bar to match the detail-page visual contract'
 )
 assert(
   uploadTs.includes('isSupportedGameRuntimeFilename') &&
