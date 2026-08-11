@@ -203,11 +203,13 @@ export class GameUploadComponent implements OnDestroy {
       if (generation !== this.fileGeneration || this.file !== file) return
 
       const inspection = inspectGameHtml(source)
-      // 仅在字段为空时自动填充,不覆盖用户已输入的内容
-      if (inspection.title && !this.title().trim()) this.title.set(inspection.title)
-      if (inspection.instructions && !this.instructions().trim()) {
-        this.instructions.set(inspection.instructions)
-      }
+      // 选完文件后字段都是空的,这里一次性自动填充所有可识别的字段,
+      // 让作者基本不用手动填写;之后作者可随时手动覆盖。
+      if (inspection.title) this.title.set(inspection.title)
+      if (inspection.description) this.description.set(inspection.description)
+      if (inspection.instructions) this.instructions.set(inspection.instructions)
+      if (inspection.category) this.category.set(inspection.category)
+      if (inspection.tags?.length) this.tags.set(inspection.tags.join(', '))
       this.detectionNote.set(inspection.detectionNote || '')
     } catch {
       // 解析失败不影响投稿,标题已有文件名兜底

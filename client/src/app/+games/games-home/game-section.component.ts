@@ -116,6 +116,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     .section-side-action-label {
       font-size: 0.68rem;
       font-weight: 600;
+      height: 0.65rem;
       letter-spacing: 0.04em;
       line-height: 1.2;
       text-orientation: mixed;
