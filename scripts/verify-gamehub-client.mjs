@@ -986,9 +986,12 @@ assert(
 )
 assert(
   uploadTs.includes('inspectGameHtml(source)') &&
+    uploadTs.includes('inspection.title') &&
+    uploadTs.includes('inspection.description') &&
     uploadTs.includes('inspection.instructions') &&
-    uploadTs.includes('inspection.title'),
-  'game upload must auto-fill title and instructions from the inspected HTML without overriding user input'
+    uploadTs.includes('inspection.category') &&
+    uploadTs.includes('inspection.tags'),
+  'game upload must auto-fill title, description, instructions, category, and tags from the inspected HTML so authors rarely need to type manually'
 )
 assert(
   uploadTs.includes('onFilePickerKeydown') && uploadTs.includes('event.key !== \'Enter\'') &&
@@ -1013,6 +1016,28 @@ assert(
     gameHtmlInspectorTs.includes('mouse') &&
     gameHtmlInspectorTs.includes('touch'),
   'game HTML inspector must scan keyboard, mouse, and touch signals to draft instructions when no meta tag is present'
+)
+assert(
+  gameHtmlInspectorTs.includes('CATEGORY_KEYWORDS') &&
+    gameHtmlInspectorTs.includes('detectCategory') &&
+    gameHtmlInspectorTs.includes('scoreCategory') &&
+    gameHtmlInspectorTs.includes("'horror'") &&
+    gameHtmlInspectorTs.includes("'rpg'") &&
+    gameHtmlInspectorTs.includes("'puzzle'"),
+  'game HTML inspector must infer a category from title/meta/body keywords so authors do not have to pick one manually'
+)
+assert(
+  gameHtmlInspectorTs.includes('extractTags') &&
+    gameHtmlInspectorTs.includes('KEYWORDS_META_NAMES') &&
+    gameHtmlInspectorTs.includes("'gamehub-keywords'") &&
+    gameHtmlInspectorTs.includes('STOP_WORDS'),
+  'game HTML inspector must extract tags from meta keywords or title words while filtering stop words'
+)
+assert(
+  gameHtmlInspectorTs.includes('extractDescription') &&
+    gameHtmlInspectorTs.includes('DESCRIPTION_META_NAMES') &&
+    gameHtmlInspectorTs.includes('extractFirstVisibleText'),
+  'game HTML inspector must derive a description from meta description or the first visible paragraph'
 )
 assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
