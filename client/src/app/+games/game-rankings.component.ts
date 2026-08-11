@@ -18,7 +18,7 @@ import { map } from 'rxjs/operators'
         <div class="rankings-filters">
           <div class="rankings-tabs">
             @for (tab of tabs; track tab.id) {
-              <button [class.active]="currentTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }}</button>
+              <button type="button" [class.active]="currentTab() === tab.id" (click)="setTab(tab.id)">{{ tab.label }}</button>
             }
           </div>
           <div class="rankings-category-filter">
