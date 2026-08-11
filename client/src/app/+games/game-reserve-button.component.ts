@@ -9,10 +9,13 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, GlobalIconComponent ],
   template: `
-    <button class="reserve-button" [class.reserved]="reserved()"
-            (click)="toggleReserve()" [disabled]="loading()">
+    <button class="reserve-button" [class.reserved]="reserved()" [class.error]="!!feedback()"
+            (click)="toggleReserve()" [disabled]="loading()"
+            [attr.aria-label]="reserved() ? '取消预约' : '预约游戏'">
       @if (loading()) {
         <span class="loading-dots">...</span>
+      } @else if (feedback()) {
+        <span class="reserve-feedback">{{ feedback() }}</span>
       } @else if (reserved()) {
         <span><my-global-icon iconName="tick" /> 已预约</span>
       } @else {
@@ -27,8 +30,11 @@ export class GameReserveButtonComponent {
   uuid = input.required<string>()
   reserved = signal(false)
   loading = signal(false)
+  feedback = signal('')
+  private feedbackTimer: ReturnType<typeof setTimeout> | null = null
 
   toggleReserve () {
+    if (this.loading()) return
     if (this.reserved()) {
       this.cancelReserve()
     } else {
@@ -38,23 +44,37 @@ export class GameReserveButtonComponent {
 
   reserve () {
     this.loading.set(true)
+    this.feedback.set('')
     this.gamesService.reserve(this.uuid()).subscribe({
       next: () => {
         this.reserved.set(true)
         this.loading.set(false)
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false)
+        this.showFeedback('预约失败，请稍后重试')
+      }
     })
   }
 
   cancelReserve () {
     this.loading.set(true)
+    this.feedback.set('')
     this.gamesService.cancelReserve(this.uuid()).subscribe({
       next: () => {
         this.reserved.set(false)
         this.loading.set(false)
       },
-      error: () => this.loading.set(false)
+      error: () => {
+        this.loading.set(false)
+        this.showFeedback('取消失败，请稍后重试')
+      }
     })
+  }
+
+  private showFeedback (message: string) {
+    this.feedback.set(message)
+    if (this.feedbackTimer) clearTimeout(this.feedbackTimer)
+    this.feedbackTimer = setTimeout(() => this.feedback.set(''), 2500)
   }
 }

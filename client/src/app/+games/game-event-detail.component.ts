@@ -175,14 +175,15 @@ export class GameEventDetailComponent implements OnInit {
   }
 
   checkJoined (slug: string) {
-    // Simplified: check by seeing if current user is in participants
+    // Simplified: check by seeing if current user is in participants.
+    // 失败时 joined 保持默认 false（非阻塞辅助检测），用户仍可点击加入按钮重试。
     this.http.get<{ total: number; data: EventParticipant[] }>(`${environment.apiUrl}/api/v1/games/events/${slug}/participants`).subscribe({
       next: (result) => {
         const currentAccountId = this.authService.getUser()?.account?.id
         const isJoined = result.data.some(p => p.account.id === currentAccountId)
         this.joined.set(isJoined)
       },
-      error: () => {}
+      error: () => { /* 非阻塞：保持默认未加入状态，joinEvent 会给出具体反馈 */ }
     })
   }
 
