@@ -9,7 +9,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ CommonModule, GlobalIconComponent ],
   template: `
-    <button class="reserve-button" [class.reserved]="reserved()" [class.error]="!!feedback()"
+    <button type="button" class="reserve-button" [class.reserved]="reserved()" [class.error]="!!feedback()"
             (click)="toggleReserve()" [disabled]="loading()"
             [attr.aria-label]="reserved() ? '取消预约' : '预约游戏'">
       @if (loading()) {

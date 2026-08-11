@@ -32,10 +32,10 @@ type TimeRange = '7d' | '30d' | '90d'
         <div class="analytics-actions">
           <div class="time-range-selector">
             @for (range of timeRanges; track range.id) {
-              <button [class.active]="currentRange() === range.id" (click)="setTimeRange(range.id)">{{ range.label }}</button>
+              <button type="button" [class.active]="currentRange() === range.id" (click)="setTimeRange(range.id)">{{ range.label }}</button>
             }
           </div>
-          <button class="export-btn" (click)="exportData()" [disabled]="exporting()">
+          <button type="button" class="export-btn" (click)="exportData()" [disabled]="exporting()">
             <my-global-icon iconName="download" />{{ exporting() ? '导出中...' : '导出数据' }}
           </button>
         </div>

@@ -15,8 +15,8 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
       <div class="feed-header">
         <h2>社区动态</h2>
         <div class="feed-tabs">
-          <button [class.active]="tab() === 'following'" (click)="setTab('following')">关注动态</button>
-          <button [class.active]="tab() === 'public'" (click)="setTab('public')">发现</button>
+          <button type="button" [class.active]="tab() === 'following'" (click)="setTab('following')">关注动态</button>
+          <button type="button" [class.active]="tab() === 'public'" (click)="setTab('public')">发现</button>
         </div>
       </div>
 
@@ -81,7 +81,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
       </div>
 
       @if (hasMore() && activities().length > 0) {
-        <button class="load-more" (click)="loadMore()" [disabled]="loadingMore()">
+        <button type="button" class="load-more" (click)="loadMore()" [disabled]="loadingMore()">
           @if (loadingMore()) {
             <my-global-icon iconName="loader" /><span>加载中...</span>
           } @else {

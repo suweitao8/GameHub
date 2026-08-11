@@ -34,7 +34,7 @@ export type GameEvent = {
         <p>和玩家一起参加活动、交流玩法，发现新的挑战。</p>
         <div class="events-filters">
           @for (filter of filters; track filter.id) {
-            <button [class.active]="currentFilter() === filter.id" (click)="setFilter(filter.id)">{{ filter.label }}</button>
+            <button type="button" [class.active]="currentFilter() === filter.id" (click)="setFilter(filter.id)">{{ filter.label }}</button>
           }
         </div>
       </div>

@@ -54,7 +54,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
                   <span><my-global-icon iconName="message-circle" />{{ item.game.comments || 0 }} 评论</span>
                 </div>
               </div>
-              <button class="cancel-btn" (click)="cancelReservation(item.id, $index)" [disabled]="item.loading">
+              <button type="button" class="cancel-btn" (click)="cancelReservation(item.id, $index)" [disabled]="item.loading">
                 {{ item.loading ? '取消中...' : '取消预约' }}
               </button>
             </div>
