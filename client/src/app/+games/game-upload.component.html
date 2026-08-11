@@ -3,145 +3,162 @@
     <header class="upload-header">
       <p class="game-eyebrow">创作中心</p>
       <h1>上传 HTML 游戏</h1>
-      <p>选好 HTML 文件后，标题和操作说明会自动帮你填好，其余字段也可以再调整。</p>
+      <p>选好 HTML 文件后，标题、分类、操作说明等会自动帮你填好，其余字段也可以再调整。</p>
     </header>
 
-    <form class="upload-card" (submit)="$event.preventDefault(); submit()" aria-labelledby="upload-title">
-      <h2 id="upload-title">投稿信息</h2>
-      <p class="upload-intro">只需要一个 HTML 文件就能投稿；其余信息会从文件里自动识别，你也可以手动修改。</p>
+    <form class="upload-form" (submit)="$event.preventDefault(); submit()" aria-labelledby="upload-title">
+      <!-- 区块一:游戏文件 -->
+      <section class="form-section" aria-labelledby="upload-title">
+        <div class="form-section-heading">
+          <h2 id="upload-title">游戏文件</h2>
+          <p>只需要一个 HTML 文件;其余信息会从文件里自动识别。</p>
+        </div>
 
-      <div class="upload-form-fields">
-        <!-- HTML 游戏文件 -->
-        <div class="field-group">
-          <span class="field-label">HTML 游戏文件</span>
-          <div
-            #uploadDropZone
-            class="upload-drop-zone"
-            [class.dragover]="dragActive()"
-            [class.has-file]="!!file"
-            [class.disabled]="submitting()"
-            role="button"
-            tabindex="0"
-            aria-label="选择 HTML 游戏文件"
-            aria-describedby="upload-requirements"
-            [attr.aria-disabled]="submitting()"
-            (click)="fileInput.click()"
-            (keydown)="onFilePickerKeydown($event, fileInput)"
-            (dragover)="$event.preventDefault(); dragActive.set(true)"
-            (dragleave)="$event.preventDefault(); dragActive.set(false)"
-            (drop)="$event.preventDefault(); onFileDrop($event)"
-          >
-            <input #fileInput class="upload-file-input" type="file" accept=".html,.htm,text/html,application/xhtml+xml" tabindex="-1" [disabled]="submitting()" (change)="onFileChange($event)">
+        <div class="form-section-body">
+          <div class="field-group">
+            <div
+              #uploadDropZone
+              class="upload-drop-zone"
+              [class.dragover]="dragActive()"
+              [class.has-file]="!!file"
+              [class.disabled]="submitting()"
+              role="button"
+              tabindex="0"
+              aria-label="选择 HTML 游戏文件"
+              aria-describedby="upload-requirements"
+              [attr.aria-disabled]="submitting()"
+              (click)="fileInput.click()"
+              (keydown)="onFilePickerKeydown($event, fileInput)"
+              (dragover)="$event.preventDefault(); dragActive.set(true)"
+              (dragleave)="$event.preventDefault(); dragActive.set(false)"
+              (drop)="$event.preventDefault(); onFileDrop($event)"
+            >
+              <input #fileInput class="upload-file-input" type="file" accept=".html,.htm,text/html,application/xhtml+xml" tabindex="-1" [disabled]="submitting()" (change)="onFileChange($event)">
+              @if (file) {
+                <span class="upload-file-icon has-file" aria-hidden="true">✓</span>
+                <strong>{{ file.name }}</strong>
+                <span>文件大小：{{ formatBytes(fileSize()) }} · 点击或拖入其他文件替换</span>
+              } @else {
+                <span class="upload-file-icon" aria-hidden="true">↑</span>
+                <strong>拖拽 HTML 文件到这里</strong>
+                <span>或点击选择文件</span>
+              }
+            </div>
+            <p id="upload-requirements" class="field-hint">只支持单个 .html 或 .htm 文件，最大 20MB;系统会在隔离环境中检查联网、跳转和资源引用。</p>
             @if (file) {
-              <span class="upload-file-icon" aria-hidden="true">✓</span>
-              <strong>{{ file.name }}</strong>
-              <span>文件大小：{{ formatBytes(fileSize()) }} · 点击或拖入其他文件替换</span>
-            } @else {
-              <span class="upload-file-icon" aria-hidden="true">↑</span>
-              <strong>拖拽 HTML 文件到这里</strong>
-              <span>或点击选择文件</span>
+              <button type="button" class="link-button remove-file-link" [disabled]="submitting()" (click)="removeFile()">移除文件</button>
             }
           </div>
-          <p id="upload-requirements" class="field-hint">只支持单个 .html 或 .htm 文件，最大 20MB；系统会在隔离环境中检查联网、跳转和资源引用。</p>
-          @if (file) {
-            <button type="button" class="link-button remove-file-link" [disabled]="submitting()" (click)="removeFile()">移除文件</button>
-          }
+        </div>
+      </section>
+
+      <!-- 区块二:游戏信息 -->
+      <section class="form-section" aria-labelledby="info-title">
+        <div class="form-section-heading">
+          <h2 id="info-title">游戏信息</h2>
+          <p>自动识别后可按需修改,也可以补充封面。</p>
         </div>
 
-        <!-- 封面 -->
-        <div class="field-group">
-          <span class="field-label">封面（可选）</span>
-          <div class="cover-upload">
-            @if (coverPreview()) {
-              <div class="cover-preview" [style.background-image]="'url(' + coverPreview() + ')'">
-                <button type="button" class="cover-remove" [disabled]="submitting()" (click)="removeCover()" aria-label="移除封面">✕</button>
-              </div>
-              <p class="field-hint">{{ cover?.name }}</p>
-            } @else {
-              <label class="cover-picker" [attr.aria-disabled]="submitting()">
-                <span class="cover-picker-icon" aria-hidden="true">🖼</span>
-                <span>上传封面</span>
-                <span class="field-hint">PNG / JPEG / WebP，≤2MB</span>
-                <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="submitting()" (change)="onCoverChange($event)">
-              </label>
-            }
+        <div class="form-section-body">
+          <!-- 封面 -->
+          <div class="field-group">
+            <span class="field-label">封面<span class="field-label-optional">可选</span></span>
+            <div class="cover-upload">
+              @if (coverPreview()) {
+                <div class="cover-preview" [style.background-image]="'url(' + coverPreview() + ')'">
+                  <button type="button" class="cover-remove" [disabled]="submitting()" (click)="removeCover()" aria-label="移除封面">✕</button>
+                </div>
+                <p class="field-hint">{{ cover?.name }}</p>
+              } @else {
+                <label class="cover-picker" [attr.aria-disabled]="submitting()">
+                  <span class="cover-picker-icon" aria-hidden="true">🖼</span>
+                  <span>上传封面</span>
+                  <span class="field-hint">PNG / JPEG / WebP，≤2MB</span>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" [disabled]="submitting()" (change)="onCoverChange($event)">
+                </label>
+              }
+            </div>
+            <p class="field-hint">不上传时,系统会根据标题自动生成一张默认封面。</p>
+            @if (coverError()) { <p class="field-hint error" role="alert">{{ coverError() }}</p> }
           </div>
-          <p class="field-hint">不上传时，系统会根据标题自动生成一张默认封面。</p>
-          @if (coverError()) { <p class="field-hint error" role="alert">{{ coverError() }}</p> }
+
+          <div class="form-row">
+            <!-- 标题 -->
+            <label class="text-input-label form-field-title">
+              标题
+              <input name="title" [ngModel]="title()" (ngModelChange)="title.set($event)" maxlength="120" required autocomplete="off" placeholder="给游戏起个名字">
+              @if (title().trim().length > 0) {
+                <span class="char-count">{{ title().trim().length }} / 120</span>
+              }
+            </label>
+
+            <!-- 分类 -->
+            <label class="form-field-category">
+              分类
+              <select name="category" [ngModel]="category()" (ngModelChange)="category.set($event)" required>
+                <option value="arcade">动作</option>
+                <option value="adventure">冒险</option>
+                <option value="shooter">射击</option>
+                <option value="puzzle">解谜</option>
+                <option value="casual">休闲</option>
+                <option value="rpg">角色扮演</option>
+                <option value="strategy">策略</option>
+                <option value="simulation">模拟</option>
+                <option value="sandbox">沙盒</option>
+                <option value="racing">竞速</option>
+                <option value="sports">体育</option>
+                <option value="card">卡牌</option>
+                <option value="music">音乐</option>
+                <option value="horror">恐怖</option>
+                <option value="board">桌游</option>
+                <option value="other">其他</option>
+              </select>
+            </label>
+          </div>
+
+          <!-- 标签 -->
+          <label class="text-input-label">
+            标签
+            <input name="tags" [ngModel]="tags()" (ngModelChange)="tags.set($event)" placeholder="动作, 解谜, 像素">
+            @if (tags().trim()) {
+              <span class="char-count">{{ tagCount() }} 个标签</span>
+            }
+          </label>
+
+          <!-- 简介 -->
+          <label>
+            简介
+            <textarea name="description" [ngModel]="description()" (ngModelChange)="description.set($event)" rows="3" maxlength="5000" placeholder="一句话介绍你的游戏特色"></textarea>
+          </label>
+
+          <!-- 操作说明 -->
+          <label>
+            操作说明
+            <textarea name="instructions" [ngModel]="instructions()" (ngModelChange)="instructions.set($event)" rows="3" maxlength="5000" placeholder="键盘、鼠标或触屏如何操作"></textarea>
+          </label>
+          @if (detectionNote()) {
+            <p class="detection-note" role="status">
+              <span class="detection-icon" aria-hidden="true">⚡</span>
+              {{ detectionNote() }}
+            </p>
+          }
         </div>
+      </section>
 
-        <!-- 标题 -->
-        <label class="text-input-label">
-          标题
-          <input name="title" [ngModel]="title()" (ngModelChange)="title.set($event)" maxlength="120" required autocomplete="off" placeholder="给游戏起个名字">
-          @if (title().trim().length > 0) {
-            <span class="char-count">{{ title().trim().length }} / 120</span>
-          }
-        </label>
-
-        <!-- 分类 -->
-        <label>
-          分类
-          <select name="category" [ngModel]="category()" (ngModelChange)="category.set($event)" required>
-            <option value="arcade">动作</option>
-            <option value="adventure">冒险</option>
-            <option value="shooter">射击</option>
-            <option value="puzzle">解谜</option>
-            <option value="casual">休闲</option>
-            <option value="rpg">角色扮演</option>
-            <option value="strategy">策略</option>
-            <option value="simulation">模拟</option>
-            <option value="sandbox">沙盒</option>
-            <option value="racing">竞速</option>
-            <option value="sports">体育</option>
-            <option value="card">卡牌</option>
-            <option value="music">音乐</option>
-            <option value="horror">恐怖</option>
-            <option value="board">桌游</option>
-            <option value="other">其他</option>
-          </select>
-        </label>
-
-        <!-- 标签 -->
-        <label class="text-input-label">
-          标签
-          <input name="tags" [ngModel]="tags()" (ngModelChange)="tags.set($event)" placeholder="动作, 解谜, 像素">
-          @if (tags().trim()) {
-            <span class="char-count">{{ tagCount() }} 个标签</span>
-          }
-        </label>
-
-        <!-- 简介 -->
-        <label>
-          简介
-          <textarea name="description" [ngModel]="description()" (ngModelChange)="description.set($event)" rows="4" maxlength="5000" placeholder="一句话介绍你的游戏特色"></textarea>
-        </label>
-
-        <!-- 操作说明 -->
-        <label>
-          操作说明
-          <textarea name="instructions" [ngModel]="instructions()" (ngModelChange)="instructions.set($event)" rows="4" maxlength="5000" placeholder="键盘、鼠标或触屏如何操作"></textarea>
-        </label>
-        @if (detectionNote()) {
-          <p class="detection-note" role="status">
-            <span class="detection-icon" aria-hidden="true">⚡</span>
-            {{ detectionNote() }}
-          </p>
+      <!-- 提交区 -->
+      <div class="form-actions">
+        @if (submitting()) {
+          <p class="upload-status" role="status" aria-live="polite">正在上传并检查…</p>
         }
+        @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
+        @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
+        @if (createdGame(); as game) {
+          <a class="upload-success-link" [routerLink]="['/games', game.uuid]">打开游戏 →</a>
+        }
+        <button class="submit-button" type="submit" [disabled]="submitting() || !file || !!createdGame()" [attr.aria-busy]="submitting()">
+          {{ submittingMessage() }}
+        </button>
       </div>
-
-      @if (submitting()) {
-        <p class="upload-status" role="status" aria-live="polite">正在上传并检查…</p>
-      }
-      @if (error()) { <p class="form-error" role="alert">{{ error() }}</p> }
-      @if (message()) { <p class="form-success" role="status">{{ message() }}</p> }
-      @if (createdGame(); as game) {
-        <a class="upload-success-link" [routerLink]="['/games', game.uuid]">打开游戏</a>
-      }
-
-      <button class="submit-button" type="submit" [disabled]="submitting() || !file || !!createdGame()" [attr.aria-busy]="submitting()">
-        {{ submittingMessage() }}
-      </button>
     </form>
   </div>
 </main>
