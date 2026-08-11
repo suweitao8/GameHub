@@ -188,7 +188,7 @@
 }
 
 .game-header-actions {
-  --game-header-icon-size: 1.05rem;
+  --game-header-icon-size: 0.95rem;
 
   align-items: center;
   display: flex;
@@ -202,18 +202,23 @@
   color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   display: inline-flex;
   flex-direction: column;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 600;
   gap: 0.1rem;
   height: 100%;
   justify-content: center;
   min-height: 40px;
   min-width: 2.6rem;
-  padding: 0.15rem 0.28rem;
+  padding: 0.35rem 0.28rem;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease;
 }
 .game-header-actions a:first-child { position: relative; }
+
+.game-header-actions a span:not(.game-header-unread) {
+  // 紧凑文字行高，确保 icon+label 组合在 bar 内视觉居中而非偏下。
+  line-height: 1.1;
+}
 .game-header-unread { background: #fb7299;
   border: 2px solid #fff;
   border-radius: 999px;
