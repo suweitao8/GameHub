@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
 import { buildGameAvatarDataUrl } from './shared/game-avatar'
+import { GAME_FEATURES } from './+games/shared'
 
 @Component({
   template: `
@@ -38,7 +39,9 @@ import { buildGameAvatarDataUrl } from './shared/game-avatar'
           </section>
 
           <nav class="game-account-links" aria-label="个人中心导航">
-            <a routerLink="/games/creator"><strong>创作中心</strong><span>上传、编辑和查看作品数据</span></a>
+            @if (creatorEnabled) {
+              <a routerLink="/games/creator"><strong>创作中心</strong><span>上传、编辑和查看作品数据</span></a>
+            }
             <a routerLink="/games/library" [queryParams]="{ tab: 'owned' }"><strong>我的作品</strong><span>管理已发布和审核中的游戏</span></a>
             <a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }"><strong>收藏与历史</strong><span>继续游玩喜欢的作品</span></a>
             <a routerLink="/games/notifications"><strong>消息中心</strong><span>查看评论、关注和审核通知</span></a>
@@ -61,6 +64,7 @@ import { buildGameAvatarDataUrl } from './shared/game-avatar'
 export class GameAccountHomeComponent {
   private readonly authService = inject(AuthService)
   readonly user = this.authService.isLoggedIn() ? this.authService.getUser() : undefined
+  readonly creatorEnabled = GAME_FEATURES.creatorCenter
 
   getDisplayName (user: NonNullable<typeof this.user>) {
     return user.account?.displayName || user.username || 'GameHub 用户'

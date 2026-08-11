@@ -22,6 +22,7 @@ import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
 import { SearchTypeaheadComponent } from './search-typeahead.component'
 import { Game, GameNotification, GamesService } from '@app/+games/games.service'
+import { GAME_FEATURES } from '@app/+games/shared'
 
 type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
 
@@ -60,6 +61,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private headerService = inject(HeaderService)
   private gamesService = inject(GamesService)
   readonly gameNotificationBadge = inject(GameNotificationBadgeService)
+
+  /** 创作中心功能开关，模板用此属性控制入口显隐 */
+  readonly creatorEnabled = GAME_FEATURES.creatorCenter
 
   private static LS_HIDE_MOBILE_MSG = 'hide-mobile-msg'
 
