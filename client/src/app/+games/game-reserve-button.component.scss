@@ -41,6 +41,14 @@
   cursor: not-allowed;
 }
 
+.reserve-button.error {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+.reserve-feedback { font-size: 0.82rem; }
+
 .loading-dots { animation: dots 1.5s infinite; }
 
 @keyframes dots {

@@ -16,6 +16,48 @@
   color: var(--game-muted);
 }
 
+.reservations-loading {
+  align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.reservations-loading my-global-icon {
+  animation: spin 1s linear infinite;
+  height: 1rem;
+  width: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.reservations-error {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--game-muted);
+}
+
+.reservations-error span { font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
+.reservations-error p { font-size: 0.85rem; margin-bottom: 1rem; }
+
+.reservations-error button {
+  padding: 0.45rem 1.1rem;
+  border-radius: var(--game-radius);
+  border: 1px solid var(--game-brand);
+  background: var(--game-surface);
+  color: var(--game-brand);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.reservations-error button:hover { background: var(--game-brand); color: #fff; }
+
 .reservations-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .reservation-card {
