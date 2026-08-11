@@ -112,12 +112,14 @@
             <my-global-icon iconName="clock" aria-hidden="true"></my-global-icon> <ng-container>稍后再玩</ng-container>
           </a>
 
-          <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator">
-            <my-global-icon iconName="upload" aria-hidden="true"></my-global-icon> <ng-container>创作中心</ng-container>
-          </a>
-          <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator" fragment="coin-balance">
-            <ng-container>硬币余额</ng-container>
-          </a>
+          @if (creatorEnabled) {
+            <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator">
+              <my-global-icon iconName="upload" aria-hidden="true"></my-global-icon> <ng-container>创作中心</ng-container>
+            </a>
+            <a ngbDropdownItem class="dropdown-item" routerLink="/games/creator" fragment="coin-balance">
+              <ng-container>硬币余额</ng-container>
+            </a>
+          }
 
           <div class="dropdown-divider"></div>
 
@@ -197,20 +199,22 @@
             </section>
           }
         </div>
-        <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="onGameNavFocusOut($event)">
-          <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
-            <my-global-icon iconName="upload"></my-global-icon>
-            <span>创作中心</span>
-          </a>
-          @if (gameNavHover() === 'creator') {
-            <section class="game-header-popover game-header-creator-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="创作中心预览">
-              <div class="game-prompt-list">
-                <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 2D 游戏，使用 Canvas 和原生 JavaScript，不依赖外部资源，包含开始、暂停、重新开始和移动端触控操作。')">2D 游戏提示词</button>
-                <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 3D 游戏，使用 CSS 3D 或内嵌实现，不依赖外部网络资源，包含清晰的操作说明、开始和重新开始。')">3D 游戏提示词</button>
-              </div>
-            </section>
-          }
-        </div>
+        @if (creatorEnabled) {
+          <div class="game-header-action-wrap" (pointerenter)="scheduleGameNavHover('creator')" (pointerleave)="cancelGameNavHover()" (focusin)="scheduleGameNavHover('creator')" (focusout)="onGameNavFocusOut($event)">
+            <a routerLink="/games/creator" routerLinkActive="game-header-action-active" [routerLinkActiveOptions]="{ exact: true }" title="创作中心">
+              <my-global-icon iconName="upload"></my-global-icon>
+              <span>创作中心</span>
+            </a>
+            @if (gameNavHover() === 'creator') {
+              <section class="game-header-popover game-header-creator-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="创作中心预览">
+                <div class="game-prompt-list">
+                  <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 2D 游戏，使用 Canvas 和原生 JavaScript，不依赖外部资源，包含开始、暂停、重新开始和移动端触控操作。')">2D 游戏提示词</button>
+                  <button class="game-prompt-button" type="button" (click)="copyGamePrompt('制作一个可直接运行的单文件 HTML 3D 游戏，使用 CSS 3D 或内嵌实现，不依赖外部网络资源，包含清晰的操作说明、开始和重新开始。')">3D 游戏提示词</button>
+                </div>
+              </section>
+            }
+          </div>
+        }
       </div>
     }
 

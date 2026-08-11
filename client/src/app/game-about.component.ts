@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core'
 import { RouterLink } from '@angular/router'
+import { GAME_FEATURES } from './+games/shared'
 
 @Component({
   template: `
@@ -41,9 +42,17 @@ import { RouterLink } from '@angular/router'
             <ul>
               <li>上传单个不超过 20MB 的 HTML 文件，系统会在发布前自动检查。</li>
               <li>补充封面、简介、操作说明、类型和标签，让作品更容易被发现。</li>
-              <li>在创作中心管理作品并查看互动数据。</li>
+              @if (creatorEnabled) {
+                <li>在创作中心管理作品并查看互动数据。</li>
+              } @else {
+                <li>在我的作品页管理已发布的游戏并查看审核状态。</li>
+              }
             </ul>
-            <a routerLink="/games/creator">进入创作中心 →</a>
+            @if (creatorEnabled) {
+              <a routerLink="/games/creator">进入创作中心 →</a>
+            } @else {
+              <a routerLink="/games/library" [queryParams]="{ tab: 'owned' }">查看我的作品 →</a>
+            }
           </article>
         </section>
 
@@ -58,4 +67,6 @@ import { RouterLink } from '@angular/router'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ RouterLink ]
 })
-export class GameAboutComponent {}
+export class GameAboutComponent {
+  readonly creatorEnabled = GAME_FEATURES.creatorCenter
+}

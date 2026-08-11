@@ -13,6 +13,7 @@ import { FormReactiveService } from '@app/shared/shared-forms/form-reactive.serv
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
 import { InputTextComponent } from './shared/shared-forms/input-text.component'
 import { filter } from 'rxjs/operators'
+import { GAME_FEATURES } from './+games/shared'
 
 @Component({
   template: `
@@ -58,7 +59,9 @@ import { filter } from 'rxjs/operators'
           <h2>账户入口</h2>
           <div class="game-settings-links">
             <a routerLink="/my-account">个人中心 <span>→</span></a>
-            <a routerLink="/games/creator">创作中心 <span>→</span></a>
+            @if (creatorEnabled) {
+              <a routerLink="/games/creator">创作中心 <span>→</span></a>
+            }
             <a routerLink="/games/notifications">消息中心 <span>→</span></a>
           </div>
         </section>
@@ -76,6 +79,7 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
   private readonly notifier = inject(Notifier)
 
   error: string
+  readonly creatorEnabled = GAME_FEATURES.creatorCenter
 
   ngOnInit () {
     const { minLength, maxLength } = this.serverService.getHTMLConfig().fieldsConstraints.users.password
