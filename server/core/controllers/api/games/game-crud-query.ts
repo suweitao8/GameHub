@@ -42,13 +42,31 @@ async function listGames (req: express.Request, res: express.Response) {
 
     if (following && !user) return res.json({ total: 0, data: [] })
 
+    const sort = req.query.sort as string
+    const search = req.query.search as string
+
+    // sort=recommended 走多因子推荐：登录用户叠加 CF 个性化，游客走全局热度
+    // 搜索场景仍走 listPublished 的相似度排序，语义更准确
+    if (sort === 'recommended' && !search) {
+      const result = await GameModel.listRecommended({
+        accountId: user?.Account?.id,
+        category: req.query.category as string,
+        publishedAfter: req.query.publishedAfter as string,
+        device: req.query.device as string,
+        ownerAccountIds,
+        limit: count,
+        offset: start
+      })
+      return res.json({ total: result.total, data: result.data.map(formatGame) })
+    }
+
     const result = await GameModel.listPublished({
       category: req.query.category as string,
-      search: req.query.search as string,
+      search,
       publishedAfter: req.query.publishedAfter as string,
       device: req.query.device as string,
       ownerAccountIds,
-      sort: req.query.sort as string,
+      sort,
       limit: count,
       offset: start
     })

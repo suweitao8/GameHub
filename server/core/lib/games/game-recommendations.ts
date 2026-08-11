@@ -35,7 +35,8 @@ async function getUserInteractions (accountId: number): Promise<Map<number, numb
 
   const [ favorites, ratings, coins, recents ] = await Promise.all([
     GameFavoriteModel.findAll({ where: { accountId }, attributes: [ 'gameId' ], raw: true }),
-    GameRatingModel.findAll({ where: { accountId }, attributes: [ 'gameId' ], raw: true }),
+    // 仅统计 like，避免 dislike 被当作正反馈污染协同过滤向量
+    GameRatingModel.findAll({ where: { accountId, type: 'like' }, attributes: [ 'gameId' ], raw: true }),
     GameCoinLedgerModel.findAll({ where: { accountId, kind: 'spend' }, attributes: [ 'gameId' ], raw: true }),
     GameRecentModel.findAll({ where: { accountId }, attributes: [ 'gameId' ], raw: true })
   ])
@@ -88,7 +89,7 @@ async function findSimilarUsers (accountId: number, k: number): Promise<{ accoun
   const gameIds = [ ...targetVector.keys() ]
   const [ favorites, ratings, coins, recents ] = await Promise.all([
     GameFavoriteModel.findAll({ where: { gameId: gameIds, accountId: { [Op.ne]: accountId } }, attributes: [ 'accountId' ], raw: true }),
-    GameRatingModel.findAll({ where: { gameId: gameIds, accountId: { [Op.ne]: accountId } }, attributes: [ 'accountId' ], raw: true }),
+    GameRatingModel.findAll({ where: { gameId: gameIds, accountId: { [Op.ne]: accountId }, type: 'like' }, attributes: [ 'accountId' ], raw: true }),
     GameCoinLedgerModel.findAll({ where: { gameId: gameIds, accountId: { [Op.ne]: accountId }, kind: 'spend' }, attributes: [ 'accountId' ], raw: true }),
     GameRecentModel.findAll({ where: { gameId: gameIds, accountId: { [Op.ne]: accountId } }, attributes: [ 'accountId' ], raw: true })
   ])

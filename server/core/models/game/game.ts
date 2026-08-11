@@ -18,6 +18,8 @@ import { AccountModel } from '../account/account.js'
 import { GameStatsSummaryModel } from './game-stats-summary.js'
 import { SequelizeModel, throwIfNotValid } from '../shared/index.js'
 import { getGameSortMetric } from '@server/lib/games/game-query.js'
+import { extractScoreInput, mergeWithPersonalization, scoreGameForRecommendation } from '@server/lib/games/game-recommendation-score.js'
+import { getRecommendedGames } from '@server/lib/games/game-recommendations.js'
 
 @Table({
   tableName: 'game',
@@ -220,6 +222,78 @@ export class GameModel extends SequelizeModel<GameModel> {
         offset: options.offset
       })
     ]).then(([ total, data ]) => ({ total, data }))
+  }
+
+  /**
+   * 多因子推荐列表：DB 粗排取候选 → JS 精排打分 → 登录用户叠加 CF 个性化。
+   *
+   * 与 listPublished 的区别：
+   * - 不走单一指标 ORDER BY，而是用多因子热度分（播放量+质量+收藏+投币+精选+时间衰减）重排
+   * - 登录用户额外融合协同过滤结果，游客走纯全局热度
+   * - CF 为空（新用户冷启动）时无缝回退到全局热度
+   *
+   * 策略：DB 取 limit*5 候选（playCount 粗排）保证覆盖面，JS 层精排后截断到 offset+limit。
+   */
+  static async listRecommended (options: {
+    accountId?: number
+    category?: string
+    search?: string
+    publishedAfter?: string
+    device?: string
+    ownerAccountIds?: number[]
+    limit: number
+    offset: number
+  }) {
+    const { accountId, category, search, publishedAfter, device, ownerAccountIds, limit, offset } = options
+
+    // 搜索场景下语义推荐没有意义，回退到 listPublished 的相似度排序
+    if (search) {
+      return GameModel.listPublished({ category, search, publishedAfter, device, ownerAccountIds, sort: 'recommended', limit, offset })
+    }
+
+    const where: any = { status: 'published' }
+    if (category) where.category = category
+    if (publishedAfter) where.publishedAt = { [Op.gte]: new Date(publishedAfter) }
+    if (device) where.tags = { [Op.contains]: [ device ] }
+    if (ownerAccountIds) where.ownerAccountId = { [Op.in]: ownerAccountIds }
+
+    // DB 粗排：取足量候选，保证精排后有足够样本覆盖 offset+limit
+    const candidateLimit = Math.min(200, Math.max(limit * 5, 20))
+    const candidates = await GameModel.findAll<MGame>({
+      subQuery: false,
+      where,
+      attributes: { include: GameModel.getPublicStatsAttributes() },
+      include: [
+        { model: AccountModel, required: true },
+        { model: GameStatsSummaryModel, required: false, attributes: [] }
+      ],
+      order: [ [ 'playCount', 'DESC' ], [ 'publishedAt', 'DESC' ] ],
+      limit: candidateLimit
+    })
+
+    // JS 精排：多因子打分
+    const now = new Date()
+    const scored = candidates
+      .map(game => ({
+        game,
+        score: scoreGameForRecommendation(extractScoreInput(game), now)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.game)
+
+    // 登录用户：融合 CF 个性化结果（CF 为空时 mergeWithPersonalization 自动回退到全局）
+    let finalGames = scored
+    if (accountId) {
+      const cfResult = await getRecommendedGames({ accountId, limit: candidateLimit })
+      const cfGames = cfResult.data
+      if (cfGames.length > 0) {
+        finalGames = mergeWithPersonalization(scored, cfGames)
+      }
+    }
+
+    // 截断到请求的分页窗口
+    const paged = finalGames.slice(offset, offset + limit)
+    return { total: finalGames.length, data: paged }
   }
 
   /**
