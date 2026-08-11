@@ -948,7 +948,7 @@ assert(
 assert(
   uploadHtml.includes('accept=".html,.htm,text/html,application/xhtml+xml"') &&
     uploadHtml.includes('dragover') && uploadHtml.includes('onFileDrop') &&
-    uploadHtml.includes('onFilePickerKeydown') && uploadHtml.includes('提交游戏'),
+    uploadHtml.includes('onFilePickerKeydown') && uploadTs.includes("'提交游戏'"),
   'game upload must expose a single HTML drop zone with click, drag, and keyboard submission paths'
 )
 assert(
@@ -958,32 +958,61 @@ assert(
 )
 assert(
   !uploadHtml.includes('upload-steps') && !uploadHtml.includes('upload-preview-frame') &&
-    !uploadHtml.includes('name="title"') && !uploadHtml.includes('name="description"') &&
-    !uploadHtml.includes('name="instructions"') && !uploadHtml.includes('name="category"') &&
-    !uploadHtml.includes('name="tags"') && !uploadHtml.includes('coverfile'),
-  'quick game upload must not expose the old metadata, preview, or manual cover controls'
+    uploadHtml.includes('name="title"') && uploadHtml.includes('name="description"') &&
+    uploadHtml.includes('name="instructions"') && uploadHtml.includes('name="category"') &&
+    uploadHtml.includes('name="tags"'),
+  'game upload must expose the full metadata form (title, description, instructions, category, tags) without the legacy multi-step or preview-frame scaffolding'
+)
+assert(
+  uploadHtml.includes('accept="image/png,image/jpeg,image/webp"') &&
+    uploadHtml.includes('onCoverChange'),
+  'game upload must allow an optional single cover upload with image type validation'
 )
 assert(
   /\.upload-header\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?text-align:\s*center;/.test(uploadScss) &&
     /\.upload-card\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*720px;/.test(uploadScss) &&
     uploadScss.includes('width: 100%;'),
-  'quick game upload must center its heading and card within a readable responsive width'
+  'game upload must center its heading and card within a readable responsive width'
 )
 assert(
   uploadTs.includes('isSupportedGameRuntimeFilename') &&
     uploadTs.includes('20 * 1024 * 1024') &&
     uploadTs.includes('this.gamesService.create(file, ') &&
-    uploadTs.includes('titleReadPromise') &&
-    uploadTs.includes('DOMParser') &&
+    uploadTs.includes('inspectGameHtml') &&
+    uploadTs.includes('inspectPromise') &&
     uploadTs.includes('data:text\\/html') &&
     uploadTs.includes('\\p{Cc}'),
-  'quick game upload must validate the single HTML limit and submit with automatic metadata'
+  'game upload must validate the single HTML limit, inspect the file for auto-fill metadata, and submit the full form'
+)
+assert(
+  uploadTs.includes('inspectGameHtml(source)') &&
+    uploadTs.includes('inspection.instructions') &&
+    uploadTs.includes('inspection.title'),
+  'game upload must auto-fill title and instructions from the inspected HTML without overriding user input'
 )
 assert(
   uploadTs.includes('onFilePickerKeydown') && uploadTs.includes('event.key !== \'Enter\'') &&
     uploadTs.includes('event.key !== \' \'') && uploadTs.includes('files.length > 1') &&
     uploadTs.includes('uploadDropZone?.nativeElement.focus') && uploadHtml.includes('#uploadDropZone'),
-  'quick game upload must provide keyboard activation, reject multiple dropped files, and restore focus after removal'
+  'game upload must provide keyboard activation, reject multiple dropped files, and restore focus after removal'
+)
+const gameHtmlInspectorTs = read('client/src/app/+games/shared/game-html-inspector.ts')
+assert(
+  gameHtmlInspectorTs.includes('export function inspectGameHtml') &&
+    gameHtmlInspectorTs.includes('INSTRUCTION_META_NAMES') &&
+    gameHtmlInspectorTs.includes("'gamehub-instructions'") &&
+    gameHtmlInspectorTs.includes("'instructions'") &&
+    gameHtmlInspectorTs.includes("'controls'"),
+  'game HTML inspector must prefer structured instruction meta tags before falling back to key-event scanning'
+)
+assert(
+  gameHtmlInspectorTs.includes('scanInputEvents') &&
+    gameHtmlInspectorTs.includes("'KeyW'") &&
+    gameHtmlInspectorTs.includes("'ArrowUp'") &&
+    gameHtmlInspectorTs.includes("'Space'") &&
+    gameHtmlInspectorTs.includes('mouse') &&
+    gameHtmlInspectorTs.includes('touch'),
+  'game HTML inspector must scan keyboard, mouse, and touch signals to draft instructions when no meta tag is present'
 )
 assert(
   gameCommunityDoc.includes('只接受单个 `.html` 或 `.htm` 文件') &&
