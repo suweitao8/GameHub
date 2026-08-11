@@ -466,6 +466,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return buildGameAvatarDataUrl(game.author?.displayName || game.author?.name || 'GameHub 玩家')
   }
 
+  /** 将 ISO 时间字符串格式化为"3小时前"风格的相对时间 */
+  formatRelativeTime (isoTime: string | null | undefined): string {
+    if (!isoTime) return ''
+    const date = new Date(isoTime)
+    if (isNaN(date.getTime())) return ''
+    const diffSec = Math.max(0, (Date.now() - date.getTime()) / 1000)
+    if (diffSec < 60) return '刚刚'
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}分钟前`
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}小时前`
+    if (diffSec < 2592000) return `${Math.floor(diffSec / 86400)}天前`
+    if (diffSec < 31536000) return `${Math.floor(diffSec / 2592000)}个月前`
+    return `${Math.floor(diffSec / 31536000)}年前`
+  }
+
   onGameNavCoverError (uuid: string) {
     this.gameNavCoverFallbacks.update(state => ({ ...state, [uuid]: true }))
   }
