@@ -131,7 +131,7 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, #6e4d3b 0%, #8f6a52 52%, #b48a68 100%);
+  background: linear-gradient(135deg, #1c252c 0%, #272f37 52%, #2e373f 100%);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -182,10 +182,10 @@
   width: 100%;
 }
 
-/* Bottom tenth of cover: average-color fade that reaches full opacity at the footer edge */
+/* Bottom of cover: average-color fade that reaches full opacity at the footer edge */
 .featured-cover-fade {
   bottom: 0;
-  height: 10%;
+  height: 15%;
   left: 0;
   pointer-events: none;
   position: absolute;
@@ -240,7 +240,7 @@
 
 /* Average-color footer: title row + switch controls stacked below the cover. */
 .featured-footer {
-  background-color: #8f6a51;
+  background-color: #262f37;
   color: #fff;
   display: flex;
   flex: 0 0 auto;

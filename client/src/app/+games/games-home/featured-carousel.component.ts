@@ -87,7 +87,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
-  /** Five-segment average-color gradient from the bottom tenth of the cover. */
+  /** Smooth horizontal gradient from five sampled segments of the cover bottom. */
   featuredAvgColor (game: Game) {
     return `linear-gradient(90deg, ${this.gradientStops(this.featuredColors(game))})`
   }
@@ -95,7 +95,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   /** Fade the bottom of the cover into the average of its five sampled segments. */
   featuredCoverFade (game: Game) {
     const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
-    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 100%) 100%)`
+    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 85%) 55%, rgb(${rgb}) 100%)`
   }
 
   private featuredColors (game: Game) {
@@ -103,12 +103,10 @@ export class FeaturedCarouselComponent implements OnDestroy {
   }
 
   private gradientStops (colors: string[]) {
+    // 五个采样点均匀分布在 0%–100%，让浏览器在相邻色之间自然插值，
+    // 避免离散硬切产生可见的色阶条纹。
     return colors
-      .map((color, index) => {
-        const start = index * 20
-        const end = (index + 1) * 20
-        return `rgb(${color}) ${start}%, rgb(${color}) ${end}%`
-      })
+      .map((color, index) => `rgb(${color}) ${(index * 100) / (colors.length - 1)}%`)
       .join(', ')
   }
 
