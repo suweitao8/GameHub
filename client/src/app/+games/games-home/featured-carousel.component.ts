@@ -87,27 +87,21 @@ export class FeaturedCarouselComponent implements OnDestroy {
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
-  /** Smooth horizontal gradient from five sampled segments of the cover bottom. */
+  /** Footer uses a single solid color — the average of the five sampled segments. */
   featuredAvgColor (game: Game) {
-    return `linear-gradient(90deg, ${this.gradientStops(this.featuredColors(game))})`
+    const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
+    return `rgb(${rgb})`
   }
 
-  /** Fade the bottom of the cover into the average of its five sampled segments. */
+  /** Fade the bottom of the cover into the footer color: opaque at the bottom,
+   *  fully transparent at the top — a clean linear disappear effect. */
   featuredCoverFade (game: Game) {
     const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
-    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 85%) 55%, rgb(${rgb}) 100%)`
+    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb}) 100%)`
   }
 
   private featuredColors (game: Game) {
     return this.featuredAvgColors()[game.uuid] || Array.from({ length: 5 }, () => FEATURED_PLACEHOLDER_AVG_RGB)
-  }
-
-  private gradientStops (colors: string[]) {
-    // 五个采样点均匀分布在 0%–100%，让浏览器在相邻色之间自然插值，
-    // 避免离散硬切产生可见的色阶条纹。
-    return colors
-      .map((color, index) => `rgb(${color}) ${(index * 100) / (colors.length - 1)}%`)
-      .join(', ')
   }
 
   private averageRgb (colors: string[]) {
