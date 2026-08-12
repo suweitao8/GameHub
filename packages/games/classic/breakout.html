@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="经典打砖块：控制挡板反弹小球，打掉全部砖块通关。">
+<meta name="gamehub-instructions" content="鼠标移动或左右方向键控制挡板，反弹小球击碎砖块，别让球掉下去。">
+<meta name="gamehub-keywords" content="打砖块,breakout,经典,休闲">
+<title>打砖块 · Breakout</title>
+<style>
+  :root { --bg:#0f1419; --panel:#1a2028; --brand:#00aeec; --accent:#fb7299; --text:#e6edf3; --muted:#8b98a5; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-user-select:none; user-select:none; }
+  html,body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:12px; }
+  .hud { display:flex; gap:28px; align-items:center; }
+  .hud span { font-size:1.1rem; font-weight:800; }
+  .hud .s{color:var(--brand);} .hud .l{color:var(--accent);} .hud .lv{color:var(--text);}
+  canvas { background:var(--panel); border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.4); cursor:none; }
+  .hint { font-size:0.82rem; color:var(--muted); }
+  .overlay { position:fixed; inset:0; background:rgba(15,20,25,.9); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:10; }
+  .overlay h1 { font-size:2rem; } .overlay h1 .hl{color:var(--brand);}
+  .overlay p { color:var(--muted); font-size:0.92rem; text-align:center; line-height:1.6; max-width:320px; }
+  .btn { background:var(--brand); color:#fff; border:0; border-radius:8px; padding:12px 32px; font-size:1rem; font-weight:700; cursor:pointer; }
+  .btn:hover{background:#0096cc;} .btn:active{transform:scale(.96);}
+</style>
+</head>
+<body>
+  <div class="hud">
+    <span class="s">得分 <b id="score">0</b></span>
+    <span class="l">生命 <b id="lives">3</b></span>
+    <span class="lv">关卡 <b id="level">1</b></span>
+  </div>
+  <canvas id="c"></canvas>
+  <p class="hint">鼠标 / ← → 控制挡板 · 点击或空格发射</p>
+
+  <div class="overlay" id="start">
+    <h1>打<span class="hl">砖块</span></h1>
+    <p>移动挡板反弹小球，击碎所有砖块即可通关。掉球扣命，三条命用完游戏结束。</p>
+    <button class="btn" id="startBtn">开始游戏</button>
+  </div>
+  <div class="overlay" id="over" style="display:none">
+    <h1 id="overTitle">游戏结束</h1>
+    <p id="overText">最终得分 <b style="color:var(--accent);font-size:1.5rem" id="final">0</b></p>
+    <button class="btn" id="retryBtn">再来一局</button>
+  </div>
+
+<script>
+(function(){
+  const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+  const W=480,H=560;
+  canvas.width=W; canvas.height=H;
+  const $score=document.getElementById('score'),$lives=document.getElementById('lives'),$level=document.getElementById('level');
+  const $start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final'),$overTitle=document.getElementById('overTitle'),$overText=document.getElementById('overText');
+
+  const BRICK_ROWS_COLORS=['#fb7299','#ff8c42','#ffd33d','#00c091','#00aeec','#a371f7'];
+  let paddle,ball,bricks,score,lives,level,launching,running,last,acc,ballSpeed;
+
+  function reset(){
+    score=0;lives=3;level=1;
+    $score.textContent=0;$lives.textContent=3;$level.textContent=1;
+    $start.style.display='none';$over.style.display='none';
+    setupLevel();running=true;requestAnimationFrame(loop);
+  }
+
+  function setupLevel(){
+    bricks=[];
+    const rows=Math.min(4+level,7), cols=9, bw=(W-40)/cols, bh=22;
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++)
+      bricks.push({x:20+c*bw,y:60+r*(bh+6),w:bw-4,h:bh,color:BRICK_ROWS_COLORS[r%BRICK_ROWS_COLORS.length],alive:true});
+    paddle={x:W/2-45,y:H-30,w:90,h:12,speed:8};
+    ballSpeed=5+level*0.4;
+    resetBall();
+  }
+
+  function resetBall(){
+    launching=true;
+    ball={x:W/2,y:H-46,r:7,vx:0,vy:0};
+  }
+
+  function launch(){
+    if(!launching) return;
+    launching=false;
+    const a=(-Math.PI/2)+(Math.random()*0.6-0.3);
+    ball.vx=Math.cos(a)*ballSpeed; ball.vy=Math.sin(a)*ballSpeed;
+  }
+
+  let keys={};
+  document.addEventListener('keydown',e=>{
+    keys[e.key]=true;
+    if(e.key===' '){ if(launching) launch(); e.preventDefault(); }
+  });
+  document.addEventListener('keyup',e=>{keys[e.key]=false;});
+
+  canvas.addEventListener('mousemove',e=>{
+    const r=canvas.getBoundingClientRect();
+    paddle.x=Math.max(0,Math.min(W-paddle.w,(e.clientX-r.left)*(canvas.width/r.width)-paddle.w/2));
+  });
+  canvas.addEventListener('click',()=>{ if(launching) launch(); });
+  canvas.addEventListener('touchmove',e=>{
+    const r=canvas.getBoundingClientRect();
+    paddle.x=Math.max(0,Math.min(W-paddle.w,(e.touches[0].clientX-r.left)*(canvas.width/r.width)-paddle.w/2));
+    e.preventDefault();
+  },{passive:false});
+  canvas.addEventListener('touchstart',()=>{ if(launching) launch(); },{passive:true});
+
+  function update(){
+    if(keys['ArrowLeft']) paddle.x=Math.max(0,paddle.x-paddle.speed);
+    if(keys['ArrowRight']) paddle.x=Math.min(W-paddle.w,paddle.x+paddle.speed);
+    if(launching){ ball.x=paddle.x+paddle.w/2; return; }
+
+    ball.x+=ball.vx; ball.y+=ball.vy;
+    if(ball.x-ball.r<0){ball.x=ball.r;ball.vx=-ball.vx;}
+    if(ball.x+ball.r>W){ball.x=W-ball.r;ball.vx=-ball.vx;}
+    if(ball.y-ball.r<0){ball.y=ball.r;ball.vy=-ball.vy;}
+
+    // paddle
+    if(ball.y+ball.r>=paddle.y && ball.y+ball.r<=paddle.y+paddle.h+8 && ball.x>=paddle.x && ball.x<=paddle.x+paddle.w && ball.vy>0){
+      ball.y=paddle.y-ball.r;
+      const rel=(ball.x-(paddle.x+paddle.w/2))/(paddle.w/2);
+      const a=rel*Math.PI*0.35-Math.PI/2;
+      ball.vx=Math.cos(a)*ballSpeed; ball.vy=Math.sin(a)*ballSpeed;
+    }
+
+    // bricks
+    for(const b of bricks){
+      if(!b.alive) continue;
+      if(ball.x+ball.r>b.x && ball.x-ball.r<b.x+b.w && ball.y+ball.r>b.y && ball.y-ball.r<b.y+b.h){
+        b.alive=false; score+=10; $score.textContent=score;
+        const overlapX=Math.min(ball.x+ball.r-b.x, b.x+b.w-(ball.r-ball.x+ball.r));
+        const fromSide = (ball.x<b.x+b.w*0.5) ? ball.x<b.x : ball.x>b.x+b.w;
+        if(fromSide) ball.vx=-ball.vx; else ball.vy=-ball.vy;
+        break;
+      }
+    }
+
+    if(bricks.every(b=>!b.alive)){ level++; $level.textContent=level; setupLevel(); }
+
+    if(ball.y-ball.r>H){
+      lives--; $lives.textContent=lives;
+      if(lives<=0){
+        running=false; $final.textContent=score; $overTitle.textContent='游戏结束'; $overText.innerHTML='最终得分 <b style="color:var(--accent);font-size:1.5rem">'+score+'</b>';
+        $over.style.display='flex';
+      } else resetBall();
+    }
+  }
+
+  function draw(){
+    ctx.fillStyle='#1a2028'; ctx.fillRect(0,0,W,H);
+    for(const b of bricks){
+      if(!b.alive) continue;
+      const g=ctx.createLinearGradient(b.x,b.y,b.x,b.y+b.h);
+      g.addColorStop(0,b.color); g.addColorStop(1,shade(b.color,-30));
+      ctx.fillStyle=g; roundRect(b.x,b.y,b.w,b.h,4); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.15)'; ctx.fillRect(b.x,b.y,b.w,2);
+    }
+    // paddle
+    const pg=ctx.createLinearGradient(0,paddle.y,0,paddle.y+paddle.h);
+    pg.addColorStop(0,'#00aeec'); pg.addColorStop(1,'#0088bb');
+    ctx.fillStyle=pg; roundRect(paddle.x,paddle.y,paddle.w,paddle.h,6); ctx.fill();
+    // ball
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(0,174,236,.3)'; ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r+3,0,Math.PI*2); ctx.fill();
+    if(launching){
+      ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='13px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('点击或空格发射', W/2, H-70);
+    }
+  }
+
+  function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function shade(hex,p){const n=parseInt(hex.slice(1),16);let r=(n>>16)+p,g=((n>>8)&255)+p,b=(n&255)+p;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');}
+
+  function loop(t){
+    if(!running) return;
+    if(!last) last=t;
+    if(t-last>=16){ update(); draw(); last=t; }
+    requestAnimationFrame(loop);
+  }
+
+  document.getElementById('startBtn').addEventListener('click',reset);
+  document.getElementById('retryBtn').addEventListener('click',reset);
+})();
+</script>
+</body>
+</html>

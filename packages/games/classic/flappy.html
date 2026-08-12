@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="像素鸟：点击让小鸟飞跃水管间隙，看看你能撑过多少根管道。">
+<meta name="gamehub-instructions" content="空格键、鼠标点击或触屏点击让小鸟向上飞，穿过水管间隙得分，撞到水管或落地结束。">
+<meta name="gamehub-keywords" content="像素鸟,flappy,经典,休闲">
+<title>像素鸟 · Flappy Bird</title>
+<style>
+  :root { --bg:#0f1419; --panel:#1a2028; --brand:#00aeec; --accent:#fb7299; --text:#e6edf3; --muted:#8b98a5; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-user-select:none; user-select:none; }
+  html,body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif; }
+  body { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:12px; }
+  .score-display { font-size:2.4rem; font-weight:900; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.5); letter-spacing:.05em; }
+  canvas { border-radius:12px; box-shadow:0 8px 30px rgba(0,0,0,.4); cursor:pointer; }
+  .hint { font-size:0.82rem; color:var(--muted); }
+  .overlay { position:fixed; inset:0; background:rgba(15,20,25,.9); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:10; }
+  .overlay h1 { font-size:2rem; } .overlay h1 .hl{color:var(--brand);}
+  .overlay p { color:var(--muted); font-size:0.92rem; text-align:center; line-height:1.6; max-width:300px; }
+  .btn { background:var(--brand); color:#fff; border:0; border-radius:8px; padding:12px 32px; font-size:1rem; font-weight:700; cursor:pointer; }
+  .btn:hover{background:#0096cc;} .btn:active{transform:scale(.96);}
+</style>
+</head>
+<body>
+  <div class="score-display" id="bigScore">0</div>
+  <canvas id="c"></canvas>
+  <p class="hint">空格 / 点击 屏幕让小鸟向上飞</p>
+
+  <div class="overlay" id="start">
+    <h1>像素<span class="hl">鸟</span></h1>
+    <p>点击让小鸟扇翅膀向上飞，穿过水管间隙得分。手感是关键，别气馁。</p>
+    <button class="btn" id="startBtn">开始游戏</button>
+  </div>
+  <div class="overlay" id="over" style="display:none">
+    <h1>游戏结束</h1>
+    <p>本局得分 <b style="color:var(--accent);font-size:1.8rem" id="final">0</b></p>
+    <button class="btn" id="retryBtn">再来一局</button>
+  </div>
+
+<script>
+(function(){
+  const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+  const W=360,H=540;
+  canvas.width=W; canvas.height=H;
+  const $big=document.getElementById('bigScore'),$start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final');
+
+  const GRAVITY=0.45, FLAP=-7.6, GAP=150, PIPE_W=58, PIPE_SPACING=200, GROUND_H=60;
+  const SPEED=2.2;
+
+  let bird, pipes, score, frames, running, dead, groundX;
+  let birdFrame=0;
+
+  function reset(){
+    bird={x:90,y:H/2,vy:0,r:14,rot:0};
+    pipes=[]; score=0; frames=0; dead=false; running=true; groundX=0;
+    $big.textContent='0';
+    $start.style.display='none'; $over.style.display='none';
+    requestAnimationFrame(loop);
+  }
+
+  function flap(){
+    if(!running) return;
+    if(dead) return;
+    bird.vy=FLAP; bird.rot=-0.5;
+  }
+
+  function spawnPipe(){
+    const minTop=60, maxTop=H-GROUND_H-GAP-60;
+    const top=minTop+Math.random()*(maxTop-minTop);
+    pipes.push({x:W+10, top, scored:false});
+  }
+
+  function update(){
+    frames++;
+    bird.vy+=GRAVITY; bird.y+=bird.vy;
+    bird.rot+=0.08; if(bird.rot>1.4) bird.rot=1.4;
+    if(frames%90===0) spawnPipe();
+
+    groundX-=SPEED; if(groundX<=-24) groundX=0;
+
+    for(const p of pipes){
+      p.x-=SPEED;
+      if(!p.scored && p.x+PIPE_W<bird.x){ p.scored=true; score++; $big.textContent=score; }
+      if(bird.x+bird.r>p.x && bird.x-bird.r<p.x+PIPE_W){
+        if(bird.y-bird.r<p.top || bird.y+bird.r>p.top+GAP){ die(); return; }
+      }
+    }
+    pipes=pipes.filter(p=>p.x>-PIPE_W);
+
+    if(bird.y+bird.r>=H-GROUND_H){ bird.y=H-GROUND_H-bird.r; die(); }
+    if(bird.y-bird.r<0){ bird.y=bird.r; bird.vy=0; }
+  }
+
+  function die(){
+    dead=true; running=false;
+    $final.textContent=score; $over.style.display='flex';
+  }
+
+  function draw(){
+    // sky
+    const sky=ctx.createLinearGradient(0,0,0,H);
+    sky.addColorStop(0,'#1a2028'); sky.addColorStop(1,'#243040');
+    ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+    // distant clouds (static decoration)
+    ctx.fillStyle='rgba(255,255,255,.04)';
+    for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(60+i*120,100+i*40,30,0,7); ctx.fill(); }
+
+    // pipes
+    for(const p of pipes){
+      drawPipe(p.x,0,p.top,true);
+      drawPipe(p.x,p.top+GAP,H-GROUND_H-(p.top+GAP),false);
+    }
+
+    // ground
+    ctx.fillStyle='#2a3441'; ctx.fillRect(0,H-GROUND_H,W,GROUND_H);
+    ctx.fillStyle='#1a2028'; ctx.fillRect(0,H-GROUND_H,W,4);
+    ctx.fillStyle='rgba(255,255,255,.05)';
+    for(let x=groundX;x<W;x+=24){ ctx.fillRect(x,H-GROUND_H+8,12,4); }
+
+    // bird
+    ctx.save();
+    ctx.translate(bird.x,bird.y); ctx.rotate(bird.rot);
+    ctx.fillStyle='#00aeec'; ctx.beginPath(); ctx.arc(0,0,bird.r,0,7); ctx.fill();
+    ctx.fillStyle='#0096cc'; ctx.beginPath(); ctx.arc(0,2,bird.r,0.2,Math.PI-0.2); ctx.fill();
+    // wing
+    ctx.fillStyle='#fff'; const wy=Math.sin(frames*0.3)*2;
+    ctx.beginPath(); ctx.ellipse(-4,wy,7,4,0,0,7); ctx.fill();
+    // eye
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(7,-4,4,0,7); ctx.fill();
+    ctx.fillStyle='#0f1419'; ctx.beginPath(); ctx.arc(8,-4,2,0,7); ctx.fill();
+    // beak
+    ctx.fillStyle='#ffd33d'; ctx.beginPath(); ctx.moveTo(bird.r-2,-2); ctx.lineTo(bird.r+8,0); ctx.lineTo(bird.r-2,3); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawPipe(x,y,h,isTop){
+    const g=ctx.createLinearGradient(x,0,x+PIPE_W,0);
+    g.addColorStop(0,'#00c091'); g.addColorStop(0.5,'#00e0a8'); g.addColorStop(1,'#00c091');
+    ctx.fillStyle=g; ctx.fillRect(x,y,PIPE_W,h);
+    // lip
+    const lipY=isTop?y+h-18:y;
+    ctx.fillStyle='#00d49a'; ctx.fillRect(x-4,lipY,PIPE_W+8,18);
+    ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(x+6,y,8,h);
+  }
+
+  function loop(t){
+    if(!running){ draw(); return; }
+    update(); draw();
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('keydown',e=>{ if(e.key===' '){ flap(); e.preventDefault(); } });
+  canvas.addEventListener('mousedown',flap);
+  canvas.addEventListener('touchstart',e=>{ flap(); e.preventDefault(); },{passive:false});
+  document.getElementById('startBtn').addEventListener('click',reset);
+  document.getElementById('retryBtn').addEventListener('click',reset);
+})();
+</script>
+</body>
+</html>
