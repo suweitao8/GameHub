@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="太空射击：驾驶飞船躲避并击碎飞来的陨石，存活越久得分越高。">
+<meta name="gamehub-instructions" content="左右方向键或 A/D 移动飞船，空格键发射子弹击碎陨石。陨石被击中会分裂成小块。">
+<meta name="gamehub-keywords" content="太空射击,asteroids,射击,动作,经典">
+<title>太空射击 · Asteroids</title>
+<style>
+  :root{--bg:#0a0e1a;--panel:#0f1726;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.2rem;}
+  .hud .s{color:var(--brand);}
+  .hud .l{color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.5);max-width:100%;max-height:calc(100vh - 120px);width:auto;height:auto;aspect-ratio:4/3;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(10,14,26,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen canvas{max-height:calc(100vh - 100px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="s">得分 <span id="score">0</span></span><span class="l">生命 <span id="lives">3</span></span></div>
+<canvas id="c"></canvas>
+<p class="hint">← → / A D 移动 · 空格发射</p>
+<div class="overlay" id="start"><h1>太空<span class="hl">射击</span></h1><p>驾驶飞船击碎飞来的陨石，大陨石击中后会分裂成小块。撞到陨石会扣命。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>飞船坠毁</h1><p>得分 <b style="color:var(--accent);font-size:1.6rem" id="final">0</b></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=600,H=450;c.width=W;c.height=H;
+const $score=document.getElementById('score'),$lives=document.getElementById('lives'),$start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final');
+let ship,bullets,rocks,particles,score,lives,running,keys={},lastShot;
+function reset(){
+ship={x:W/2,y:H-50,vx:0};bullets=[];rocks=[];particles=[];score=0;lives=3;running=true;lastShot=0;
+$score.textContent=0;$lives.textContent=3;$start.style.display='none';$over.style.display='none';
+spawnRock();spawnRock();spawnRock();
+requestAnimationFrame(loop);
+}
+function spawnRock(){
+const size=30+Math.random()*20;
+rocks.push({x:Math.random()*W,y:-size,size,vx:(Math.random()-0.5)*2,vy:1+Math.random()*2,rot:0,vr:(Math.random()-0.5)*0.1,hp:size>40?2:1});
+}
+function shoot(){
+if(Date.now()-lastShot<200)return;
+lastShot=Date.now();
+bullets.push({x:ship.x,y:ship.y-20,vy:-8});
+}
+function update(){
+if(keys['ArrowLeft']||keys['a']||keys['A'])ship.vx=Math.max(-5,ship.vx-0.8);
+else if(keys['ArrowRight']||keys['d']||keys['D'])ship.vx=Math.min(5,ship.vx+0.8);
+else ship.vx*=0.9;
+ship.x+=ship.vx;ship.x=Math.max(20,Math.min(W-20,ship.x));
+if(keys[' '])shoot();
+bullets=bullets.filter(b=>{b.y+=b.vy;return b.y>-10;});
+if(Math.random()<0.02&&rocks.length<8)spawnRock();
+rocks.forEach(r=>{r.x+=r.vx;r.y+=r.vy;r.rot+=r.vr;if(r.x<r.size||r.x>W-r.size)r.vx=-r.vx;});
+rocks=rocks.filter(r=>r.y<H+r.size);
+// 子弹击中陨石
+for(let i=bullets.length-1;i>=0;i--){
+for(let j=rocks.length-1;j>=0;j--){
+const r=rocks[j];
+if(Math.abs(bullets[i].x-r.x)<r.size&&Math.abs(bullets[i].y-r.y)<r.size){
+r.hp--;bullets.splice(i,1);
+if(r.hp<=0){
+score+=Math.floor(100/r.size*10);$score.textContent=score;
+// 爆炸粒子
+for(let k=0;k<8;k++)particles.push({x:r.x,y:r.y,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,life:20});
+// 分裂
+if(r.size>35){rocks.push({x:r.x,y:r.y,size:r.size*0.55,vx:(Math.random()-0.5)*3,vy:1+Math.random(),rot:0,vr:(Math.random()-0.5)*0.1,hp:1});rocks.push({x:r.x,y:r.y,size:r.size*0.55,vx:(Math.random()-0.5)*3,vy:1+Math.random(),rot:0,vr:(Math.random()-0.5)*0.1,hp:1});}
+rocks.splice(j,1);
+}
+break;
+}
+}
+}
+// 碰撞
+rocks.forEach(r=>{
+if(Math.hypot(r.x-ship.x,r.y-ship.y)<r.size+12){
+lives--;$lives.textContent=lives;
+// 爆炸
+for(let k=0;k<12;k++)particles.push({x:ship.x,y:ship.y,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6,life:25});
+rocks=rocks.filter(rr=>rr!==r);
+if(lives<=0){running=false;$final.textContent=score;setTimeout(()=>{$over.style.display='flex';},300);return;}
+ship.x=W/2;ship.y=H-50;
+}
+});
+particles=particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.life--;return p.life>0;});
+}
+function draw(){
+x.fillStyle='#0f1726';x.fillRect(0,0,W,H);
+// 星空
+x.fillStyle='rgba(255,255,255,.3)';
+for(let i=0;i<30;i++){x.fillRect((i*53)%W,(i*37+Date.now()/50)%H,1,1);}
+// 飞船
+x.fillStyle='#00aeec';
+x.beginPath();x.moveTo(ship.x,ship.y-18);x.lineTo(ship.x-12,ship.y+8);x.lineTo(ship.x-6,ship.y);x.lineTo(ship.x+6,ship.y);x.lineTo(ship.x+12,ship.y+8);x.closePath();x.fill();
+// 引擎火焰
+x.fillStyle='#ff8c42';x.beginPath();x.moveTo(ship.x-5,ship.y+5);x.lineTo(ship.x,ship.y+12+Math.random()*5);x.lineTo(ship.x+5,ship.y+5);x.fill();
+// 子弹
+x.fillStyle='#ffd33d';bullets.forEach(b=>{x.fillRect(b.x-2,b.y-6,4,8);});
+// 陨石
+rocks.forEach(r=>{
+x.save();x.translate(r.x,r.y);x.rotate(r.rot);
+x.fillStyle='#8b98a5';x.beginPath();
+const sides=7;for(let i=0;i<sides;i++){const a=i/sides*Math.PI*2;const rad=r.size*(0.8+Math.sin(i*2)*0.15);x.lineTo(Math.cos(a)*rad,Math.sin(a)*rad);}
+x.closePath();x.fill();
+x.strokeStyle='#5a6470';x.lineWidth=2;x.stroke();
+x.restore();
+});
+// 粒子
+particles.forEach(p=>{x.fillStyle='rgba(255,'+(p.life*10)+',0,'+(p.life/25)+')';x.fillRect(p.x-2,p.y-2,4,4);});
+}
+let last=0;
+function loop(t){
+if(!running)return;
+if(!last)last=t;
+if(t-last>=16){update();draw();last=t;}
+requestAnimationFrame(loop);
+}
+document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' '){e.preventDefault();shoot();}});
+document.addEventListener('keyup',e=>{keys[e.key]=false;});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

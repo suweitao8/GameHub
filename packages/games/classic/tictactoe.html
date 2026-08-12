@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="井字棋：和电脑对手在 3×3 棋盘上连成一线获胜，电脑使用 minimax 算法几乎不可战胜。">
+<meta name="gamehub-instructions" content="点击空格落子（你执 X 先手），横竖斜任意方向三连获胜。电脑使用完美策略。">
+<meta name="gamehub-keywords" content="井字棋,tic-tac-toe,棋类,AI,经典">
+<title>井字棋 · Tic-Tac-Toe</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--cell:#2a3441;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:12px;}
+  .hud{font-size:1.3rem;font-weight:800;min-height:1.8rem;text-align:center;}
+  .hud.win{color:var(--brand);}.hud.lose{color:var(--accent);}.hud.draw{color:var(--muted);}
+  .board-wrap{display:flex;align-items:center;justify-content:center;}
+  .grid{display:grid;grid-template-columns:repeat(3,100px);grid-template-rows:repeat(3,100px);gap:8px;background:var(--panel);padding:12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);transform-origin:center;}
+  .cell{background:var(--cell);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:900;cursor:pointer;transition:background .15s;}
+  .cell:hover:not(.taken){background:#344053;}
+  .cell.x{color:var(--brand);}.cell.o{color:var(--accent);}
+  .cell.taken{cursor:default;}
+  .stats{display:flex;gap:24px;font-size:0.95rem;color:var(--muted);}
+  .stats b{color:var(--text);}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud" id="status">你执 X，先手落子</div>
+<div class="board-wrap"><div class="grid" id="grid"></div></div>
+<div class="stats"><span>胜 <b id="ws">0</b></span><span>平 <b id="ds">0</b></span><span>负 <b id="ls">0</b></span></div>
+<p class="hint">点击空格落子</p>
+<div class="overlay" id="start"><h1>井字<span class="hl">棋</span></h1><p>你执 X 先手，电脑执 O 使用 minimax 完美策略。想赢很难，争取平局吧。</p><button class="btn" id="startBtn">开始对局</button></div>
+<script>
+(()=>{
+const grid=document.getElementById('grid'),$status=document.getElementById('status'),$ws=document.getElementById('ws'),$ds=document.getElementById('ds'),$ls=document.getElementById('ls'),$start=document.getElementById('start');
+let board,over,ws=0,ds=0,ls=0,lock;
+const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function reset(){
+board=Array(9).fill(0);over=false;lock=false;
+$status.textContent='你执 X，先手落子';$status.className='hud';
+$start.style.display='none';render();
+}
+function render(){
+grid.innerHTML='';
+board.forEach((v,i)=>{
+const el=document.createElement('div');
+el.className='cell';el.dataset.i=i;
+if(v===1){el.classList.add('x','taken');el.textContent='X';}
+else if(v===2){el.classList.add('o','taken');el.textContent='O';}
+grid.appendChild(el);
+});
+}
+function checkWin(b,who){
+return WINS.some(line=>line.every(i=>b[i]===who));
+}
+function playerMove(i){
+if(over||lock||board[i])return;
+board[i]=1;render();
+if(checkWin(board,1)){over=true;ws++;$ws.textContent=ws;$status.textContent='你赢了！';$status.className='hud win';return;}
+if(!board.includes(0)){over=true;ds++;$ds.textContent=ds;$status.textContent='平局';$status.className='hud draw';return;}
+lock=true;$status.textContent='电脑思考中...';
+setTimeout(aiMove,400);
+}
+function aiMove(){
+// minimax
+let bestScore=-Infinity,move=-1;
+for(let i=0;i<9;i++){if(!board[i]){board[i]=2;const s=minimax(board,0,false);board[i]=0;if(s>bestScore){bestScore=s;move=i;}}}
+board[move]=2;render();lock=false;
+if(checkWin(board,2)){over=true;ls++;$ls.textContent=ls;$status.textContent='电脑获胜';$status.className='hud lose';return;}
+if(!board.includes(0)){over=true;ds++;$ds.textContent=ds;$status.textContent='平局';$status.className='hud draw';return;}
+$status.textContent='轮到你了';
+}
+function minimax(b,depth,isMax){
+if(checkWin(b,2))return 10-depth;
+if(checkWin(b,1))return depth-10;
+if(!b.includes(0))return 0;
+if(isMax){let best=-Infinity;for(let i=0;i<9;i++)if(!b[i]){b[i]=2;best=Math.max(best,minimax(b,depth+1,false));b[i]=0;}return best;}
+else{let best=Infinity;for(let i=0;i<9;i++)if(!b[i]){b[i]=1;best=Math.min(best,minimax(b,depth+1,true));b[i]=0;}return best;}
+}
+grid.addEventListener('click',e=>{const t=e.target.closest('.cell');if(!t||over||lock)return;playerMove(+t.dataset.i);});
+document.getElementById('startBtn').addEventListener('click',reset);
+// 双击棋盘外重置
+grid.addEventListener('dblclick',()=>{if(over)reset();});
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

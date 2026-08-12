@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="打地鼠：地鼠随机冒头，快速点击敲打，30 秒内打中越多分数越高。">
+<meta name="gamehub-instructions" content="点击冒头的地鼠得分，金鼠加倍，炸弹扣分。30 秒倒计时内尽量多打。">
+<meta name="gamehub-keywords" content="打地鼠,whack,休闲,反应,经典">
+<title>打地鼠 · Whack-a-Mole</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--hole:#0a0e14;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.3rem;}
+  .hud .s{color:var(--brand);}
+  .hud .t{color:var(--accent);}
+  .board-wrap{display:flex;align-items:center;justify-content:center;}
+  .grid{display:grid;grid-template-columns:repeat(3,100px);grid-template-rows:repeat(3,100px);gap:12px;background:var(--panel);padding:16px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);}
+  .hole{background:var(--hole);border-radius:50%;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative;cursor:pointer;transform-origin:center;}
+  .mole{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;transform:translateY(100%);transition:transform .15s;position:absolute;bottom:8px;}
+  .mole.up{transform:translateY(0);}
+  .mole.normal{background:#8a6a4a;}
+  .mole.gold{background:linear-gradient(135deg,#ffd33d,#ff8c42);}
+  .mole.bomb{background:#f25d8e;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:300px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  .score-pop{position:fixed;font-weight:900;font-size:1.5rem;pointer-events:none;animation:pop .5s ease-out forwards;z-index:30;}
+  @keyframes pop{0%{transform:translateY(0);opacity:1;}100%{transform:translateY(-40px);opacity:0;}}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="s">得分 <span id="score">0</span></span><span class="t">⏱ <span id="time">30</span></span></div>
+<div class="board-wrap"><div class="grid" id="grid"></div></div>
+<p class="hint">点地鼠 +10 · 金鼠 +30 · 炸弹 -20</p>
+<div class="overlay" id="start"><h1>打<span class="hl">地鼠</span></h1><p>30 秒内尽可能多打地鼠。普通鼠 +10，金鼠 +30，炸弹 -20 别打。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>时间到</h1><p>得分 <b style="color:var(--brand);font-size:1.8rem" id="final">0</b></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const N=9;
+const grid=document.getElementById('grid'),$score=document.getElementById('score'),$time=document.getElementById('time'),$start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final');
+let holes,score,timeLeft,running,spawnTimer,countdown;
+function reset(){
+holes=[];grid.innerHTML='';
+for(let i=0;i<N;i++){
+const h=document.createElement('div');h.className='hole';h.dataset.i=i;
+const m=document.createElement('div');m.className='mole';h.appendChild(m);
+grid.appendChild(h);holes.push({el:h,mole:m,type:null});
+}
+score=0;timeLeft=30;$score.textContent=0;$time.textContent=30;
+$start.style.display='none';$over.style.display='none';running=true;
+countdown=setInterval(()=>{timeLeft--;$time.textContent=timeLeft;if(timeLeft<=0)end();},1000);
+scheduleSpawn();
+}
+function scheduleSpawn(){
+if(!running)return;
+spawnTimer=setTimeout(()=>{
+const empty=holes.map((h,i)=>h.type===null?i:-1).filter(i=>i>=0);
+if(empty.length){
+const idx=empty[(Math.random()*empty.length)|0];
+const r=Math.random();
+const type=r<0.1?'gold':r<0.2?'bomb':'normal';
+const h=holes[idx];
+h.type=type;h.mole.className='mole up '+type;
+h.mole.textContent=type==='gold'?'🐹':type==='bomb'?'💣':'🐭';
+setTimeout(()=>{if(h.type){h.type=null;h.mole.className='mole';h.mole.textContent='';}},1200);
+}
+scheduleSpawn();
+},500+Math.random()*600);
+}
+function hit(i){
+const h=holes[i];if(!h.type)return;
+let pts=0;
+if(h.type==='normal')pts=10;
+else if(h.type==='gold')pts=30;
+else if(h.type==='bomb')pts=-20;
+score=Math.max(0,score+pts);$score.textContent=score;
+// 弹分动画
+const pop=document.createElement('div');pop.className='score-pop';pop.textContent=(pts>0?'+':'')+pts;
+pop.style.color=pts>0?'var(--brand)':'var(--accent)';
+const rect=h.el.getBoundingClientRect();pop.style.left=rect.left+rect.width/2+'px';pop.style.top=rect.top+'px';
+document.body.appendChild(pop);setTimeout(()=>pop.remove(),500);
+h.type=null;h.mole.className='mole';h.mole.textContent='';
+}
+function end(){running=false;clearInterval(countdown);clearTimeout(spawnTimer);$final.textContent=score;$over.style.display='flex';}
+grid.addEventListener('click',e=>{const t=e.target.closest('.hole');if(t)hit(+t.dataset.i);});
+grid.addEventListener('touchstart',e=>{const t=e.target.closest('.hole');if(t){hit(+t.dataset.i);e.preventDefault();}},{passive:false});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',e=>{e.stopPropagation();if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

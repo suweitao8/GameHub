@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="推箱子：把所有箱子推到目标点，箱子只能推不能拉，规划好路线。">
+<meta name="gamehub-instructions" content="方向键或 WASD 控制角色移动，把所有橙色箱子推到绿色目标点上。箱子只能推不能拉。">
+<meta name="gamehub-keywords" content="推箱子,sokoban,益智,策略,经典">
+<title>推箱子 · Sokoban</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--floor:#2a3441;--wall:#5a6470;--brand:#00aeec;--accent:#fb7299;--target:#00c091;--box:#ff8c42;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.1rem;}
+  .hud .l{color:var(--brand);}
+  .hud .s{color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:100%;max-height:calc(100vh - 120px);width:auto;height:auto;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen canvas{max-height:calc(100vh - 100px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="l">关卡 <span id="lvl">1</span>/3</span><span class="s">步数 <span id="steps">0</span></span></div>
+<canvas id="c"></canvas>
+<p class="hint">方向键 / WASD 移动 · R 重置当前关</p>
+<div class="overlay" id="start"><h1>推<span class="hl">箱子</span></h1><p>把所有橙色箱子推到绿色目标点上。箱子只能推不能拉，小心别推到死角。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1 id="ot"></h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+// # 墙 . 地 @ 人 $ 箱 * 箱在目标 + 人在目标
+const LEVELS=[
+[
+'#######','#.....#','#.@$.##','#..$..#','#..*..#','#.....#','#######'
+],
+[
+'########','#......#','#.@$.*.#','#..##..#','#..$*..#','#......#','########'
+],
+[
+'#########','#.......#','#.###...#','#.#.@$..#','#.#.$.*.#','#.#.....#','#.#######','#########'
+]
+];
+const c=document.getElementById('c'),x=c.getContext('2d');
+const CELL=42;
+const $lvl=document.getElementById('lvl'),$steps=document.getElementById('steps'),$start=document.getElementById('start'),$over=document.getElementById('over'),$ot=document.getElementById('ot'),$om=document.getElementById('om');
+let map,player,boxes,targets,steps,curLvl;
+function load(n){
+curLvl=n;const L=LEVELS[n];
+map=[];boxes=[];targets=[];
+for(let i=0;i<L.length;i++){
+map[i]=[];
+for(let j=0;j<L[i].length;j++){
+const ch=L[i][j];
+if(ch==='#')map[i][j]=1;
+else{map[i][j]=0;
+if(ch==='@'||ch==='+')player={x:j,y:i};
+if(ch==='$'||ch==='*')boxes.push({x:j,y:i});
+if(ch==='*'||ch==='+'||ch==='.')targets.push({x:j,y:i});}
+}
+}
+steps=0;$steps.textContent=0;$lvl.textContent=n+1;
+c.width=L[0].length*CELL;c.height=L.length*CELL;
+$start.style.display='none';$over.style.display='none';
+draw();
+}
+function tryMove(dx,dy){
+const nx=player.x+dx,ny=player.y+dy;
+if(map[ny]&&map[ny][nx]===1)return;
+const boxIdx=boxes.findIndex(b=>b.x===nx&&b.y===ny);
+if(boxIdx>=0){
+const bx=nx+dx,by=ny+dy;
+if(map[by]&&map[by][bx]===1)return;
+if(boxes.some(b=>b.x===bx&&b.y===by))return;
+boxes[boxIdx].x=bx;boxes[boxIdx].y=by;
+}
+player.x=nx;player.y=ny;steps++;$steps.textContent=steps;draw();checkWin();
+}
+function checkWin(){
+const done=boxes.every(b=>targets.some(t=>t.x===b.x&&t.y===b.y));
+if(done){
+if(curLvl<LEVELS.length-1){$ot.textContent='过关！';$om.textContent='进入下一关...';$over.style.display='flex';}
+else{$ot.textContent='全部通关！';$om.innerHTML='总步数 <b style="color:var(--brand)">'+steps+'</b>';$over.style.display='flex';}
+}
+}
+function draw(){
+x.fillStyle='#1a2028';x.fillRect(0,0,c.width,c.height);
+for(let i=0;i<map.length;i++)for(let j=0;j<map[i].length;j++){
+const px=j*CELL,py=i*CELL;
+if(map[i][j]===1){x.fillStyle='#5a6470';roundRect(px+2,py+2,CELL-4,CELL-4,5);x.fill();x.fillStyle='#4a5460';x.fillRect(px+6,py+6,CELL-12,CELL-12);}
+else{x.fillStyle='#2a3441';x.fillRect(px,py,CELL,CELL);}
+}
+targets.forEach(t=>{x.fillStyle='rgba(0,192,145,.25)';x.beginPath();x.arc(t.x*CELL+CELL/2,t.y*CELL+CELL/2,CELL*0.3,0,7);x.fill();x.strokeStyle='#00c091';x.lineWidth=2;x.stroke();});
+boxes.forEach(b=>{const onT=targets.some(t=>t.x===b.x&&t.y===b.y);x.fillStyle=onT?'#00c091':'#ff8c42';roundRect(b.x*CELL+4,b.y*CELL+4,CELL-8,CELL-8,6);x.fill();x.strokeStyle=onT?'#00d4a8':'#e6721f';x.lineWidth=2;x.stroke();});
+// 玩家
+x.fillStyle='#00aeec';x.beginPath();x.arc(player.x*CELL+CELL/2,player.y*CELL+CELL/2,CELL*0.35,0,7);x.fill();
+x.fillStyle='#fff';x.beginPath();x.arc(player.x*CELL+CELL/2-3,player.y*CELL+CELL/2-3,2,0,7);x.arc(player.x*CELL+CELL/2+4,player.y*CELL+CELL/2-3,2,0,7);x.fill();
+}
+function roundRect(px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+function reset(){load(0);}
+document.addEventListener('keydown',e=>{
+const k=e.key.toLowerCase();
+if(k==='arrowup'||k==='w')tryMove(0,-1);
+else if(k==='arrowdown'||k==='s')tryMove(0,1);
+else if(k==='arrowleft'||k==='a')tryMove(-1,0);
+else if(k==='arrowright'||k==='d')tryMove(1,0);
+else if(k==='r')load(curLvl);
+if(['arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+});
+// 触屏滑动
+let ts;c.addEventListener('touchstart',e=>{ts={x:e.touches[0].clientX,y:e.touches[0].clientY};},{passive:true});
+c.addEventListener('touchend',e=>{if(!ts)return;const dx=e.changedTouches[0].clientX-ts.x,dy=e.changedTouches[0].clientY-ts.y;if(Math.abs(dx)>Math.abs(dy))tryMove(dx>0?1:-1,0);else tryMove(0,dy>0?1:-1);ts=null;},{passive:true});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',()=>{if(curLvl<LEVELS.length-1)load(curLvl+1);else load(0);});
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

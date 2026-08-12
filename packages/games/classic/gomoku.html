@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="五子棋人机对战：连成五子获胜，电脑对手会防守和进攻。">
+<meta name="gamehub-instructions" content="点击棋盘交叉点落子（黑棋先手），横竖斜任意方向连成五子获胜。">
+<meta name="gamehub-keywords" content="五子棋,gomoku,棋类,策略,经典">
+<title>五子棋 · Gomoku</title>
+<style>
+  :root{--bg:#0f1419;--panel:#e8c884;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:24px;font-weight:800;font-size:1.1rem;}
+  .hud .you{color:var(--text);}
+  .hud .ai{color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:100%;max-height:calc(100vh - 120px);width:auto;height:auto;aspect-ratio:1/1;cursor:pointer;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}.btn:active{transform:scale(.96);}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen canvas{max-height:calc(100vh - 100px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="you">⚫ 你</span><span class="ai">⚪ 电脑</span></div>
+<canvas id="c"></canvas>
+<p class="hint">点击落子 · 连成五子获胜</p>
+<div class="overlay" id="start"><h1>五子棋 <span class="hl">Gomoku</span></h1><p>你执黑先手，电脑执白。横竖斜任意方向连成五子获胜。</p><button class="btn" id="startBtn">开始对局</button></div>
+<div class="overlay" id="over" style="display:none"><h1 id="ot"></h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const SIZE=15;
+const c=document.getElementById('c'),x=c.getContext('2d');
+const RES=560;c.width=RES;c.height=RES;
+const PAD=22,CELL=(RES-PAD*2)/(SIZE-1);
+const $start=document.getElementById('start'),$over=document.getElementById('over'),$ot=document.getElementById('ot'),$om=document.getElementById('om');
+let board,turn,over,lock;
+function reset(){
+board=[];for(let i=0;i<SIZE;i++)board[i]=Array(SIZE).fill(0);
+turn=1;over=false;lock=false;$start.style.display='none';$over.style.display='none';draw();requestAnimationFrame(loop);
+}
+function draw(){
+x.fillStyle='#e8c884';x.fillRect(0,0,RES,RES);
+x.strokeStyle='#8a6a2a';x.lineWidth=1;
+for(let i=0;i<SIZE;i++){
+x.beginPath();x.moveTo(PAD,PAD+i*CELL);x.lineTo(RES-PAD,PAD+i*CELL);x.stroke();
+x.beginPath();x.moveTo(PAD+i*CELL,PAD);x.lineTo(PAD+i*CELL,RES-PAD);x.stroke();
+}
+// 天元和星位
+[[3,3],[3,11],[7,7],[11,3],[11,11]].forEach(([r,cc])=>{x.fillStyle='#8a6a2a';x.beginPath();x.arc(PAD+cc*CELL,PAD+r*CELL,3,0,7);x.fill();});
+for(let i=0;i<SIZE;i++)for(let j=0;j<SIZE;j++)if(board[i][j])drawStone(i,j,board[i][j]);
+}
+function drawStone(r,cc,who){
+const px=PAD+cc*CELL,py=PAD+r*CELL;
+x.beginPath();x.arc(px,py,CELL*0.42,0,7);
+if(who===1){const g=x.createRadialGradient(px-4,py-4,2,px,py,CELL*0.42);g.addColorStop(0,'#555');g.addColorStop(1,'#000');x.fillStyle=g;}
+else{const g=x.createRadialGradient(px-4,py-4,2,px,py,CELL*0.42);g.addColorStop(0,'#fff');g.addColorStop(1,'#bbb');x.fillStyle=g;}
+x.fill();
+}
+function check(r,cc,who){
+const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+for(const [dr,dc] of dirs){
+let cnt=1;
+for(let i=1;i<5;i++){const nr=r+dr*i,nc=cc+dc*i;if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===who)cnt++;else break;}
+for(let i=1;i<5;i++){const nr=r-dr*i,nc=cc-dc*i;if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE&&board[nr][nc]===who)cnt++;else break;}
+if(cnt>=5)return true;
+}
+return false;
+}
+function playerMove(r,cc){
+if(over||lock||board[r][cc])return;
+board[r][cc]=1;draw();
+if(check(r,cc,1)){over=true;return end(true);}
+turn=2;lock=true;setTimeout(aiMove,400);
+}
+function aiMove(){
+// 评估每个空位的攻防分数
+let best=-1,br=7,bc=7;
+for(let i=0;i<SIZE;i++)for(let j=0;j<SIZE;j++){
+if(board[i][j])continue;
+// 只考虑有邻居的位置
+let hasNeighbor=false;
+for(let dr=-1;dr<=1&&!hasNeighbor;dr++)for(let dc=-1;dc<=1&&!hasNeighbor;dc++){
+const ni=i+dr,nj=j+dc;if(ni>=0&&ni<SIZE&&nj>=0&&nj<SIZE&&board[ni][nj])hasNeighbor=true;
+}
+if(!hasNeighbor)continue;
+const atk=scorePos(i,j,2),def=scorePos(i,j,1);
+const s=atk*1.1+def;
+if(s>best){best=s;br=i;bc=j;}
+}
+board[br][bc]=2;draw();
+if(check(br,bc,2)){over=true;lock=false;return end(false);}
+turn=1;lock=false;
+}
+function scorePos(r,cc,who){
+let total=0;
+const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+for(const [dr,dc] of dirs){
+let line=0,blocks=0;
+// 向正方向
+let cnt=0;for(let i=1;i<5;i++){const nr=r+dr*i,nc=cc+dc*i;if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE){if(board[nr][nc]===who)cnt++;else if(board[nr][nc]===0)break;else{blocks++;break;}}else blocks++;}
+// 向反方向
+let cnt2=0;for(let i=1;i<5;i++){const nr=r-dr*i,nc=cc-dc*i;if(nr>=0&&nr<SIZE&&nc>=0&&nc<SIZE){if(board[nr][nc]===who)cnt2++;else if(board[nr][nc]===0)break;else{blocks++;break;}}else blocks++;}
+const len=1+cnt+cnt2;
+if(len>=5)total+=100000;
+else if(len===4&&blocks===0)total+=10000;
+else if(len===4)total+=1000;
+else if(len===3&&blocks===0)total+=1000;
+else if(len===3)total+=100;
+else if(len===2&&blocks===0)total+=100;
+else if(len===2)total+=10;
+else total+=1;
+}
+return total;
+}
+function end(win){$ot.textContent=win?'你赢了！':'电脑获胜';$om.textContent=win?'五子连珠，干得漂亮':'别气馁，再来一局';setTimeout(()=>{$over.style.display='flex';},300);}
+function loop(){if(!over)requestAnimationFrame(loop);}
+function pos(e){
+const r=c.getBoundingClientRect();
+const px=(e.clientX-r.left)*(RES/r.width),py=(e.clientY-r.top)*(RES/r.height);
+const cc=Math.round((px-PAD)/CELL),rr=Math.round((py-PAD)/CELL);
+if(rr>=0&&rr<SIZE&&cc>=0&&cc<SIZE)return[rr,cc];return null;
+}
+c.addEventListener('click',e=>{if(turn!==1||over||lock)return;const p=pos(e);if(p)playerMove(p[0],p[1]);});
+c.addEventListener('touchstart',e=>{if(turn!==1||over||lock)return;const t=e.touches[0];const r=c.getBoundingClientRect();const px=(t.clientX-r.left)*(RES/r.width),py=(t.clientY-r.top)*(RES/r.height);const cc=Math.round((px-PAD)/CELL),rr=Math.round((py-PAD)/CELL);if(rr>=0&&rr<SIZE&&cc>=0&&cc<SIZE)playerMove(rr,cc);e.preventDefault();},{passive:false});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

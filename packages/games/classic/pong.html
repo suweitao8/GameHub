@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="经典乒乓：控制挡板反弹小球，和电脑对手对决，先得 7 分获胜。">
+<meta name="gamehub-instructions" content="鼠标或上下方向键（W/S）控制左侧挡板，先得 7 分获胜。">
+<meta name="gamehub-keywords" content="乒乓,pong,经典,运动">
+<title>乒乓 · Pong</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:12px;}
+  .hud{display:flex;gap:48px;align-items:center;font-weight:800;}
+  .hud .p{font-size:2rem;color:var(--brand);}
+  .hud .e{font-size:2rem;color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:100%;max-height:calc(100vh - 130px);width:auto;height:auto;aspect-ratio:4/3;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}.btn:active{transform:scale(.96);}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen .hud .p,:fullscreen .hud .e{font-size:2.6rem;}
+  :fullscreen canvas{max-height:calc(100vh - 160px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="p" id="ps">0</span><span class="e" id="es">0</span></div>
+<canvas id="c"></canvas>
+<p class="hint">鼠标 / ↑↓ 或 W/S 控制挡板</p>
+<div class="overlay" id="start"><h1>乒乓 <span class="hl">Pong</span></h1><p>控制左侧挡板反弹小球，先得 7 分获胜。球速会越来越快。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1 id="ot"></h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=600,H=450;c.width=W;c.height=H;
+const $ps=document.getElementById('ps'),$es=document.getElementById('es'),$start=document.getElementById('start'),$over=document.getElementById('over'),$ot=document.getElementById('ot'),$om=document.getElementById('om');
+const PW=12,PH=80,BALL=10;
+let p,e,b,ps,es,running,mouseY=W/2;
+function reset(){
+p={x:20,y:H/2-PH/2};e={x:W-32,y:H/2-PH/2};b={x:W/2,y:H/2,vx:(Math.random()<.5?1:-1)*4,vy:(Math.random()*4-2)};
+ps=0;es=0;$ps.textContent=0;$es.textContent=0;$start.style.display='none';$over.style.display='none';running=true;serve();requestAnimationFrame(loop);
+}
+function serve(){
+b.x=W/2;b.y=H/2;b.vx=(Math.random()<.5?1:-1)*4;b.vy=(Math.random()*4-2);
+}
+let keys={};
+document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' ')e.preventDefault();});
+document.addEventListener('keyup',e=>{keys[e.key]=false;});
+c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();p.y=Math.max(0,Math.min(H-PH,(e.clientY-r.top)*(H/r.height)-PH/2));});
+c.addEventListener('touchmove',e=>{const r=c.getBoundingClientRect();p.y=Math.max(0,Math.min(H-PH,(e.touches[0].clientY-r.top)*(H/r.height)-PH/2));e.preventDefault();},{passive:false});
+function update(){
+if(keys['ArrowUp']||keys['w']||keys['W'])p.y=Math.max(0,p.y-7);
+if(keys['ArrowDown']||keys['s']||keys['S'])p.y=Math.min(H-PH,p.y+7);
+// AI: 追球，带一点延迟
+const target=b.y-PH/2;
+if(e.y<target-4)e.y+=5;else if(e.y>target+4)e.y-=5;
+e.y=Math.max(0,Math.min(H-PH,e.y));
+b.x+=b.vx;b.y+=b.vy;
+if(b.y<BALL||b.y>H-BALL){b.vy=-b.vy;b.y=Math.max(BALL,Math.min(H-BALL,b.y));}
+// 左挡板
+if(b.x-BALL<p.x+PW&&b.x>p.x&&b.y>p.y&&b.y<p.y+PH&&b.vx<0){
+b.vx=-b.vx*1.05;const rel=(b.y-(p.y+PH/2))/(PH/2);b.vy=rel*6;b.x=p.x+PW+BALL;
+}
+// 右挡板
+if(b.x+BALL>e.x&&b.x<e.x+PW&&b.y>e.y&&b.y<e.y+PH&&b.vx>0){
+b.vx=-b.vx*1.05;const rel=(b.y-(e.y+PH/2))/(PH/2);b.vy=rel*6;b.x=e.x-BALL;
+}
+// 得分
+if(b.x<-BALL){es++;$es.textContent=es;if(es>=7)return end(false);serve();}
+if(b.x>W+BALL){ps++;$ps.textContent=ps;if(ps>=7)return end(true);serve();}
+}
+function end(win){running=false;$ot.textContent=win?'你赢了！':'电脑获胜';$om.innerHTML='比分 <b style="color:'+(win?'var(--brand)':'var(--accent)')+'">'+ps+' : '+es+'</b>';$over.style.display='flex';}
+function draw(){
+x.fillStyle='#1a2028';x.fillRect(0,0,W,H);
+x.strokeStyle='rgba(255,255,255,.1)';x.lineWidth=2;x.setLineDash([8,12]);
+x.beginPath();x.moveTo(W/2,0);x.lineTo(W/2,H);x.stroke();x.setLineDash([]);
+x.fillStyle='#00aeec';x.fillRect(p.x,p.y,PW,PH);
+x.fillStyle='#fb7299';x.fillRect(e.x,e.y,PW,PH);
+x.fillStyle='#fff';x.beginPath();x.arc(b.x,b.y,BALL,0,7);x.fill();
+x.fillStyle='rgba(255,255,255,.2)';x.beginPath();x.arc(b.x,b.y,BALL+4,0,7);x.fill();
+}
+let last=0;
+function loop(t){
+if(!running)return;
+if(!last)last=t;
+if(t-last>=16){update();draw();last=t;}
+requestAnimationFrame(loop);
+}
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

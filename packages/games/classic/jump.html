@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="跳一跳：长按蓄力让小棋子跳到下一个平台，力度要刚好，掉下去就结束。">
+<meta name="gamehub-instructions" content="鼠标按住或长按屏幕蓄力，松开跳跃。力度越大跳越远，精准落到下一个平台中心得分翻倍。">
+<meta name="gamehub-keywords" content="跳一跳,jump,休闲,节奏,经典">
+<title>跳一跳 · Jump</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.3rem;}
+  .hud .s{color:var(--brand);}
+  .hud .b{color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:100%;max-height:calc(100vh - 120px);width:auto;height:auto;aspect-ratio:3/4;cursor:pointer;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .power-bar{width:200px;height:6px;background:var(--panel);border-radius:3px;overflow:hidden;}
+  .power-fill{height:100%;background:linear-gradient(90deg,var(--brand),var(--accent));width:0;transition:width .05s;}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:300px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen canvas{max-height:calc(100vh - 100px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="s">得分 <span id="score">0</span></span><span class="b">最高 <span id="best">0</span></span></div>
+<canvas id="c"></canvas>
+<div class="power-bar"><div class="power-fill" id="pf"></div></div>
+<p class="hint">按住蓄力 · 松开跳跃</p>
+<div class="overlay" id="start"><h1>跳一<span class="hl">跳</span></h1><p>按住蓄力，松开跳跃到下一个平台。力度越大跳越远，掉下去就结束。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>掉下去了</h1><p>得分 <b style="color:var(--accent);font-size:1.6rem" id="final">0</b></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=360,H=480;c.width=W;c.height=H;
+const $score=document.getElementById('score'),$best=document.getElementById('best'),$pf=document.getElementById('pf'),$start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final');
+const PCOLORS=['#00aeec','#fb7299','#ff8c42','#a371f7','#00c091','#ffd33d'];
+let player,plat,charging,power,score,best,running,dead,jumping;
+function reset(){
+player={x:80,y:0,r:14};
+plat=genPlatform(220,0);
+charge=false;power=0;score=0;dead=false;jumping=false;
+$score.textContent=0;$start.style.display='none';$over.style.display='none';running=true;
+layout();
+requestAnimationFrame(loop);
+}
+let best_val=0;
+function genPlatform(prevX,prevW){
+const w=50+Math.random()*30;
+const dist=80+Math.random()*90;
+const px=Math.max(20,Math.min(W-w-20,prevX+dist-(w/2)));
+return{x:px,w,y:0,color:PCOLORS[(Math.random()*PCOLORS.length)|0]};
+}
+function layout(){
+// 平台 y 固定在底部
+const baseY=H-80;
+plat.y=baseY;
+if(score===0)player.y=baseY;
+}
+function startCharge(){if(running&&!dead&&!jumping){charging=true;power=0;}}
+function release(){
+if(!charging)return;
+charging=false;jumping=true;
+const dist=plat.x+plat.w/2-player.x;
+const jumpDist=power*3.2;
+const targetX=player.x+jumpDist*Math.sign(dist||1);
+// 简化:朝下一个平台方向跳
+const dir=Math.sign((plat.x+plat.w/2)-player.x)||1;
+const landX=player.x+power*2.8*dir;
+jumping={fromX:player.x,toX:landX,t:0,dur:20};
+}
+function update(){
+if(charging){
+power=Math.min(power+1.5,40);
+$pf.style.width=(power/40*100)+'%';
+}
+if(jumping){
+jumping.t++;
+const p=jumping.t/jumping.dur;
+player.x=jumping.fromX+(jumping.toX-jumping.fromX)*p;
+player.y=(H-80)-Math.sin(p*Math.PI)*80; // 抛物线
+if(jumping.t>=jumping.dur){
+player.y=H-80;jumping=false;
+// 判定落地
+if(player.x>plat.x-player.r&&player.x<plat.x+plat.w+player.r){
+// 成功
+const center=plat.x+plat.w/2;
+const perfect=Math.abs(player.x-center)<8;
+score+=perfect?2:1;$score.textContent=score;
+if(score>best_val){best_val=score;$best.textContent=best_val;}
+// 生成新平台,视角滚动
+player.x=plat.x+plat.w/2;
+plat=genPlatform(plat.x,plat.w);plat.y=H-80;
+}else{
+dead=true;running=false;$final.textContent=score;
+setTimeout(()=>{$over.style.display='flex';},400);
+}
+$pf.style.width=0;power=0;
+}
+}
+}
+function draw(){
+x.fillStyle='#1a2028';x.fillRect(0,0,W,H);
+// 背景装饰
+x.fillStyle='rgba(255,255,255,.03)';
+for(let i=0;i<5;i++)x.fillRect((i*80)%W,(i*60)%H,40,40);
+// 平台
+x.fillStyle=plat.color;roundRect(plat.x,plat.y-12,plat.w,16,4);x.fill();
+// 玩家(棋子)
+x.fillStyle='#fff';x.beginPath();x.arc(player.x,player.y-player.r,player.r*(charging?1-power*0.01:1),0,7);x.fill();
+x.fillStyle='#00aeec';x.fillRect(player.x-4,player.y-player.r-4,8,4);
+}
+function roundRect(px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+let last=0;
+function loop(t){
+if(!running)return;
+if(!last)last=t;
+if(t-last>=16){update();draw();last=t;}
+requestAnimationFrame(loop);
+}
+c.addEventListener('mousedown',startCharge);
+document.addEventListener('mouseup',release);
+c.addEventListener('touchstart',e=>{startCharge();e.preventDefault();},{passive:false});
+c.addEventListener('touchend',e=>{release();e.preventDefault();},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key===' '&&!charging)startCharge();});
+document.addEventListener('keyup',e=>{if(e.key===' ')release();});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

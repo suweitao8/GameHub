@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="颜色反应：看文字的颜色（不是字义）选出正确颜色，考验大脑抗干扰能力。">
+<meta name="gamehub-instructions" content="注意上方文字的【颜色】而非字义，点击下方对应颜色按钮。30 秒内答对越多分数越高，答错扣分。">
+<meta name="gamehub-keywords" content="颜色反应,stroop,脑力,反应,休闲">
+<title>颜色反应 · Stroop</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.2rem;}
+  .hud .s{color:var(--brand);}
+  .hud .t{color:var(--accent);}
+  .word{font-size:3.5rem;font-weight:900;min-height:5rem;display:flex;align-items:center;justify-content:center;letter-spacing:.05em;}
+  .opts{display:grid;grid-template-columns:repeat(2,140px);gap:12px;}
+  .opt{padding:18px;border:0;border-radius:12px;font-size:1.1rem;font-weight:800;cursor:pointer;transition:transform .1s,opacity .1s;color:#fff;}
+  .opt:active{transform:scale(.95);}
+  .opt.flash-correct{box-shadow:0 0 0 4px var(--brand);}
+  .opt.flash-wrong{box-shadow:0 0 0 4px var(--accent);}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen .word{font-size:5rem;}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="s">得分 <span id="score">0</span></span><span class="t">⏱ <span id="time">30</span></span></div>
+<div class="word" id="word">点击开始</div>
+<div class="opts" id="opts"></div>
+<p class="hint">选出文字的【颜色】，不是字义</p>
+<div class="overlay" id="start"><h1>颜色<span class="hl">反应</span></h1><p>看文字的【颜色】而非字义，选出对应颜色。30 秒内答对越多越好，答错扣分。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>时间到</h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const COLORS=[
+{name:'红',color:'#fb7299'},{name:'蓝',color:'#00aeec'},{name:'绿',color:'#00c091'},
+{name:'黄',color:'#ffd33d'},{name:'紫',color:'#a371f7'},{name:'橙',color:'#ff8c42'}
+];
+const $word=document.getElementById('word'),$opts=document.getElementById('opts'),$score=document.getElementById('score'),$time=document.getElementById('time'),$start=document.getElementById('start'),$over=document.getElementById('over'),$om=document.getElementById('om');
+let score,timeLeft,running,cur,countdown;
+function reset(){
+score=0;timeLeft=30;$score.textContent=0;$time.textContent=30;
+$start.style.display='none';$over.style.display='none';running=true;
+next();
+countdown=setInterval(()=>{timeLeft--;$time.textContent=timeLeft;if(timeLeft<=0)end();},1000);
+}
+function next(){
+const wordIdx=(Math.random()*COLORS.length)|0;
+let colorIdx=(Math.random()*COLORS.length)|0;
+while(colorIdx===wordIdx&&Math.random()<0.7)colorIdx=(Math.random()*COLORS.length)|0;
+cur=COLORS[colorIdx];
+$word.textContent=COLORS[wordIdx].name;
+$word.style.color=cur.color;
+// 4 个选项
+const opts=[cur];
+while(opts.length<4){const pick=COLORS[(Math.random()*COLORS.length)|0];if(!opts.includes(pick))opts.push(pick);}
+opts.sort(()=>Math.random()-0.5);
+$opts.innerHTML='';
+opts.forEach(o=>{
+const b=document.createElement('button');
+b.className='opt';b.textContent=o.name;b.style.background=o.color;
+b.addEventListener('click',()=>answer(o));
+$opts.appendChild(b);
+});
+}
+function answer(o){
+if(!running)return;
+const btns=$opts.querySelectorAll('.opt');
+btns.forEach(b=>{if(b.textContent===cur.name)b.classList.add(o===cur?'flash-correct':'flash-wrong');});
+if(o===cur){score+=10;$score.textContent=score;}
+else{score=Math.max(0,score-5);$score.textContent=score;}
+setTimeout(()=>{if(running)next();},250);
+}
+function end(){running=false;clearInterval(countdown);
+let grade='';if(score>=200)grade='反应大师！';else if(score>=120)grade='反应敏捷';else if(score>=60)grade='还需练习';else grade='继续努力';
+$om.innerHTML='得分 <b style="color:var(--brand);font-size:1.8rem">'+score+'</b><br>'+grade;
+$over.style.display='flex';
+}
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',e=>{e.stopPropagation();if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>
