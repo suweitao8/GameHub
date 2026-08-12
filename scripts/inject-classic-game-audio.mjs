@@ -1,15 +1,17 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<meta name="gamehub-description" content="纸牌 21 点：与庄家比拼点数，尽量接近 21 但不能爆牌。">
-<meta name="gamehub-instructions" content="点击要牌继续抽牌，点击停牌让庄家补牌到 17 点。A 可作 1 或 11 点。">
-<meta name="gamehub-keywords" content="纸牌21点,blackjack,扑克,策略,经典">
-<title>纸牌 21 点 · Blackjack</title>
-<style>
-  :root{--bg:#0d231b;--felt:#146343;--brand:#ffd36a;--accent:#ff6d82;--text:#fffdf4;--muted:#b5d1c1}*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}html,body{height:100%;overflow:hidden;background:radial-gradient(circle at 50% 20%,#1d684b,#0d231b 70%);color:var(--text);font-family:Segoe UI,Arial,'Microsoft YaHei',sans-serif}body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:15px;padding:12px}.table{width:min(94vw,650px);min-height:430px;border:8px solid #603f27;border-radius:45% 45% 28px 28px;background:radial-gradient(ellipse,#1c8059,var(--felt));box-shadow:0 15px 40px #0009;padding:32px;display:flex;flex-direction:column;justify-content:space-between}.row h2{font-size:1rem;color:var(--muted);margin-bottom:10px}.hand{display:flex;gap:10px;min-height:105px;flex-wrap:wrap}.card{width:67px;height:96px;border-radius:8px;background:#fffdf4;color:#17201c;padding:7px;font:800 1.25rem Georgia,serif;box-shadow:0 4px 7px #0007}.card.red{color:#d8364f}.card .suit{display:block;font-size:1.5rem;margin-top:4px}.card.back{background:repeating-linear-gradient(45deg,#263d9e 0 6px,#e9e9ff 6px 11px);border:4px solid white}.status{text-align:center;font-weight:800;color:var(--brand);min-height:25px}.actions{display:flex;justify-content:center;gap:12px}.btn{border:0;border-radius:9px;background:var(--brand);color:#3b2405;padding:12px 24px;font:800 1rem inherit;cursor:pointer}.btn.alt{background:#2e473c;color:white}.btn:disabled{opacity:.45;cursor:default}.hint{color:var(--muted);font-size:.84rem;text-align:center}.overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;padding:24px;background:#07130de9;text-align:center}.overlay h1 span{color:var(--brand)}.overlay p{max-width:335px;line-height:1.6;color:var(--muted)}.fs{position:fixed;top:12px;right:12px;z-index:7;width:40px;height:40px;border-radius:8px;border:1px solid #ffffff33;background:#244838cc;color:white;cursor:pointer;font-size:1.1rem}
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
+const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const gamesDir = join(root, 'packages', 'games', 'classic')
+
+const AUDIO_CONTROLS = `
+<div id="gamehubAudioControls" class="gamehub-audio-controls" role="group" aria-label="声音控制">
+  <button type="button" data-audio="music" aria-pressed="true" aria-label="关闭背景音乐" title="关闭背景音乐">♫</button>
+  <button type="button" data-audio="sfx" aria-pressed="true" aria-label="关闭游戏音效" title="关闭游戏音效">🔊</button>
+</div>`
+
+const AUDIO_CSS = `
   .gamehub-audio-controls{position:fixed;top:12px;right:60px;z-index:20;display:flex;gap:6px;align-items:center}
   .gamehub-audio-controls button{width:40px;height:40px;border:1px solid rgba(255,255,255,.15);border-radius:9px;background:rgba(20,28,42,.88);color:inherit;cursor:pointer;font:700 1.05rem/1 Segoe UI,Arial,sans-serif;transition:background .15s,transform .1s,opacity .15s}
   .gamehub-audio-controls button:hover{background:rgba(0,174,236,.82)}
@@ -18,16 +20,9 @@
   .gamehub-audio-controls button[aria-pressed="false"]{opacity:.48;filter:grayscale(1)}
   @media (max-width:520px){.gamehub-audio-controls{right:58px;gap:4px}.gamehub-audio-controls button{width:42px;height:42px}}
   @media (prefers-reduced-motion:reduce){.gamehub-audio-controls button{transition:none}}
-</style>
-</head>
-<body data-gamehub-audio="v1">
-<div id="gamehubAudioControls" class="gamehub-audio-controls" role="group" aria-label="声音控制">
-  <button type="button" data-audio="music" aria-pressed="true" aria-label="关闭背景音乐" title="关闭背景音乐">♫</button>
-  <button type="button" data-audio="sfx" aria-pressed="true" aria-label="关闭游戏音效" title="关闭游戏音效">🔊</button>
-</div>
-<button class="fs" id="fsBtn" aria-label="全屏">⛶</button><div class="table"><section class="row"><h2>庄家 <span id="dealerScore"></span></h2><div class="hand" id="dealer"></div></section><p class="status" id="status">下注开始新一局</p><section class="row"><h2>你 <span id="playerScore"></span></h2><div class="hand" id="player"></div></section></div><div class="actions"><button class="btn" id="hitBtn">要牌</button><button class="btn alt" id="standBtn">停牌</button></div><p class="hint">目标是接近 21 点但不能超过；庄家在 17 点前必须要牌。</p>
-<div class="overlay" id="start"><h1>纸牌 <span>21 点</span></h1><p>拿到比庄家更高、但不超过 21 的点数即可获胜。A 会自动按最优方式计算为 1 或 11。</p><button class="btn" id="startBtn">开始发牌</button></div><div class="overlay" id="over" style="display:none"><h1 id="result"></h1><p id="summary"></p><button class="btn" id="retryBtn">再来一局</button></div>
-<script>
+`
+
+const AUDIO_RUNTIME = String.raw`
 (()=>{
   const AudioContextCtor=window.AudioContext||window.webkitAudioContext;
   const musicNotes=[261.63,329.63,392,523.25,392,329.63,293.66,349.23,440,523.25,440,349.23];
@@ -123,8 +118,26 @@
   window.gamehubAudio={ensureAudio,startMusic,stopMusic,sfx,getState:()=>({musicEnabled,sfxEnabled,audioState:audioContext?.state||'uninitialized'})};
   bindControls();watchFeedback();
 })();
+`
 
-(()=>{const $=id=>document.getElementById(id),suits=['♠','♥','♦','♣'],ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];let deck,p,d,active,revealed;function fresh(){deck=[];for(const s of suits)for(const r of ranks)deck.push({s,r});deck.sort(()=>Math.random()-.5)}function draw(){return deck.pop()}function val(hand){let total=hand.reduce((n,c)=>n+(c.r==='A'?11:['J','Q','K'].includes(c.r)?10:+c.r),0),aces=hand.filter(c=>c.r==='A').length;while(total>21&&aces--){total-=10}return total}function card(c,back=false){const e=document.createElement('i');e.className='card'+(back?' back':(['♥','♦'].includes(c.s)?' red':''));if(!back)e.innerHTML=`${c.r}<span class="suit">${c.s}</span>`;return e}function render(){const ps=val(p),ds=val(d);$('dealer').innerHTML='';d.forEach((c,i)=>$('dealer').append(card(c,!revealed&&i===1)));$('player').innerHTML='';p.forEach(c=>$('player').append(card(c)));$('playerScore').textContent='('+ps+')';$('dealerScore').textContent=revealed?'('+ds+')':'';$('hitBtn').disabled=!active;$('standBtn').disabled=!active}function reset(){fresh();p=[draw(),draw()];d=[draw(),draw()];active=true;revealed=false;$('start').style.display='none';$('over').style.display='none';$('status').textContent='轮到你：要牌还是停牌？';render();if(val(p)===21)stand()}function finish(text){active=false;revealed=true;render();$('result').textContent=text;$('summary').textContent=`你的点数 ${val(p)} · 庄家点数 ${val(d)}`;$('over').style.display='flex'}function hit(){if(!active)return;p.push(draw());render();if(val(p)>21)finish('爆牌了！')}function stand(){if(!active)return;active=false;revealed=true;while(val(d)<17)d.push(draw());render();const a=val(p),z=val(d);setTimeout(()=>finish(z>21||a>z?'你赢了！':a===z?'平局！':'庄家获胜'),350)}$('hitBtn').onclick=hit;$('standBtn').onclick=stand;$('startBtn').onclick=reset;$('retryBtn').onclick=reset;$('fsBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();document.addEventListener('fullscreenchange',()=>$('fsBtn').textContent=document.fullscreenElement?'✕':'⛶')})()
-</script>
-</body>
-</html>
+const refresh = process.argv.includes('--refresh')
+const files = readdirSync(gamesDir).filter(file => file.endsWith('.html')).sort()
+for (const file of files) {
+  const filePath = join(gamesDir, file)
+  const source = readFileSync(filePath, 'utf8')
+  if (refresh && source.includes('data-gamehub-audio="v1"')) {
+    const refreshed = source.replace(/(<script>\r?\n)\s*\(\(\)=>\{\r?\n  const AudioContextCtor=[\s\S]*?\r?\n\}\)\(\);/, `$1${AUDIO_RUNTIME.trim()}`)
+    if (refreshed === source) throw new Error(`Could not refresh audio runtime in ${file}`)
+    writeFileSync(filePath, refreshed)
+    continue
+  }
+  if (source.includes('data-gamehub-audio="v1"')) continue
+  const withBodyMarker = source.replace(/<body([^>]*)>/i, '<body$1 data-gamehub-audio="v1">')
+  const withStyles = withBodyMarker.replace(/<\/style>/i, `${AUDIO_CSS}</style>`)
+  const withControls = withStyles.replace(/(<body[^>]*>)/i, `$1${AUDIO_CONTROLS}`)
+  const withRuntime = withControls.replace(/<script>/i, `<script>\n${AUDIO_RUNTIME}`)
+  if (withRuntime === source) throw new Error(`Could not inject audio runtime into ${file}`)
+  writeFileSync(filePath, withRuntime)
+}
+
+console.log(`classic game audio injected: ${files.length} packages`)

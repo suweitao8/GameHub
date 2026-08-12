@@ -83,6 +83,7 @@
     "swagger-cli": "swagger-cli",
     "test": "bash ./scripts/test.sh",
     "test:classic-games": "node ./scripts/test-classic-games.mjs",
+    "inject:classic-game-audio": "node ./scripts/inject-classic-game-audio.mjs",
     "tsc": "tsc",
     "tsx": "tsx",
     "update-host": "node ./dist/scripts/update-host.js"

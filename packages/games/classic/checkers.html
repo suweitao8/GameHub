@@ -9,12 +9,121 @@
 <title>国际跳棋 · Checkers</title>
 <style>
   :root{--bg:#17131a;--dark:#67434e;--light:#e7d1b6;--red:#ff5e78;--blue:#62a8ff;--text:#fff6f7;--muted:#c5aeb5}*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,'Microsoft YaHei',sans-serif}body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}.hud{display:flex;gap:22px;font-weight:800}.redtxt{color:var(--red)}.bluetxt{color:var(--blue)}.board{display:grid;grid-template-columns:repeat(8,minmax(35px,58px));border:6px solid #3f2730;border-radius:10px;overflow:hidden;box-shadow:0 12px 30px #0008}.cell{aspect-ratio:1;border:0;background:var(--light);position:relative}.cell.dark{background:var(--dark);cursor:pointer}.cell.target::after{content:'';position:absolute;inset:37%;border:3px solid #fff7;border-radius:50%}.piece{position:absolute;inset:12%;border-radius:50%;box-shadow:inset 0 4px 6px #fff5,0 3px 4px #0009}.p1{background:radial-gradient(circle at 35% 28%,#ffbdc8,var(--red) 58%,#a62640)}.p2{background:radial-gradient(circle at 35% 28%,#bcd8ff,var(--blue) 58%,#285aab)}.king::after{content:'♛';position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-style:normal;font-size:clamp(15px,4vw,27px);text-shadow:0 2px 2px #000}.hint{font-size:.84rem;color:var(--muted)}.btn{border:0;border-radius:9px;background:var(--red);color:white;padding:12px 28px;font:700 1rem inherit;cursor:pointer}.overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;padding:24px;background:#0d090eee;text-align:center}.overlay h1 span{color:var(--red)}.overlay p{max-width:340px;line-height:1.6;color:var(--muted)}.fs{position:fixed;top:12px;right:12px;z-index:7;width:40px;height:40px;border-radius:8px;border:1px solid #ffffff33;background:#3d2830cc;color:white;cursor:pointer;font-size:1.1rem}
+
+  .gamehub-audio-controls{position:fixed;top:12px;right:60px;z-index:20;display:flex;gap:6px;align-items:center}
+  .gamehub-audio-controls button{width:40px;height:40px;border:1px solid rgba(255,255,255,.15);border-radius:9px;background:rgba(20,28,42,.88);color:inherit;cursor:pointer;font:700 1.05rem/1 Segoe UI,Arial,sans-serif;transition:background .15s,transform .1s,opacity .15s}
+  .gamehub-audio-controls button:hover{background:rgba(0,174,236,.82)}
+  .gamehub-audio-controls button:active{transform:scale(.94)}
+  .gamehub-audio-controls button:focus-visible{outline:3px solid #68dfff;outline-offset:2px}
+  .gamehub-audio-controls button[aria-pressed="false"]{opacity:.48;filter:grayscale(1)}
+  @media (max-width:520px){.gamehub-audio-controls{right:58px;gap:4px}.gamehub-audio-controls button{width:42px;height:42px}}
+  @media (prefers-reduced-motion:reduce){.gamehub-audio-controls button{transition:none}}
 </style>
 </head>
-<body>
+<body data-gamehub-audio="v1">
+<div id="gamehubAudioControls" class="gamehub-audio-controls" role="group" aria-label="声音控制">
+  <button type="button" data-audio="music" aria-pressed="true" aria-label="关闭背景音乐" title="关闭背景音乐">♫</button>
+  <button type="button" data-audio="sfx" aria-pressed="true" aria-label="关闭游戏音效" title="关闭游戏音效">🔊</button>
+</div>
 <button class="fs" id="fsBtn" aria-label="全屏">⛶</button><div class="hud"><span class="redtxt">● 你 <b id="you">12</b></span><span class="bluetxt">● 电脑 <b id="ai">12</b></span></div><div class="board" id="board" aria-label="国际跳棋棋盘"></div><p class="hint" id="hint">你执红棋，向上移动</p>
 <div class="overlay" id="start"><h1>国际 <span>跳棋</span></h1><p>斜向移动，跳过相邻敌子可吃子。到达对面底线会升为王，王可前后移动。</p><button class="btn" id="startBtn">开始对局</button></div><div class="overlay" id="over" style="display:none"><h1 id="result"></h1><p id="summary"></p><button class="btn" id="retryBtn">再来一局</button></div>
 <script>
+(()=>{
+  const AudioContextCtor=window.AudioContext||window.webkitAudioContext;
+  const musicNotes=[261.63,329.63,392,523.25,392,329.63,293.66,349.23,440,523.25,440,349.23];
+  let audioContext=null,masterGain=null,musicGain=null,musicTimer=null,musicStep=0,musicEnabled=true,sfxEnabled=true;
+  function createAudio(){
+    if(!AudioContextCtor)return null;
+    if(!audioContext){
+      try{audioContext=new AudioContextCtor();
+        masterGain=audioContext.createGain();masterGain.gain.value=.2;masterGain.connect(audioContext.destination);
+        musicGain=audioContext.createGain();musicGain.gain.value=.32;musicGain.connect(masterGain);
+      }catch(_error){audioContext=null;masterGain=null;musicGain=null;return null}
+    }
+    return audioContext;
+  }
+  function ensureAudio(){
+    const ctx=createAudio();
+    if(!ctx)return null;
+    if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+    if(musicEnabled)startMusic();
+    return ctx;
+  }
+  function tone(freq,duration,type,volume,target){
+    const ctx=createAudio();
+    if(!ctx||!target)return;
+    const osc=ctx.createOscillator(),gain=ctx.createGain(),now=ctx.currentTime;
+    osc.type=type||'sine';osc.frequency.setValueAtTime(freq,now);
+    gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(Math.max(.0002,volume),now+.012);gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+    osc.connect(gain);gain.connect(target);osc.start(now);osc.stop(now+duration+.025);
+  }
+  function musicTone(freq){
+    const ctx=createAudio();
+    if(!ctx||!musicGain||document.hidden)return;
+    tone(freq,.34,'triangle',.18,musicGain);
+  }
+  function startMusic(){
+    if(!musicEnabled||musicTimer)return;
+    if(!createAudio())return;
+    const play=()=>{musicTone(musicNotes[musicStep%musicNotes.length]);musicStep++};
+    play();musicTimer=window.setInterval(play,420);
+  }
+  function stopMusic(){
+    if(musicTimer){window.clearInterval(musicTimer);musicTimer=null}
+  }
+  function sfx(kind){
+    if(!sfxEnabled)return;
+    const ctx=ensureAudio();
+    if(!ctx||!masterGain)return;
+    if(kind==='tap')tone(480,.055,'sine',.09,masterGain);
+    else if(kind==='key')tone(620,.05,'square',.07,masterGain);
+    else if(kind==='score'){tone(660,.08,'sine',.14,masterGain);window.setTimeout(()=>tone(880,.12,'sine',.12,masterGain),55)}
+    else if(kind==='good'){tone(523.25,.1,'triangle',.14,masterGain);window.setTimeout(()=>tone(783.99,.18,'triangle',.14,masterGain),80)}
+    else if(kind==='bad'){tone(180,.2,'sawtooth',.12,masterGain);window.setTimeout(()=>tone(120,.22,'sawtooth',.1,masterGain),90)}
+    else if(kind==='win'){[523.25,659.25,783.99,1046.5].forEach((freq,index)=>window.setTimeout(()=>tone(freq,.18,'triangle',.14,masterGain),index*85))}
+    else if(kind==='lose'){tone(247,.2,'sine',.13,masterGain);window.setTimeout(()=>tone(165,.3,'sine',.11,masterGain),120)}
+    else if(kind==='hit')tone(110,.12,'square',.14,masterGain);
+    else if(kind==='toggle')tone(740,.07,'sine',.1,masterGain);
+  }
+  function setControl(button,enabled,labelOn,labelOff){
+    button.setAttribute('aria-pressed',String(enabled));button.setAttribute('aria-label',enabled?labelOff:labelOn);button.title=enabled?labelOff:labelOn;
+  }
+  function bindControls(){
+    document.querySelectorAll('[data-audio]').forEach(button=>button.addEventListener('click',event=>{
+      event.stopPropagation();const kind=button.dataset.audio;const enabled=button.getAttribute('aria-pressed')!=='true';
+      if(kind==='music'){musicEnabled=enabled;setControl(button,enabled,'开启背景音乐','关闭背景音乐');if(enabled){ensureAudio();startMusic()}else stopMusic()}
+      if(kind==='sfx'){sfxEnabled=enabled;setControl(button,enabled,'开启游戏音效','关闭游戏音效');if(enabled){ensureAudio();sfx('toggle')}}
+    }));
+  }
+  function watchFeedback(){
+    const scoreNodes=[...document.querySelectorAll('#score,#best,#filled')];
+    const mistakeNodes=[...document.querySelectorAll('#mistakes')];
+    const resultNodes=[...document.querySelectorAll('#result,#summary,#finalScore')];
+    const overlays=[...document.querySelectorAll('#over,#gameover')];
+    if(!scoreNodes.length&&!mistakeNodes.length&&!resultNodes.length&&!overlays.length)return;
+    const textSnapshot=node=>node.textContent;
+    const displaySnapshot=node=>getComputedStyle(node).display;
+    const scorePrevious=new Map(scoreNodes.map(node=>[node,textSnapshot(node)]));
+    const mistakePrevious=new Map(mistakeNodes.map(node=>[node,textSnapshot(node)]));
+    const resultPrevious=new Map(resultNodes.map(node=>[node,textSnapshot(node)]));
+    const overlayPrevious=new Map(overlays.map(node=>[node,displaySnapshot(node)]));
+    new MutationObserver(()=>{
+      let scoreChanged=false,mistakeChanged=false,resultChanged=false;
+      scoreNodes.forEach(node=>{const next=textSnapshot(node);if(next!==scorePrevious.get(node)){scorePrevious.set(node,next);scoreChanged=true}});
+      mistakeNodes.forEach(node=>{const next=textSnapshot(node);if(next!==mistakePrevious.get(node)){mistakePrevious.set(node,next);mistakeChanged=true}});
+      resultNodes.forEach(node=>{const next=textSnapshot(node);if(next!==resultPrevious.get(node)){resultPrevious.set(node,next);resultChanged=true}});
+      overlays.forEach(node=>{const next=displaySnapshot(node);const previous=overlayPrevious.get(node);overlayPrevious.set(node,next);if(previous!==next&&next!=='none')resultChanged=true});
+      const resultVisible=overlays.length===0||overlays.some(node=>displaySnapshot(node)!=='none');
+      if(resultChanged&&resultVisible){const body=document.body.textContent||'';sfx(/胜|成功|清空|完成|过关|赢/.test(body)?'win':'lose')}else if(mistakeChanged)sfx('bad');else if(scoreChanged)sfx('score');
+    }).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['style','class']});
+  }
+  document.addEventListener('pointerdown',event=>{ensureAudio();if(!event.target.closest('#gamehubAudioControls'))sfx('tap')},true);
+  document.addEventListener('keydown',event=>{if(['tab','shift','control','alt','meta'].includes(event.key.toLowerCase()))return;ensureAudio();sfx('key')},true);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMusic();else if(musicEnabled)startMusic()});
+  window.gamehubAudio={ensureAudio,startMusic,stopMusic,sfx,getState:()=>({musicEnabled,sfxEnabled,audioState:audioContext?.state||'uninitialized'})};
+  bindControls();watchFeedback();
+})();
+
 (()=>{const $=id=>document.getElementById(id),boardEl=$('board');let b,turn,sel,locked,ended;const inb=(r,c)=>r>=0&&r<8&&c>=0&&c<8;function reset(){b=Array.from({length:8},(_,r)=>Array.from({length:8},(_,c)=>(r+c)%2? r<3?{p:2,k:false}:r>4?{p:1,k:false}:null:null));turn=1;sel=null;locked=false;ended=false;$('start').style.display='none';$('over').style.display='none';render()}
 function dirs(piece){return piece.k?[-1,1]:piece.p===1?[-1]:[1]}function movesFor(r,c,forceCapture=false){const q=b[r][c];if(!q)return[];let out=[];for(const dr of dirs(q))for(const dc of[-1,1]){const R=r+dr,C=c+dc;if(inb(R,C)&&!b[R][C]&&!forceCapture)out.push({to:[R,C]});const J=r+2*dr,K=c+2*dc;if(inb(J,K)&&b[R]?.[C]&&b[R][C].p!==q.p&&!b[J][K])out.push({to:[J,K],cap:[R,C]})}return out}function allMoves(p){let a=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]?.p===p)a.push(...movesFor(r,c).map(m=>({...m,from:[r,c]})));const caps=a.filter(m=>m.cap);return caps.length?caps:a}function promote(r,c){if((b[r][c].p===1&&r===0)||(b[r][c].p===2&&r===7))b[r][c].k=true}function apply(m){const q=b[m.from[0]][m.from[1]];b[m.to[0]][m.to[1]]=q;b[m.from[0]][m.from[1]]=null;if(m.cap)b[m.cap[0]][m.cap[1]]=null;promote(...m.to)}function count(p){return b.flat().filter(q=>q?.p===p).length}function render(){const valid=sel?movesFor(...sel,allMoves(turn).some(m=>m.cap)):[];boardEl.innerHTML='';for(let r=0;r<8;r++)for(let c=0;c<8;c++){const e=document.createElement('button');e.className='cell '+((r+c)%2?'dark':'');e.dataset.r=r;e.dataset.c=c;if(valid.some(m=>m.to[0]===r&&m.to[1]===c))e.classList.add('target');const q=b[r][c];if(q){const p=document.createElement('i');p.className='piece p'+q.p+(q.k?' king':'');e.append(p)}boardEl.append(e)}$('you').textContent=count(1);$('ai').textContent=count(2);$('hint').textContent=ended?'对局结束':turn===1?'选择红棋并移动':'电脑正在思考…'}
 function finish(){ended=true;const a=count(1),z=count(2);$('result').textContent=a>z?'你赢了！':'电脑获胜';$('summary').textContent=`剩余棋子：你 ${a} 枚 · 电脑 ${z} 枚`;$('over').style.display='flex';render()}function checkEnd(){if(!count(1)||!count(2)||!allMoves(turn).length){finish();return true}return false}function ai(){const options=allMoves(2);if(!options.length)return finish();options.sort((a,z)=>(z.cap?20:0)+(z.to[0]*2)-(a.cap?20:0)-(a.to[0]*2));apply(options[0]);turn=1;locked=false;if(!checkEnd())render()}
