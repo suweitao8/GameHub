@@ -21,7 +21,8 @@ const FORCE = process.argv.includes('--force')
 const FONT = 'Microsoft YaHei,Segoe UI,Arial,sans-serif'
 
 function escapeXml (s: string) {
-  return s.replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c] as string))
+  const escapes: Record<string, string> = { '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }
+  return s.replace(/[<>&'"]/g, c => escapes[c])
 }
 
 /** 底部统一标题栏：游戏名 + GameHub 副标。返回完整 SVG 字符串。 */
@@ -78,8 +79,10 @@ function breakoutCover () {
   const colors = [ '#fb7299', '#ff8c42', '#ffd33d', '#00c091', '#00aeec' ]
   const rows = 5, cols = 12, bw = 90, bh = 28, ox = 64, oy = 70
   let wall = ''
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    wall += `<rect x="${ox + c * (bw + 6)}" y="${oy + r * (bh + 6)}" width="${bw}" height="${bh}" rx="4" fill="${colors[r]}"/>`
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      wall += `<rect x="${ox + c * (bw + 6)}" y="${oy + r * (bh + 6)}" width="${bw}" height="${bh}" rx="4" fill="${colors[r]}"/>`
+    }
   }
   return withTitleBar(
     `<rect width="${W}" height="${H}" fill="#101820"/>${wall}
