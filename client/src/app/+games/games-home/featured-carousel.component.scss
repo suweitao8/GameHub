@@ -76,11 +76,12 @@
 .section-side-action-label {
   font-size: 0.68rem;
   font-weight: 600;
-  height: 0.65rem;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
-  text-orientation: mixed;
-  writing-mode: vertical-rl;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+  text-align: center;
+  // 竖排：约束宽度让中文逐字换行，不依赖 writing-mode（在 flex column 中不可靠）
+  width: 1.1em;
+  word-break: break-all;
 }
 
 @keyframes shuffleSpin {
