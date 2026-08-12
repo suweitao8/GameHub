@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="四子棋人机对战：抢占列位，先在任意方向连成四子获胜。">
+<meta name="gamehub-instructions" content="点击任意列落下红棋。电脑执黄棋，会优先完成四连或封堵你的威胁。">
+<meta name="gamehub-keywords" content="四子棋,connect four,棋类,策略,经典">
+<title>四子棋 · Connect Four</title>
+<style>
+  :root{--bg:#10151d;--board:#1f66d1;--brand:#ff5478;--ai:#ffd45c;--text:#eef5ff;--muted:#a6b4c5}*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,'Microsoft YaHei',sans-serif}body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}.hud{display:flex;gap:24px;font-weight:800}.you{color:var(--brand)}.ai{color:var(--ai)}.board{display:grid;grid-template-columns:repeat(7,minmax(38px,70px));gap:7px;padding:9px;background:var(--board);border-radius:14px;box-shadow:0 12px 32px #0007}.cell{aspect-ratio:1;border:0;border-radius:50%;background:#10151d;box-shadow:inset 0 4px 8px #0007;cursor:pointer}.cell:hover{filter:brightness(1.28)}.red{background:radial-gradient(circle at 35% 25%,#ffb1c2,var(--brand) 55%,#bc2545)}.yellow{background:radial-gradient(circle at 35% 25%,#fff0a1,var(--ai) 55%,#c59118)}.hint{font-size:.84rem;color:var(--muted)}.btn{border:0;border-radius:9px;background:var(--brand);color:white;padding:12px 28px;font:700 1rem inherit;cursor:pointer}.overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;padding:24px;background:#090d14ed;text-align:center}.overlay h1 span{color:var(--brand)}.overlay p{max-width:330px;line-height:1.6;color:var(--muted)}.fs{position:fixed;top:12px;right:12px;z-index:7;width:40px;height:40px;border-radius:8px;border:1px solid #ffffff33;background:#202c3aaa;color:white;cursor:pointer;font-size:1.1rem}
+</style>
+</head>
+<body>
+<button class="fs" id="fsBtn" aria-label="全屏">⛶</button><div class="hud"><span class="you">● 你（红）</span><span class="ai">● 电脑（黄）</span></div><div class="board" id="board" aria-label="四子棋棋盘"></div><p class="hint" id="hint">点击任意列落子</p>
+<div class="overlay" id="start"><h1>四子棋 <span>Connect Four</span></h1><p>抢占竖列，横、竖或斜向先连成四枚棋子的一方获胜。电脑会主动进攻和防守。</p><button class="btn" id="startBtn">开始对局</button></div><div class="overlay" id="over" style="display:none"><h1 id="result"></h1><p id="summary"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{const $=id=>document.getElementById(id),boardEl=$('board');let board,turn,locked,done;
+function reset(){board=Array.from({length:6},()=>Array(7).fill(0));turn=1;locked=false;done=false;$('start').style.display='none';$('over').style.display='none';$('hint').textContent='轮到你了：点击任意列落红棋';render()}
+function render(){boardEl.innerHTML='';for(let r=0;r<6;r++)for(let c=0;c<7;c++){const b=document.createElement('button');b.className='cell '+(board[r][c]===1?'red':board[r][c]===2?'yellow':'');b.dataset.col=c;b.setAttribute('aria-label',`第 ${c+1} 列`);boardEl.append(b)}}
+function drop(col,who){for(let r=5;r>=0;r--)if(!board[r][col]){board[r][col]=who;render();return[r,col]}return null}function win(r,c,who){for(const[dR,dC]of[[0,1],[1,0],[1,1],[1,-1]]){let n=1;for(const s of[-1,1])for(let i=1;;i++){const R=r+dR*i*s,C=c+dC*i*s;if(R<0||R>5||C<0||C>6||board[R][C]!==who)break;n++}if(n>=4)return true}return false}function available(){return[0,1,2,3,4,5,6].filter(c=>!board[0][c])}
+function choose(){const opts=available();for(const who of[2,1])for(const c of opts){const p=drop(c,who);if(p&&win(p[0],p[1],who)){board[p[0]][c]=0;return c}board[p?.[0]??0][c]=0}const ranked=opts.sort((a,b)=>Math.abs(a-3)-Math.abs(b-3));return ranked[(Math.random()*Math.min(3,ranked.length))|0]}
+function finish(player){done=true;$('result').textContent=player===1?'四连成功，你赢了！':'电脑连成四子';$('summary').textContent=player===1?'漂亮的布局，继续挑战更快的胜利吧。':'别气馁，优先抢占中间列会更有优势。';$('over').style.display='flex'}
+boardEl.onclick=e=>{const cell=e.target.closest('.cell');if(!cell||locked||done||turn!==1)return;const p=drop(+cell.dataset.col,1);if(!p)return;if(win(p[0],p[1],1))return finish(1);if(!available().length)return finish(0);turn=2;locked=true;$('hint').textContent='电脑正在思考…';setTimeout(()=>{const p2=drop(choose(),2);if(win(p2[0],p2[1],2))return finish(2);if(!available().length)return finish(0);turn=1;locked=false;$('hint').textContent='轮到你了：点击任意列落红棋'},340)};$('startBtn').onclick=reset;$('retryBtn').onclick=reset;$('fsBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();document.addEventListener('fullscreenchange',()=>$('fsBtn').textContent=document.fullscreenElement?'✕':'⛶')})()
+</script>
+</body>
+</html>

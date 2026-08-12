@@ -62,3 +62,6 @@ node_modules
 # Compiled output
 dist
 .zcode/
+
+# Local browser-automation artifacts
+/.playwright-cli/

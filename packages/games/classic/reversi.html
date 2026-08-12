@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="黑白棋人机对战：夹住并翻转对方棋子，终局时棋子更多的一方获胜。">
+<meta name="gamehub-instructions" content="点击高亮合法位置落黑子。棋子会翻转被夹住的白子，无法落子时自动跳过。">
+<meta name="gamehub-keywords" content="黑白棋,reversi,othello,棋类,策略,经典">
+<title>黑白棋 · Reversi</title>
+<style>
+  :root{--bg:#101820;--board:#19724f;--brand:#48e0a6;--accent:#f8f8f0;--text:#effff8;--muted:#a5c5b7}*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Segoe UI,Arial,'Microsoft YaHei',sans-serif}body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}.hud{font-weight:800;display:flex;gap:24px}.hud b{color:var(--brand)}.grid{display:grid;grid-template-columns:repeat(8,minmax(34px,56px));background:#0b4f35;border:5px solid #0b4f35;border-radius:12px;box-shadow:0 12px 30px #0008}.cell{aspect-ratio:1;border:1px solid #53ad84;background:var(--board);position:relative;cursor:pointer}.cell.legal::after{content:'';position:absolute;inset:39%;border-radius:50%;background:#c2ffe544}.disc{position:absolute;inset:9%;border-radius:50%;box-shadow:inset 0 3px 5px #ffffff55,0 2px 3px #0008}.black{background:radial-gradient(circle at 35% 28%,#62756e,#0e1514 65%)}.white{background:radial-gradient(circle at 35% 28%,#fff,#b9ccc4 65%)}.hint{font-size:.84rem;color:var(--muted)}.btn{border:0;border-radius:9px;background:var(--brand);color:#052116;padding:12px 28px;font:700 1rem inherit;cursor:pointer}.overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;padding:24px;background:#07110ddd;text-align:center}.overlay h1 span{color:var(--brand)}.overlay p{max-width:340px;line-height:1.6;color:var(--muted)}.fs{position:fixed;top:12px;right:12px;z-index:7;width:40px;height:40px;border-radius:8px;border:1px solid #ffffff33;background:#173529cc;color:white;cursor:pointer;font-size:1.1rem}
+</style>
+</head>
+<body>
+<button class="fs" id="fsBtn" aria-label="全屏">⛶</button><div class="hud"><span>● 你 <b id="black">2</b></span><span>○ 电脑 <b id="white">2</b></span></div><div class="grid" id="grid" aria-label="黑白棋棋盘"></div><p class="hint" id="hint">你执黑先手</p>
+<div class="overlay" id="start"><h1>黑白棋 <span>Reversi</span></h1><p>让自己的棋子从两端夹住对方棋子即可翻转。角落极其重要，落子前先规划路线。</p><button class="btn" id="startBtn">开始对局</button></div><div class="overlay" id="over" style="display:none"><h1 id="result"></h1><p id="summary"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{const $=id=>document.getElementById(id),grid=$('grid'),D=[[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];let b,turn,locked,ended;
+function reset(){b=Array.from({length:8},()=>Array(8).fill(0));b[3][3]=b[4][4]=2;b[3][4]=b[4][3]=1;turn=1;locked=false;ended=false;$('start').style.display='none';$('over').style.display='none';render()}
+const inside=(r,c)=>r>=0&&r<8&&c>=0&&c<8;function flips(r,c,who){if(b[r][c])return[];const all=[];for(const[dr,dc]of D){let R=r+dr,C=c+dc,line=[];while(inside(R,C)&&b[R][C]===3-who){line.push([R,C]);R+=dr;C+=dc}if(line.length&&inside(R,C)&&b[R][C]===who)all.push(...line)}return all}function moves(who){const a=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++){const f=flips(r,c,who);if(f.length)a.push([r,c,f])}return a}function count(){return[b.flat().filter(v=>v===1).length,b.flat().filter(v=>v===2).length]}
+function render(){const legal=turn===1?new Set(moves(1).map(([r,c])=>r+','+c)):new Set();grid.innerHTML='';for(let r=0;r<8;r++)for(let c=0;c<8;c++){const el=document.createElement('button');el.className='cell'+(legal.has(r+','+c)?' legal':'');el.dataset.r=r;el.dataset.c=c;if(b[r][c]){const d=document.createElement('i');d.className='disc '+(b[r][c]===1?'black':'white');el.append(d)}grid.append(el)}const[n,m]=count();$('black').textContent=n;$('white').textContent=m;$('hint').textContent=ended?'对局结束':turn===1?'轮到你：点击高亮位置':'电脑正在思考…'}
+function play(r,c,who){const f=flips(r,c,who);if(!f.length)return false;b[r][c]=who;f.forEach(([R,C])=>b[R][C]=who);return true}function continueTurn(){if(!moves(turn).length){turn=3-turn;if(!moves(turn).length)return finish();$('hint').textContent='无合法位置，自动跳过'}if(turn===1){locked=false;render();return}locked=true;render();setTimeout(ai,400)}function finish(){ended=true;const[a,z]=count();$('result').textContent=a===z?'平局！':a>z?'你赢了！':'电脑获胜';$('summary').textContent=`终局棋子：你 ${a} 枚 · 电脑 ${z} 枚`;$('over').style.display='flex';render()}
+function ai(){const list=moves(2);if(!list.length){turn=1;continueTurn();return}list.sort((a,z)=>score(z)-score(a));const[r,c]=list[0];play(r,c,2);turn=1;continueTurn()}function score(m){const[r,c,f]=m;return f.length+(r===0||r===7?4:0)+(c===0||c===7?4:0)+([0,7].includes(r)&&[0,7].includes(c)?100:0)}
+grid.onclick=e=>{const el=e.target.closest('.cell');if(!el||turn!==1||locked||ended)return;const r=+el.dataset.r,c=+el.dataset.c;if(!play(r,c,1))return;turn=2;continueTurn()};$('startBtn').onclick=reset;$('retryBtn').onclick=reset;$('fsBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();document.addEventListener('fullscreenchange',()=>$('fsBtn').textContent=document.fullscreenElement?'✕':'⛶')})()
+</script>
+</body>
+</html>

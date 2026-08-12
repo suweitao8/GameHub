@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="记忆序列：观察亮起的四色序列并按相同顺序复现，回合越多难度越高。">
+<meta name="gamehub-instructions" content="等待颜色依次亮起后，按相同顺序点击四色按钮。每成功一轮会新增一个颜色。">
+<meta name="gamehub-keywords" content="记忆序列,simon,反应,记忆,经典">
+<title>记忆序列 · Simon</title>
+<style>
+  :root{--bg:#11131c;--text:#f4f6ff;--muted:#a8afc1;--brand:#8e79ff}*{box-sizing:border-box;margin:0;padding:0;-webkit-user-select:none;user-select:none}html,body{height:100%;overflow:hidden;background:radial-gradient(circle at 50% 32%,#25223a,#11131c 64%);color:var(--text);font-family:Segoe UI,Arial,'Microsoft YaHei',sans-serif}body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:12px}.hud{font-weight:800;font-size:1.15rem}.hud b{color:#b8acff}.pad{display:grid;grid-template-columns:repeat(2,minmax(125px,220px));gap:13px;padding:13px;background:#080914;border-radius:50%;box-shadow:0 18px 45px #000a}.key{aspect-ratio:1;border:0;border-radius:45%;opacity:.72;cursor:pointer;transition:filter .1s,transform .1s;box-shadow:inset 0 0 22px #0008}.key:active,.key.lit{filter:brightness(1.85);transform:scale(.97);opacity:1}.green{background:#33c47b}.red{background:#ed5274}.yellow{background:#f2c84f}.blue{background:#4b9df2}.hint{color:var(--muted);font-size:.84rem;text-align:center}.btn{border:0;border-radius:9px;background:var(--brand);color:white;padding:12px 28px;font:700 1rem inherit;cursor:pointer}.overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;padding:24px;background:#0a0a12e8;text-align:center}.overlay h1 span{color:#b8acff}.overlay p{max-width:335px;line-height:1.6;color:var(--muted)}.fs{position:fixed;top:12px;right:12px;z-index:7;width:40px;height:40px;border-radius:8px;border:1px solid #ffffff33;background:#25223acc;color:white;cursor:pointer;font-size:1.1rem}
+</style>
+</head>
+<body>
+<button class="fs" id="fsBtn" aria-label="全屏">⛶</button><div class="hud">回合 <b id="round">0</b> · 最佳 <b id="best">0</b></div><div class="pad" id="pad"><button class="key green" data-n="0" aria-label="绿"></button><button class="key red" data-n="1" aria-label="红"></button><button class="key yellow" data-n="2" aria-label="黄"></button><button class="key blue" data-n="3" aria-label="蓝"></button></div><p class="hint" id="hint">记住颜色的亮起顺序</p>
+<div class="overlay" id="start"><h1>记忆 <span>序列</span></h1><p>观察四色按钮按什么顺序亮起，然后按相同顺序重现。每通过一轮，序列会再加一个颜色。</p><button class="btn" id="startBtn">开始挑战</button></div><div class="overlay" id="over" style="display:none"><h1>顺序错了</h1><p id="summary"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{const $=id=>document.getElementById(id),keys=[...document.querySelectorAll('.key')];let seq,pos,locked,round,best=0;function sleep(t){return new Promise(r=>setTimeout(r,t))}async function show(){locked=true;$('hint').textContent='仔细看…';await sleep(450);for(const n of seq){keys[n].classList.add('lit');await sleep(390);keys[n].classList.remove('lit');await sleep(160)}locked=false;pos=0;$('hint').textContent='轮到你了：按相同顺序点击'}async function next(){seq.push((Math.random()*4)|0);round=seq.length;$('round').textContent=round;await show()}function reset(){seq=[];pos=0;round=0;locked=true;$('round').textContent=0;$('best').textContent=best;$('start').style.display='none';$('over').style.display='none';next()}function fail(){locked=true;best=Math.max(best,round-1);$('best').textContent=best;$('summary').textContent=`你成功复现了 ${round-1} 轮，最佳纪录 ${best}。`;$('over').style.display='flex'}keys.forEach((b,n)=>b.onclick=()=>{if(locked)return;b.classList.add('lit');setTimeout(()=>b.classList.remove('lit'),130);if(seq[pos]!==n)return fail();pos++;if(pos===seq.length){locked=true;$('hint').textContent='正确！下一轮更长…';setTimeout(next,500)}});$('startBtn').onclick=reset;$('retryBtn').onclick=reset;$('fsBtn').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();document.addEventListener('fullscreenchange',()=>$('fsBtn').textContent=document.fullscreenElement?'✕':'⛶')})()
+</script>
+</body>
+</html>

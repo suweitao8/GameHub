@@ -127,6 +127,7 @@ if (-not $SkipLint) {
 }
 
 Invoke-GateStep 'verify GameHub source and build contracts' { pnpm run verify:gamehub-client }
+Invoke-GateStep 'verify classic game packages' { pnpm run test:classic-games }
 
 if (-not $SkipLive) {
   Write-Host "`n[SELF-TEST] check running service $BaseUrl" -ForegroundColor Cyan

@@ -82,6 +82,7 @@
     "start": "node dist/server",
     "swagger-cli": "swagger-cli",
     "test": "bash ./scripts/test.sh",
+    "test:classic-games": "node ./scripts/test-classic-games.mjs",
     "tsc": "tsc",
     "tsx": "tsx",
     "update-host": "node ./dist/scripts/update-host.js"

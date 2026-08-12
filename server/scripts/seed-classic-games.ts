@@ -1,5 +1,5 @@
 /**
- * 一次性种子脚本：下架当前全部已发布游戏，并入库 5 个官方经典小游戏。
+ * 一次性种子脚本：按需下架当前全部已发布游戏，并入库 30 个官方经典小游戏。
  *
  * 用法（在仓库根目录，已 build:server 后）：
  *   pnpm run tsx --conditions=peertube:tsx ./scripts/seed-classic-games.ts
@@ -192,6 +192,86 @@ const SPECS: ClassicGameSpec[] = [
     instructions: '注意上方文字的颜色而非字义，点击下方对应颜色按钮。30 秒内答对越多越好。',
     category: 'casual',
     tags: [ '颜色反应', 'stroop', '脑力', '反应' ]
+  },
+  {
+    file: 'space-invaders.html',
+    title: '太空入侵者',
+    description: '太空入侵者：移动战机击退不断逼近的外星舰队，守住三条生命。',
+    instructions: '方向键或 A/D 移动，空格键发射。触屏可使用下方控制按钮。击败所有外星人进入下一波。',
+    category: 'shooter',
+    tags: [ '太空入侵者', 'space-invaders', '街机', '射击' ]
+  },
+  {
+    file: 'connect-four.html',
+    title: '四子棋',
+    description: '四子棋人机对战：抢占列位，先在任意方向连成四子获胜。',
+    instructions: '点击任意列落下红棋。电脑执黄棋，会优先完成四连或封堵你的威胁。',
+    category: 'board',
+    tags: [ '四子棋', 'connect-four', '棋类', '策略' ]
+  },
+  {
+    file: 'reversi.html',
+    title: '黑白棋',
+    description: '黑白棋人机对战：夹住并翻转对方棋子，终局时棋子更多的一方获胜。',
+    instructions: '点击高亮合法位置落黑子。棋子会翻转被夹住的白子，无法落子时自动跳过。',
+    category: 'board',
+    tags: [ '黑白棋', 'reversi', 'othello', '策略' ]
+  },
+  {
+    file: 'checkers.html',
+    title: '国际跳棋',
+    description: '国际跳棋人机对战：斜向移动，跳过对方棋子吃子，抵达底线即可升王。',
+    instructions: '先点击自己的红棋，再点击高亮的合法目标格。若有可吃的棋必须优先吃子。',
+    category: 'board',
+    tags: [ '国际跳棋', 'checkers', '棋类', '策略' ]
+  },
+  {
+    file: 'sudoku.html',
+    title: '数独',
+    description: '数独：在 9×9 宫格中填入数字 1 到 9，让每一行、列和小宫都不重复。',
+    instructions: '先点击空格，再点击下方数字或使用键盘 1-9 填入。红色数字表示与同一行、列或宫冲突。',
+    category: 'puzzle',
+    tags: [ '数独', 'sudoku', '益智', '逻辑' ]
+  },
+  {
+    file: 'simon.html',
+    title: '记忆序列',
+    description: '记忆序列：观察亮起的四色序列并按相同顺序复现，回合越多难度越高。',
+    instructions: '等待颜色依次亮起后，按相同顺序点击四色按钮。每成功一轮会新增一个颜色。',
+    category: 'casual',
+    tags: [ '记忆序列', 'simon', '反应', '记忆' ]
+  },
+  {
+    file: 'frogger.html',
+    title: '青蛙过河',
+    description: '青蛙过河：穿越车流与河面，借助漂浮木头抵达顶端的安全荷叶。',
+    instructions: '方向键、WASD 或下方按钮每次移动一格。避开车辆，河面必须站在木头上。',
+    category: 'arcade',
+    tags: [ '青蛙过河', 'frogger', '街机', '动作' ]
+  },
+  {
+    file: 'bubble-shooter.html',
+    title: '泡泡龙',
+    description: '泡泡龙：瞄准并发射彩色泡泡，连接三个或更多相同颜色即可消除。',
+    instructions: '移动鼠标或触摸瞄准，点击画布发射。三颗及以上同色泡泡相连会消除。',
+    category: 'puzzle',
+    tags: [ '泡泡龙', 'bubble-shooter', '街机', '益智' ]
+  },
+  {
+    file: 'blackjack.html',
+    title: '纸牌 21 点',
+    description: '纸牌 21 点：与庄家比拼点数，尽量接近 21 但不能爆牌。',
+    instructions: '点击要牌继续抽牌，点击停牌让庄家补牌到 17 点。A 可作 1 或 11 点。',
+    category: 'board',
+    tags: [ '纸牌 21 点', 'blackjack', '扑克', '策略' ]
+  },
+  {
+    file: 'hangman.html',
+    title: '猜单词',
+    description: '猜单词：根据中文提示猜出英文单词，六次错误前找全所有字母。',
+    instructions: '点击字母键盘或使用实体键盘猜字母。每猜错一次，绞刑架会增加一笔。',
+    category: 'puzzle',
+    tags: [ '猜单词', 'hangman', '单词', '益智' ]
   }
 ]
 
@@ -214,7 +294,7 @@ async function main () {
     console.log(`→ 已下架 ${unlistedCount} 个原有游戏（status → unlisted）`)
   }
 
-  // 2) 逐个入库 5 个经典游戏
+  // 2) 逐个入库官方经典游戏
   for (const spec of SPECS) {
     const filePath = join(GAMES_DIR, spec.file)
     const content = readFileSync(filePath)
