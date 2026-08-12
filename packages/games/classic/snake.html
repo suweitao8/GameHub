@@ -15,7 +15,7 @@
   .hud { display:flex; gap:24px; align-items:center; }
   .hud .score { font-size:1.3rem; font-weight:800; color:var(--brand); }
   .hud .best { font-size:0.95rem; color:var(--muted); }
-  canvas { background:var(--panel); border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.4); touch-action:none; }
+  canvas { background:var(--panel); border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.4); touch-action:none; max-width:100%; max-height:calc(100vh - 110px); width:auto; height:auto; aspect-ratio:1 / 1; }
   .hint { font-size:0.82rem; color:var(--muted); text-align:center; line-height:1.5; }
   .overlay { position:fixed; inset:0; background:rgba(15,20,25,.88); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; z-index:10; }
   .overlay h1 { font-size:2rem; letter-spacing:-.02em; }
@@ -26,9 +26,15 @@
   .btn:active { transform:scale(.96); }
   .gameover-score { font-size:1.1rem; }
   .gameover-score b { color:var(--accent); font-size:1.6rem; }
+  .fs-btn { position:fixed; top:12px; right:12px; z-index:20; background:rgba(26,32,40,.85); border:1px solid rgba(255,255,255,.12); color:var(--text); width:40px; height:40px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:background .15s; }
+  .fs-btn:hover { background:rgba(0,174,236,.85); }
+  :fullscreen body, :fullscreen .hud .score { font-size:1.8rem; }
+  :fullscreen canvas { max-height:calc(100vh - 140px); box-shadow:0 12px 48px rgba(0,0,0,.55); }
+  :fullscreen .hint { font-size:1rem; }
 </style>
 </head>
 <body>
+  <button class="fs-btn" id="fsBtn" aria-label="全屏" title="全屏">⛶</button>
   <div class="hud">
     <span class="score">得分 <span id="score">0</span></span>
     <span class="best">最高 <span id="best">0</span></span>
@@ -188,6 +194,16 @@
 
   document.getElementById('startBtn').addEventListener('click', reset);
   document.getElementById('retryBtn').addEventListener('click', reset);
+
+  // 全屏：点按钮进入，再点或 Esc 退出
+  const fsBtn = document.getElementById('fsBtn');
+  fsBtn.addEventListener('click', ()=>{
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen?.();
+  });
+  document.addEventListener('fullscreenchange', ()=>{
+    fsBtn.textContent = document.fullscreenElement ? '✕' : '⛶';
+  });
 })();
 </script>
 </body>
