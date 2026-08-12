@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="记忆翻牌：翻开两张相同图案的卡片配对，用最少步数配对所有卡片。">
+<meta name="gamehub-instructions" content="点击卡片翻开，每次翻开两张，图案相同则配对成功，否则翻回。配对所有卡片获胜。">
+<meta name="gamehub-keywords" content="记忆翻牌,memory,记忆,益智,休闲">
+<title>记忆翻牌 · Memory</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--cell:#2a3441;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.1rem;}
+  .hud .s{color:var(--brand);}
+  .hud .m{color:var(--muted);}
+  .board-wrap{display:flex;align-items:center;justify-content:center;}
+  .grid{display:grid;grid-template-columns:repeat(6,64px);gap:10px;background:var(--panel);padding:16px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);transform-origin:center;}
+  .card{width:64px;height:64px;background:var(--cell);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;cursor:pointer;transition:transform .2s,background .2s;}
+  .card:hover{background:#344053;}
+  .card.flipped{background:#1e2630;transform:rotateY(0);}
+  .card.matched{background:rgba(0,174,236,.2);border:1px solid var(--brand);}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="s">步数 <span id="moves">0</span></span><span class="m">配对 <span id="pairs">0</span>/6</span></div>
+<div class="board-wrap"><div class="grid" id="grid"></div></div>
+<p class="hint">翻开两张相同图案配对</p>
+<div class="overlay" id="start"><h1>记忆<span class="hl">翻牌</span></h1><p>翻开卡片找出相同图案配对，用最少步数配对所有卡片获胜。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>全部配对！</h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const EMOJIS=['🎮','🎯','🎲','🏆','⭐','🎨'];
+const grid=document.getElementById('grid'),$moves=document.getElementById('moves'),$pairs=document.getElementById('pairs'),$start=document.getElementById('start'),$over=document.getElementById('over'),$om=document.getElementById('om');
+let cards,flipped,matched,moves,pairs,lock;
+function reset(){
+cards=[...EMOJIS,...EMOJIS].sort(()=>Math.random()-0.5);
+flipped=[];matched=new Set();moves=0;pairs=0;lock=false;
+$moves.textContent=0;$pairs.textContent=0;$start.style.display='none';$over.style.display='none';render();
+}
+function render(){
+grid.innerHTML='';
+cards.forEach((emoji,i)=>{
+const el=document.createElement('div');
+el.className='card';el.dataset.i=i;
+if(matched.has(i)){el.classList.add('matched');el.textContent=emoji;}
+else if(flipped.includes(i)){el.classList.add('flipped');el.textContent=emoji;}
+else{el.textContent='?';}
+grid.appendChild(el);
+});
+}
+grid.addEventListener('click',e=>{
+const t=e.target.closest('.card');if(!t||lock)return;
+const i=+t.dataset.i;
+if(flipped.includes(i)||matched.has(i))return;
+flipped.push(i);
+if(flipped.length===2){
+lock=true;moves++;$moves.textContent=moves;
+const[a,b]=flipped;
+if(cards[a]===cards[b]){matched.add(a);matched.add(b);pairs++;$pairs.textContent=pairs;flipped=[];lock=false;render();
+if(pairs===EMOJIS.length){$om.innerHTML='用了 <b style="color:var(--brand)">'+moves+'</b> 步';setTimeout(()=>{$over.style.display='flex';},400);}
+}
+else{render();setTimeout(()=>{flipped=[];lock=false;render();},800);}
+}
+else render();
+});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

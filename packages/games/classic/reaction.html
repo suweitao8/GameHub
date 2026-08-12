@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="反应速度测试：等屏幕变绿立即点击，测试你的反应毫秒数，5 轮取平均。">
+<meta name="gamehub-instructions" content="点击开始后等屏幕变绿，变绿瞬间立即点击。太早点击算失败。共 5 轮取平均反应时间。">
+<meta name="gamehub-keywords" content="反应测试,reaction,休闲,测试">
+<title>反应测试 · Reaction</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--brand:#00c091;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;--wait:#fb7299;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.1rem;}
+  .hud .r{color:var(--brand);}
+  .hud .a{color:var(--accent);}
+  .pad{width:min(90vw,480px);height:min(60vh,360px);border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;transition:background .1s;user-select:none;font-size:1.3rem;font-weight:800;text-align:center;padding:20px;}
+  .pad.idle{background:var(--panel);color:var(--muted);}
+  .pad.wait{background:var(--wait);color:#fff;}
+  .pad.go{background:var(--brand);color:#fff;}
+  .pad.early{background:#f25d8e;color:#fff;}
+  .pad.result{background:var(--panel);color:var(--text);}
+  .pad .big{font-size:2.2rem;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="r">轮次 <span id="round">0</span>/5</span><span class="a">最佳 <span id="best">--</span>ms</span></div>
+<div class="pad idle" id="pad"><span class="big">点击开始</span><span>共 5 轮</span></div>
+<p class="hint">变绿瞬间立即点击 · 太早算失败</p>
+<div class="overlay" id="start"><h1>反应<span class="hl">测试</span></h1><p>等屏幕变绿立即点击，测试你的反应毫秒数。太早点击算失败重来。</p><button class="btn" id="startBtn">开始测试</button></div>
+<div class="overlay" id="over" style="display:none"><h1>测试完成</h1><p id="om"></p><button class="btn" id="retryBtn">再来一次</button></div>
+<script>
+(()=>{
+const pad=document.getElementById('pad'),$round=document.getElementById('round'),$best=document.getElementById('best'),$start=document.getElementById('start'),$over=document.getElementById('over'),$om=document.getElementById('om');
+let state,round,times,waitTimer,goTime,best;
+function reset(){
+state='idle';round=0;times=[];best=null;
+$round.textContent=0;$best.textContent='--';
+$start.style.display='none';$over.style.display='none';
+pad.className='pad idle';pad.innerHTML='<span class="big">点击开始第 1 轮</span><span>变绿后立即点</span>';
+}
+function startRound(){
+if(round>=5){finish();return;}
+round++;$round.textContent=round;
+state='wait';pad.className='pad wait';pad.innerHTML='<span class="big">等待...</span><span>变绿后立即点击</span>';
+const delay=1500+Math.random()*3000;
+waitTimer=setTimeout(()=>{state='go';pad.className='pad go';pad.innerHTML='<span class="big">点击！</span>';goTime=Date.now();},delay);
+}
+function click(){
+if(state==='idle'){startRound();return;}
+if(state==='wait'){clearTimeout(waitTimer);state='early';pad.className='pad early';pad.innerHTML='<span class="big">太早了！</span><span>点击重试本轮</span>';return;}
+if(state==='early'){startRound();return;}
+if(state==='go'){
+const rt=Date.now()-goTime;times.push(rt);
+if(best===null||rt<best){best=rt;$best.textContent=best;}
+state='result';pad.className='pad result';
+pad.innerHTML='<span class="big">'+rt+' ms</span><span>'+(round<5?'点击进入下一轮':'点击查看结果')+'</span>';
+return;
+}
+if(state==='result'){startRound();return;}
+}
+function finish(){
+const avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
+const min=Math.min(...times),max=Math.max(...times);
+$om.innerHTML='平均 <b style="color:var(--brand);font-size:1.8rem">'+avg+'</b> ms<br>最快 '+min+' ms · 最慢 '+max+' ms';
+$over.style.display='flex';
+}
+pad.addEventListener('click',click);
+pad.addEventListener('touchstart',e=>{click();e.preventDefault();},{passive:false});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',e=>{e.stopPropagation();if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

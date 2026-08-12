@@ -130,12 +130,39 @@ function g2048Cover () {
   )
 }
 
+/** 通用 emoji 封面:大号 emoji 居中 + 主题色渐变背景 + 标题栏。 */
+function emojiCover (emoji: string, bgFrom: string, bgTo: string, title: string, subtitle: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${bgFrom}"/><stop offset="1" stop-color="${bgTo}"/></linearGradient></defs>
+<rect width="${W}" height="${H}" fill="url(#bg)"/>
+<text x="${W / 2}" y="360" font-size="220" text-anchor="middle">${emoji}</text>
+<rect x="0" y="${H - 160}" width="${W}" height="160" fill="rgba(15,20,25,0.78)"/>
+<text x="64" y="${H - 88}" font-family="${FONT}" font-weight="800" font-size="68" fill="#ffffff">${escapeXml(title)}</text>
+<text x="68" y="${H - 44}" font-family="${FONT}" font-weight="600" font-size="26" fill="#8b98a5">${escapeXml(subtitle)}</text>
+</svg>`
+}
+
 const GENERATORS: Record<string, () => string> = {
   '贪吃蛇': snakeCover,
   '俄罗斯方块': tetrisCover,
   '打砖块': breakoutCover,
   '像素鸟': flappyCover,
-  '2048': g2048Cover
+  '2048': g2048Cover,
+  '乒乓': () => emojiCover('🏓', '#1a3a5a', '#0d4a7a', '乒乓', '反弹小球 · 先得 7 分'),
+  '扫雷': () => emojiCover('💣', '#3a2a1a', '#5a3a1a', '扫雷', '推理排雷 · 别踩到'),
+  '五子棋': () => emojiCover('⚫', '#2a2a3a', '#1a1a2a', '五子棋', '连成五子 · 人机对战'),
+  '吃豆人': () => emojiCover('🟡', '#1a1a4a', '#0a0a3a', '吃豆人', '吃光豆子 · 躲避幽灵'),
+  '太空射击': () => emojiCover('🚀', '#0a1a3a', '#1a0a3a', '太空射击', '击碎陨石 · 存活得分'),
+  '记忆翻牌': () => emojiCover('🃏', '#3a1a3a', '#5a2a4a', '记忆翻牌', '配对相同 · 最少步数'),
+  '推箱子': () => emojiCover('📦', '#3a2a1a', '#4a3a2a', '推箱子', '推到目标 · 不能拉回'),
+  '井字棋': () => emojiCover('⭕', '#1a3a3a', '#0a2a2a', '井字棋', '三连获胜 · 完美 AI'),
+  '堆方块': () => emojiCover('🟦', '#1a2a4a', '#2a1a4a', '堆方块', '精准堆叠 · 越堆越高'),
+  '跳一跳': () => emojiCover('🎯', '#2a3a1a', '#3a4a2a', '跳一跳', '蓄力跳跃 · 精准落地'),
+  '反应测试': () => emojiCover('⚡', '#1a4a3a', '#0a3a2a', '反应测试', '变绿即点 · 测毫秒数'),
+  '数字华容道': () => emojiCover('🔢', '#3a1a2a', '#4a2a3a', '数字华容道', '滑动还原 · 1 到 15'),
+  '打地鼠': () => emojiCover('🔨', '#3a3a1a', '#4a4a2a', '打地鼠', '快速敲打 · 金鼠加倍'),
+  '坦克大战': () => emojiCover('🎮', '#3a1a1a', '#4a2a2a', '坦克大战', '消灭敌军 · 利用掩体'),
+  '颜色反应': () => emojiCover('🎨', '#2a1a3a', '#3a2a4a', '颜色反应', '认颜色不认字 · 抗干扰')
 }
 
 async function main () {

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="数字华容道：滑动数字方块按 1-15 顺序排列，用最少步数还原。">
+<meta name="gamehub-instructions" content="点击与空格相邻的数字方块滑入空格，把数字按 1-15 顺序排列即获胜。">
+<meta name="gamehub-keywords" content="数字华容道,15-puzzle,滑块,益智,经典">
+<title>数字华容道 · 15 Puzzle</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--tile:#2a3441;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.1rem;}
+  .hud .m{color:var(--brand);}
+  .hud .t{color:var(--accent);}
+  .board-wrap{display:flex;align-items:center;justify-content:center;}
+  .board{position:relative;background:var(--panel);padding:8px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.4);width:320px;height:320px;}
+  .tile{position:absolute;width:72px;height:72px;background:var(--tile);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:800;color:var(--brand);cursor:pointer;transition:left .12s,top .12s;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+  .tile:hover{background:#344053;}
+  .tile.correct{color:var(--brand);background:rgba(0,174,236,.15);}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:300px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="m">步数 <span id="moves">0</span></span><span class="t">⏱ <span id="time">0</span></span></div>
+<div class="board-wrap"><div class="board" id="board"></div></div>
+<p class="hint">点击与空格相邻的方块滑入</p>
+<div class="overlay" id="start"><h1>数字<span class="hl">华容道</span></h1><p>滑动数字方块，按 1-15 顺序排列即获胜。用最少步数还原。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>还原成功！</h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const N=4;
+const board=document.getElementById('board'),$moves=document.getElementById('moves'),$time=document.getElementById('time'),$start=document.getElementById('start'),$over=document.getElementById('over'),$om=document.getElementById('om');
+let tiles,empty,moves,t0,timer,running;
+const SIZE=72,GAP=8,PAD=8;
+function reset(){
+tiles=Array.from({length:N*N-1},(_,i)=>i+1);tiles.push(0);
+empty=N*N-1;
+// 随机打乱(保证可解)
+for(let i=0;i<200;i++){
+const neighbors=getNeighbors(empty);
+const pick=neighbors[(Math.random()*neighbors.length)|0];
+[tiles[empty],tiles[pick]]=[tiles[pick],tiles[empty]];empty=pick;
+}
+moves=0;t0=0;$moves.textContent=0;$time.textContent=0;
+clearInterval(timer);
+$start.style.display='none';$over.style.display='none';running=true;render();
+}
+function getNeighbors(idx){
+const r=(idx/N)|0,c=idx%N,res=[];
+if(r>0)res.push(idx-N);if(r<N-1)res.push(idx+N);if(c>0)res.push(idx-1);if(c<N-1)res.push(idx+1);
+return res;
+}
+function render(){
+board.querySelectorAll('.tile').forEach(t=>t.remove());
+tiles.forEach((v,i)=>{
+if(v===0)return;
+const el=document.createElement('div');
+el.className='tile';
+el.textContent=v;
+if(v===i+1)el.classList.add('correct');
+el.style.left=PAD+(i%N)*(SIZE+GAP)+'px';
+el.style.top=PAD+((i/N)|0)*(SIZE+GAP)+'px';
+el.dataset.i=i;
+board.appendChild(el);
+});
+}
+function move(idx){
+if(!running)return;
+if(!getNeighbors(empty).includes(idx))return;
+if(!t0){t0=Date.now();timer=setInterval(()=>{$time.textContent=Math.floor((Date.now()-t0)/1000);},500);}
+[tiles[empty],tiles[idx]]=[tiles[idx],tiles[empty]];empty=idx;
+moves++;$moves.textContent=moves;render();checkWin();
+}
+function checkWin(){
+for(let i=0;i<N*N-1;i++)if(tiles[i]!==i+1)return;
+running=false;clearInterval(timer);
+$om.innerHTML='用了 <b style="color:var(--brand)">'+moves+'</b> 步，<b style="color:var(--brand)">'+$time.textContent+'</b> 秒';
+setTimeout(()=>{$over.style.display='flex';},400);
+}
+board.addEventListener('click',e=>{const t=e.target.closest('.tile');if(t)move(+t.dataset.i);});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

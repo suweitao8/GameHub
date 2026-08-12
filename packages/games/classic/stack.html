@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="堆方块：在合适时机点击让移动的方块精准堆叠，越堆越高，偏移越多方块越小。">
+<meta name="gamehub-instructions" content="点击或空格键放下移动的方块，精准对齐则不缩减，偏移越大切掉越多。堆到目标高度获胜。">
+<meta name="gamehub-keywords" content="堆方块,stack,益智,节奏,休闲">
+<title>堆方块 · Stack</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:32px;font-weight:800;font-size:1.3rem;}
+  .hud .h{color:var(--brand);}
+  .hud .s{color:var(--accent);}
+  canvas{background:var(--panel);border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);max-width:100%;max-height:calc(100vh - 120px);width:auto;height:auto;aspect-ratio:2/3;cursor:pointer;touch-action:none;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:300px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+  :fullscreen canvas{max-height:calc(100vh - 100px);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="h">高度 <span id="height">0</span></span><span class="s">得分 <span id="score">0</span></span></div>
+<canvas id="c"></canvas>
+<p class="hint">点击 / 空格 放下方块</p>
+<div class="overlay" id="start"><h1>堆<span class="hl">方块</span></h1><p>在合适时机放下方块精准堆叠。偏移越多切掉越多，方块也会越来越小。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1>游戏结束</h1><p>堆到 <b style="color:var(--brand);font-size:1.6rem" id="final">0</b> 层</p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=300,H=450;c.width=W;c.height=H;
+const BH=25,$height=document.getElementById('height'),$score=document.getElementById('score'),$start=document.getElementById('start'),$over=document.getElementById('over'),$final=document.getElementById('final');
+let blocks,cur,score,height,running,dead;
+const COLORS=['#00aeec','#fb7299','#ff8c42','#a371f7','#00c091','#ffd33d','#4ec9ff'];
+function reset(){
+blocks=[{x:0,y:H-BH,w:W,color:'#2a3441'}];
+cur={x:0,y:H-BH*2,w:W,vx:3.2,color:COLORS[0],ci:0};
+score=0;height=0;dead=false;$score.textContent=0;$height.textContent=0;
+$start.style.display='none';$over.style.display='none';running=true;
+requestAnimationFrame(loop);
+}
+function place(){
+const top=blocks[blocks.length-1];
+let overlapLeft=Math.max(cur.x,top.x);
+let overlapRight=Math.min(cur.x+cur.w,top.x+top.w);
+if(overlapRight<=overlapLeft){
+// 完全错过
+dead=true;running=false;$final.textContent=height;setTimeout(()=>{$over.style.display='flex';},300);return;
+}
+const newW=overlapRight-overlapLeft;
+const newX=overlapLeft;
+const diff=Math.abs(cur.w-newW);
+score+=Math.max(0,Math.round((1-diff/cur.w)*100));
+$score.textContent=score;
+blocks.push({x:newX,y:cur.y,w:newW,color:cur.color});
+height++;$height.textContent=height;
+// 上移视角
+if(blocks.length>10){blocks.shift();}
+blocks.forEach(b=>b.y+=BH);
+// 新块
+cur={x:0,y:blocks[blocks.length-1].y-BH,w:newW,vx:cur.vx*1.03*(Math.random()<.5?1:-1),color:COLORS[(cur.ci+1)%COLORS.length],ci:(cur.ci+1)%COLORS.length};
+if(cur.x+cur.w>W)cur.x=W-cur.w;
+}
+function update(){
+cur.x+=cur.vx;
+if(cur.x<=0){cur.x=0;cur.vx=Math.abs(cur.vx);}
+if(cur.x+cur.w>=W){cur.x=W-cur.w;cur.vx=-Math.abs(cur.vx);}
+}
+function draw(){
+x.fillStyle='#1a2028';x.fillRect(0,0,W,H);
+blocks.forEach(b=>{x.fillStyle=b.color;x.fillRect(b.x,b.y,b.w,BH);});
+// 当前块
+x.fillStyle=cur.color;x.fillRect(cur.x,cur.y,cur.w,BH);
+// 完美对齐提示线
+const top=blocks[blocks.length-1];
+x.strokeStyle='rgba(255,255,255,.2)';x.lineWidth=1;x.setLineDash([4,4]);
+x.beginPath();x.moveTo(top.x,0);x.lineTo(top.x,H);x.stroke();x.setLineDash([]);
+}
+let last=0;
+function loop(t){
+if(!running)return;
+if(!last)last=t;
+if(t-last>=16){update();draw();last=t;}
+requestAnimationFrame(loop);
+}
+function placeAction(){if(running&&!dead)place();}
+c.addEventListener('click',placeAction);
+c.addEventListener('touchstart',e=>{placeAction();e.preventDefault();},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key===' '){placeAction();e.preventDefault();}});
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>

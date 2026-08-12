@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="gamehub-description" content="经典扫雷：点开所有安全格，插旗标记地雷，别踩到雷。">
+<meta name="gamehub-instructions" content="左键点开格子，右键或长按标记/取消旗帜。数字表示周围地雷数，推理出所有雷的位置。">
+<meta name="gamehub-keywords" content="扫雷,minesweeper,经典,益智,逻辑">
+<title>扫雷 · Minesweeper</title>
+<style>
+  :root{--bg:#0f1419;--panel:#1a2028;--cell:#2a3441;--cell-o:#1e2630;--brand:#00aeec;--accent:#fb7299;--text:#e6edf3;--muted:#8b98a5;}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,'Microsoft YaHei',sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px;}
+  .hud{display:flex;gap:24px;align-items:center;font-weight:800;font-size:1.2rem;}
+  .hud .m{color:var(--accent);}
+  .hud .t{color:var(--brand);}
+  .board-wrap{display:flex;align-items:center;justify-content:center;}
+  .grid{display:grid;background:var(--panel);padding:8px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.4);transform-origin:center;}
+  .cell{width:32px;height:32px;background:var(--cell);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.95rem;cursor:pointer;transition:background .1s;margin:2px;}
+  .cell:hover{background:#344053;}
+  .cell.open{background:var(--cell-o);cursor:default;}
+  .cell.open:hover{background:var(--cell-o);}
+  .cell.flag::after{content:'🚩';font-size:1rem;}
+  .cell.mine{background:var(--accent);}
+  .cell.mine::after{content:'💣';font-size:1rem;}
+  .n1{color:#4ec9ff;}.n2{color:#00c091;}.n3{color:#fb7299;}.n4{color:#a371f7;}.n5{color:#ff8c42;}.n6{color:#ffd33d;}.n7{color:#e6edf3;}.n8{color:#8b98a5;}
+  .hint{font-size:0.82rem;color:var(--muted);}
+  .overlay{position:fixed;inset:0;background:rgba(15,20,25,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:10;}
+  .overlay h1{font-size:2rem;}.overlay h1 .hl{color:var(--brand);}
+  .overlay p{color:var(--muted);font-size:0.92rem;text-align:center;line-height:1.6;max-width:320px;}
+  .btn{background:var(--brand);color:#fff;border:0;border-radius:8px;padding:12px 32px;font-size:1rem;font-weight:700;cursor:pointer;}
+  .btn:hover{background:#0096cc;}.btn:active{transform:scale(.96);}
+  .fs-btn{position:fixed;top:12px;right:12px;z-index:20;background:rgba(26,32,40,.85);border:1px solid rgba(255,255,255,.12);color:var(--text);width:40px;height:40px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+  .fs-btn:hover{background:rgba(0,174,236,.85);}
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn">⛶</button>
+<div class="hud"><span class="m">💣 <span id="mc">10</span></span><span class="t">⏱ <span id="tc">0</span></span></div>
+<div class="board-wrap"><div class="grid" id="grid"></div></div>
+<p class="hint">左键点开 · 右键/长按插旗</p>
+<div class="overlay" id="start"><h1>扫雷 <span class="hl">Minesweeper</span></h1><p>点开所有安全格获胜。数字表示周围地雷数，右键标记可疑格子。</p><button class="btn" id="startBtn">开始游戏</button></div>
+<div class="overlay" id="over" style="display:none"><h1 id="ot"></h1><p id="om"></p><button class="btn" id="retryBtn">再来一局</button></div>
+<script>
+(()=>{
+const N=9,MINES=10;
+const grid=document.getElementById('grid');
+const $mc=document.getElementById('mc'),$tc=document.getElementById('tc'),$start=document.getElementById('start'),$over=document.getElementById('over'),$ot=document.getElementById('ot'),$om=document.getElementById('om');
+grid.style.gridTemplateColumns='repeat('+N+',32px)';
+let cells,flags,opened,dead,won,timer,t0;
+function reset(){
+cells=[];for(let i=0;i<N;i++){cells[i]=[];for(let j=0;j<N;j++)cells[i][j]={mine:false,open:false,flag:false,n:0};}
+flags=0;opened=0;dead=false;won=false;t0=0;$tc.textContent=0;
+$mc.textContent=MINES;$start.style.display='none';$over.style.display='none';
+clearInterval(timer);
+// 放雷(首次点击后放,保证首次不踩雷)——这里简化为先放
+placeMines();
+render();
+}
+function placeMines(){
+let placed=0;
+while(placed<MINES){
+const r=(Math.random()*N)|0,cc=(Math.random()*N)|0;
+if(cells[r][cc].mine)continue;
+cells[r][cc].mine=true;placed++;
+for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+const nr=r+dr,nc=cc+dc;if(nr>=0&&nr<N&&nc>=0&&nc<N&&!cells[nr][nc].mine)cells[nr][nc].n++;
+}
+}
+}
+function render(){
+grid.innerHTML='';
+for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+const el=document.createElement('div');
+el.className='cell';
+const cell=cells[i][j];
+if(cell.open){
+el.classList.add('open');
+if(cell.mine){el.classList.add('mine');}
+else if(cell.n>0){el.textContent=cell.n;el.classList.add('n'+cell.n);}
+}else if(cell.flag){el.classList.add('flag');}
+el.dataset.r=i;el.dataset.c=j;
+grid.appendChild(el);
+}
+}
+grid.addEventListener('click',e=>{
+const t=e.target.closest('.cell');if(!t||dead)return;
+const r=+t.dataset.r,c=+t.dataset.c;
+if(cells[r][c].flag)return;
+openCell(r,c);
+checkWin();
+});
+grid.addEventListener('contextmenu',e=>{
+e.preventDefault();const t=e.target.closest('.cell');if(!t||dead)return;
+const r=+t.dataset.r,c=+t.dataset.c;
+if(cells[r][c].open)return;
+cells[r][c].flag=!cells[r][c].flag;flags+=cells[r][c].flag?1:-1;
+$mc.textContent=MINES-flags;render();
+});
+// 长按插旗(触屏)
+let ltp=null;
+grid.addEventListener('touchstart',e=>{const t=e.target.closest('.cell');if(t)ltp={r:+t.dataset.r,c:+t.dataset.c};setTimeout(()=>{if(ltp){cells[ltp.r][ltp.c].flag=!cells[ltp.r][ltp.c].flag;flags+=cells[ltp.r][ltp.c].flag?1:-1;$mc.textContent=MINES-flags;render();ltp=null;}},500);},{passive:true});
+grid.addEventListener('touchend',()=>{ltp=null;});
+function openCell(r,c){
+const cell=cells[r][c];
+if(cell.open||cell.flag)return;
+cell.open=true;opened++;
+if(!t0){t0=Date.now();timer=setInterval(()=>{$tc.textContent=Math.floor((Date.now()-t0)/1000);},1000);}
+if(cell.mine){
+dead=true;clearInterval(timer);
+// 显示所有雷
+for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(cells[i][j].mine)cells[i][j].open=true;
+render();end(false);return;
+}
+if(cell.n===0){
+for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+const nr=r+dr,nc=c+dc;if(nr>=0&&nr<N&&nc>=0&&nc<N)openCell(nr,nc);
+}
+}
+render();
+}
+function checkWin(){
+if(opened===N*N-MINES&&!dead){
+won=true;clearInterval(timer);end(true);
+}
+}
+function end(win){
+$ot.textContent=win?'排雷成功！':'踩到雷了';
+$om.innerHTML=win?'用时 <b style="color:var(--brand)">'+$tc.textContent+' 秒</b>':'坚持了 <b style="color:var(--accent)">'+$tc.textContent+' 秒</b>';
+setTimeout(()=>{$over.style.display='flex';},300);
+}
+document.getElementById('startBtn').addEventListener('click',reset);
+document.getElementById('retryBtn').addEventListener('click',reset);
+const fsBtn=document.getElementById('fsBtn');
+fsBtn.addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.();});
+document.addEventListener('fullscreenchange',()=>{fsBtn.textContent=document.fullscreenElement?'✕':'⛶';});
+})();
+</script>
+</body>
+</html>
