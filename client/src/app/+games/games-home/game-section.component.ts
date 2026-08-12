@@ -158,6 +158,17 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     @media (max-width: 450px) {
       .game-grid { gap: 0.35rem; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section-side-action {
+        transition: none;
+      }
+
+      .section-side-action:hover .section-side-action-icon,
+      .section-side-action:focus-visible .section-side-action-icon {
+        animation: none;
+      }
+    }
   ` ]
 })
 export class GameSectionComponent {

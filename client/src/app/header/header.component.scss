@@ -976,3 +976,20 @@ my-actor-avatar {
   height: 2.8rem;
   margin-bottom: 0.4rem;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .game-header-left-nav a,
+  .game-header-actions a,
+  .game-nav-preview,
+  .game-nav-game,
+  .game-submit-button {
+    transition: none;
+  }
+
+  .game-header-actions a:hover my-global-icon,
+  .game-header-actions a:focus-visible my-global-icon,
+  .game-header-actions a.game-header-action-active my-global-icon,
+  .game-header-popover-anim {
+    animation: none;
+  }
+}

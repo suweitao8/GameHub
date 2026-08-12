@@ -410,3 +410,15 @@
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.35rem; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .section-side-action,
+  .featured-dots button {
+    transition: none;
+  }
+
+  .section-side-action:hover .section-side-action-icon,
+  .section-side-action:focus-visible .section-side-action-icon {
+    animation: none;
+  }
+}

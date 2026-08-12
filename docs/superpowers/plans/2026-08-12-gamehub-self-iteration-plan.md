@@ -17,7 +17,7 @@
 
 - [ ] **Step 1: 更新现有断言到当前实现**
 
-  将轮播渐隐断言改为 `height: 15%`，换一批字距改为 `letter-spacing: 0.02em`，弹窗封面改检查 `.game-nav-cover` 的 `height: 2.6rem` 与 `width: 4.6rem`，导航透明态断言只匹配导航 selector，页脚兜底色改为当前深蓝灰 `#262f37`。
+  将轮播渐隐断言改为 `height: 15%`，换一批图标尺寸改为 `0.95rem`、字距改为 `letter-spacing: 0.02em`，弹窗封面改检查 `.game-nav-cover` 的 `height: 2.6rem` 与 `width: 4.6rem`，导航透明态断言只匹配导航 selector，页脚兜底色改为当前深蓝灰 `#262f37`。
 
 - [ ] **Step 2: 添加动效可访问性断言并运行 RED**
 
