@@ -87,15 +87,6 @@
         <my-game-section [games]="popular().slice(0, 10)" heading="热门游戏" [searchTerm]="search()" [compact]="true" shuffleLabel="换一批" (shuffle)="shufflePopular()" />
       }
 
-      @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !publishedAfter() && view() !== 'following' && featured().length) {
-        <section class="game-section featured-editor-section" aria-labelledby="featured-editor-title">
-          <div class="game-section-heading compact-section-heading">
-            <h2 id="featured-editor-title">编辑推荐</h2>
-          </div>
-          <div class="game-grid">@for (game of featured().slice(0, 5); track game.uuid) { <my-game-card [game]="game" /> }</div>
-        </section>
-      }
-
     </div>
   }
 </main>
