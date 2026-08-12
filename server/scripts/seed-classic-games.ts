@@ -16,13 +16,10 @@ import { join } from 'path'
 import { CONFIG } from '@server/initializers/config.js'
 import { initDatabaseModels, sequelizeTypescript } from '@server/initializers/database.js'
 import { GameModel } from '@server/models/game/game.js'
-import { UserModel } from '@server/models/user/user.js'
 import { AccountModel } from '@server/models/account/account.js'
 import {
-  storeGameRuntimePackage,
-  cleanupStoredGameAssets
+  storeGameRuntimePackage
 } from '@server/lib/games/game-runtime.js'
-import { createHash } from 'crypto'
 
 interface ClassicGameSpec {
   file: string
@@ -83,10 +80,8 @@ async function main () {
   await initDatabaseModels(true)
 
   // 拿 root 账号作为官方游戏持有者
-  const user = await UserModel.loadByUsername('root')
-  if (!user) throw new Error('找不到 root 用户，请确认开发数据库已初始化（默认账号 root/test）。')
-  const account = await AccountModel.loadByUserId(user.id)
-  if (!account) throw new Error('root 用户没有关联 Account。')
+  const account = await AccountModel.loadLocalByName('root')
+  if (!account) throw new Error('找不到 root 账号，请确认开发数据库已初始化（默认账号 root/test）。')
   const ownerId = account.id
   console.log(`→ 使用账号 @${account.name} (id=${ownerId}) 持有官方游戏`)
 
