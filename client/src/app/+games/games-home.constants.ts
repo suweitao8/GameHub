@@ -21,5 +21,6 @@ export const HOME_CATEGORIES: readonly {
   { id: 'board', title: '桌游', description: '熟悉的规则，适合短时游玩。', query: { category: 'board' } }
 ]
 
-/** Average of the three CSS placeholder gradient stops used when a game has no image. */
-export const FEATURED_PLACEHOLDER_AVG_RGB = '143, 106, 81'
+/** Average of the three CSS placeholder gradient stops used when a game has no image.
+ *  色调与 .featured-cover 兜底渐变（深蓝灰）一致，避免占位→真实图切换时的色跳。 */
+export const FEATURED_PLACEHOLDER_AVG_RGB = '38, 47, 56'
