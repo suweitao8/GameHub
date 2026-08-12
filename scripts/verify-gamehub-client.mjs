@@ -373,8 +373,8 @@ const featuredFadeStyleEnd = featuredFadeStyleStart >= 0
   : -1
 const featuredFadeStyle = featuredScss.slice(featuredFadeStyleStart, featuredFadeStyleEnd)
 assert(
-  featuredFadeStyle.includes('height: 10%'),
-  'featured carousel cover fade must cover exactly the bottom tenth of the cover'
+  featuredFadeStyle.includes('height: 15%'),
+  'featured carousel cover fade must keep the current fifteen-percent soft transition'
 )
 assert(
   featuredHtml.includes("[attr.aria-current]=\"index === carouselIndex() ? 'true' : null\""),
@@ -480,6 +480,13 @@ assert(
   'desktop game grids must keep five columns across supported desktop widths'
 )
 assert(
+  headerScss.includes('@media (prefers-reduced-motion: reduce)') &&
+    featuredScss.includes('@media (prefers-reduced-motion: reduce)') &&
+    gameSectionTs.includes('@media (prefers-reduced-motion: reduce)') &&
+    gamesHomeScss.includes('@media (prefers-reduced-motion: reduce)'),
+  'GameHub hover and carousel motion must respect prefers-reduced-motion'
+)
+assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
     !gameSectionTs.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
   'shared home sections must keep five columns across supported desktop widths'
@@ -487,15 +494,15 @@ assert(
 assert(
   gameSectionTs.includes('min-height: 5rem;') &&
     gameSectionTs.includes('width: 2.25rem;') &&
-    gameSectionTs.includes('height: 0.65rem;') &&
+    gameSectionTs.includes('height: 0.95rem;') &&
     gameSectionTs.includes('font-size: 0.68rem;') &&
-    gameSectionTs.includes('letter-spacing: 0.04em;') &&
+    gameSectionTs.includes('letter-spacing: 0.02em;') &&
     !gameSectionTs.includes('min-height: 7.25rem;') &&
     featuredScss.includes('min-height: 5rem;') &&
     featuredScss.includes('width: 2.25rem;') &&
-    featuredScss.includes('height: 0.65rem;') &&
+    featuredScss.includes('height: 0.95rem;') &&
     featuredScss.includes('font-size: 0.68rem;') &&
-    featuredScss.includes('letter-spacing: 0.04em;') &&
+    featuredScss.includes('letter-spacing: 0.02em;') &&
     !featuredScss.includes('min-height: 7.25rem;'),
   'shuffle actions must use the compact vertical button sizing in shared and featured home sections'
 )
@@ -1160,8 +1167,8 @@ assert(
     headerTs.includes('onGameNavCoverError (uuid: string)') &&
     headerHtml.includes('gameNavCoverFallbacks()[notification.game.uuid]') &&
     (headerHtml.match(/onGameNavCoverError\(/g) || []).length >= 3 &&
-    headerScss.includes('.game-preview-cover') &&
-    /\.game-preview-cover[\s\S]*height: 2\.85rem;[\s\S]*width: 5\.1rem;/.test(headerScss),
+    headerScss.includes('.game-nav-cover') &&
+    /\.game-nav-cover[\s\S]*height: 2\.6rem;[\s\S]*width: 4\.6rem;/.test(headerScss),
   'header game popover covers must use a fixed thumbnail box and recover after image failures'
 )
 assert(
@@ -1227,7 +1234,8 @@ assert(
   'comment and discussion polling must handle transient request failures without global console errors'
 )
 assert(
-  !headerScss.includes('background: #eaf8ff;') &&
+  /\.game-header-left-nav a:hover,[\s\S]*?background: transparent;[\s\S]*?color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
+    /\.game-header-actions a:hover,[\s\S]*?background: transparent;[\s\S]*?color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
     /\.game-header-actions a\.game-header-action-active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
     /\.game-header-left-nav a\.active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss),
   'GameHub navigation must keep a transparent selected and hover state while only animating the icon'
@@ -1340,12 +1348,12 @@ assert(
   'featured carousel footer must bind the calculated five-segment average-color gradient'
 )
 assert(
-  featuredScss.includes('background-color: #8f6a51'),
-  'featured carousel footer must use the calculated brown placeholder fallback instead of black'
+  featuredScss.includes('background-color: #262f37'),
+  'featured carousel footer must keep the current deep blue-gray placeholder fallback'
 )
 assert(
-  !featuredScss.includes('background-color: #1e1e1e'),
-  'featured carousel footer must not use the dark global text color as its fallback'
+  !featuredScss.includes('background-color: #8f6a51'),
+  'featured carousel footer must not regress to the removed brown placeholder fallback'
 )
 
 // 4) Light-build scripts must force PeerTube base href (not "/")
