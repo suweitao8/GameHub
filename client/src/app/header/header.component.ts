@@ -575,6 +575,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
     void this.router.navigate(accountId ? [ '/games/author', accountId ] : [ '/login' ])
   }
 
+  openGameUpload (event: MouseEvent) {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+
+    event.preventDefault()
+    if (this.authService.isLoggedIn()) {
+      void this.router.navigate([ '/games/upload' ])
+      return
+    }
+
+    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: '/games/upload' } })
+  }
+
+  isGameUploadRoute () {
+    return this.router.url.split('?')[0] === '/games/upload'
+  }
+
   private updateUserState () {
     this.user = this.loggedIn
       ? this.authService.getUser()

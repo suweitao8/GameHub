@@ -256,9 +256,8 @@
       <a
         class="game-submit-button"
         href="/games/upload"
-        routerLink="/games/upload"
-        routerLinkActive="game-submit-button-active"
-        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="openGameUpload($event)"
+        [class.game-submit-button-active]="isGameUploadRoute()"
         title="投稿游戏"
         aria-label="投稿游戏"
       >投稿</a>

@@ -83,12 +83,21 @@ const homeHtml = read('client/src/app/+games/games-home.component.html')
 const homeTs = read('client/src/app/+games/games-home.component.ts')
 const homeConstantsTs = read('client/src/app/+games/games-home.constants.ts')
 const gameSectionTs = read('client/src/app/+games/games-home/game-section.component.ts')
+const submitHeaderTs = read('client/src/app/header/header.component.ts')
+const submitHeaderHtml = read('client/src/app/header/header.component.html')
+const submitHeaderScss = read('client/src/app/header/header.component.scss')
 const gamesIndexTs = read('server/core/controllers/api/games/index.ts')
 const gameMetaTagsTs = read('client/src/app/+games/services/game-meta-tags.ts')
 const navigationTs = read('client/src/app/header/game-navigation.component.ts')
 const navigationHtml = read('client/src/app/header/game-navigation.component.html')
 const eventDetailTs = read('client/src/app/+games/game-event-detail.component.ts')
 const collectionDetailTs = read('client/src/app/+games/game-collection-detail.component.ts')
+const collectionsTs = read('client/src/app/+games/game-collections.component.ts')
+const eventsTs = read('client/src/app/+games/game-events.component.ts')
+const gameCollectionControllerTs = read('server/core/controllers/api/games/game-collection.ts')
+const gameEventControllerTs = read('server/core/controllers/api/games/events.ts')
+const gameCollectionModelTs = read('packages/models/src/games/game-collection.model.ts')
+const gameEventModelTs = read('packages/models/src/games/game-event.model.ts')
 const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')
 assert(
   existsSync(bannerAssetPath),
@@ -143,6 +152,43 @@ assert(
   routes.includes("path: 'upload'") && routes.includes('GameUploadComponent') &&
     gameLoginGuardTs.includes("queryParams: { returnUrl: state.url }"),
   'game upload must stay registered behind a login guard that preserves the requested return URL'
+)
+assert(
+  submitHeaderHtml.includes('(click)="openGameUpload($event)"') &&
+    !submitHeaderHtml.includes('routerLink="/games/upload"') &&
+    submitHeaderTs.includes('openGameUpload (event: MouseEvent)') &&
+    submitHeaderTs.includes('event.button !== 0') &&
+    submitHeaderTs.includes("this.router.navigate([ '/games/upload' ])") &&
+    submitHeaderTs.includes("queryParams: { returnUrl: '/games/upload' }") &&
+    submitHeaderScss.includes(':host-context(.game-experience) .game-header-right') &&
+    submitHeaderScss.includes('z-index: 2;'),
+  'GameHub submit action must explicitly preserve the upload return URL and stay above centered navigation'
+)
+assert(
+  !gameCollectionControllerTs.includes('gameCount: 0') &&
+    gameCollectionControllerTs.includes('getPublishedGameCountByCollection') &&
+    gameCollectionControllerTs.includes("where: { status: 'published' }") &&
+    gameCollectionModelTs.includes('description: string | null') &&
+    gameCollectionModelTs.includes('gameCount: number') &&
+    gameCollectionModelTs.includes('data: Game[]') &&
+    !gameCollectionModelTs.includes('itemCount: number') &&
+    !gameCollectionModelTs.includes('games: Game[]') &&
+    !collectionsTs.includes('as unknown as GameCollection[]') &&
+    !collectionDetailTs.includes('as unknown as GameCollectionDetail'),
+  'GameHub collections must expose exact published-game counts through the shared response contract'
+)
+assert(
+  gameEventControllerTs.includes("gameEventRouter.get('/:slug/participation', authenticate") &&
+    gameEventControllerTs.includes('getEventParticipation') &&
+    gameEventControllerTs.includes('maxParticipants > 0 && event.participantCount >= event.maxParticipants') &&
+    gameEventControllerTs.includes('transaction.LOCK.UPDATE') &&
+    gameEventControllerTs.includes('participantCount') &&
+    eventDetailTs.includes('getEventParticipation(slug)') &&
+    !eventDetailTs.includes('checkJoined') &&
+    !eventDetailTs.includes('result.data.some') &&
+    gameEventModelTs.includes('export interface GameEventJoinResult') &&
+    !eventsTs.includes('as unknown as GameEvent[]'),
+  'GameHub events must return exact user participation, enforce capacity atomically, and share their response contracts'
 )
 
 const watchLater = read('client/src/app/+games/watch-later.service.ts')
@@ -518,11 +564,11 @@ assert(
 assert(
   headerHtml.includes('class="game-submit-button"') &&
     headerHtml.includes('href="/games/upload"') &&
-    headerHtml.includes('routerLink="/games/upload"') &&
-    headerHtml.includes('routerLinkActive="game-submit-button-active"') &&
+    headerHtml.includes('(click)="openGameUpload($event)"') &&
+    headerHtml.includes('[class.game-submit-button-active]="isGameUploadRoute()"') &&
     headerHtml.includes('title="投稿游戏"') &&
     headerHtml.includes('aria-label="投稿游戏"'),
-  'GameHub submit navigation must keep a native upload fallback, SPA routing, active state, and an accessible label'
+  'GameHub submit navigation must keep a native upload fallback, explicit click routing, active state, and an accessible label'
 )
 assert(
   !gameFollowingTs.includes('following-handle') && !gameFollowingTs.includes('&#64;{{ author.handle }}'),
@@ -1361,6 +1407,11 @@ const lightPs1 = read('scripts/build/client-light.ps1')
 assert(
   lightPs1.includes("--base-href '/client/en-US/'") || lightPs1.includes('--base-href "/client/en-US/"') || lightPs1.includes("--base-href=/client/en-US/"),
   'client-light.ps1 must pass --base-href=/client/en-US/'
+)
+const clientIndex = read('client/src/index.html')
+assert(
+  clientIndex.includes('href="/client/assets/images/gamehub-favicon.svg'),
+  'client index favicon must resolve through the shared /client asset path'
 )
 const clientSh = read('scripts/build/client.sh')
 assert(

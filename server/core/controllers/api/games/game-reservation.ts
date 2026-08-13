@@ -12,11 +12,28 @@ import { getUser, formatGame } from './game-shared.js'
 
 const reservationRouter = express.Router()
 
+reservationRouter.get('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddleware(getReservationStatus))
 reservationRouter.post('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddleware(reserveGame))
 reservationRouter.delete('/:uuid/reserve', gameUUIDValidator, authenticate, asyncMiddleware(cancelReserve))
 reservationRouter.get('/me/reservations', authenticate, asyncMiddleware(listReservations))
 
 export { reservationRouter }
+
+/** 查询当前用户是否已经预约，避免详情页只靠本地按钮状态推断服务端状态。 */
+async function getReservationStatus (req: express.Request, res: express.Response) {
+  return traceGameOperation('getReservationStatus', async () => {
+    const game = await GameModel.loadByUUID(req.params.uuid, { publishedOnly: true })
+    if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
+
+    const user = getUser(res)
+    const reserve = await GameReserveModel.findOne({
+      where: { gameId: game.id, accountId: user.Account.id },
+      attributes: [ 'id' ]
+    })
+
+    return res.json({ reserved: !!reserve })
+  })
+}
 
 /**
  * 预约游戏

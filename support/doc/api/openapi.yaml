@@ -9447,6 +9447,28 @@ paths:
           description: Query too short or invalid
 
   /api/v1/games/{uuid}/reserve:
+    get:
+      tags:
+        - Games
+      summary: Get game reservation status
+      description: Return whether the authenticated user has reserved a game
+      operationId: getGameReservationStatus
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/idOrUUID'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - reserved
+                properties:
+                  reserved:
+                    type: boolean
     post:
       tags:
         - Games
@@ -9483,7 +9505,7 @@ paths:
       tags:
         - Games
       summary: List game events
-      description: Returns a paginated list of published game events and competitions
+      description: Returns a paginated list of game events and competitions
       operationId: listGameEvents
       parameters:
         - name: type
@@ -9569,7 +9591,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GameEventCreate'
+              $ref: '#/components/schemas/GameEventUpdate'
       responses:
         '200':
           description: successful operation
@@ -9614,6 +9636,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/GameEventParticipantList'
 
+  /api/v1/games/events/{slug}/participation:
+    get:
+      tags:
+        - Games
+      summary: Get current user's event participation
+      operationId: getGameEventParticipation
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - joined
+                properties:
+                  joined:
+                    type: boolean
+        '404':
+          description: event not found
+
   /api/v1/games/events/{slug}/join:
     post:
       tags:
@@ -9634,12 +9685,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  joined:
-                    type: boolean
+                $ref: '#/components/schemas/GameEventJoinResult'
         '409':
-          description: already joined or event closed
+          description: already joined, event closed, or event full
     delete:
       tags:
         - Games
@@ -9654,8 +9702,12 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        '200':
           description: successfully left
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameEventJoinResult'
 
   /api/v1/games/tags:
     get:
@@ -9717,21 +9769,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  total:
-                    type: integer
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        slug:
-                          type: string
-                        title:
-                          type: string
-                        description:
-                          type: string
+                $ref: '#/components/schemas/GameCollectionList'
 
   /api/v1/games/collections/{slug}:
     get:
@@ -9752,20 +9790,153 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  slug:
-                    type: string
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  games:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Game'
+                $ref: '#/components/schemas/GameCollectionDetail'
         '404':
           description: collection not found
+
+  /api/v1/games/articles:
+    get:
+      tags:
+        - Games
+      summary: List published game articles
+      operationId: listGameArticles
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/count'
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleList'
+    post:
+      tags:
+        - Games
+      summary: Create a game article
+      operationId: createGameArticle
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameArticleInput'
+      responses:
+        '201':
+          description: article created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleDetail'
+        '409':
+          description: article slug already exists
+
+  /api/v1/games/articles/mine:
+    get:
+      tags:
+        - Games
+      summary: List current user's game articles
+      operationId: listMyGameArticles
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleList'
+
+  /api/v1/games/articles/{slug}:
+    get:
+      tags:
+        - Games
+      summary: Get a published game article
+      operationId: getGameArticle
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleDetail'
+        '404':
+          description: article not found
+    put:
+      tags:
+        - Games
+      summary: Update a game article
+      operationId: updateGameArticle
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameArticleInput'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleDetail'
+    delete:
+      tags:
+        - Games
+      summary: Delete a game article
+      operationId: deleteGameArticle
+      security:
+        - OAuth2: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: article deleted
+
+  /api/v1/games/articles/{slug}/view:
+    post:
+      tags:
+        - Games
+      summary: Record a game article view
+      operationId: recordGameArticleView
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: view recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameArticleViewResult'
 
   /api/v1/games/admin:
     get:
@@ -16448,6 +16619,15 @@ components:
 
     GameEvent:
       type: object
+      required:
+        - id
+        - title
+        - slug
+        - type
+        - status
+        - maxParticipants
+        - participantCount
+        - createdAt
       properties:
         id:
           type: integer
@@ -16507,10 +16687,16 @@ components:
       properties:
         title:
           type: string
+          maxLength: 120
         description:
           type: string
+          maxLength: 20000
+          nullable: true
         slug:
           type: string
+          minLength: 1
+          maxLength: 120
+          pattern: '^[a-z0-9一-龥]+(?:-[a-z0-9一-龥]+)*$'
         type:
           type: string
           enum: [ activity, competition ]
@@ -16519,18 +16705,67 @@ components:
           enum: [ upcoming, ongoing, ended, cancelled ]
         coverPath:
           type: string
+          maxLength: 2048
+          nullable: true
         startAt:
           type: string
           format: date-time
+          nullable: true
         endAt:
           type: string
           format: date-time
+          nullable: true
         rules:
           type: string
+          maxLength: 20000
+          nullable: true
         prizes:
           type: string
+          maxLength: 20000
+          nullable: true
         maxParticipants:
           type: integer
+          minimum: 0
+
+    GameEventUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 120
+        description:
+          type: string
+          maxLength: 20000
+          nullable: true
+        type:
+          type: string
+          enum: [ activity, competition ]
+        status:
+          type: string
+          enum: [ upcoming, ongoing, ended, cancelled ]
+        coverPath:
+          type: string
+          maxLength: 2048
+          nullable: true
+        startAt:
+          type: string
+          format: date-time
+          nullable: true
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+        rules:
+          type: string
+          maxLength: 20000
+          nullable: true
+        prizes:
+          type: string
+          maxLength: 20000
+          nullable: true
+        maxParticipants:
+          type: integer
+          minimum: 0
 
     GameEventList:
       type: object
@@ -16575,3 +16810,187 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GameEventParticipant'
+
+    GameEventJoinResult:
+      type: object
+      required:
+        - joined
+        - participantCount
+      properties:
+        joined:
+          type: boolean
+        participantCount:
+          type: integer
+
+    GameCollection:
+      type: object
+      required:
+        - id
+        - slug
+        - title
+        - gameCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        coverPath:
+          type: string
+          nullable: true
+        gameCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    GameCollectionList:
+      type: object
+      required:
+        - total
+        - data
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameCollection'
+
+    GameCollectionDetail:
+      allOf:
+        - $ref: '#/components/schemas/GameCollection'
+        - type: object
+          required:
+            - total
+            - data
+          properties:
+            total:
+              type: integer
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Game'
+
+    GameArticleAuthor:
+      type: object
+      required:
+        - id
+        - name
+        - displayName
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        displayName:
+          type: string
+
+    GameArticle:
+      type: object
+      required:
+        - id
+        - title
+        - summary
+        - slug
+        - category
+        - status
+        - viewCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        summary:
+          type: string
+        slug:
+          type: string
+        coverPath:
+          type: string
+          nullable: true
+        category:
+          type: string
+        status:
+          type: string
+          enum: [ draft, published ]
+        viewCount:
+          type: integer
+        createdBy:
+          allOf:
+            - $ref: '#/components/schemas/GameArticleAuthor'
+          nullable: true
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    GameArticleDetail:
+      allOf:
+        - $ref: '#/components/schemas/GameArticle'
+        - type: object
+          required:
+            - content
+          properties:
+            content:
+              type: string
+
+    GameArticleInput:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+          nullable: true
+        content:
+          type: string
+        slug:
+          type: string
+          nullable: true
+        coverPath:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+
+    GameArticleList:
+      type: object
+      required:
+        - total
+        - data
+      properties:
+        total:
+          type: integer
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameArticle'
+
+    GameArticleViewResult:
+      type: object
+      required:
+        - viewCount
+      properties:
+        viewCount:
+          type: integer

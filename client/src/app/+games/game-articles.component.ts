@@ -1,48 +1,43 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { RouterLink } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
+import { Router, RouterLink } from '@angular/router'
 import { map } from 'rxjs/operators'
-import { environment } from '../../environments/environment'
+import { AuthService } from '@app/core/auth/auth.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { createAsyncState } from './shared'
-
-export type GameArticle = {
-  id: number
-  title: string
-  summary: string
-  slug: string
-  coverPath: string | null
-  author: { id: number; name: string; displayName: string; avatarUrl: string } | null
-  createdAt: string
-  viewCount: number
-  likeCount: number
-  commentCount: number
-  category: string
-}
+import { GamesService, type GameArticle } from './games.service'
 
 @Component({
   selector: 'my-game-articles',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="articles-container">
       <div class="articles-header">
-        <h2>攻略与专栏</h2>
-        <p>玩家创作的游戏攻略、评测和心得分享</p>
+        <div>
+          <h2>攻略与专栏</h2>
+          <p>玩家创作的游戏攻略、评测和心得分享</p>
+        </div>
+        <button type="button" class="article-create-button" (click)="startCreate()"><my-global-icon iconName="plus" />写攻略</button>
       </div>
 
       @if (loading()) {
         <div class="articles-grid">
-          @for (i of [1,2,3,4,5,6]; track $index) {
+          @for (i of [ 1, 2, 3, 4, 5, 6 ]; track $index) {
             <div class="article-card-skeleton shimmer"></div>
           }
+        </div>
+      } @else if (hasError()) {
+        <div class="articles-state" role="alert">
+          <span>攻略加载失败</span>
+          <p>{{ error() || '请稍后重试。' }}</p>
+          <button type="button" (click)="loadArticles()">重新加载</button>
         </div>
       } @else if (articles().length) {
         <div class="articles-grid">
           @for (article of articles(); track article.id) {
-            <a class="article-card" [routerLink]="['/games/article', article.slug]">
+              <a class="article-card" [routerLink]="['/games/articles', article.slug]">
               <div class="article-cover">
                 @if (article.coverPath) {
                   <img [src]="article.coverPath" [alt]="article.title" loading="lazy">
@@ -57,8 +52,7 @@ export type GameArticle = {
                   <span class="article-category">{{ article.category }}</span>
                   <div class="article-stats">
                     <span><my-global-icon iconName="eye" />{{ formatNumber(article.viewCount) }}</span>
-                    <span><my-global-icon iconName="like" />{{ formatNumber(article.likeCount) }}</span>
-                    <span><my-global-icon iconName="message-circle" />{{ formatNumber(article.commentCount) }}</span>
+                    @if (article.createdBy) { <span>{{ article.createdBy.displayName }}</span> }
                   </div>
                 </div>
               </div>
@@ -76,18 +70,35 @@ export type GameArticle = {
   styleUrl: './game-articles.component.scss'
 })
 export class GameArticlesComponent implements OnInit {
-  private readonly http = inject(HttpClient)
+  private readonly gamesService = inject(GamesService)
+  private readonly authService = inject(AuthService)
+  private readonly router = inject(Router)
   readonly articlesState = createAsyncState<GameArticle[]>()
   /** 模板兼容：直接返回 data，空数组兜底 */
   readonly articles = computed(() => this.articlesState.data() ?? [])
   /** 模板兼容：底层 state 的 loading 别名 */
   readonly loading = this.articlesState.loading
+  readonly error = this.articlesState.error
+  readonly hasError = this.articlesState.hasError
 
   ngOnInit () {
-    const data$ = this.http.get<{ total: number; data: GameArticle[] }>(`${environment.apiUrl}/api/v1/games/articles`).pipe(
+    this.loadArticles()
+  }
+
+  loadArticles () {
+    const data$ = this.gamesService.listArticles().pipe(
       map(result => result.data)
     )
     this.articlesState.load(data$)
+  }
+
+  startCreate () {
+    if (!this.authService.isLoggedIn()) {
+      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: '/games/articles/new' } })
+      return
+    }
+
+    void this.router.navigate([ '/games/articles/new' ])
   }
 
   formatNumber (num: number): string {

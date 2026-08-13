@@ -5,16 +5,17 @@ export interface GameCollection {
   id: number
   slug: string
   title: string
-  description: string
+  description: string | null
   coverPath: string | null
-  itemCount: number
+  gameCount: number
   createdAt: string
   updatedAt: string
 }
 
 // 专题合集详情（含游戏列表）
 export interface GameCollectionDetail extends GameCollection {
-  games: Game[]
+  total: number
+  data: Game[]
 }
 
 // 合集列表响应

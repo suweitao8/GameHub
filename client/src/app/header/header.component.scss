@@ -84,6 +84,11 @@
   display: none;
 }
 
+:host-context(.game-experience) .game-header-right {
+  position: relative;
+  z-index: 2;
+}
+
 :host-context(.game-experience.game-header-scrolled) .root .peertube-title {
   min-height: 36px;
 }
@@ -581,6 +586,7 @@ my-game-navigation {
     top: 25px;
     transform: translate(-50%, -50%);
     width: min(480px, 42vw);
+    z-index: 1;
   }
 }
 

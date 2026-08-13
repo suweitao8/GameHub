@@ -1,32 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ActivatedRoute, RouterLink } from '@angular/router'
+import { RouterLink } from '@angular/router'
 import { map } from 'rxjs/operators'
-import { GamesService } from './games.service'
+import { GamesService, type GameEvent } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { createAsyncState } from './shared'
-
-export type GameEvent = {
-  id: number
-  title: string
-  description: string | null
-  slug: string
-  type: 'activity' | 'competition'
-  status: 'upcoming' | 'ongoing' | 'ended' | 'cancelled'
-  coverPath: string | null
-  startAt: string | null
-  endAt: string | null
-  maxParticipants: number
-  participantCount: number
-  createdBy: { id: number; name: string; displayName: string } | null
-  createdAt: string
-}
 
 @Component({
   selector: 'my-game-events',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ CommonModule, RouterLink, GlobalIconComponent ],
   template: `
     <div class="events-container">
       <div class="events-header">
@@ -41,7 +25,13 @@ export type GameEvent = {
 
       @if (loading()) {
         <div class="events-skeleton">
-          @for (i of [1,2,3]; track $index) { <div class="event-card shimmer"></div> }
+          @for (i of [ 1, 2, 3 ]; track $index) { <div class="event-card shimmer"></div> }
+        </div>
+      } @else if (hasError()) {
+        <div class="events-state" role="alert">
+          <span>活动加载失败</span>
+          <p>{{ error() || '请稍后重试。' }}</p>
+          <button type="button" (click)="loadEvents()">重新加载</button>
         </div>
       } @else if (filteredEvents().length) {
         <div class="events-grid">
@@ -79,12 +69,13 @@ export type GameEvent = {
 })
 export class GameEventsComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
-  private readonly route = inject(ActivatedRoute)
   readonly eventsState = createAsyncState<GameEvent[]>()
   /** 模板兼容：直接返回 data，空数组兜底 */
   readonly events = computed(() => this.eventsState.data() ?? [])
   /** 模板兼容：底层 state 的 loading 别名 */
   readonly loading = this.eventsState.loading
+  readonly error = this.eventsState.error
+  readonly hasError = this.eventsState.hasError
   currentFilter = signal<'all' | 'upcoming' | 'ongoing' | 'ended'>('all')
 
   filters = [
@@ -101,8 +92,12 @@ export class GameEventsComponent implements OnInit {
   })
 
   ngOnInit () {
+    this.loadEvents()
+  }
+
+  loadEvents () {
     const data$ = this.gamesService.listEvents().pipe(
-      map(result => result.data as unknown as GameEvent[])
+      map(result => result.data)
     )
     this.eventsState.load(data$)
   }

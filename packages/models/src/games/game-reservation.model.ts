@@ -7,6 +7,11 @@ export interface GameReservation {
   createdAt: string
 }
 
+// 当前用户对某个游戏的预约状态 — 对应 GET /api/v1/games/:uuid/reserve
+export interface GameReservationStatus {
+  reserved: boolean
+}
+
 // 我的预约列表项
 export interface GameReservationListItem {
   id: number

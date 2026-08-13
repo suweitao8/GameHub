@@ -98,6 +98,24 @@
         (share)="shareGame()"
       />
 
+      <div class="game-secondary-actions" aria-label="游戏附加操作">
+        <my-game-reserve-button [uuid]="currentUuid" />
+        <button
+          type="button"
+          class="game-secondary-action"
+          [class.active]="inWatchLater()"
+          [disabled]="watchLaterActionLoading()"
+          [attr.aria-label]="inWatchLater() ? '从稍后再玩移除' : '加入稍后再玩'"
+          (click)="toggleWatchLater()"
+        >
+          <my-global-icon iconName="clock" />
+          {{ inWatchLater() ? '已加入稍后再玩' : '稍后再玩' }}
+        </button>
+        @if (watchLaterFeedback()) {
+          <span class="game-secondary-feedback" role="status">{{ watchLaterFeedback() }}</span>
+        }
+      </div>
+
       <my-game-comments />
       </div><!-- /.stage-column -->
 

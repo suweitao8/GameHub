@@ -1,8 +1,13 @@
-.events-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+.events-container { max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem; }
 
 .events-header { margin-bottom: 1.5rem; }
-.events-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.events-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+.events-header h2 { font-size: 1.5rem;
+  margin-bottom: 0.5rem; }
+.events-header p { color: var(--game-muted);
+  font-size: 0.9rem;
+  margin: 0; }
 
 .events-filters {
   display: flex;
@@ -56,8 +61,13 @@
   box-shadow: var(--game-shadow);
 }
 
-.event-cover { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; }
-.event-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.event-cover { width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden; }
+.event-cover img { width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block; }
 
 .event-cover-placeholder {
   width: 100%;
@@ -73,7 +83,8 @@
 
 .event-info { padding: 0.75rem; }
 
-.event-type, .event-status {
+.event-type,
+.event-status {
   display: inline-block;
   font-size: 0.7rem;
   font-weight: 700;
@@ -83,16 +94,29 @@
   text-transform: uppercase;
 }
 
-.event-type.activity { background: #e0f2fe; color: #0369a1; }
-.event-type.competition { background: #fef3c7; color: #92400e; }
+.event-type.activity { background: #e0f2fe;
+  color: #0369a1; }
+.event-type.competition { background: #fef3c7;
+  color: #92400e; }
 
-.event-status.upcoming { background: #dcfce7; color: #166534; }
-.event-status.ongoing { background: #dbeafe; color: #1e40af; }
-.event-status.ended { background: #f3f4f6; color: #4b5563; }
-.event-status.cancelled { background: #fee2e2; color: #991b1b; }
+.event-status.upcoming { background: #dcfce7;
+  color: #166534; }
+.event-status.ongoing { background: #dbeafe;
+  color: #1e40af; }
+.event-status.ended { background: #f3f4f6;
+  color: #4b5563; }
+.event-status.cancelled { background: #fee2e2;
+  color: #991b1b; }
 
-.event-info h3 { font-size: 1rem; margin: 0.5rem 0 0.25rem; }
-.event-info p { color: var(--game-muted); font-size: 0.8rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.event-info h3 { font-size: 1rem;
+  margin: 0.5rem 0 0.25rem; }
+.event-info p { color: var(--game-muted);
+  font-size: 0.8rem;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden; }
 
 .event-meta {
   display: flex;
@@ -102,12 +126,46 @@
   color: var(--game-muted);
 }
 
-.event-meta span { display: inline-flex; align-items: center; gap: 0.25rem; }
-.event-meta my-global-icon { height: 0.8rem; width: 0.8rem; }
+.event-meta span { display: inline-flex;
+  align-items: center;
+  gap: 0.25rem; }
+.event-meta my-global-icon { height: 0.8rem;
+  width: 0.8rem; }
 
-.events-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
-.events-empty span { display: block; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.events-empty p { font-size: 0.82rem; margin: 0; }
+.events-empty { text-align: center;
+  padding: 3rem;
+  color: var(--game-muted); }
+.events-state {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  justify-content: center;
+  min-height: 16rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.events-state span { color: var(--game-text);
+  font-size: 1.1rem;
+  font-weight: 700; }
+.events-state p { color: var(--game-muted);
+  margin: 0; }
+.events-state button {
+  background: var(--game-brand);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+}
+.events-empty span { display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem; }
+.events-empty p { font-size: 0.82rem;
+  margin: 0; }
 
-.events-skeleton { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.events-skeleton { display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem; }
 .events-skeleton .event-card { height: 200px; }

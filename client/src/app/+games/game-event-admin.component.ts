@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core'
-import { CommonModule } from '@angular/common'
 import { RouterLink } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
-import { AuthService } from '@app/core/auth/auth.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { createAsyncState } from './shared'
 
@@ -18,6 +16,8 @@ export type GameEventAdmin = {
   coverPath: string | null
   startAt: string | null
   endAt: string | null
+  rules: string | null
+  prizes: string | null
   maxParticipants: number
   participantCount: number
   createdAt: string
@@ -27,7 +27,7 @@ export type GameEventAdmin = {
   selector: 'my-game-event-admin',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, GlobalIconComponent],
+  imports: [ RouterLink, GlobalIconComponent ],
   template: `
     <div class="event-admin-container">
       <div class="event-admin-header">
@@ -37,20 +37,36 @@ export type GameEventAdmin = {
 
       @if (loading()) {
         <div class="event-admin-skeleton">
-          <div class="admin-skeleton-row shimmer" *ngFor="let _ of [1,2,3]"></div>
+          @for (_ of [ 1, 2, 3 ]; track $index) {
+            <div class="admin-skeleton-row shimmer"></div>
+          }
+        </div>
+      } @else if (eventsState.hasError()) {
+        <div class="event-admin-state" role="alert">
+          <h3>活动列表加载失败</h3>
+          <p>{{ eventsState.error() || '请稍后重试。' }}</p>
+          <button type="button" (click)="loadEvents()">重新加载</button>
         </div>
       } @else {
         <div class="event-admin-actions">
-          <button type="button" class="create-event-btn" (click)="showForm.set(true)">
+          <button type="button" class="create-event-btn" (click)="startCreate()">
             <my-global-icon iconName="plus" /> 创建活动
           </button>
         </div>
+        @if (formFeedback() && !showForm()) { <p class="admin-feedback" role="alert">{{ formFeedback() }}</p> }
 
         @if (showForm()) {
           <form class="event-form" (submit)="$event.preventDefault(); submitForm()">
             <div class="form-row">
-              <label>标题 <input [value]="formTitle()" (input)="formTitle.set($any($event.target).value)" required></label>
-              <label>Slug <input [value]="formSlug()" (input)="formSlug.set($any($event.target).value)" required></label>
+              <label>
+                标题
+                <input [value]="formTitle()" (input)="formTitle.set($any($event.target).value)" required>
+              </label>
+              <label>
+                Slug
+                <input [value]="formSlug()" (input)="formSlug.set($any($event.target).value)"
+                       [readonly]="editingSlug() !== null" required>
+              </label>
             </div>
             <div class="form-row">
               <label>类型
@@ -73,14 +89,23 @@ export type GameEventAdmin = {
               <label>结束时间 <input type="datetime-local" [value]="formEndAt()" (input)="formEndAt.set($any($event.target).value)"></label>
             </div>
             <div class="form-row">
-              <label>最大人数 <input type="number" [value]="formMaxParticipants()" (input)="formMaxParticipants.set(Number($any($event.target).value))"></label>
+              <label>
+                最大人数
+                <input type="number" [value]="formMaxParticipants()"
+                       (input)="formMaxParticipants.set(Number($any($event.target).value))">
+              </label>
             </div>
-            <label>描述 <textarea [value]="formDescription()" (input)="formDescription.set($any($event.target).value)" rows="3"></textarea></label>
+              <label>
+                描述
+                <textarea [value]="formDescription()" (input)="formDescription.set($any($event.target).value)" rows="3"></textarea>
+              </label>
             <label>规则 <textarea [value]="formRules()" (input)="formRules.set($any($event.target).value)" rows="3"></textarea></label>
             <label>奖品 <textarea [value]="formPrizes()" (input)="formPrizes.set($any($event.target).value)" rows="2"></textarea></label>
             <div class="form-actions">
-              <button type="button" (click)="showForm.set(false)">取消</button>
-              <button type="submit" class="primary">创建</button>
+              <button type="button" (click)="closeForm()">取消</button>
+              <button type="submit" class="primary" [disabled]="saving() || !canSubmit()">
+                {{ saving() ? '保存中…' : editingSlug() ? '保存修改' : '创建' }}
+              </button>
             </div>
             @if (formFeedback()) { <p class="form-feedback" role="alert">{{ formFeedback() }}</p> }
           </form>
@@ -100,7 +125,16 @@ export type GameEventAdmin = {
                     <td><span class="badge-status" [class]="event.status">{{ statusLabel(event.status) }}</span></td>
                     <td>{{ formatDate(event.startAt) }}</td>
                     <td>{{ event.participantCount }} / {{ event.maxParticipants || '∞' }}</td>
-                    <td><button type="button" (click)="deleteEvent(event.slug)">删除</button></td>
+                    <td class="event-row-actions">
+                      <button type="button" (click)="editEvent(event)">编辑</button>
+                      <button type="button" (click)="deleteEvent(event.slug)"
+                              [disabled]="deletingSlug() === event.slug">
+                        {{ deletingSlug() === event.slug ? '删除中…' : pendingDeleteSlug() === event.slug ? '确认删除' : '删除' }}
+                      </button>
+                      @if (pendingDeleteSlug() === event.slug && deletingSlug() !== event.slug) {
+                        <button type="button" (click)="cancelDelete()">取消</button>
+                      }
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -124,6 +158,10 @@ export class GameEventAdminComponent implements OnInit {
   readonly loading = this.eventsState.loading
   showForm = signal(false)
   formFeedback = signal('')
+  editingSlug = signal<string | null>(null)
+  saving = signal(false)
+  deletingSlug = signal<string | null>(null)
+  pendingDeleteSlug = signal<string | null>(null)
 
   // Form fields
   formTitle = signal('')
@@ -137,6 +175,8 @@ export class GameEventAdminComponent implements OnInit {
   formEndAt = signal('')
   formMaxParticipants = signal(0)
 
+  canSubmit = computed(() => this.formTitle().trim().length > 0 && this.formSlug().trim().length > 0)
+
   ngOnInit () {
     this.loadEvents()
   }
@@ -148,38 +188,102 @@ export class GameEventAdminComponent implements OnInit {
     this.eventsState.load(data$)
   }
 
+  startCreate () {
+    this.resetForm()
+    this.editingSlug.set(null)
+    this.formFeedback.set('')
+    this.showForm.set(true)
+  }
+
+  editEvent (event: GameEventAdmin) {
+    this.editingSlug.set(event.slug)
+    this.formTitle.set(event.title)
+    this.formSlug.set(event.slug)
+    this.formType.set(event.type)
+    this.formStatus.set(event.status)
+    this.formDescription.set(event.description || '')
+    this.formRules.set(event.rules || '')
+    this.formPrizes.set(event.prizes || '')
+    this.formStartAt.set(this.toDateTimeLocal(event.startAt))
+    this.formEndAt.set(this.toDateTimeLocal(event.endAt))
+    this.formMaxParticipants.set(event.maxParticipants)
+    this.formFeedback.set('')
+    this.showForm.set(true)
+  }
+
+  closeForm () {
+    if (this.saving()) return
+    this.showForm.set(false)
+    this.formFeedback.set('')
+  }
+
   submitForm () {
+    if (this.saving() || !this.canSubmit()) {
+      this.formFeedback.set('请填写标题和 Slug。')
+      return
+    }
+    const validationError = this.validateForm()
+    if (validationError) {
+      this.formFeedback.set(validationError)
+      return
+    }
     const body = {
       title: this.formTitle(),
-      slug: this.formSlug(),
       type: this.formType(),
       status: this.formStatus(),
       description: this.formDescription() || null,
       rules: this.formRules() || null,
       prizes: this.formPrizes() || null,
-      startAt: this.formStartAt() || null,
-      endAt: this.formEndAt() || null,
+      startAt: this.toIsoOrNull(this.formStartAt()),
+      endAt: this.toIsoOrNull(this.formEndAt()),
       maxParticipants: this.formMaxParticipants()
     }
-    this.http.post(`${environment.apiUrl}/api/v1/games/events`, body).subscribe({
+    if (!this.editingSlug()) Object.assign(body, { slug: this.formSlug() })
+    this.saving.set(true)
+    const editingSlug = this.editingSlug()
+    const request = editingSlug
+      ? this.http.put(`${environment.apiUrl}/api/v1/games/events/${encodeURIComponent(editingSlug)}`, body)
+      : this.http.post(`${environment.apiUrl}/api/v1/games/events`, body)
+    request.subscribe({
       next: () => {
         this.showForm.set(false)
         this.resetForm()
+        this.editingSlug.set(null)
+        this.saving.set(false)
         this.loadEvents()
         this.formFeedback.set('')
       },
-      error: () => {
-        this.formFeedback.set('保存失败，请检查 Slug 是否唯一后重试')
+      error: error => {
+        this.saving.set(false)
+        this.formFeedback.set(error?.error?.error || '保存失败，请检查填写内容后重试。')
       }
     })
   }
 
   deleteEvent (slug: string) {
-    if (!confirm('确定删除这个活动吗？')) return
-    this.http.delete(`${environment.apiUrl}/api/v1/games/events/${slug}`).subscribe({
-      next: () => this.loadEvents(),
-      error: () => { this.formFeedback.set('删除失败，请稍后重试') }
+    if (this.deletingSlug()) return
+    if (this.pendingDeleteSlug() !== slug) {
+      this.pendingDeleteSlug.set(slug)
+      return
+    }
+
+    this.deletingSlug.set(slug)
+    this.http.delete(`${environment.apiUrl}/api/v1/games/events/${encodeURIComponent(slug)}`).subscribe({
+      next: () => {
+        this.deletingSlug.set(null)
+        this.pendingDeleteSlug.set(null)
+        this.loadEvents()
+      },
+      error: () => {
+        this.deletingSlug.set(null)
+        this.pendingDeleteSlug.set(null)
+        this.formFeedback.set('删除失败，请稍后重试')
+      }
     })
+  }
+
+  cancelDelete () {
+    if (!this.deletingSlug()) this.pendingDeleteSlug.set(null)
   }
 
   resetForm () {
@@ -193,6 +297,36 @@ export class GameEventAdminComponent implements OnInit {
     this.formStartAt.set('')
     this.formEndAt.set('')
     this.formMaxParticipants.set(0)
+  }
+
+  private toDateTimeLocal (value: string | null) {
+    if (!value) return ''
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    const offset = date.getTimezoneOffset()
+    return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16)
+  }
+
+  private toIsoOrNull (value: string) {
+    if (!value) return null
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? null : date.toISOString()
+  }
+
+  private validateForm () {
+    const title = this.formTitle().trim()
+    const slug = this.formSlug().trim().toLocaleLowerCase('en-US')
+    if (title.length > 120) return '标题不能超过 120 个字符。'
+    if (slug.length > 120) return 'Slug 不能超过 120 个字符。'
+    if (!/^[a-z0-9\u4e00-\u9fff]+(?:-[a-z0-9\u4e00-\u9fff]+)*$/i.test(slug)) {
+      return 'Slug 只能使用字母、数字、中文和连字符。'
+    }
+    if (this.formStartAt() && !this.toIsoOrNull(this.formStartAt())) return '开始时间格式不正确。'
+    if (this.formEndAt() && !this.toIsoOrNull(this.formEndAt())) return '结束时间格式不正确。'
+    const startAt = this.toIsoOrNull(this.formStartAt())
+    const endAt = this.toIsoOrNull(this.formEndAt())
+    if (startAt && endAt && new Date(endAt) < new Date(startAt)) return '结束时间不能早于开始时间。'
+    return ''
   }
 
   typeLabel (type: string) {

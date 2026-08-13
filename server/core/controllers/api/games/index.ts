@@ -10,6 +10,7 @@ import { reservationRouter } from './game-reservation.js'
 import { collectionRouter } from './game-collection.js'
 import { moderationRouter } from './game-moderation.js'
 import { shareRouter } from './game-share.js'
+import { articleRouter } from './game-article.js'
 
 const gamesRouter = express.Router()
 gamesRouter.use(apiRateLimiter)
@@ -23,6 +24,7 @@ gamesRouter.use('/', discoveryRouter)
 gamesRouter.use('/', personalRouter)
 gamesRouter.use('/', reservationRouter)
 gamesRouter.use('/', collectionRouter)
+gamesRouter.use('/', articleRouter)
 gamesRouter.use('/', crudRouter)
 gamesRouter.use('/', moderationRouter)
 gamesRouter.use('/', shareRouter)

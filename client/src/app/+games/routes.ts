@@ -62,7 +62,6 @@ export default [
       {
         path: 'activity',
         loadComponent: () => import('./game-activity-feed.component').then(m => m.GameActivityFeedComponent),
-        canActivate: [ GameLoginGuard ],
         data: { meta: { title: $localize`Community activity` } }
       },
       {
@@ -85,6 +84,23 @@ export default [
         path: 'articles',
         loadComponent: () => import('./game-articles.component').then(m => m.GameArticlesComponent),
         data: { meta: { title: $localize`Game articles` } }
+      },
+      {
+        path: 'articles/new',
+        loadComponent: () => import('./game-article-editor.component').then(m => m.GameArticleEditorComponent),
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`Write game article` } }
+      },
+      {
+        path: 'articles/:slug/edit',
+        loadComponent: () => import('./game-article-editor.component').then(m => m.GameArticleEditorComponent),
+        canActivate: [ GameLoginGuard ],
+        data: { meta: { title: $localize`Edit game article` } }
+      },
+      {
+        path: 'articles/:slug',
+        loadComponent: () => import('./game-article-detail.component').then(m => m.GameArticleDetailComponent),
+        data: { meta: { title: $localize`Game article` } }
       },
       {
         path: 'tags',

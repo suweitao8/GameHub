@@ -41,7 +41,21 @@ type TimeRange = '7d' | '30d' | '90d'
         </div>
       </div>
 
-      @if (analytics(); as data) {
+      @if (analyticsLoading()) {
+        <div class="analytics-loading" aria-live="polite">
+          <div class="loading-skeleton">
+            <div class="skeleton-kpi-grid">
+              @for (i of [1,2,3,4]; track $index) { <div class="skeleton-kpi shimmer"></div> }
+            </div>
+            <div class="skeleton-chart shimmer"></div>
+          </div>
+        </div>
+      } @else if (analyticsError()) {
+        <div class="analytics-state analytics-error" role="alert">
+          <p>{{ analyticsError() }}</p>
+          <button type="button" (click)="loadAnalytics()">重新加载</button>
+        </div>
+      } @else if (analytics(); as data) {
         <my-analytics-kpi-grid [kpis]="kpis()" />
 
         <div class="analytics-grid">
@@ -51,13 +65,8 @@ type TimeRange = '7d' | '30d' | '90d'
           <my-top-games-ranking [gameRanking]="data.gameRanking" />
         </div>
       } @else {
-        <div class="analytics-loading">
-          <div class="loading-skeleton">
-            <div class="skeleton-kpi-grid">
-              @for (i of [1,2,3,4]; track $index) { <div class="skeleton-kpi shimmer"></div> }
-            </div>
-            <div class="skeleton-chart shimmer"></div>
-          </div>
+        <div class="analytics-state">
+          <p>暂无可展示的数据</p>
         </div>
       }
     </div>
@@ -67,8 +76,11 @@ type TimeRange = '7d' | '30d' | '90d'
 export class GameAnalyticsDashboardComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   readonly analytics = signal<GameAnalytics | null>(null)
+  readonly analyticsLoading = signal(true)
+  readonly analyticsError = signal('')
   readonly currentRange = signal<TimeRange>('30d')
   readonly exporting = signal(false)
+  private requestGeneration = 0
 
   readonly timeRanges = [
     { id: '7d' as TimeRange, label: '7天' },
@@ -81,7 +93,26 @@ export class GameAnalyticsDashboardComponent implements OnInit {
   }
 
   loadAnalytics () {
-    this.gamesService.getAnalytics(this.currentRange()).subscribe(data => this.analytics.set(data))
+    const generation = ++this.requestGeneration
+    this.analyticsLoading.set(true)
+    this.analyticsError.set('')
+
+    this.gamesService.getAnalytics(this.currentRange()).subscribe({
+      next: data => {
+        if (generation !== this.requestGeneration) return
+        this.analytics.set(data)
+      },
+      error: () => {
+        if (generation !== this.requestGeneration) return
+        this.analytics.set(null)
+        this.analyticsError.set('数据加载失败，请稍后重试')
+        this.analyticsLoading.set(false)
+      },
+      complete: () => {
+        if (generation !== this.requestGeneration) return
+        this.analyticsLoading.set(false)
+      }
+    })
   }
 
   setTimeRange (range: TimeRange) {

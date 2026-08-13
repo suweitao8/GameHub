@@ -2,23 +2,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@a
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { map } from 'rxjs/operators'
-import { GamesService } from './games.service'
+import { GamesService, type GameCollection } from './games.service'
 import { createAsyncState } from './shared'
-
-export type GameCollection = {
-  id: number
-  title: string
-  description: string | null
-  slug: string
-  coverPath: string | null
-  gameCount: number
-}
 
 @Component({
   selector: 'my-game-collections',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterModule],
+  imports: [ CommonModule, RouterModule ],
   template: `
     <div class="collections-container">
       <div class="collections-header">
@@ -28,7 +19,7 @@ export type GameCollection = {
 
       @if (loading()) {
         <div class="collections-skeleton-grid">
-          @for (i of [1,2,3]; track $index) {
+          @for (i of [ 1, 2, 3 ]; track $index) {
             <div class="collection-skeleton-card shimmer">
               <div class="collection-skeleton-cover shimmer"></div>
               <div class="collection-skeleton-text shimmer"></div>
@@ -89,7 +80,7 @@ export class GameCollectionsComponent implements OnInit {
   loadCollections () {
     this.state.load(
       this.gamesService.listCollections()
-        .pipe(map(result => result.data as unknown as GameCollection[]))
+        .pipe(map(result => result.data))
     )
   }
 }

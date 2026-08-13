@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable } from '@angular/core'
-import type { Game, GameReservation, GameReservationList } from '@peertube/peertube-models'
+import type { GameReservation, GameReservationList, GameReservationStatus } from '@peertube/peertube-models'
 import { Observable } from 'rxjs'
 import { environment } from '../../../environments/environment'
 
@@ -9,6 +9,12 @@ export class GameReservationService {
   private readonly http = inject(HttpClient)
 
   private static readonly BASE_URL = `${environment.apiUrl}/api/v1/games`
+
+  reservationStatus (uuid: string): Observable<GameReservationStatus> {
+    return this.http.get<GameReservationStatus>(
+      `${GameReservationService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`
+    )
+  }
 
   reserve (uuid: string): Observable<GameReservation> {
     return this.http.post<GameReservation>(

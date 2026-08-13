@@ -1,22 +1,11 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivatedRoute } from '@angular/router'
-import { map } from 'rxjs/operators'
 import { GameCardComponent } from './game-card.component'
 import { GameSkeletonComponent } from './game-skeleton.component'
 import { createAsyncState } from './shared'
-import { GamesService, type Game } from './games.service'
+import { GamesService, type GameCollectionDetail } from './games.service'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-
-export type GameCollectionDetail = {
-  id: number
-  title: string
-  description: string | null
-  slug: string
-  coverPath: string | null
-  total: number
-  data: Game[]
-}
 
 @Component({
   selector: 'my-game-collection-detail',
@@ -106,8 +95,6 @@ export class GameCollectionDetailComponent implements OnInit {
   }
 
   private loadCollection (slug: string) {
-    this.state.load(
-      this.gamesService.getCollection(slug).pipe(map(data => data as unknown as GameCollectionDetail))
-    )
+    this.state.load(this.gamesService.getCollection(slug))
   }
 }

@@ -83,8 +83,11 @@ runtimeRouter.get('/:uuid/runtime/*', asyncMiddleware(async (req, res) => {
           etag
         })
         .send(content)
-    } catch {
-      return res.sendStatus(404)
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+        return res.sendStatus(404)
+      }
+      throw error
     }
   })
 }))
@@ -229,7 +232,16 @@ runtimeRouter.get('/:uuid/cover', asyncMiddleware(async (req, res) => {
       if (!valid) return res.sendStatus(403)
     }
 
-    const content = await readStoredGameCover(CONFIG.STORAGE.GAMES_DIR, game.coverPath)
+    let content: Buffer
+    try {
+      content = await readStoredGameCover(CONFIG.STORAGE.GAMES_DIR, game.coverPath)
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+        // 历史数据可能只保留了封面路径，文件已被清理时按无封面处理。
+        return res.sendStatus(404)
+      }
+      throw error
+    }
     const etag = generateGameAssetETag(game.runtimeSha256, game.coverPath)
 
     // Support conditional requests via If-None-Match

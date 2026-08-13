@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal, input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, inject, signal, input, OnDestroy } from '@angular/core'
+import { Router } from '@angular/router'
+import { AuthService } from '@app/core/auth/auth.service'
 import { CommonModule } from '@angular/common'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -25,16 +27,52 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
   `,
   styleUrl: './game-reserve-button.component.scss'
 })
-export class GameReserveButtonComponent {
+export class GameReserveButtonComponent implements OnDestroy {
   private readonly gamesService = inject(GamesService)
+  private readonly authService = inject(AuthService)
+  private readonly router = inject(Router)
   uuid = input.required<string>()
   reserved = signal(false)
   loading = signal(false)
   feedback = signal('')
   private feedbackTimer: ReturnType<typeof setTimeout> | null = null
+  private reservationGeneration = 0
+
+  constructor () {
+    effect(() => {
+      const uuid = this.uuid()
+      if (!uuid || !this.authService.isLoggedIn()) {
+        this.loading.set(false)
+        return
+      }
+
+      const generation = ++this.reservationGeneration
+      this.loading.set(true)
+      this.gamesService.reservationStatus(uuid).subscribe({
+        next: result => {
+          if (generation !== this.reservationGeneration) return
+          this.reserved.set(result.reserved)
+          this.loading.set(false)
+        },
+        error: () => {
+          if (generation !== this.reservationGeneration) return
+          // 状态查询失败不阻塞用户继续尝试预约，提交接口仍会返回权威结果。
+          this.loading.set(false)
+        }
+      })
+    })
+  }
+
+  ngOnDestroy () {
+    if (this.feedbackTimer) clearTimeout(this.feedbackTimer)
+  }
 
   toggleReserve () {
     if (this.loading()) return
+    if (!this.authService.isLoggedIn()) {
+      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      return
+    }
     if (this.reserved()) {
       this.cancelReserve()
     } else {
@@ -50,9 +88,9 @@ export class GameReserveButtonComponent {
         this.reserved.set(true)
         this.loading.set(false)
       },
-      error: () => {
+      error: error => {
         this.loading.set(false)
-        this.showFeedback('预约失败，请稍后重试')
+        this.showFeedback(error?.error?.error || '预约失败，请稍后重试')
       }
     })
   }
@@ -65,9 +103,9 @@ export class GameReserveButtonComponent {
         this.reserved.set(false)
         this.loading.set(false)
       },
-      error: () => {
+      error: error => {
         this.loading.set(false)
-        this.showFeedback('取消失败，请稍后重试')
+        this.showFeedback(error?.error?.error || '取消失败，请稍后重试')
       }
     })
   }

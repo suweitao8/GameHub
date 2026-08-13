@@ -5,6 +5,11 @@ import {
   Game,
   GameActivity,
   GameActivityList,
+  GameArticle,
+  GameArticleDetail,
+  GameArticleInput,
+  GameArticleList,
+  GameArticleViewResult,
   GameAnalytics,
   GameAuthor,
   GameCollection,
@@ -16,6 +21,7 @@ import {
   GameCommunity,
   GameCreatorOverview,
   GameEvent,
+  GameEventJoinResult,
   GameEventList,
   GameFollowedAuthor,
   GameLevelInfo,
@@ -29,6 +35,7 @@ import {
   GameReportResult,
   GameReservation,
   GameReservationList,
+  GameReservationStatus,
   GameShareResult
 } from '@peertube/peertube-models'
 import { catchError, map, shareReplay } from 'rxjs/operators'
@@ -42,6 +49,11 @@ export type {
   Game,
   GameActivity,
   GameActivityList,
+  GameArticle,
+  GameArticleDetail,
+  GameArticleInput,
+  GameArticleList,
+  GameArticleViewResult,
   GameAnalytics,
   GameAuthor,
   GameCollection,
@@ -53,6 +65,7 @@ export type {
   GameCommunity,
   GameCreatorOverview,
   GameEvent,
+  GameEventJoinResult,
   GameEventList,
   GameFollowedAuthor,
   GameLevelInfo,
@@ -66,6 +79,7 @@ export type {
   GameReportResult,
   GameReservation,
   GameReservationList,
+  GameReservationStatus,
   GameShareResult
 }
 
@@ -345,6 +359,10 @@ export class GamesService {
   // 预约（委托 GameReservationService）
   // ---------------------------------------------------------------------------
 
+  reservationStatus (uuid: string): Observable<GameReservationStatus> {
+    return this.http.get<GameReservationStatus>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`)
+  }
+
   reserve (uuid: string): Observable<GameReservation> {
     return this.http.post<GameReservation>(`${GamesService.BASE_URL}/${encodeURIComponent(uuid)}/reserve`, {})
   }
@@ -361,6 +379,39 @@ export class GamesService {
   // 发现：合集 / 活动 / 标签 / 攻略
   // ---------------------------------------------------------------------------
 
+  listArticles (params: { start?: number, count?: number, category?: string } = {}): Observable<GameArticleList> {
+    const query = new URLSearchParams()
+    if (params.start !== undefined) query.set('start', String(params.start))
+    if (params.count !== undefined) query.set('count', String(params.count))
+    if (params.category) query.set('category', params.category)
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.http.get<GameArticleList>(`${GamesService.BASE_URL}/articles${suffix}`)
+  }
+
+  listMyArticles (): Observable<GameArticleList> {
+    return this.http.get<GameArticleList>(`${GamesService.BASE_URL}/articles/mine`)
+  }
+
+  getArticle (slug: string): Observable<GameArticleDetail> {
+    return this.http.get<GameArticleDetail>(`${GamesService.BASE_URL}/articles/${encodeURIComponent(slug)}`)
+  }
+
+  createArticle (input: GameArticleInput): Observable<GameArticleDetail> {
+    return this.http.post<GameArticleDetail>(`${GamesService.BASE_URL}/articles`, input)
+  }
+
+  updateArticle (slug: string, input: Partial<GameArticleInput>): Observable<GameArticleDetail> {
+    return this.http.put<GameArticleDetail>(`${GamesService.BASE_URL}/articles/${encodeURIComponent(slug)}`, input)
+  }
+
+  deleteArticle (slug: string): Observable<unknown> {
+    return this.http.delete(`${GamesService.BASE_URL}/articles/${encodeURIComponent(slug)}`)
+  }
+
+  recordArticleView (slug: string): Observable<GameArticleViewResult> {
+    return this.http.post<GameArticleViewResult>(`${GamesService.BASE_URL}/articles/${encodeURIComponent(slug)}/view`, {})
+  }
+
   listCollections (): Observable<GameCollectionList> {
     return this.http.get<GameCollectionList>(`${GamesService.BASE_URL}/collections`)
   }
@@ -375,6 +426,18 @@ export class GamesService {
 
   getEvent (slug: string): Observable<GameEvent> {
     return this.http.get<GameEvent>(`${GamesService.BASE_URL}/events/${encodeURIComponent(slug)}`)
+  }
+
+  getEventParticipation (slug: string): Observable<{ joined: boolean }> {
+    return this.http.get<{ joined: boolean }>(`${GamesService.BASE_URL}/events/${encodeURIComponent(slug)}/participation`)
+  }
+
+  joinEvent (slug: string): Observable<GameEventJoinResult> {
+    return this.http.post<GameEventJoinResult>(`${GamesService.BASE_URL}/events/${encodeURIComponent(slug)}/join`, {})
+  }
+
+  leaveEvent (slug: string): Observable<GameEventJoinResult> {
+    return this.http.delete<GameEventJoinResult>(`${GamesService.BASE_URL}/events/${encodeURIComponent(slug)}/join`)
   }
 
   listTags (): Observable<{ tag: string, gameCount: number }[]> {

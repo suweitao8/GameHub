@@ -1,8 +1,13 @@
-.event-admin-container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+.event-admin-container { max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem; }
 
 .event-admin-header { margin-bottom: 1.5rem; }
-.event-admin-header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.event-admin-header p { color: var(--game-muted); font-size: 0.9rem; margin: 0; }
+.event-admin-header h2 { font-size: 1.5rem;
+  margin-bottom: 0.5rem; }
+.event-admin-header p { color: var(--game-muted);
+  font-size: 0.9rem;
+  margin: 0; }
 
 .event-admin-actions { margin-bottom: 1rem; }
 
@@ -31,36 +36,106 @@
   padding: 1.25rem;
 }
 
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.form-row { display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem; }
+
 @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
 
-.event-form label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.82rem; color: var(--game-muted); }
-.event-form input, .event-form select, .event-form textarea {
+.event-form label { display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+  color: var(--game-muted); }
+.event-form input,
+.event-form select,
+.event-form textarea {
   border: 1px solid var(--game-border);
   border-radius: 4px;
   padding: 0.4rem 0.5rem;
   font-size: 0.88rem;
 }
 
-.form-actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.5rem; }
-.form-actions button { padding: 0.4rem 0.85rem; border-radius: 4px; border: 1px solid var(--game-border); background: #fff; cursor: pointer; }
-.form-actions button.primary { background: var(--game-brand); border-color: var(--game-brand); color: #fff; font-weight: 700; }
+.form-actions { display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem; }
+.form-actions button { padding: 0.4rem 0.85rem;
+  border-radius: 4px;
+  border: 1px solid var(--game-border);
+  background: #fff;
+  cursor: pointer; }
+.form-actions button.primary { background: var(--game-brand);
+  border-color: var(--game-brand);
+  color: #fff;
+  font-weight: 700; }
 
 .event-admin-table { overflow-x: auto; }
-.event-admin-table table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-.event-admin-table th, .event-admin-table td { padding: 0.65rem; text-align: left; border-bottom: 1px solid var(--game-border); }
-.event-admin-table th { color: var(--game-muted); font-weight: 600; }
-.event-admin-table a { color: var(--game-text); text-decoration: none; font-weight: 600; }
+.event-admin-table table { width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem; }
+.event-admin-table th,
+.event-admin-table td { padding: 0.65rem;
+  text-align: left;
+  border-bottom: 1px solid var(--game-border); }
+.event-admin-table th { color: var(--game-muted);
+  font-weight: 600; }
+.event-admin-table a { color: var(--game-text);
+  text-decoration: none;
+  font-weight: 600; }
 .event-admin-table a:hover { color: var(--game-brand); }
+.event-row-actions { white-space: nowrap; }
+.event-row-actions button { background: #fff;
+  border: 1px solid var(--game-border);
+  border-radius: 4px;
+  color: var(--game-text-button);
+  cursor: pointer;
+  margin-right: 0.35rem;
+  padding: 0.3rem 0.55rem; }
+.event-row-actions button:hover { border-color: var(--game-brand);
+  color: var(--game-brand); }
+.event-row-actions button:disabled { cursor: wait;
+  opacity: 0.6; }
 
-.badge-type, .badge-status { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
-.badge-type.activity { background: #e0f2fe; color: #0369a1; }
-.badge-type.competition { background: #fef3c7; color: #92400e; }
-.badge-status.upcoming { background: #dcfce7; color: #166534; }
-.badge-status.ongoing { background: #dbeafe; color: #1e40af; }
-.badge-status.ended { background: #f3f4f6; color: #4b5563; }
-.badge-status.cancelled { background: #fee2e2; color: #991b1b; }
+.badge-type,
+.badge-status { display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase; }
+.badge-type.activity { background: #e0f2fe;
+  color: #0369a1; }
+.badge-type.competition { background: #fef3c7;
+  color: #92400e; }
+.badge-status.upcoming { background: #dcfce7;
+  color: #166534; }
+.badge-status.ongoing { background: #dbeafe;
+  color: #1e40af; }
+.badge-status.ended { background: #f3f4f6;
+  color: #4b5563; }
+.badge-status.cancelled { background: #fee2e2;
+  color: #991b1b; }
 
-.event-admin-empty { text-align: center; padding: 3rem; color: var(--game-muted); }
-.event-admin-skeleton { display: flex; flex-direction: column; gap: 0.5rem; }
-.admin-skeleton-row { height: 2.5rem; border-radius: 4px; }
+.event-admin-empty { text-align: center;
+  padding: 3rem;
+  color: var(--game-muted); }
+.event-admin-state { text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--game-muted); }
+.event-admin-state h3 { color: var(--game-text);
+  margin: 0 0 0.5rem; }
+.event-admin-state p { margin: 0 0 1rem; }
+.event-admin-state button,
+.admin-feedback { border: 1px solid var(--game-border);
+  border-radius: 4px;
+  padding: 0.4rem 0.85rem; }
+.event-admin-state button { background: #fff;
+  cursor: pointer; }
+.admin-feedback { color: #b42318;
+  margin: 0 0 1rem; }
+.event-admin-skeleton { display: flex;
+  flex-direction: column;
+  gap: 0.5rem; }
+.admin-skeleton-row { height: 2.5rem;
+  border-radius: 4px; }

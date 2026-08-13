@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { RouterModule } from '@angular/router'
+import { Router, RouterModule } from '@angular/router'
 import type { GameActivity } from './games.service'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { AuthService } from '@app/core/auth/auth.service'
 
 @Component({
   selector: 'my-game-activity-feed',
@@ -95,8 +96,10 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 })
 export class GameActivityFeedComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
+  private readonly authService = inject(AuthService)
+  private readonly router = inject(Router)
   activities = signal<GameActivity[]>([])
-  tab = signal<'following' | 'public'>('following')
+  tab = signal<'following' | 'public'>('public')
   loading = signal(false)
   loadingMore = signal(false)
   refreshing = signal(false)
@@ -106,11 +109,16 @@ export class GameActivityFeedComponent implements OnInit {
   private requestGeneration = 0
 
   ngOnInit () {
+    this.tab.set(this.authService.isLoggedIn() ? 'following' : 'public')
     this.loadFeed()
   }
 
   setTab (tab: 'following' | 'public') {
     if (this.tab() === tab) return
+    if (tab === 'following' && !this.authService.isLoggedIn()) {
+      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      return
+    }
     this.tab.set(tab)
     this.offset = 0
     this.activities.set([])

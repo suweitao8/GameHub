@@ -18,6 +18,7 @@ import { GameReportDialogComponent } from './game-report-dialog.component'
 import { GameCommentsComponent } from './game-comments.component'
 import { GameDiscussComponent } from './game-discuss.component'
 import { GameCommunityPanelComponent } from './game-community-panel.component'
+import { GameReserveButtonComponent } from './game-reserve-button.component'
 import { GameCommentsStore } from './game-comments-store'
 import { GameDiscussStore } from './game-discuss-store'
 
@@ -29,7 +30,7 @@ import { GameDiscussStore } from './game-discuss-store'
   imports: [
     DatePipe, GlobalIconComponent, RouterLink,
     GameScreenshotsComponent, GameShareDialogComponent, GameReportDialogComponent,
-    GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent
+    GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent, GameReserveButtonComponent
   ]
 })
 export class GamePlayComponent implements OnInit, OnDestroy {
@@ -75,6 +76,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly reportOpen = signal(false)
   readonly inWatchLater = signal(false)
   readonly watchLaterFeedback = signal('')
+  readonly watchLaterActionLoading = signal(false)
 
   /** Comment count badge in the title bar (driven by the comment store). */
   readonly commentCount = computed(() =>
@@ -176,11 +178,15 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   toggleWatchLater () {
     const currentGame = this.game()
-    if (!currentGame) return
+    if (!currentGame || this.watchLaterActionLoading()) return
+    this.watchLaterActionLoading.set(true)
     const added = this.watchLaterService.toggle(currentGame)
     this.inWatchLater.set(added)
     this.watchLaterFeedback.set(added ? '已加入「稍后再玩」' : '已从「稍后再玩」移除')
-    setTimeout(() => this.watchLaterFeedback.set(''), 2000)
+    setTimeout(() => {
+      this.watchLaterFeedback.set('')
+      this.watchLaterActionLoading.set(false)
+    }, 2000)
   }
 
   formatBigNumber (value: number | undefined) {

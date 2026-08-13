@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ActivatedRoute } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
+import { ActivatedRoute, Router } from '@angular/router'
+import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import { AuthService } from '@app/core/auth/auth.service'
@@ -9,24 +9,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { createAsyncState } from './shared'
-
-export type GameEventDetail = {
-  id: number
-  title: string
-  description: string | null
-  slug: string
-  type: 'activity' | 'competition'
-  status: 'upcoming' | 'ongoing' | 'ended' | 'cancelled'
-  coverPath: string | null
-  startAt: string | null
-  endAt: string | null
-  rules: string | null
-  prizes: string | null
-  maxParticipants: number
-  participantCount: number
-  createdBy: { id: number; name: string; displayName: string } | null
-  createdAt: string
-}
+import { GamesService, type GameEvent, type GameEventJoinResult } from './games.service'
 
 export type EventParticipant = {
   id: number
@@ -49,6 +32,12 @@ export type EventParticipant = {
           <div class="event-skeleton-title shimmer"></div>
           <div class="event-skeleton-text shimmer"></div>
         </div>
+      } @else if (eventState.hasError()) {
+        <div class="event-state" role="alert">
+          <h1>活动加载失败</h1>
+          <p>{{ eventState.error() || '请稍后重试。' }}</p>
+          <button type="button" class="event-action-btn primary" (click)="retryLoad()">重新加载</button>
+        </div>
       } @else if (event(); as ev) {
         <div class="event-detail-header" [class.has-cover]="ev.coverPath">
           @if (ev.coverPath) {
@@ -68,12 +57,14 @@ export type EventParticipant = {
             <div class="event-actions">
               @if (ev.status === 'upcoming' || ev.status === 'ongoing') {
                 @if (joined()) {
-                  <button type="button" class="event-action-btn secondary" [disabled]="joinLoading()" (click)="leaveEvent()">
+                  <button type="button" class="event-action-btn secondary"
+                          [disabled]="joinLoading() || participationLoading()" (click)="leaveEvent()">
                     {{ joinLoading() ? '处理中…' : '取消报名' }}
                   </button>
                 } @else {
-                  <button type="button" class="event-action-btn primary" [disabled]="joinLoading() || (ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants)" (click)="joinEvent()">
-                    {{ joinLoading() ? '处理中…' : ev.maxParticipants > 0 && ev.participantCount >= ev.maxParticipants ? '名额已满' : '立即报名' }}
+                  <button type="button" class="event-action-btn primary"
+                          [disabled]="joinLoading() || participationLoading() || isEventFull(ev)" (click)="joinEvent()">
+                    {{ joinLoading() || participationLoading() ? '处理中…' : isEventFull(ev) ? '名额已满' : '立即报名' }}
                   </button>
                 }
                 @if (actionFeedback()) { <p class="event-action-feedback" role="alert">{{ actionFeedback() }}</p> }
@@ -97,12 +88,17 @@ export type EventParticipant = {
           }
 
           <section class="event-detail-section" aria-labelledby="participants-title">
-            <h2 id="participants-title">已报名 {{ participants().length }} 人</h2>
+            <h2 id="participants-title">已报名 {{ ev.participantCount }} 人</h2>
             @if (participantsLoading()) {
               <div class="participants-skeleton">
                 @for (_ of [1, 2, 3]; track $index) {
                   <div class="participant-skeleton shimmer"></div>
                 }
+              </div>
+            } @else if (participantsState.hasError()) {
+              <div class="participants-error" role="alert">
+                <p>{{ participantsState.error() || '报名列表加载失败。' }}</p>
+                <button type="button" class="event-action-btn secondary" (click)="retryParticipants()">重新加载</button>
               </div>
             } @else if (participants().length) {
               <div class="participants-list">
@@ -134,9 +130,11 @@ export type EventParticipant = {
 export class GameEventDetailComponent implements OnInit {
   private readonly http = inject(HttpClient)
   private readonly route = inject(ActivatedRoute)
+  private readonly router = inject(Router)
   private readonly authService = inject(AuthService)
+  private readonly gamesService = inject(GamesService)
   private readonly destroyRef = inject(DestroyRef)
-  readonly eventState = createAsyncState<GameEventDetail>()
+  readonly eventState = createAsyncState<GameEvent>()
   /** 模板兼容：直接返回 data（null 时进入 not-found 分支） */
   readonly event = computed(() => this.eventState.data())
   /** 模板兼容：底层 state 的 loading 别名 */
@@ -147,7 +145,9 @@ export class GameEventDetailComponent implements OnInit {
   readonly participantsLoading = this.participantsState.loading
   joined = signal(false)
   joinLoading = signal(false)
+  participationLoading = signal(false)
   actionFeedback = signal('')
+  private currentSlug = ''
 
   ngOnInit () {
     this.route.paramMap
@@ -155,53 +155,77 @@ export class GameEventDetailComponent implements OnInit {
       .subscribe(params => {
         const slug = params.get('slug')
         if (!slug) return
+        this.currentSlug = slug
         this.loadEvent(slug)
         this.loadParticipants(slug)
+        this.joined.set(false)
+        this.participationLoading.set(false)
+        this.actionFeedback.set('')
         if (this.authService.isLoggedIn()) {
-          this.checkJoined(slug)
+          this.loadParticipation(slug)
         }
       })
   }
 
   loadEvent (slug: string) {
-    this.eventState.load(this.http.get<GameEventDetail>(`${environment.apiUrl}/api/v1/games/events/${slug}`))
+    this.eventState.load(this.gamesService.getEvent(slug))
   }
 
   loadParticipants (slug: string) {
-    const data$ = this.http.get<{ total: number; data: EventParticipant[] }>(`${environment.apiUrl}/api/v1/games/events/${slug}/participants`).pipe(
+    const data$ = this.http.get<{ total: number; data: EventParticipant[] }>(
+      `${environment.apiUrl}/api/v1/games/events/${encodeURIComponent(slug)}/participants`
+    ).pipe(
       map(result => result.data)
     )
     this.participantsState.load(data$)
   }
 
-  checkJoined (slug: string) {
-    // Simplified: check by seeing if current user is in participants.
-    // 失败时 joined 保持默认 false（非阻塞辅助检测），用户仍可点击加入按钮重试。
-    this.http.get<{ total: number; data: EventParticipant[] }>(`${environment.apiUrl}/api/v1/games/events/${slug}/participants`).subscribe({
-      next: (result) => {
-        const currentAccountId = this.authService.getUser()?.account?.id
-        const isJoined = result.data.some(p => p.account.id === currentAccountId)
-        this.joined.set(isJoined)
+  retryLoad () {
+    if (!this.currentSlug) return
+    this.loadEvent(this.currentSlug)
+    this.loadParticipants(this.currentSlug)
+    if (this.authService.isLoggedIn()) this.loadParticipation(this.currentSlug)
+  }
+
+  retryParticipants () {
+    if (this.currentSlug) this.loadParticipants(this.currentSlug)
+  }
+
+  loadParticipation (slug: string) {
+    this.participationLoading.set(true)
+    this.gamesService.getEventParticipation(slug).subscribe({
+      next: result => {
+        this.joined.set(result.joined)
+        this.participationLoading.set(false)
       },
-      error: () => { /* 非阻塞：保持默认未加入状态，joinEvent 会给出具体反馈 */ }
+      error: () => {
+        this.participationLoading.set(false)
+        this.actionFeedback.set('报名状态加载失败，请刷新后重试')
+      }
     })
   }
 
   joinEvent () {
     const slug = this.event()?.slug
     if (!slug) return
+
+    if (!this.authService.isLoggedIn()) {
+      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      return
+    }
+
     this.joinLoading.set(true)
     this.actionFeedback.set('')
-    this.http.post<{ joined: boolean }>(`${environment.apiUrl}/api/v1/games/events/${slug}/join`, {}).subscribe({
-      next: () => {
+    this.gamesService.joinEvent(slug).subscribe({
+      next: result => {
         this.joined.set(true)
         this.joinLoading.set(false)
-        this.eventState.data.update(ev => ev ? { ...ev, participantCount: ev.participantCount + 1 } : ev)
+        this.applyParticipantCount(result)
         this.loadParticipants(slug)
       },
-      error: () => {
+      error: error => {
         this.joinLoading.set(false)
-        this.actionFeedback.set('加入失败，请稍后重试')
+        this.actionFeedback.set(this.getEventActionError(error, '报名失败，请稍后重试'))
       }
     })
   }
@@ -211,18 +235,33 @@ export class GameEventDetailComponent implements OnInit {
     if (!slug) return
     this.joinLoading.set(true)
     this.actionFeedback.set('')
-    this.http.delete(`${environment.apiUrl}/api/v1/games/events/${slug}/join`).subscribe({
-      next: () => {
+    this.gamesService.leaveEvent(slug).subscribe({
+      next: result => {
         this.joined.set(false)
         this.joinLoading.set(false)
-        this.eventState.data.update(ev => ev ? { ...ev, participantCount: Math.max(0, ev.participantCount - 1) } : ev)
+        this.applyParticipantCount(result)
         this.loadParticipants(slug)
       },
-      error: () => {
+      error: error => {
         this.joinLoading.set(false)
-        this.actionFeedback.set('退出失败，请稍后重试')
+        this.actionFeedback.set(this.getEventActionError(error, '取消报名失败，请稍后重试'))
       }
     })
+  }
+
+  private applyParticipantCount (result: GameEventJoinResult) {
+    this.eventState.data.update(event => event ? { ...event, participantCount: result.participantCount } : event)
+  }
+
+  private getEventActionError (error: unknown, fallback: string) {
+    if (!(error instanceof HttpErrorResponse)) return fallback
+
+    const message = error.error?.error
+    if (message === 'Event is full') return '报名人数已满'
+    if (message === 'Already joined') return '你已报名该活动'
+    if (message === 'Event is not open for registration') return '该活动当前不可报名'
+    if (error.status === 404) return '活动或报名记录不存在'
+    return fallback
   }
 
   typeLabel (type: string) {
@@ -247,6 +286,10 @@ export class GameEventDetailComponent implements OnInit {
       disqualified: '取消资格'
     }
     return labels[state] || state
+  }
+
+  isEventFull (event: GameEvent) {
+    return event.maxParticipants > 0 && event.participantCount >= event.maxParticipants
   }
 
   formatDate (date: string | null) {

@@ -14,10 +14,10 @@ import { Game, GamesService } from './games.service'
   styleUrl: './game-share-dialog.component.scss',
   template: `
     @if (open()) {
-      <div class="share-dialog-overlay" (click)="requestClose()">
-        <div class="share-dialog" (click)="$event.stopPropagation()">
+      <div class="share-dialog-overlay">
+        <div class="share-dialog" role="dialog" aria-modal="true" aria-labelledby="share-dialog-title">
           <div class="share-dialog-header">
-            <h3>分享游戏</h3>
+            <h3 id="share-dialog-title">分享游戏</h3>
             <button type="button" class="share-close-btn" (click)="requestClose()">&times;</button>
           </div>
           <div class="share-dialog-body">
@@ -29,13 +29,13 @@ import { Game, GamesService } from './games.service'
               </button>
             </div>
             <div class="share-actions">
-              <a [href]="'https://service.weibo.com/share/share.php?url=' + encodedUrl() + '&title=' + encodedTitle()" target="_blank" class="share-btn weibo">
+              <a [href]="weiboUrl()" target="_blank" rel="noopener noreferrer" class="share-btn weibo">
                 <span>微博</span>
               </a>
-              <a [href]="'https://connect.qq.com/widget/shareqq/index.html?url=' + encodedUrl() + '&title=' + encodedTitle()" target="_blank" class="share-btn qq">
+              <a [href]="qqUrl()" target="_blank" rel="noopener noreferrer" class="share-btn qq">
                 <span>QQ</span>
               </a>
-              <a [href]="'https://twitter.com/intent/tweet?url=' + encodedUrl() + '&text=' + encodedTitle()" target="_blank" class="share-btn twitter">
+              <a [href]="twitterUrl()" target="_blank" rel="noopener noreferrer" class="share-btn twitter">
                 <span>X</span>
               </a>
             </div>
@@ -54,25 +54,29 @@ export class GameShareDialogComponent {
   readonly open = input(false)
 
   readonly openChange = output<boolean>()
-  readonly close = output<void>()
-  readonly error = output<void>()
+  readonly closed = output()
+  readonly shareError = output()
 
   readonly url = signal('')
   readonly copied = signal(false)
 
-  // 关闭时清除 copied 状态（替代原 setter 副作用）
-  private readonly closeEffect = effect(() => {
-    if (!this.open()) this.copied.set(false)
-  })
+  constructor () {
+    effect(() => {
+      if (!this.open()) this.copied.set(false)
+    })
+  }
 
   private readonly encoder = encodeURIComponent
 
   encodedUrl () { return this.encoder(this.url()) }
   encodedTitle () { return this.encoder(this.game()?.title || '') }
+  weiboUrl () { return `https://service.weibo.com/share/share.php?url=${this.encodedUrl()}&title=${this.encodedTitle()}` }
+  qqUrl () { return `https://connect.qq.com/widget/shareqq/index.html?url=${this.encodedUrl()}&title=${this.encodedTitle()}` }
+  twitterUrl () { return `https://twitter.com/intent/tweet?url=${this.encodedUrl()}&text=${this.encodedTitle()}` }
 
   requestClose () {
     this.openChange.emit(false)
-    this.close.emit()
+    this.closed.emit()
   }
 
   /** Trigger the share flow. Returns true if the dialog was shown. */
@@ -89,18 +93,19 @@ export class GameShareDialogComponent {
       this.url.set(resolved)
       // Trigger share via openChange (parent controls the open state)
       this.openChange.emit(true)
-      this.openChange.emit(true)
       return true
     } catch {
-      this.error.emit()
+      this.shareError.emit()
       return false
     }
   }
 
   copyUrl () {
-    navigator.clipboard?.writeText(this.url()).then(() => {
+    const copyPromise = navigator.clipboard?.writeText(this.url()) ||
+      Promise.reject(new Error('Clipboard unavailable'))
+    copyPromise.then(() => {
       this.copied.set(true)
       setTimeout(() => this.copied.set(false), 2000)
-    })
+    }).catch(() => this.copied.set(false))
   }
 }
