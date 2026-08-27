@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
 import { LoginModalComponent } from './login-modal.component'
-import { RegisterModalComponent } from '@app/+signup/+register/register-modal.component'
 
 export interface LoginModalOptions {
   /** 登录成功后的回跳地址(路由壳/守卫透传) */
@@ -12,34 +11,38 @@ export interface LoginModalOptions {
   externalAuthError?: boolean
   /** 在当前页原位打开:登录成功后仅关闭弹框,不触发跳转 */
   inPlace?: boolean
+  /** 打开即为单步创建账户视图(/signup 深链、头部创建账户) */
+  mode?: 'login' | 'register'
 }
 
 /**
  * 登录/注册弹框统一入口。
- * 两个弹框可以互相叠加打开(注册页点「直接登录」、登录页点「创建账户」),
- * 因此由同一个服务持有打开逻辑,避免组件与彼此的服务形成循环依赖。
+ * 登录与注册是同一弹框的两个视图(mode),在界面内切换,不再叠加新弹框。
  */
 @Injectable({ providedIn: 'root' })
 export class AuthModalService {
   private ngbModal = inject(NgbModal)
 
-  openLogin (options: LoginModalOptions = {}) {
+  open (options: LoginModalOptions & { mode?: 'login' | 'register' } = {}) {
+    const { mode, ...loginOptions } = options
+
     const ref = this.ngbModal.open(LoginModalComponent, {
       backdrop: 'static',
       centered: true,
       windowClass: 'game-auth-modal'
     })
 
-    Object.assign(ref.componentInstance, options)
+    Object.assign(ref.componentInstance, loginOptions, { mode: mode ?? 'login' })
 
     return ref
   }
 
+  /** 兼容旧调用名:以注册视图打开 */
+  openLogin (options: LoginModalOptions = {}) {
+    return this.open(options)
+  }
+
   openRegister () {
-    return this.ngbModal.open(RegisterModalComponent, {
-      backdrop: 'static',
-      centered: true,
-      windowClass: 'game-auth-modal game-register-modal'
-    })
+    return this.open({ mode: 'register' })
   }
 }

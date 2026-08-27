@@ -4,7 +4,7 @@ import { AuthModalService } from '@app/+login/auth-modal.service'
 
 /**
  * /signup 路由壳:仅负责打开注册弹框并保持旧地址可用。
- * 真正的注册向导在 RegisterModalComponent 中,由 AuthModalService 打开。
+ * 真正的注册表单内置于登录弹框的注册视图(mode=register),由 AuthModalService 打开。
  * 直接访问 /signup(深链/旧链接)时,弹框浮在画布之上;关闭弹框时兜底回首页。
  */
 @Component({

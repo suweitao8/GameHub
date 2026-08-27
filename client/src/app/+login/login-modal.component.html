@@ -1,7 +1,13 @@
 <header class="game-auth-modal-header">
   <div class="game-auth-modal-heading">
     <p class="game-eyebrow">GameHub 账户</p>
-    <h1 i18n>登录 GameHub</h1>
+    <h1 i18n>
+      @if (mode === 'register') {
+        创建 GameHub 账户
+      } @else {
+        登录 GameHub
+      }
+    </h1>
   </div>
 
   <button
@@ -19,7 +25,7 @@
     </my-alert>
   }
 
-  @if (serverConfig && !externalAuthError && !isAuthenticatedWithExternalAuth) {
+  @if (serverConfig && !externalAuthError && !isAuthenticatedWithExternalAuth && mode === 'login') {
     @if (error) {
       <my-alert type="danger">
         {{ error }}
@@ -107,6 +113,80 @@
     }
   }
 
+  @if (serverConfig && !externalAuthError && !isAuthenticatedWithExternalAuth && mode === 'register') {
+    <form class="w-100 m-0 game-auth-register" (ngSubmit)="registerAccount()">
+      <div class="form-group">
+        <label i18n for="reg-username">用户名</label>
+        <input
+          type="text" id="reg-username" i18n-placeholder placeholder="仅限小写字母、数字、点或下划线" required
+          [(ngModel)]="regUsername" name="regUsername" class="form-control"
+          [ngClass]="{ 'input-error': regErrors['username'] }" autocomplete="username" myAutofocus
+          >
+      </div>
+      @if (regErrors['username']) {
+        <div class="form-error" role="alert">{{ regErrors['username'] }}</div>
+      }
+
+      <div class="form-group">
+        <label i18n for="reg-password">密码</label>
+        <input
+          type="password" id="reg-password" i18n-placeholder placeholder="至少 6 个字符" required
+          [(ngModel)]="regPassword" name="regPassword" class="form-control"
+          [ngClass]="{ 'input-error': regErrors['password'] }" autocomplete="new-password"
+          >
+      </div>
+      @if (regErrors['password']) {
+        <div class="form-error" role="alert">{{ regErrors['password'] }}</div>
+      }
+
+      <div class="form-group">
+        <label i18n for="reg-confirm">确认密码</label>
+        <input
+          type="password" id="reg-confirm" placeholder required
+          [(ngModel)]="regConfirmPassword" name="regConfirmPassword" class="form-control"
+          [ngClass]="{ 'input-error': regErrors['confirmPassword'] }" autocomplete="new-password"
+          >
+      </div>
+      @if (regErrors['confirmPassword']) {
+        <div class="form-error" role="alert">{{ regErrors['confirmPassword'] }}</div>
+      }
+
+      <div class="form-group">
+        <label i18n for="reg-email">邮箱</label>
+        <input
+          type="email" id="reg-email" i18n-placeholder placeholder="用于找回密码和接收通知" required
+          [(ngModel)]="regEmail" name="regEmail" class="form-control"
+          [ngClass]="{ 'input-error': regErrors['email'] }" autocomplete="email"
+          >
+      </div>
+      @if (regErrors['email']) {
+        <div class="form-error" role="alert">{{ regErrors['email'] }}</div>
+      }
+
+      @if (requiresApproval) {
+        <div class="form-group">
+          <label i18n for="reg-reason">你为什么想加入 GameHub？</label>
+          <textarea id="reg-reason" rows="3" class="form-control" name="regReason" [(ngModel)]="regReason"></textarea>
+        </div>
+      }
+
+      @if (signupLoading) {
+        <p class="game-auth-register-loading" role="status" i18n>正在注册账户，请稍候…</p>
+      }
+      @if (regError) {
+        <div class="form-error" role="alert">{{ regError }}</div>
+      }
+
+      <div class="game-auth-actions">
+        <button type="button" i18n class="peertube-button secondary-button game-auth-signup" (click)="switchMode('login')">
+          返回登录
+        </button>
+
+        <input type="submit" class="peertube-button primary-button game-auth-submit" i18n-value value="注 册" [disabled]="signupLoading">
+      </div>
+    </form>
+  }
+
   @if (isAuthenticatedWithExternalAuth) {
     <p class="game-auth-processing" i18n>正在完成登录，请稍候…</p>
   }
@@ -115,7 +195,9 @@
 @if (serverConfig && !externalAuthError && !isAuthenticatedWithExternalAuth) {
   <footer class="game-auth-notice">
     <p class="game-auth-notice-title">
-      @if (signupAllowed) {
+      @if (mode === 'register') {
+        <ng-container i18n>创建账户后即可发现并游玩社区创作的 HTML 小游戏</ng-container>
+      } @else if (signupAllowed) {
         <ng-container i18n>登录后可以发布和管理自己的小游戏</ng-container>
       } @else {
         <ng-container i18n>登录后可以收藏游戏并接收社区动态</ng-container>
