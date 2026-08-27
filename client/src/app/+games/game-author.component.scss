@@ -2,8 +2,7 @@
 
 .author-page { background: var(--game-page-bg);
   padding-bottom: 4rem; }
-.author-hero { border-bottom: 1px solid #cbd8df;
-  min-height: 245px;
+.author-hero { min-height: 245px;
   overflow: hidden;
   position: relative; }
 .author-hero::after { background: linear-gradient(180deg, transparent 30%, rgb(12 25 42 / 78%) 100%);
@@ -11,7 +10,7 @@
   inset: 0;
   pointer-events: none;
   position: absolute; }
-.author-hero-banner { background: radial-gradient(circle at 68% 24%, rgb(255 255 255 / 62%), transparent 19%), radial-gradient(circle at 82% 74%, var(--game-accent-glow), transparent 27%), linear-gradient(118deg, #1c9fc1 0%, #82d8e9 38%, var(--game-accent-soft) 72%, var(--game-accent-soft) 100%);
+.author-hero-banner { background: radial-gradient(circle at 68% 24%, rgb(255 255 255 / 16%), transparent 20%), radial-gradient(circle at 82% 78%, var(--game-brand-vivid), transparent 30%), linear-gradient(118deg, var(--game-brand-deep) 0%, var(--game-brand) 52%, var(--game-brand-vivid) 100%);
   inset: 0;
   position: absolute; }
 .author-hero-banner::before,
@@ -77,19 +76,23 @@
   margin-top: 0.65rem; }
 .author-profile-meta span + span::before { content: '•';
   margin-right: 0.8rem; }
-.follow-button { background: var(--game-brand);
+.follow-button { background: #fff;
   border: 0;
   border-radius: var(--game-radius-xs);
-  box-shadow: 0 5px 12px var(--game-brand-glow);
-  color: #fff;
+  box-shadow: 0 5px 14px rgb(12 25 42 / 24%);
+  color: var(--game-brand-deep);
   font-weight: 700;
   margin-left: 1rem;
   min-width: 7.2rem;
-  padding: 0.7rem 1.2rem; }
-.follow-button.following { background: rgb(255 255 255 / 80%);
-  border: 1px solid #c8d1d7;
+  padding: 0.7rem 1.2rem;
+  transition: transform var(--game-dur-fast) var(--game-ease); }
+.follow-button:hover:not(:disabled) { transform: translateY(-1px); }
+.follow-action .follow-button { color: var(--game-brand-deep); }
+.follow-button.following { background: rgb(255 255 255 / 24%);
+  border: 1px solid rgb(255 255 255 / 55%);
   box-shadow: none;
-  color: var(--game-text-button); }
+  color: #fff;
+  backdrop-filter: blur(4px); }
 .follow-button:disabled { cursor: wait;
   opacity: 0.7; }
 .follow-action { align-items: flex-end;
@@ -104,12 +107,15 @@
 .author-content { background: var(--game-page-bg);
   padding-top: 0.15rem; }
 .author-navigation-row { align-items: stretch;
-  background: var(--game-surface);
-  border-bottom: 1px solid var(--game-border);
+  background: var(--game-detail-surface, var(--game-surface));
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   gap: 1rem;
-  margin-top: 0.75rem;
+  margin-top: 16px;
   overflow-x: auto;
+  padding: 0 16px;
   scrollbar-width: thin; }
 .author-home-tab { align-items: center;
   border-bottom: 2px solid var(--game-brand);
@@ -195,12 +201,10 @@
 .author-stats-bar {
   align-items: stretch;
   display: flex;
-  gap: 1.5rem;
   flex: 0 0 auto;
   justify-content: flex-end;
   margin-left: auto;
   min-width: max-content;
-  padding: 0 1rem 0 0;
 }
 
 .author-stat {
@@ -209,9 +213,11 @@
   flex-direction: column;
   gap: 0.2rem;
   justify-content: center;
-  min-width: 4.5rem;
-  padding: 0.6rem 0;
+  min-width: 4.2rem;
+  padding: 0.6rem 1.1rem;
 }
+
+.author-stat + .author-stat { border-left: 1px solid var(--game-border); }
 
 .author-stat-value {
   font-size: 1.1rem;
@@ -225,9 +231,8 @@
 }
 
 @media (max-width: 600px) {
-  .author-stats-bar {
-    gap: 0.75rem;
-    padding-right: 0.75rem;
+  .author-stat {
+    padding: 0.5rem 0.7rem;
   }
   .author-stat-value { font-size: 0.95rem; }
   .author-stat-label { font-size: 0.7rem; }

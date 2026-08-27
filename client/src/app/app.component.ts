@@ -384,12 +384,12 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       }, $localize`Toggle the left menu`),
 
       new Hotkey('g o', () => {
-        this.router.navigate([ '/games' ])
+        this.router.navigate([ '/' ])
         return false
       }, $localize`Go to the GameHub home page`),
 
       new Hotkey('g v', () => {
-        this.router.navigate([ '/games' ], { queryParams: { sort: 'popular' } })
+        this.router.navigate([ '/' ], { queryParams: { sort: 'popular' } })
         return false
       }, $localize`Go to popular games`),
 

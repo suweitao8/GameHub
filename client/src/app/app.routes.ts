@@ -109,11 +109,9 @@ const routes: Routes = [
     loadChildren: () => import('./+login/routes'),
     canActivateChild: [ MetaGuard ]
   },
-  {
-    path: 'games',
-    loadChildren: () => import('./+games/routes'),
-    canActivateChild: [ MetaGuard ]
-  },
+
+  // These must be registered before the root games hub below, otherwise its
+  // ':uuid' wildcard would swallow single-segment URLs like '/en-US' or '/@handle'
 
   // All leftover PeerTube video/admin URLs → games (no legacy placeholder UI)
   {
@@ -133,19 +131,25 @@ const routes: Routes = [
     redirectTo: '/games'
   },
 
-  {
-    path: '',
-    component: HomepageRedirectComponent
-  }
-]
-
-// Avoid 404 when changing language
-for (const locale of AVAILABLE_LOCALES) {
-  routes.push({
+  // Avoid 404 when changing language
+  ...AVAILABLE_LOCALES.map(locale => ({
     path: locale,
     component: HomepageRedirectComponent
-  })
-}
+  })),
+
+  {
+    path: 'games',
+    loadChildren: () => import('./+games/routes'),
+    canActivateChild: [ MetaGuard ]
+  },
+
+  // GameHub homepage is the games hub served at the root URL
+  {
+    path: '',
+    loadChildren: () => import('./+games/routes'),
+    canActivateChild: [ MetaGuard ]
+  }
+]
 
 routes.push({
   path: '**',
