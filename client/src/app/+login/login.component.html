@@ -13,14 +13,14 @@
   }
 
   @if (!externalAuthError && !isAuthenticatedWithExternalAuth) {
-    <my-alert type="primary">
-      <h5 class="alert-heading">
+    <section class="game-auth-notice">
+      <p class="game-auth-notice-title">
         @if (signupAllowed) {
           <ng-container i18n>登录后可以发布和管理自己的小游戏</ng-container>
         } @else {
           <ng-container i18n>登录后可以收藏游戏并接收社区动态</ng-container>
         }
-      </h5>
+      </p>
 
       @if (signupAllowed) {
         <p i18n>
@@ -32,7 +32,7 @@
           GameHub 当前暂未开放注册，请前往 <a class="link-primary" target="_blank" routerLink="/about">关于 GameHub</a> 查看社区说明。
         </p>
       }
-    </my-alert>
+    </section>
 
     @if (error) {
       <my-alert type="danger">

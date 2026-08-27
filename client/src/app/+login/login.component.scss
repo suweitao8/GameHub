@@ -6,17 +6,17 @@
 /* ===========================================================================
    GameHub 登录页样式
    对齐 game-upload 投稿页/平台内页设计规范:
-   灰底浮卡 + 12px 大圆角 + 统一阴影 + 品牌色签名
+   灰底浮卡 + 大圆角 + 统一阴影 + 品牌色签名
    左栏为登录表单,右栏为品牌展示区(粉蓝柔和渐变)
    ======================================================================== */
 
 .game-auth-page {
   /* 表单变量:与投稿页保持一致,确保两页视觉节奏相同 */
-  --game-form-surface: #fff;
-  --game-form-surface-muted: #f6f8fa;   /* 灰底,让白卡浮起 */
-  --game-form-radius: 12px;             /* 主卡用大圆角,对齐详情页/投稿页 */
-  --game-form-radius-sm: 6px;           /* 内部小元素用小圆角 */
-  --game-form-shadow: 0 8px 24px rgb(25 30 40 / 6%);
+  --game-form-surface: var(--game-surface);
+  --game-form-surface-muted: var(--game-surface-alt);   /* 灰底,让白卡浮起 */
+  --game-form-radius: var(--game-radius-md);
+  --game-form-radius-sm: var(--game-radius-xs);
+  --game-form-shadow: var(--game-shadow-xs);
 
   /* 覆盖 PeerTube 输入框变量,让 my-input-text 组件自动对齐 GameHub 规范 */
   --input-bg: var(--game-form-surface-muted);
@@ -24,8 +24,8 @@
   --input-border-radius: var(--game-form-radius-sm);
   --input-placeholder-color: var(--game-text-hint);
 
-  background: var(--game-form-surface-muted);
-  min-height: calc(100vh - 58px);
+  background: var(--game-page-bg);
+  min-height: calc(100vh - 56px);
   padding: clamp(2rem, 5vw, 3.5rem) 1rem 4rem;
 }
 
@@ -63,11 +63,67 @@
   margin: 0.6rem 0 0;
 }
 
-/* Alert 圆角对齐规范 */
+/* ---------------------------------------------------------------------------
+   开放注册提示卡 + 错误告警
+   原注册说明复用 PeerTube 的 my-alert(primary),配色走主题变量(橙色回退),
+   与设计系统冲突;现改为独立 GameHub 提示卡,告警也对齐危险色令牌
+   --------------------------------------------------------------------------- */
 .game-auth-page my-alert {
-  border-radius: var(--game-form-radius-sm);
   display: block;
   margin-bottom: 1.25rem;
+}
+
+.game-auth-page .alert.alert-danger {
+  background: var(--game-danger-soft);
+  border: 1px solid color-mix(in srgb, var(--game-danger) 32%, transparent);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-danger);
+
+  .link-primary {
+    color: inherit !important;
+    font-weight: 600;
+    text-decoration: none !important;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+.game-auth-notice {
+  background: var(--game-brand-soft);
+  border: 1px solid var(--game-brand-border);
+  border-radius: var(--game-radius-sm);
+  color: var(--game-text-secondary);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+  padding: 0.95rem 1.15rem;
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.game-auth-notice-title {
+  color: var(--game-text-primary);
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+}
+
+.game-auth-notice .link-primary {
+  color: var(--game-brand);
+  font-weight: 600;
+  /* PeerTube 全局 .link-primary 用 !important 强制主题色下划线,这里同步 !important 覆盖 */
+  text-decoration: underline !important;
+  text-decoration-color: transparent !important;
+  text-underline-offset: 3px;
+  transition: color 140ms ease, text-decoration-color 140ms ease;
+
+  &:hover {
+    color: var(--game-brand-hover);
+    text-decoration-color: var(--game-brand-hover) !important;
+  }
 }
 
 /* ---------------------------------------------------------------------------
