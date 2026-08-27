@@ -94,15 +94,16 @@
   width: 90%;
 }
 
+/* 标题栏为扁平排版：不做成圆角卡片，仅保留左缘品牌细条与数据行 */
 .game-play-page .game-title-bar {
-  background: var(--game-detail-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-detail-radius);
-  box-shadow: var(--game-detail-shadow);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   align-items: center;
   gap: var(--game-detail-gap);
   grid-template-columns: var(--game-detail-columns);
-  padding: 12px 16px 10px;
+  padding: 4px 4px 10px;
   position: relative;
 }
 
@@ -132,10 +133,11 @@
   min-height: var(--game-stage-height);
 }
 
+/* 讨论群卡与左侧游戏框同高：高度由组件测量的 --stage-box-height 驱动 */
 .game-play-page .play-side my-game-discuss {
-  flex: 0 0 var(--game-stage-height);
-  height: var(--game-stage-height);
-  min-height: var(--game-stage-height);
+  flex: 1 1 auto;
+  height: var(--stage-box-height, max(520px, min(70vh, 760px)));
+  min-height: 420px;
 }
 
 .game-play-page .play-side {

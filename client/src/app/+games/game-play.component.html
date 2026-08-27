@@ -70,7 +70,7 @@
 
       <div class="game-stage-row">
       <div class="stage-column">
-      <section class="game-stage" aria-label="游戏运行区域">
+      <section class="game-stage" #stageBox aria-label="游戏运行区域">
         @if (frameLoading()) { <div class="frame-loading" role="status"><div class="frame-skeleton shimmer" style="height:100%;width:100%;border-radius:8px;background:var(--game-surface-alt)"></div><div class="frame-loading-bar" aria-hidden="true"><div class="frame-loading-fill"></div></div></div> }
         <iframe #gameFrame [src]="runtimeUrl()" title="{{ game()!.title }} 游戏运行区域" sandbox="allow-scripts allow-pointer-lock" allow="fullscreen" referrerpolicy="no-referrer" loading="lazy" (load)="onFrameLoaded()" (error)="onFrameError()"></iframe>
         @if (frameError() && !frameLoading()) {
@@ -118,7 +118,7 @@
       <my-game-comments />
       </div><!-- /.stage-column -->
 
-      <aside class="play-side" aria-label="侧栏">
+      <aside class="play-side" #sideRail aria-label="侧栏" [style.--stage-box-height]="stageBoxHeightPx()">
         <my-game-discuss />
 
         @if (developerGames().length) {

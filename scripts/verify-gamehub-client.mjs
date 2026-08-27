@@ -1322,8 +1322,11 @@ assert(
 )
 assert(
   /\.game-play-page \.play-side \{[\s\S]*height: auto;[\s\S]*min-height: var\(--game-stage-height\);/.test(gamePlayScss) &&
-    gamePlayScss.includes('flex: 0 0 var(--game-stage-height);'),
-  'detail sidebar must grow with recommendations while keeping the discussion panel at stage height'
+    gamePlayScss.includes('height: var(--stage-box-height,') &&
+    
+    gamePlayHtml.includes('[style.--stage-box-height]="stageBoxHeightPx()"') &&
+    gamePlayTs.includes('syncStageHeight ()'),
+  'detail sidebar must grow with recommendations while the discussion panel mirrors the measured stage height'
 )
 assert(
   /class="bili-send-btn"\s+\[disabled\]="!store\.draft\(\)\.trim\(\) \|\| store\.submitting\(\)"/.test(commentsTs) &&

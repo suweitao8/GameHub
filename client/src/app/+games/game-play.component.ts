@@ -44,6 +44,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly meta = inject(Meta, { optional: true })
   private readonly titleService = inject(Title, { optional: true })
   private readonly iframe = viewChild<ElementRef<HTMLIFrameElement>>('gameFrame')
+  private readonly stageBox = viewChild<ElementRef<HTMLElement>>('stageBox')
   private readonly shareDialog = viewChild(GameShareDialogComponent)
   private readonly subscriptions: { unsubscribe: () => void }[] = []
   private readonly recommendService = inject(GameRecommendService)
@@ -77,6 +78,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly inWatchLater = signal(false)
   readonly watchLaterFeedback = signal('')
   readonly watchLaterActionLoading = signal(false)
+  /** 游戏运行框实测高度（px），驱动右侧讨论群卡等高对齐 */
+  readonly stageBoxHeightPx = signal<string | null>(null)
 
   /** Comment count badge in the title bar (driven by the comment store). */
   readonly commentCount = computed(() =>
@@ -87,7 +90,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     const sub = this.route.paramMap.subscribe(params => this.loadGame(params.get('uuid') || ''))
     this.subscriptions.push(sub)
     window.addEventListener('scroll', this.onScroll, { passive: true })
+    setTimeout(() => this.syncStageHeight())
   }
+
+  @HostListener('window:resize')
+  onWindowResize () { this.syncStageHeight() }
 
   ngOnDestroy () {
     this.loadGeneration += 1
@@ -236,6 +243,18 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       this.gamesService.recordPlay(this.currentUuid).subscribe({ error: () => { this.playRecordedFor = '' } })
     }
     this.syncGameVolume()
+    // 游戏框以 16:9 自适应宽度，讨论群卡需要读取实测高度才能与左列底边对齐
+    requestAnimationFrame(() => this.syncStageHeight())
+    setTimeout(() => this.syncStageHeight(), 150)
+  }
+
+  /** 把游戏运行框的实测高度写入右侧栏 CSS 变量，供讨论群卡对齐使用 */
+  syncStageHeight () {
+    const stage = this.stageBox()?.nativeElement
+    if (!stage) return
+
+    const height = Math.round(stage.getBoundingClientRect().height)
+    if (height > 0) this.stageBoxHeightPx.set(`${height}px`)
   }
 
   onFrameError () {
