@@ -1,3 +1,9 @@
+# Credits
+
+GameHub 的账户、权限、任务队列等基础能力源自
+[PeerTube](https://github.com/Chocobozzz/PeerTube)（AGPL-3.0）。
+以下为上游项目的代码与翻译贡献者，谨致谢意：
+
 # Code & Translators contributors
 
  * Chocobozzz

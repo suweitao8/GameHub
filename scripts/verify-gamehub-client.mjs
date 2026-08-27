@@ -616,7 +616,6 @@ const loginHtml = read('client/src/app/+login/login.component.html')
 const gameAccountHomeTs = read('client/src/app/game-account-home.component.ts')
 const gameAccountSettingsTs = read('client/src/app/game-account-settings.component.ts')
 const gameNotFoundTs = read('client/src/app/game-not-found.component.ts')
-const gameAccountChannelsHtml = read('client/src/app/+accounts/game-account-video-channels/game-account-video-channels.component.html')
 const gameCommunityRouterTs = read('server/core/controllers/api/games/community.ts')
 const communityCommentsTs = read('server/core/controllers/api/games/community-comments.ts')
 const gameDiscoveryServerTs = read('server/core/controllers/api/games/game-discovery.ts')
@@ -628,7 +627,6 @@ const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
 const uploadHtml = read('client/src/app/+games/game-upload.component.html')
 const uploadScss = read('client/src/app/+games/game-upload.component.scss')
 const uploadTs = read('client/src/app/+games/game-upload.component.ts')
-const previewProbeTs = read('client/src/app/+games/services/game-preview-probe.service.ts')
 const gameRuntimeTs = read('server/core/controllers/api/games/runtime.ts')
 const libraryHtml = read('client/src/app/+games/game-library.component.html')
 const libraryTs = read('client/src/app/+games/game-library.component.ts')
@@ -959,44 +957,14 @@ assert(
   'about page labels must stay localized for the Chinese GameHub experience'
 )
 assert(
-  previewProbeTs.includes('private prepareGeneration = 0') &&
-    previewProbeTs.includes('const generation = ++this.prepareGeneration') &&
-    previewProbeTs.includes('if (generation !== this.prepareGeneration) return'),
-  'game upload preview must ignore stale async file preparation results'
+  gameRuntimeTs.includes('replace(/<\\/body>/i'),
+  'game runtime must inject before case-insensitive closing body tags'
 )
 assert(
-  previewProbeTs.includes('replace(/<\\/body>/i') && gameRuntimeTs.includes('replace(/<\\/body>/i'),
-  'game preview probes must inject before case-insensitive closing body tags'
-)
-assert(
-  previewProbeTs.includes('this.previewSource.set(null)') &&
-    previewProbeTs.includes('this.onComplete = undefined'),
-  'game upload preview must clear srcdoc content and callbacks when reset'
-)
-assert(
-  previewProbeTs.includes('private previewReady = false') &&
-    previewProbeTs.includes('if (!this.previewReady) return') &&
-    previewProbeTs.includes('this.previewReady = true'),
-  'game upload preview must ignore iframe load events while a new file is still preparing'
-)
-assert(
-  !previewProbeTs.includes('iframe && this.objectUrl && iframe.src !== this.objectUrl') &&
-    previewProbeTs.includes('this.timer = setTimeout(() =>'),
-  'game upload preview must arm its completion fallback for the current iframe load without rejecting a valid blob URL'
-)
-assert(
-  previewProbeTs.includes('const renderDomToCanvas = () =>') &&
-    gameRuntimeTs.includes('const renderDomToCanvas = () =>') &&
-    previewProbeTs.includes('renderDomToCanvas()') &&
+  gameRuntimeTs.includes('const renderDomToCanvas = () =>') &&
     gameRuntimeTs.includes('renderDomToCanvas()') &&
-    !previewProbeTs.includes('<foreignObject') &&
     !gameRuntimeTs.includes('<foreignObject'),
-  'HTML preview probes must render DOM screenshots directly to a canvas without unsupported SVG foreignObject content'
-)
-assert(
-  previewProbeTs.includes('readonly previewSource = signal<SafeHtml | null>(null)') &&
-    previewProbeTs.includes('bypassSecurityTrustHtml(wrapped)'),
-  'the retained HTML preview probe must still use sandboxed srcdoc content'
+  'the game runtime screenshot pipeline must render DOM screenshots directly to a canvas without unsupported SVG foreignObject content'
 )
 assert(
   uploadHtml.includes('accept=".html,.htm,text/html,application/xhtml+xml"') &&
@@ -1137,12 +1105,7 @@ assert(
     gameAccountSettingsTs.includes('GameHub 账户') &&
     !gameAccountSettingsTs.includes('GAMEHUB ACCOUNT') &&
     gameNotFoundTs.includes('>GameHub</p>') &&
-    !gameNotFoundTs.includes('>GAMEHUB</p>') &&
-    gameAccountChannelsHtml.includes('创作空间') &&
-    gameAccountChannelsHtml.includes('已发布频道') &&
-    gameAccountChannelsHtml.includes('频道') &&
-    !gameAccountChannelsHtml.includes('CREATOR SPACE') &&
-    !gameAccountChannelsHtml.includes('PUBLISHED CHANNELS'),
+    !gameNotFoundTs.includes('>GAMEHUB</p>'),
   'GameHub account surfaces must not expose stray English labels'
 )
 assert(

@@ -1,38 +1,40 @@
 # Client — Angular Frontend SPA
 
-PeerTube's web client is an Angular single-page application served
-under `/client/`. It communicates with the backend exclusively through
-the REST API (`/api/v1/`). A separate Vite-built embed player lives
-in `src/standalone/` for third-party iframe embedding.
+GameHub 的客户端是一个 Angular 单页应用，经 `/client/` 前缀由后端
+托管，仅通过 REST API（`/api/v1/`，主要是 `/api/v1/games/*`）与后端
+通信。用户可见的产品形态是 HTML5 游戏中心；上游 PeerTube 的视频页面、
+管理后台与播放器 UI 已从路由中移除，旧路径统一重定向到游戏中心。
 
 ## Directory Structure
 
 - **src/app/** — Main Angular application
-  - `+about/`, `+admin/`, `+home/`, `+login/`, `+signup/`, etc. —
-    Lazy-loaded route modules (prefixed with `+`)
+  - `+games/` — 游戏中心懒加载模块：首页、游戏详情/运行时、投稿、
+    社区（评论/讨论/活动）、个人库、通知等
+  - `+login/`, `+signup/`, `+reset-password/` — 账户相关懒加载模块
+    （目录前缀 `+` 表示 lazy-loaded route module）
+  - `game-about`, `game-account-*`, `game-not-found` 等根级组件 —
+    关于页、账户主页/设置、404 页
   - `core/` — Singleton services: auth, routing, plugins, theme,
-    server config, notifications, screen-size helpers
-  - `shared/` — Reusable components & directives organized by domain
-    (`shared-video/`, `shared-forms/`, `shared-moderation/`, etc.)
+    server config, screen-size helpers
+  - `shared/` — 共享组件与服务，按域组织（`shared-forms/`,
+    `shared-main/`, `shared-icons/` 等）
   - `header/`, `menu/`, `modal/` — App shell layout components
   - `helpers/` — Client-side utility functions
   - `hotkeys/` — Keyboard shortcut definitions
-  - `app.routes.ts` — Top-level route definitions (lazy-loaded)
+  - `app.routes.ts` — Top-level route definitions；所有视频/后台旧
+    路径（videos、admin、my-library 等）在此重定向到 `/games`
   - `app.component.ts` — Root component
 - **src/root-helpers/** — Framework-agnostic helpers (logger, storage,
   theme manager, translations, plugin manager) shared between the
   main app and standalone builds
-- **src/standalone/** — Independently built artifacts:
-  - `player/` — PeerTube video player (Vite build, HLS.js + P2P)
-  - `embed-player-api/` — Public npm package for programmatic
-    embed control (`@peertube/embed-api`)
-  - `videos/` — Embed page (`embed.html`) and test harness
+- **src/standalone/** — Independently built artifacts inherited from
+  upstream (`player/`、`embed-player-api/`、`videos/`)；GameHub 页面
+  不引用它们，仅随构建脚本保留
 - **src/sass/** — Global SCSS: Bootstrap overrides, PrimeNG theme,
   utility classes, z-index scale, fonts
 - **src/locale/** — Angular XLIFF translation files
-- **src/assets/** — Static images and assets
+- **src/assets/** — Static images and assets（含游戏封面等）
 - **src/environments/** — Angular environment configs
-- **e2e/** — End-to-end tests (WebdriverIO + Mocha)
 - **proxy.config.json** — Dev-server proxy to backend (:9000)
 
 ## Build & Development Commands
@@ -43,13 +45,13 @@ All commands run from the **repository root** unless noted.
 
 ```bash
 # Full stack: server (:9000) + Angular dev server (:3000)
-npm run dev
+pnpm run dev
 
 # Client only (requires a running backend on :9000)
-npm run dev:client
+pnpm run dev:client
 
-# Embed player only
-npm run dev:embed
+# Light en-US production build on Windows（自检门禁使用）
+pnpm run build:client:light
 ```
 
 The Angular dev server proxies `/api`, `/plugins`, `/themes`,
@@ -59,52 +61,28 @@ backend at `http://127.0.0.1:9000` (see `proxy.config.json`).
 ### Build
 
 ```bash
-# Full client build (production)
-npm run build:client
-
-# Embed player build
-npm run build:embed
+# Full client build (production, all locales)
+pnpm run build:client
 ```
 
-Output goes to `client/dist/` with per-locale sub-directories
-(e.g. `client/dist/en-US/`, `client/dist/fr-FR/`).
+Output goes to `client/dist/browser/<locale>/`.
 
 ### Lint
 
 ```bash
-# From repository root
 cd client
-
-# TypeScript + Angular templates (ESLint)
-npm run lint-ts
-
-# SCSS (Stylelint)
-npm run lint-scss
-
-# Both
-npm run lint
+npm run lint        # TypeScript + templates + SCSS
 ```
 
-### E2E tests
-
-```bash
-# Local browser (from repo root)
-npm run e2e:local
-
-# BrowserStack
-npm run e2e:browserstack
-```
-
-E2E uses **WebdriverIO** with a **Mocha** framework. Config files are
-in `e2e/` (`wdio.local.conf.ts`, `wdio.browserstack.conf.ts`).
+根门禁默认只对本次变更的 client 文件执行 lint；需要全量审计用
+`pnpm run self-test:gamehub -- -FullLint`。
 
 ## Code Style & Conventions
 
-### TypeScript / ESLint
+### TypeScript / Lint
 
-The client has its own `eslint.config.mjs` extending
-`eslint-config-love` and `angular-eslint`. Key rules match the
-server:
+The client has its own lint config（ESLint 家族规则），关键约束与
+server 一致：
 
 | Rule                | Value                             |
 |---------------------|-----------------------------------|
@@ -134,14 +112,12 @@ Configured in `.stylelintrc.json`, extends
 
 ### Naming patterns
 
-- Lazy-loaded route folders: `+feature-name/` (e.g. `+admin/`,
-  `+video-watch/`)
-- Shared modules: `shared-domain/` (e.g. `shared-video/`,
-  `shared-forms/`)
+- Lazy-loaded route folders: `+feature-name/`（如 `+games/`、`+login/`）
+- Shared modules: `shared-domain/`（如 `shared-forms/`、`shared-main/`）
 - Services: PascalCase with `Service` suffix
-  (`AuthService`, `ServerService`)
+  (`AuthService`, `GamesService`)
 - Components: PascalCase with `Component` suffix, selector prefixed
-  `my-` (`my-video-miniature`)
+  `my-`（如 `my-game-card`）；游戏域新组件亦使用 `game-` 命名前缀的文件名
 - Path aliases: `@app/*` → `src/app/*`,
   `@root-helpers/*` → `src/root-helpers/*`
 
@@ -161,9 +137,9 @@ Configured in `.stylelintrc.json`, extends
 │                                                         │
 │  ┌──────────┐  ┌──────────────┐  ┌──────────────────┐  │
 │  │  Routes   │  │  Core        │  │  Shared          │  │
-│  │ (+about,  │  │ (auth, REST, │  │ (forms, video    │  │
-│  │  +admin,  │──│  plugins,    │──│  miniature,      │  │
-│  │  +videos) │  │  server,     │  │  moderation...)  │  │
+│  │ (+games,  │  │ (auth, REST, │  │ (forms, icons,   │  │
+│  │  login,   │──│  plugins,    │──│  actor-image,    │  │
+│  │  signup…) │  │  server,     │  │  main…)          │  │
 │  │           │  │  theme)      │  │                  │  │
 │  └──────────┘  └──────┬───────┘  └──────────────────┘  │
 │                        │                                │
@@ -172,17 +148,15 @@ Configured in `.stylelintrc.json`, extends
 │  │  logger, storage, plugins-manager, theme, i18n   │   │
 │  └──────────────────────────────────────────────────┘   │
 │                                                         │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │         standalone/ (Vite builds)               │    │
-│  │  player/ │ embed-player-api/ │ videos/embed     │    │
-│  └─────────────────────────────────────────────────┘    │
+│  视频时代遗留：standalone/player 与 embed 仅随脚本保留， │
+│  SPA 运行时不加载                                        │
 └────────────────────────┬────────────────────────────────┘
                          │ HTTP (REST API)
                          ▼
-              ┌──────────────────────┐
-              │  Express Backend     │
-              │  (:9000 /api/v1/*)   │
-              └──────────────────────┘
+              ┌──────────────────────────┐
+              │  Express Backend         │
+              │  (:9000 /api/v1/games/*) │
+              └──────────────────────────┘
 ```
 
 - **Lazy loading**: Each `+feature/` folder exports route configs
@@ -190,15 +164,12 @@ Configured in `.stylelintrc.json`, extends
 - **Core services**: Singletons bootstrapped in `main.ts` via
   `getCoreProviders()` — auth, REST client, server config polling,
   plugin hooks, theme manager
-- **Plugin hooks**: Client-side plugins register via
-  `HooksService` / `PluginService` in `core/plugins/`
 - **State management**: No dedicated store library; services hold
-  state, components subscribe via RxJS observables
+  state, components subscribe via RxJS observables / signals
 - **UI framework**: Bootstrap 5 + PrimeNG + ng-bootstrap;
   global SCSS in `src/sass/`
-- **Video player**: Custom build in `standalone/player/` using
-  Video.js + HLS.js + P2P Media Loader; embedded via
-  `standalone/videos/embed.html`
+- **Game runtime**: 上传的 HTML 包由后端沙箱托管，客户端在
+  `+games/game-play` 通过 iframe 加载 `/api/v1/games/:uuid/runtime/`
 
 ## Agent Guardrails
 
@@ -212,11 +183,9 @@ Configured in `.stylelintrc.json`, extends
 
 ### Required checks before pushing
 
-1. `cd client && npm run lint` must pass (TS + SCSS)
-2. Production build must succeed: `npm run build:client`
-   (from repo root)
-3. If new user-visible strings added: extract with
-   `npm run i18n:create-custom-files` and verify XLIFF
+1. 根目录 `pnpm run self-test:gamehub` 必须通过
+2. 生产构建必须成功（门禁内含 en-US light build）
+3. 新增用户可见文案需走 `$localize` / i18n 属性
 
 ### Boundaries
 
@@ -226,15 +195,16 @@ Configured in `.stylelintrc.json`, extends
   `standalone/` — these must remain framework-agnostic
 - Shared API types come from `@peertube/peertube-models` and
   `@peertube/peertube-core-utils` (workspace packages)
+- 不要重新引入视频域页面或组件；删除残留时应先确认无引用
 - Do not add new npm dependencies without explicit approval
 
 ## Further Reading
 
+- [../docs/development/game-community.md](../docs/development/game-community.md)
+  — 游戏社区功能设计文档
 - [../support/doc/plugins/guide.md](../support/doc/plugins/guide.md)
   — Plugin & theme development (client hooks)
-- [src/standalone/embed-player-api/README.md](src/standalone/embed-player-api/README.md)
-  — Embed player API documentation
-- [../support/doc/api/embeds.md](../support/doc/api/embeds.md)
-  — Embed integration guide
+- [../support/doc/api/openapi.yaml](../support/doc/api/openapi.yaml)
+  — OpenAPI specification
 - [../AGENTS.md](../AGENTS.md)
-  — Root project AGENTS.md (server, build, CI, testing)
+  — Root project AGENTS.md (server, build, workflow)

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common'
 import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
-import { NotificationDropdownComponent } from '@app/header/notification-dropdown.component'
 import { QuickSettingsModalComponent } from '@app/menu/quick-settings-modal.component'
 import { ActorAvatarComponent } from '@app/shared/shared-actor-image/actor-avatar.component'
 import { PeertubeModalService } from '@app/shared/shared-main/peertube-modal/peertube-modal.service'
@@ -20,7 +19,6 @@ import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
-import { SearchTypeaheadComponent } from './search-typeahead.component'
 import { Game, GameNotification, GamesService } from '@app/+games/games.service'
 import { GAME_FEATURES } from '@app/+games/shared'
 
@@ -33,7 +31,6 @@ type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     CommonModule,
-    NotificationDropdownComponent,
     ActorAvatarComponent,
     SignupLabelComponent,
     LoginLinkComponent,
@@ -41,10 +38,7 @@ type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
     GlobalIconComponent,
     RouterLink,
     NgbDropdownModule,
-    SearchTypeaheadComponent,
-    RouterLink,
     RouterLinkActive,
-    GlobalIconComponent,
     ButtonComponent,
     GameNavigationComponent
   ]

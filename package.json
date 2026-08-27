@@ -1,6 +1,6 @@
 {
-  "name": "peertube",
-  "description": "PeerTube, an ActivityPub-federated video streaming platform using P2P directly in your web browser.",
+  "name": "gamehub",
+  "description": "GameHub, an HTML5 online games platform built on a PeerTube-derived foundation.",
   "version": "8.2.2",
   "private": true,
   "license": "AGPL-3.0",
@@ -10,13 +10,12 @@
   },
   "type": "module",
   "author": {
-    "name": "Chocobozzz",
-    "email": "chocobozzz@framasoft.org",
-    "url": "http://github.com/Chocobozzz"
+    "name": "suweitao8",
+    "url": "https://github.com/suweitao8"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Chocobozzz/PeerTube.git"
+    "url": "git+https://github.com/suweitao8/GameHub.git"
   },
   "typings": "*.d.ts",
   "scripts": {

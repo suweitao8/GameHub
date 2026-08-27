@@ -68,7 +68,9 @@ function Get-ChangedFiles {
   $files += @(git status --porcelain | ForEach-Object {
       if ($_.Length -gt 3) { $_.Substring(3).Trim().Trim('"') }
     })
-  return @($files | Where-Object { $_ } | Sort-Object -Unique)
+  # Deleted files cannot be linted; drop them so large deletion batches
+  # neither break the linters nor overflow the Windows command line.
+  return @($files | Where-Object { $_ -and (Test-Path (Join-Path $repoRoot $_)) } | Sort-Object -Unique)
 }
 
 function Invoke-RepositoryLint {
@@ -105,14 +107,24 @@ function Invoke-RepositoryLint {
 
   Push-Location client
   try {
+    # Batched invocations keep each command line well under the
+    # Windows CreateProcess length limit for big change sets.
+    $batchSize = 150
     if ($changedClientTs.Count -gt 0) {
-      $eslintArgs = @('--') + $changedClientTs
-      pnpm exec eslint @eslintArgs
-      if ($LASTEXITCODE -ne 0) { return }
+      for ($i = 0; $i -lt $changedClientTs.Count; $i += $batchSize) {
+        $batch = @($changedClientTs[$i..([Math]::Min($i + $batchSize - 1, $changedClientTs.Count - 1))])
+        $eslintArgs = @('--') + $batch
+        pnpm exec eslint @eslintArgs
+        if ($LASTEXITCODE -ne 0) { return }
+      }
     }
     if ($changedClientScss.Count -gt 0) {
-      $stylelintArgs = @('--') + $changedClientScss
-      pnpm exec stylelint @stylelintArgs
+      for ($i = 0; $i -lt $changedClientScss.Count; $i += $batchSize) {
+        $batch = @($changedClientScss[$i..([Math]::Min($i + $batchSize - 1, $changedClientScss.Count - 1))])
+        $stylelintArgs = @('--') + $batch
+        pnpm exec stylelint @stylelintArgs
+        if ($LASTEXITCODE -ne 0) { return }
+      }
     }
   } finally { Pop-Location }
 }

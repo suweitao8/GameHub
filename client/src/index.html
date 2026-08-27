@@ -6,7 +6,7 @@
 
     <meta name="theme-color" content="#fff" />
     <link rel="icon" type="image/svg+xml" href="/client/assets/images/gamehub-favicon.svg?v=gamehub-g">
-    <meta property="og:platform" content="PeerTube" />
+    <meta property="og:platform" content="GameHub" />
     <!-- Web Manifest file -->
     <link rel="manifest" href="/manifest.webmanifest?[manifestContentHash]">
 
@@ -31,27 +31,23 @@
       <h2 class="mb-3">JavaScript required</h2>
 
       <p>It seems JavaScript is either blocked or disabled in your web browser. We totally get that. However, this page will not work without it.</p>
-      <p>If you are concerned about the security and privacy (or lack thereof) of JavaScript web applications, you might want to review the source code of the instance you are trying to access, or look for security audits.</p>
-
       <hr>
 
       <h2 class="mb-3">Your options</h2>
 
       <ul>
         <li>Allow JavaScript in your browser</li>
-        <li>Use one of the <a class="link-primary" href="https://docs.joinpeertube.org/use/third-party-application" target="_blank">third-party applications</a> to browse this instance</li>
-        <li>Review the source code on <a class="link-primary" href="https://github.com/Chocobozzz/PeerTube" target="_blank">GitHub</a> or <a class="link-primary" href="https://framagit.org/framasoft/peertube/PeerTube" target="_blank">Framasoft's GitLab</a>, and ask for modifications from the instance owner.
+        <li>Review the source code of the site and ask for modifications from the site owner</li>
       </ul>
     </noscript>
 
     <div id="incompatible-browser" class="alert alert-light" role="alert" style="display: none">
       <h2 class="mb-3">Incompatible browser</h2>
 
-      <p>We are sorry but it seems that PeerTube is not compatible with your web browser.</p>
+      <p>We are sorry but it seems that GameHub is not compatible with your web browser.</p>
 
       <hr>
-      <p>Please try with the latest version of <a class="link-primary" href="https://www.mozilla.org" target="_blank">Mozilla Firefox</a>.</p>
-      <p class="mb-0">If you think this is a mistake, please <a class="link-primary" href="https://github.com/Chocobozzz/PeerTube/issues/new" target="_blank">report it</a>.</p>
+      <p>Please try with the latest version of your browser.</p>
     </div>
 
     <script type="text/javascript">
@@ -70,7 +66,7 @@
         displayIncompatibleBrowser()
       }
 
-      // BigInt must be supported (for the player to work)
+      // BigInt must be supported
       try {
         BigInt(9007199254740991)
       } catch (err) {

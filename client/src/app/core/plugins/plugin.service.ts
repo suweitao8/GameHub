@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http'
 import { inject, Injectable, LOCALE_ID, NgZone } from '@angular/core'
-import { VideoManageType } from '@app/+videos-publish-manage/shared-manage/common/video-manage.type'
 import { AuthService } from '@app/core/auth'
 import { Notifier } from '@app/core/notification'
 import { MarkdownService } from '@app/core/renderer'
@@ -22,7 +21,6 @@ import {
   RegisterClientFormFieldOptions,
   RegisterClientRouteOptions,
   RegisterClientSettingsScriptOptions,
-  RegisterClientVideoFieldOptions,
   ServerConfigPlugin
 } from '@peertube/peertube-models'
 import { logger } from '@root-helpers/logger'
@@ -31,14 +29,6 @@ import { firstValueFrom, Observable, of } from 'rxjs'
 import { catchError, map, shareReplay } from 'rxjs/operators'
 import { environment } from '../../../environments/environment'
 import { RegisterClientHelpers } from '../../../types/register-client-option.model'
-
-type FormFields = {
-  video: {
-    pluginInfo: PluginInfo
-    commonOptions: RegisterClientFormFieldOptions
-    videoFormOptions: RegisterClientVideoFieldOptions
-  }[]
-}
 
 @Injectable()
 export class PluginService implements ClientHook {
@@ -58,9 +48,6 @@ export class PluginService implements ClientHook {
 
   customModal: CustomModalComponent
 
-  private formFields: FormFields = {
-    video: []
-  }
   private settingsScripts: { [npmName: string]: RegisterClientSettingsScriptOptions } = {}
   private clientRoutes: {
     [parentRoute in RegisterClientRouteOptions['parentRoute']]?: {
@@ -78,7 +65,6 @@ export class PluginService implements ClientHook {
     this.pluginsManager = new PluginsManager({
       doAction: this.doAction.bind(this),
       peertubeHelpersFactory: this.buildPeerTubeHelpers.bind(this),
-      onFormFields: this.onFormFields.bind(this),
       onSettingsScripts: this.onSettingsScripts.bind(this),
       onClientRoute: this.onClientRoute.bind(this)
     })
@@ -134,10 +120,6 @@ export class PluginService implements ClientHook {
       : 'peertube-theme-'
 
     return prefix + name
-  }
-
-  getRegisteredVideoFormFields (type: VideoManageType) {
-    return this.formFields.video.filter(f => f.videoFormOptions.type === type)
   }
 
   getRegisteredSettingsScript (npmName: string) {
@@ -209,18 +191,6 @@ export class PluginService implements ClientHook {
     } catch (err: any) {
       logger.warn(`Cannot run action ${actionName}`, err)
     }
-  }
-
-  private onFormFields (
-    pluginInfo: PluginInfo,
-    commonOptions: RegisterClientFormFieldOptions,
-    videoFormOptions: RegisterClientVideoFieldOptions
-  ) {
-    this.formFields.video.push({
-      pluginInfo,
-      commonOptions,
-      videoFormOptions
-    })
   }
 
   private onSettingsScripts (pluginInfo: PluginInfo, options: RegisterClientSettingsScriptOptions) {

@@ -28,7 +28,6 @@ import {
 import { HooksService } from '@app/core/plugins/hooks.service'
 import { PluginService } from '@app/core/plugins/plugin.service'
 import { AccountSetupWarningModalComponent } from '@app/modal/account-setup-warning-modal.component'
-import { AdminConfigWizardModalComponent } from '@app/modal/admin-config-wizard/admin-config-wizard-modal.component'
 import { CustomModalComponent } from '@app/modal/custom-modal.component'
 import { InstanceConfigWarningModalComponent } from '@app/modal/instance-config-warning-modal.component'
 import { NgbConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap'
@@ -49,7 +48,6 @@ import { MenuComponent } from './menu/menu.component'
 import { ConfirmComponent } from './modal/confirm.component'
 import { GlobalIconComponent, GlobalIconName } from './shared/shared-icons/global-icon.component'
 import { InstanceService } from './shared/shared-main/instance/instance.service'
-import { PeertubeModalService } from './shared/shared-main/peertube-modal/peertube-modal.service'
 
 @Component({
   selector: 'my-app',
@@ -69,8 +67,7 @@ import { PeertubeModalService } from './shared/shared-main/peertube-modal/peertu
     SharedModule,
     AccountSetupWarningModalComponent,
     InstanceConfigWarningModalComponent,
-    CustomModalComponent,
-    AdminConfigWizardModalComponent
+    CustomModalComponent
   ]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -93,7 +90,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadingBar = inject(LoadingBarService)
   private scrollService = inject(ScrollService)
   private userLocalStorage = inject(UserLocalStorageService)
-  private peertubeModal = inject(PeertubeModalService)
   private routerStatus = inject(RouterStatusService)
   private redirectService = inject(RedirectService)
 
@@ -102,7 +98,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   private static LS_BROADCAST_MESSAGE = 'app-broadcast-message-dismissed'
 
   readonly accountSetupWarningModal = viewChild<AccountSetupWarningModalComponent>('accountSetupWarningModal')
-  readonly adminConfigWizardModal = viewChild<AdminConfigWizardModalComponent>('adminConfigWizardModal')
   readonly instanceConfigWarningModal = viewChild<InstanceConfigWarningModalComponent>('instanceConfigWarningModal')
   readonly customModal = viewChild<CustomModalComponent>('customModal')
 
@@ -170,13 +165,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loadingBar.useRef('plugins').complete()
 
       return Promise.resolve()
-    })
-
-    this.peertubeModal.openAdminConfigWizardSubject.subscribe(({ showWelcome }) => {
-      const adminWelcomeModal = this.adminConfigWizardModal()
-      if (!adminWelcomeModal) return
-
-      adminWelcomeModal.show({ showWelcome })
     })
 
     if (getLocaleDirection(this.localeId) === 'rtl') {
@@ -367,13 +355,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private openAdminModalsIfNeeded (user: User) {
-    const adminWelcomeModal = this.adminConfigWizardModal()
-    if (!adminWelcomeModal) return
-
-    if (adminWelcomeModal.shouldAutoOpen(user)) {
-      return adminWelcomeModal.show({ showWelcome: true })
-    }
-
     const instanceConfigWarningModal = this.instanceConfigWarningModal()
     if (!instanceConfigWarningModal) return
     if (!instanceConfigWarningModal.canBeOpenByUser(user)) return

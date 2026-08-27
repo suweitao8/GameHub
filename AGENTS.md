@@ -1,44 +1,42 @@
 # Project Overview
 
-PeerTube is an open-source, ActivityPub-federated video streaming platform
-that uses P2P technology directly in web browsers. Developed by Framasoft
-under the AGPL-3.0 license, it provides a decentralized alternative to
-centralized video platforms. The server is a Node.js/Express API with a
-Sequelize ORM (PostgreSQL), background job processing (BullMQ/Redis),
-ActivityPub federation, and an Angular SPA client. Video transcoding is
-handled via FFmpeg, with optional distributed runners.
+GameHub is an HTML5 online games platform: players browse a game center,
+play sandboxed HTML5 games directly in the browser, follow creators, join
+community features (comments, discussions, events, articles), and manage
+player accounts. It is built on a code base derived from PeerTube 8.x
+(AGPL-3.0): the account/auth, actor/channel, permissions, job queue,
+plugin, and serving infrastructure are PeerTube-derived, while the video
+domain has been replaced by the game domain (`server/core/models/game/`,
+`server/core/lib/games/`, `client/src/app/+games/`). The backend remains
+a Node.js/Express API with Sequelize ORM (PostgreSQL) and BullMQ/Redis
+job processing; the frontend is an Angular SPA.
 
 ## Repository Structure
 
-- **apps/** — Standalone CLI applications (`peertube-cli`, `peertube-runner`)
-- **client/** — Angular frontend SPA (separate build system)
+- **apps/** — Standalone CLI applications inherited from upstream
+  (`peertube-cli`, `peertube-runner`); video-era tooling kept for
+  reference
+- **client/** — Angular SPA：HTML5 游戏中心（`src/app/+games/`）、登录注册
+  （login/signup/reset-password）、账户页与共享组件（`src/app/shared/`）
 - **config/** — YAML configuration files for dev, test, and production
 - **packages/** — Shared workspace packages (monorepo):
-  - `core-utils/` — Shared pure-JS utilities
-  - `ffmpeg/` — FFmpeg wrapper library
-  - `models/` — Shared TypeScript interfaces and API types
-  - `node-utils/` — Node.js-specific helpers
-  - `server-commands/` — HTTP client helpers used by tests
-  - `tests/` — Full test suite (API, CLI, plugins, feeds, etc.)
-  - `transcription/` — Speech-to-text engine integration
-  - `transcription-devtools/` — Transcription benchmarking tools
-  - `types-generator/` — Generates the public `@peertube/peertube-types`
-    package
-  - `typescript-utils/` — Generic TypeScript helpers
-- **scripts/** — Build, CI, dev, release, and i18n shell scripts
+  - `core-utils/`, `models/`, `typescript-utils/`, `node-utils/`,
+    `server-commands/` — shared utilities and API types
+  - `ffmpeg/`, `transcription*/`, `types-generator/`, `tests/` —
+    inherited from upstream; mostly video-era tooling kept for reference
+- **scripts/** — Build, CI, dev, release, i18n shell scripts and the
+  GameHub self-test gate (`self-test-gamehub.ps1`)
 - **server/** — Backend entry point and core application code
   - `server.ts` — Process entry point
-  - `core/controllers/` — Express route handlers (API, ActivityPub,
-    feeds, tracker)
-  - `core/models/` — Sequelize database models (14 categories)
-  - `core/lib/` — Business logic (transcoding, live, job queue,
-    ActivityPub, plugins, runners, notifications, etc.)
-  - `core/middlewares/` — Auth, rate-limiting, validation, caching, CSP
-  - `core/helpers/` — Utility functions and custom validators
-  - `core/initializers/` — App bootstrap, constants, DB migrations,
-    config loading
-  - `core/types/` — Internal TypeScript type augmentations
-- **support/** — Documentation, Docker, Nginx configs, OpenAPI spec
+  - `core/controllers/api/games/` — GameHub REST API（游戏 CRUD、社区、
+    个人库、通知、活动等）
+  - `core/models/game/` — Game domain models（游戏、评论、统计、通知等）；
+    上游视频域模型保留于 `core/models/video/`，仅作为基础设施被游戏作者
+    信息（channel/actor）复用
+  - `core/lib/games/` — Game business logic（推荐、经验值、CDN 签名、
+    运行时预览、社区策略等）
+  - 其余目录（middlewares、initializers、helpers 等）为上游基础设施
+- **support/** — Docker 编排、Nginx 配置、OpenAPI spec 与上游文档
 
 ## Build & Development Commands
 
@@ -159,38 +157,27 @@ directory has its own lint config.
 ## Architecture Notes
 
 ```
-                  ┌──────────────────────────────────────────┐
-                  │            Reverse Proxy (Nginx)         │
-                  └──────────────┬───────────────────────────┘
-                                 │
-              ┌──────────────────▼──────────────────────┐
-              │          Express.js API Server           │
-              │  (server/server.ts → core/controllers/)  │
-              │                                          │
-              │  ┌─────────┐ ┌──────────┐ ┌──────────┐  │
-              │  │  REST   │ │Activity- │ │  Feeds/  │  │
-              │  │  API    │ │  Pub     │ │  oEmbed  │  │
-              │  │  /api/* │ │  /inbox  │ │  /feeds  │  │
-              │  └────┬────┘ └────┬─────┘ └────┬─────┘  │
-              │       │           │             │        │
-              │  ┌────▼───────────▼─────────────▼────┐  │
-              │  │       Middleware Pipeline          │  │
-              │  │  (auth, validators, rate-limit)    │  │
-              │  └────────────────┬───────────────────┘  │
-              │                   │                      │
-              │  ┌────────────────▼───────────────────┐  │
-              │  │        Business Logic (lib/)       │  │
-              │  │  videos, live, transcoding,        │  │
-              │  │  federation, notifications,        │  │
-              │  │  plugins, runners                  │  │
-              │  └──┬──────────┬──────────────┬───┘   │
-              └─────┼──────────┼──────────────┼───────┘
-                    │          │              │
-          ┌────────▼──┐ ┌─────▼─────┐ ┌──────▼──────┐
-          │PostgreSQL │ │   Redis   │ │  FFmpeg /   │
-          │(Sequelize)│ │ (BullMQ   │ │  Runners    │
-          │           │ │  + cache) │ │             │
-          └───────────┘ └───────────┘ └─────────────┘
+            ┌───────────────────────────────────────┐
+            │         Reverse Proxy (Nginx)         │
+            └──────────────────┬────────────────────┘
+                               │
+        ┌──────────────────────▼──────────────────────┐
+        │          Express.js API Server              │
+        │     (server/server.ts → controllers/)       │
+        │                                             │
+        │  /api/v1/games/*      游戏域 REST API        │
+        │  /api/v1/{auth,users} 账户与权限（上游基础） │
+        │  静态托管：SPA、游戏运行时、上传资源        │
+        │                                             │
+        │  中间件管线（鉴权/校验/限流/缓存/CSP）       │
+        └──────┬────────────────────────┬─────────────┘
+               │                        │
+      ┌────────▼────────┐      ┌────────▼─────────┐
+      │ PostgreSQL      │      │ Redis (BullMQ    │
+      │ (Sequelize)：   │      │ 任务队列 + 缓存) │
+      │ game 域模型 +   │      └──────────────────┘
+      │ 账户/Actor 基础 │
+      └─────────────────┘
 ```
 
 **Startup sequence** (`server/server.ts`):
@@ -205,92 +192,36 @@ directory has its own lint config.
 
 **Key data flows**:
 
-- **Video upload**: REST API → validator middleware → `lib/video.ts` →
-  job queue → FFmpeg transcoding → HLS/web-video files → object
-  storage or local filesystem
-- **Federation**: Incoming ActivityPub requests → signature
-  verification → `lib/activitypub/` processors → local DB updates +
-  outgoing fan-out
-- **Live streaming**: RTMP ingest → FFmpeg segmenter → HLS manifest →
-  P2P delivery via WebSocket tracker
+- **Game upload（投稿）**: client 上传 HTML 包 →
+  `api/games` 校验 → GameModel 入库，运行时由
+  `lib/games/game-runtime.ts` 沙箱托管，封面/预览经
+  `game-cdn.ts` 签名分发
+- **Play & stats**: 运行时加载游戏 → play 记录/时长统计写入
+  GameStatsSummaryModel / GameRecentModel
+- **Community**: 评论/讨论/活动走 `api/games/community*`，
+  经验值经 `lib/games/game-exp.ts` 结算
 
 ## Testing Strategy
 
-### Test framework
+### GameHub 质量门禁（权威）
 
-- **Mocha** for all server/API tests
-- **GNU Parallel** for running test files concurrently in CI
-- Tests live in `packages/tests/src/` (TypeScript source) and are
-  compiled to `packages/tests/dist/`
-
-### Preparation
+交付前必须通过自检门禁（构建 server/client、lint、SPA 冒烟验证）：
 
 ```bash
-# Create PostgreSQL superuser for test DB management
-sudo -u postgres createuser $(whoami) --createdb --superuser
-
-# Clean test databases
-npm run clean:server:test
-
-# Build server + tests
-npm run build:server
-npm run build:tests
+pnpm run self-test:gamehub
 ```
 
-### Running tests
+- `-SkipBuild / -SkipLint / -SkipLive` 仅用于定位失败原因，最终交付必须补跑
+- 需要审计整个 client 时加 `-FullLint`
+- 后端或共享代码改动：`pnpm run build:server`
+- API 改动：`pnpm run swagger-cli -- validate support/doc/api/openapi.yaml`
 
-```bash
-# Full suite (slow, ~45-60 min)
-npm run test
+### 上游遗留测试套件
 
-# Run a specific CI suite
-npm run ci -- api-1       # check-params, notifications, search
-npm run ci -- api-2       # live, server plugins, users
-npm run ci -- api-3       # videos, stats
-npm run ci -- api-4       # moderation, redundancy, object-storage,
-                          # activitypub
-npm run ci -- api-5       # transcoding, runners
-npm run ci -- client      # feeds, client, misc-endpoints, plugins
-npm run ci -- cli-plugin  # CLI and plugin tests
-npm run ci -- lint        # OXlint + OpenAPI validation + client lint
-npm run ci -- transcription
-npm run ci -- external-plugins
-
-# Run a single test file
-npm run mocha -- --timeout 30000 --exit --bail \
-  packages/tests/src/api/videos/single-server.ts
-```
-
-### External test dependencies (Docker)
-
-Some tests require these containers:
-
-```bash
-docker run -p 9444:9000 chocobozzz/s3-ninja
-docker run -p 10389:10389 chocobozzz/docker-test-openldap
-docker run -p 8082:8080 \
-  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
-  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-  chocobozzz/peertube-tests-keycloak
-```
-
-### CI pipeline
-
-GitHub Actions (`.github/workflows/test.yml`), Ubuntu 22.04, Node.js
-22.x. Matrix strategy runs suites in parallel: `types-package`,
-`client`, `api-1`–`api-5`, `cli-plugin`, `lint`, `transcription`,
-`external-plugins`.
-
-Services provisioned per job: PostgreSQL 10, Redis, LDAP, S3 Ninja,
-Keycloak.
-
-### Environment variables for tests
-
-| Variable                                   | Purpose                     |
-|--------------------------------------------|-----------------------------|
-| `DISABLE_HTTP_IMPORT_TESTS=true`           | Skip flaky HTTP import tests|
-| `DISABLE_HTTP_YOUTUBE_IMPORT_TESTS=true`   | Skip YouTube import tests   |
-| `ENABLE_OBJECT_STORAGE_TESTS=true`         | Enable S3 tests             |
+`packages/tests/` 保留了上游 PeerTube 的 Mocha 测试套件，绝大部分面向
+视频 API 与联邦等已不再使用的领域。它们仅作为上游行为参考，不作为
+GameHub 的交付标准；运行方式与 CI 配置见
+[support/doc/development/tests.md](support/doc/development/tests.md)。
 
 ## Security & Compliance
 
@@ -308,7 +239,7 @@ Keycloak.
   via `server/core/middlewares/csp.ts`.
 - **Input validation**: Every controller uses express-validator
   middleware defined in `server/core/middlewares/validators/`.
-- **Vulnerability reporting**: `peertube-security@framasoft.org` —
+- **Vulnerability reporting**: via GitHub 私有安全通告 —
   see `SECURITY.md`.
 - **Dependency scanning**: No automated scanner configuration found in
   the repo.
@@ -372,11 +303,11 @@ use `config/local-*.json` files (gitignored). Key env vars:
 | `LOGGER_LEVEL`        | `debug`, `info`, `warn`, `error`     |
 | `PT_INITIAL_ROOT_PASSWORD` | Set root password on first run  |
 
-### Runners (distributed transcoding)
+### Runners (inherited, video-era)
 
-External `peertube-runner` processes poll the API for transcoding jobs.
-Configured in `server/core/lib/runners/` and managed through the
-`/api/v1/runners` endpoints.
+External `peertube-runner` processes were used for upstream transcoding
+jobs; GameHub does not rely on them. Code kept in
+`server/core/lib/runners/` for reference.
 
 ### OpenTelemetry
 
@@ -386,20 +317,16 @@ Export to Jaeger (tracing) or Prometheus (metrics) is configurable in
 
 ## Further Reading
 
-- [support/doc/development/server.md](support/doc/development/server.md)
-  — Server code conventions and new-feature walkthrough
-- [support/doc/development/tests.md](support/doc/development/tests.md)
-  — Test setup and execution guide
+- [AGENTS.md 工作流约定](#通用开发工作流) — 本文件下半部分的
+  GameHub 通用开发工作流
+- [README.md](README.md) — 项目简介与开发环境
+- [docs/development/game-community.md](docs/development/game-community.md)
+  — 游戏社区功能设计文档
 - [support/doc/plugins/guide.md](support/doc/plugins/guide.md)
-  — Plugin & theme development guide
+  — 插件与主题开发指南（上游能力，部分视频扩展点已随视频域移除）
 - [support/doc/api/openapi.yaml](support/doc/api/openapi.yaml)
   — OpenAPI 3.0 specification
-- [support/doc/production.md](support/doc/production.md)
-  — Production deployment guide
-- [support/doc/docker.md](support/doc/docker.md)
-  — Docker deployment guide
-- [support/doc/development/lib.md](support/doc/development/lib.md)
-  — Library / business-logic documentation
+- [support/doc/docker.md](support/doc/docker.md) — Docker deployment guide
 - [SECURITY.md](SECURITY.md) — Vulnerability disclosure policy
 - [FAQ.md](FAQ.md) — Frequently asked questions
 

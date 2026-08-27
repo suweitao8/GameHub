@@ -4,7 +4,6 @@ import { AuthService, AuthStatus, LocalStorageService, PeerTubeRouterService, Us
 import { GlobalIconComponent } from '@app/shared/shared-icons/global-icon.component'
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
 import { UserInterfaceSettingsComponent } from '@app/shared/shared-user-settings/user-interface-settings.component'
-import { UserVideoSettingsComponent } from '@app/shared/shared-user-settings/user-video-settings.component'
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
 import { ReplaySubject, Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
@@ -20,7 +19,6 @@ import { filter } from 'rxjs/operators'
   changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     GlobalIconComponent,
-    UserVideoSettingsComponent,
     UserInterfaceSettingsComponent,
     AlertComponent
   ]
