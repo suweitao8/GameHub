@@ -1226,6 +1226,21 @@ assert(
   'header hover popovers must retain through one pointer-event path without duplicate handlers'
 )
 assert(
+  headerHtml.includes('<header><strong>动态</strong></header>') &&
+    headerHtml.includes('<header><strong>我的收藏</strong></header>') &&
+    headerHtml.includes('<header><strong>游玩历史</strong></header>') &&
+    headerHtml.includes('<footer><a routerLink="/games/notifications">查看全部动态</a></footer>') &&
+    headerHtml.includes('[queryParams]="{ tab: \'favorites\' }">查看全部收藏</a></footer>') &&
+    headerHtml.includes('[queryParams]="{ tab: \'recent\' }">查看全部历史</a></footer>') &&
+    headerScss.includes('.game-header-popover > header'),
+  'header 动态/收藏/历史 popovers must open with a bilibili-style title header and close with a full-list footer link'
+)
+assert(
+  /\.game-nav-game \{[\s\S]*?-webkit-line-clamp: 2;[\s\S]*?white-space: normal;[\s\S]*?\}/.test(headerScss) &&
+    !/\.game-nav-game \{[^}]*white-space: nowrap/.test(headerScss),
+  'header popover game titles must wrap up to two lines like the bilibili reference instead of a single ellipsis line'
+)
+assert(
   asyncStateTs.includes('let requestGeneration = 0') &&
     (asyncStateTs.match(/const generation = \+\+requestGeneration/g) || []).length >= 2 &&
     asyncStateTs.includes('const generation = requestGeneration') &&

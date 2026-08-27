@@ -182,6 +182,7 @@
           </a>
           @if (gameNavHover() === 'notifications') {
             <section class="game-header-popover game-header-notification-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="动态预览">
+              <header><strong>动态</strong></header>
               @if (isGameNavLoading('notifications') && !gameNavNotifications().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (notification of gameNavNotifications().slice(0, 5); track notification.id) {
                 <a class="game-nav-preview" [routerLink]="notification.game ? [ '/games', notification.game.uuid ] : '/games/notifications'">
@@ -198,6 +199,7 @@
                   }
                 </a>
               } @empty { @if (!isGameNavLoading('notifications')) { <p class="game-popover-empty">暂时没有新的动态</p> } }
+              <footer><a routerLink="/games/notifications">查看全部动态</a></footer>
             </section>
           }
         </div>
@@ -208,6 +210,7 @@
           </a>
           @if (gameNavHover() === 'favorites') {
             <section class="game-header-popover game-header-list-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="收藏预览">
+              <header><strong>我的收藏</strong></header>
               @if (isGameNavLoading('favorites') && !gameNavFavorites().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavFavorites().slice(0, 5); track game.uuid) {
                 <a class="game-nav-preview" [routerLink]="[ '/games', game.uuid ]">
@@ -224,6 +227,7 @@
                   }
                 </a>
               } @empty { @if (!isGameNavLoading('favorites')) { <p class="game-popover-empty">还没有收藏游戏</p> } }
+              <footer><a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }">查看全部收藏</a></footer>
             </section>
           }
         </div>
@@ -234,6 +238,7 @@
           </a>
           @if (gameNavHover() === 'history') {
             <section class="game-header-popover game-header-list-popover game-header-history-popover game-header-popover-anim" (pointerenter)="retainGameNavHover()" (pointerleave)="cancelGameNavHover()" aria-label="游玩历史预览">
+              <header><strong>游玩历史</strong></header>
               @if (isGameNavLoading('history') && !gameNavRecent().length) { <div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div><div class="game-nav-skeleton shimmer"></div> }
               @for (game of gameNavRecent().slice(0, 5); track game.uuid) {
                 <a class="game-nav-preview" [routerLink]="[ '/games', game.uuid ]">
@@ -250,6 +255,7 @@
                   }
                 </a>
               } @empty { @if (!isGameNavLoading('history')) { <p class="game-popover-empty">还没有游玩记录</p> } }
+              <footer><a routerLink="/games/library" [queryParams]="{ tab: 'recent' }">查看全部历史</a></footer>
             </section>
           }
         </div>

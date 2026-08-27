@@ -391,6 +391,7 @@
 
 .game-header-popover > header {
   align-items: baseline;
+  border-bottom: 1px solid var(--game-border);
   display: flex;
   justify-content: space-between;
   padding: 0.2rem 1.05rem 0.7rem;
@@ -491,13 +492,17 @@
 
 .game-nav-game {
   color: var(--game-text-primary);
+  display: -webkit-box;
   font-size: 0.82rem;
   font-weight: 600;
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   transition: color var(--game-dur-fast) var(--game-ease);
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .game-nav-time {
