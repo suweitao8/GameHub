@@ -5,6 +5,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
@@ -132,6 +133,7 @@ export class GameEventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   private readonly router = inject(Router)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly gamesService = inject(GamesService)
   private readonly destroyRef = inject(DestroyRef)
   readonly eventState = createAsyncState<GameEvent>()
@@ -210,7 +212,7 @@ export class GameEventDetailComponent implements OnInit {
     if (!slug) return
 
     if (!this.authService.isLoggedIn()) {
-      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
       return
     }
 

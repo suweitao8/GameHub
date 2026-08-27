@@ -1,270 +1,40 @@
-import { NgClass } from '@angular/common'
-import { AfterViewInit, Component, ElementRef, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core'
-import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { ActivatedRoute, Router, RouterLink } from '@angular/router'
-import { AuthService, Notifier, RedirectService, SessionStorageService, UserService } from '@app/core'
-import { HooksService } from '@app/core/plugins/hooks.service'
-import { LOGIN_PASSWORD_VALIDATOR, LOGIN_USERNAME_VALIDATOR } from '@app/shared/form-validators/login-validators'
-import { USER_OTP_TOKEN_VALIDATOR } from '@app/shared/form-validators/user-validators'
-import { FormReactive } from '@app/shared/shared-forms/form-reactive'
-import { FormReactiveService } from '@app/shared/shared-forms/form-reactive.service'
-import { InputTextComponent } from '@app/shared/shared-forms/input-text.component'
-import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
-import { getCompleteLocale, getExternalAuthHref } from '@peertube/peertube-core-utils'
-import { RegisteredExternalAuthConfig, ServerConfig, ServerErrorCode } from '@peertube/peertube-models'
-import { of, switchMap } from 'rxjs'
-import { environment } from '../../environments/environment'
-import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { AutofocusDirective } from '../shared/shared-main/common/autofocus.directive'
-import { PluginSelectorDirective } from '../shared/shared-main/plugins/plugin-selector.directive'
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
+import { LoginModalService } from './login-modal.service'
 
+/**
+ * /login 路由壳:仅负责打开登录弹框并透传查询参数。
+ * 真正的表单与登录逻辑在 LoginModalComponent 中,由 LoginModalService 打开。
+ * 直接访问 /login(深链/外部回调/静态入口)时,弹框浮在画布之上;
+ * 关闭弹框(非注册跳转)时兜底回首页。
+ */
 @Component({
   selector: 'my-login',
-  templateUrl: './login.component.html',
-  styleUrls: [ './login.component.scss' ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    RouterLink,
-    FormsModule,
-    PluginSelectorDirective,
-    ReactiveFormsModule,
-    AutofocusDirective,
-    NgClass,
-    InputTextComponent,
-    GlobalIconComponent,
-    AlertComponent
-  ]
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
-export class LoginComponent extends FormReactive implements OnInit, AfterViewInit {
-  protected formReactiveService = inject(FormReactiveService)
+export class LoginComponent implements OnInit {
   private route = inject(ActivatedRoute)
-  private modalService = inject(NgbModal)
-  private authService = inject(AuthService)
-  private userService = inject(UserService)
-  private redirectService = inject(RedirectService)
-  private notifier = inject(Notifier)
-  private hooks = inject(HooksService)
-  private storage = inject(SessionStorageService)
   private router = inject(Router)
-  private localeId = inject(LOCALE_ID)
-
-  private static SESSION_STORAGE_REDIRECT_URL_KEY = 'login-previous-url'
-
-  readonly forgotPasswordModal = viewChild<ElementRef>('forgotPasswordModal')
-  readonly otpTokenInput = viewChild<InputTextComponent>('otpTokenInput')
-  error: string = null
-  emailNotVerifiedError = false
-  passwordTooLongError = false
-
-  forgotPasswordEmail = ''
-
-  isAuthenticatedWithExternalAuth = false
-  externalAuthError = false
-  externalLogins: string[] = []
-
-  otpStep = false
-
-  private openedForgotPasswordModal: NgbModalRef
-  private serverConfig: ServerConfig
-
-  get signupAllowed () {
-    return this.serverConfig.signup.allowed === true
-  }
-
-  get instanceName () {
-    return this.serverConfig.instance.name
-  }
-
-  isEmailDisabled () {
-    return this.serverConfig.email.enabled === false
-  }
+  private loginModalService = inject(LoginModalService)
 
   ngOnInit () {
-    const snapshot = this.route.snapshot
+    const queryParams = this.route.snapshot.queryParams
 
-    // Avoid undefined errors when accessing form error properties
-    this.buildForm({
-      'username': LOGIN_USERNAME_VALIDATOR,
-      'password': LOGIN_PASSWORD_VALIDATOR,
-      'otp-token': {
-        VALIDATORS: [], // Will be set dynamically
-        MESSAGES: USER_OTP_TOKEN_VALIDATOR.MESSAGES
-      }
+    const ref = this.loginModalService.open({
+      returnUrl: queryParams['returnUrl'],
+      externalAuthToken: queryParams['externalAuthToken'],
+      externalAuthUsername: queryParams['username'],
+      externalAuthError: queryParams['externalAuthError'] !== undefined
     })
 
-    this.serverConfig = snapshot.data.serverConfig
+    ref.result
+      .then(() => {})
+      .catch(reason => {
+        // 弹框自行跳转注册页时不再兜底跳转,避免与弹框内导航竞争
+        if (reason === 'signup') return
 
-    if (snapshot.queryParams.externalAuthToken) {
-      this.loadExternalAuthToken(snapshot.queryParams.username, snapshot.queryParams.externalAuthToken)
-      return
-    }
-
-    if (snapshot.queryParams.externalAuthError) {
-      this.externalAuthError = true
-      return
-    }
-
-    const previousUrl = snapshot.queryParams.returnUrl || this.redirectService.getPreviousUrl()
-    if (previousUrl && previousUrl !== '/') {
-      this.storage.setItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY, previousUrl)
-    }
-  }
-
-  ngAfterViewInit () {
-    this.hooks.runAction('action:login.init', 'login')
-  }
-
-  getExternalLogins () {
-    return this.serverConfig.plugin.registeredExternalAuths
-  }
-
-  hasExternalLogins () {
-    return this.getExternalLogins().length !== 0
-  }
-
-  getAuthHref (auth: RegisteredExternalAuthConfig) {
-    return getExternalAuthHref(environment.apiUrl, auth)
-  }
-
-  login () {
-    this.error = null
-    this.emailNotVerifiedError = false
-    this.passwordTooLongError = false
-
-    const options = {
-      username: this.form.value['username'],
-      password: this.form.value['password'],
-      otpToken: this.form.value['otp-token']
-    }
-
-    this.authService.login(options)
-      .pipe(
-        switchMap(() => this.authService.userInformationLoaded),
-        switchMap(() => this.updateUserLanguageIfNeeded())
-      )
-      .subscribe({
-        next: () => {
-          const redirectUrl = this.storage.getItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
-          if (redirectUrl) {
-            this.storage.removeItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
-            return this.router.navigateByUrl(redirectUrl)
-          }
-
-          return this.redirectService.redirectToPreviousRoute({ reloadTab: this.shouldReloadTabOnLogin() })
-        },
-
-        error: err => {
-          this.handleError(err)
-        }
+        void this.router.navigateByUrl('/')
       })
-  }
-
-  askResetPassword () {
-    this.userService.askResetPassword(this.forgotPasswordEmail)
-      .subscribe({
-        next: () => {
-          const message = $localize`An email with the reset password instructions will be sent to ${this.forgotPasswordEmail}.
-The link will expire within 1 hour.`
-
-          this.notifier.success(message)
-          this.hideForgotPasswordModal()
-        },
-
-        error: err => this.notifier.handleError(err)
-      })
-  }
-
-  openForgotPasswordModal () {
-    this.openedForgotPasswordModal = this.modalService.open(this.forgotPasswordModal())
-  }
-
-  hideForgotPasswordModal () {
-    this.openedForgotPasswordModal.close()
-  }
-
-  private loadExternalAuthToken (username: string, token: string) {
-    this.isAuthenticatedWithExternalAuth = true
-
-    this.authService.login({ username, password: null, token })
-      .pipe(
-        switchMap(() => this.authService.userInformationLoaded),
-        switchMap(() => this.updateUserLanguageIfNeeded())
-      )
-      .subscribe({
-        next: () => {
-          const redirectUrl = this.storage.getItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
-          if (redirectUrl) {
-            this.storage.removeItem(LoginComponent.SESSION_STORAGE_REDIRECT_URL_KEY)
-            return this.router.navigateByUrl(redirectUrl)
-          }
-
-          this.redirectService.redirectToLatestSessionRoute({ reloadTab: this.shouldReloadTabOnLogin() })
-        },
-
-        error: err => {
-          this.handleError(err)
-          this.isAuthenticatedWithExternalAuth = false
-        }
-      })
-  }
-
-  private handleError (err: any) {
-    if (this.authService.isOTPMissingError(err)) {
-      this.otpStep = true
-
-      setTimeout(() => {
-        this.form.get('otp-token').setValidators(USER_OTP_TOKEN_VALIDATOR.VALIDATORS)
-        this.otpTokenInput().focus()
-      })
-
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.INVALID_GRANT) {
-      this.error = $localize`Incorrect username or password.`
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.ACCOUNT_BLOCKED) {
-      this.error = $localize`Your account is blocked.`
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.ACCOUNT_WAITING_FOR_APPROVAL) {
-      this.error = $localize`This account is awaiting approval by moderators.`
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.ACCOUNT_APPROVAL_REJECTED) {
-      this.error = $localize`Registration approval has been rejected for this account.`
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.TOO_LONG_PASSWORD) {
-      this.error = $localize`Your current password is too long. Please reset it.`
-      this.passwordTooLongError = true
-      return
-    }
-
-    if (err.body?.code === ServerErrorCode.EMAIL_NOT_VERIFIED) {
-      this.emailNotVerifiedError = true
-    }
-
-    this.error = err.message
-  }
-
-  private shouldReloadTabOnLogin () {
-    const user = this.authService.getUser()
-
-    return user.language && getCompleteLocale(user.language) !== getCompleteLocale(this.localeId)
-  }
-
-  private updateUserLanguageIfNeeded () {
-    if (this.authService.getUser().language) {
-      return this.userService.updateInterfaceLanguage(this.authService.getUser().language)
-    }
-
-    return of(true)
   }
 }

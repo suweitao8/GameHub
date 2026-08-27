@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, input, output, signal, WritableSignal, Input } from '@angular/core'
 import { Router, RouterLink } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { Game, GameCommunity, GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { getGameActionErrorMessage } from './game-action-feedback'
@@ -101,6 +102,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 export class GameCommunityPanelComponent {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
 
   /** Shared community signal, owned by the host. Read/written in place. */
@@ -208,7 +210,7 @@ export class GameCommunityPanelComponent {
 
   private requireLogin () {
     if (this.authService.isLoggedIn()) return true
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
     return false
   }
 }

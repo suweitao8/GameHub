@@ -5,7 +5,6 @@ import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, Redirec
 import { QuickSettingsModalComponent } from '@app/menu/quick-settings-modal.component'
 import { ActorAvatarComponent } from '@app/shared/shared-actor-image/actor-avatar.component'
 import { PeertubeModalService } from '@app/shared/shared-main/peertube-modal/peertube-modal.service'
-import { LoginLinkComponent } from '@app/shared/shared-main/users/login-link.component'
 import { SignupLabelComponent } from '@app/shared/shared-main/users/signup-label.component'
 import { NgbDropdown, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
 import { findAppropriateImage } from '@peertube/peertube-core-utils'
@@ -20,6 +19,7 @@ import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
 import { Game, GameNotification, GamesService } from '@app/+games/games.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { GAME_FEATURES } from '@app/+games/shared'
 
 type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
@@ -33,7 +33,6 @@ type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
     CommonModule,
     ActorAvatarComponent,
     SignupLabelComponent,
-    LoginLinkComponent,
     QuickSettingsModalComponent,
     GlobalIconComponent,
     RouterLink,
@@ -54,6 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private menu = inject(MenuService)
   private headerService = inject(HeaderService)
   private gamesService = inject(GamesService)
+  private loginModalService = inject(LoginModalService)
   readonly gameNotificationBadge = inject(GameNotificationBadgeService)
 
   /** 创作中心功能开关，模板用此属性控制入口显隐 */
@@ -566,7 +566,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     event.preventDefault()
     this.cancelGameAvatarHover()
     const accountId = this.user?.account?.id
-    void this.router.navigate(accountId ? [ '/games/author', accountId ] : [ '/login' ])
+    if (accountId) {
+      void this.router.navigate([ '/games/author', accountId ])
+      return
+    }
+
+    this.openLoginModal()
   }
 
   openGameUpload (event: MouseEvent) {
@@ -578,7 +583,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return
     }
 
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: '/games/upload' } })
+    // 登录成功后直接回跳投稿页,与原 /login returnUrl 行为一致
+    this.loginModalService.open({ returnUrl: '/games/upload' })
+  }
+
+  openLoginModal () {
+    this.loginModalService.open({ inPlace: true })
   }
 
   isGameUploadRoute () {

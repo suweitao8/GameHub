@@ -150,8 +150,8 @@ assert(routes.includes('GameAuthorComponent'), 'routes must register author spac
 assert(routes.includes('GamePlayComponent'), 'routes must register game play')
 assert(
   routes.includes("path: 'upload'") && routes.includes('GameUploadComponent') &&
-    gameLoginGuardTs.includes("queryParams: { returnUrl: state.url }"),
-  'game upload must stay registered behind a login guard that preserves the requested return URL'
+    gameLoginGuardTs.includes('loginModalService.open({ returnUrl: state.url })'),
+  'game upload must stay registered behind a login guard that opens the login modal with the requested return URL preserved'
 )
 assert(
   submitHeaderHtml.includes('(click)="openGameUpload($event)"') &&
@@ -159,7 +159,7 @@ assert(
     submitHeaderTs.includes('openGameUpload (event: MouseEvent)') &&
     submitHeaderTs.includes('event.button !== 0') &&
     submitHeaderTs.includes("this.router.navigate([ '/games/upload' ])") &&
-    submitHeaderTs.includes("queryParams: { returnUrl: '/games/upload' }") &&
+    submitHeaderTs.includes("loginModalService.open({ returnUrl: '/games/upload' })") &&
     submitHeaderScss.includes(':host-context(.game-experience) .game-header-right') &&
     submitHeaderScss.includes('z-index: 2;'),
   'GameHub submit action must explicitly preserve the upload return URL and stay above centered navigation'
@@ -618,7 +618,7 @@ const gameCrudUpdateTs = read('server/core/controllers/api/games/game-crud-updat
 const legacyGamePackageSpec = read('docs/superpowers/specs/2026-07-18-html-game-package-upload-design.md')
 const legacyGamePackagePlan = read('docs/superpowers/plans/2026-07-18-html-game-package-upload-plan.md')
 const gameRequirementsDoc = read('support/doc/development/gamehub-requirements-bilibili-benchmark.md')
-const loginHtml = read('client/src/app/+login/login.component.html')
+const loginHtml = read('client/src/app/+login/login-modal.component.html')
 const gameAccountHomeTs = read('client/src/app/game-account-home.component.ts')
 const gameAccountSettingsTs = read('client/src/app/game-account-settings.component.ts')
 const gameNotFoundTs = read('client/src/app/game-not-found.component.ts')
@@ -1090,13 +1090,14 @@ assert(
     gameRequirementsDoc.includes('禁止 ZIP 和多文件资源包'),
   'legacy ZIP documents must be explicitly marked as historical and point to the current single-HTML contract'
 )
-assert(!loginHtml.includes('上传、编辑和下载'), 'login page must not promise game downloads')
+assert(!loginHtml.includes('上传、编辑和下载'), 'login modal must not promise game downloads')
 assert(
   loginHtml.includes('GameHub 账户') &&
-    loginHtml.includes('游玩 · 创作 · 分享') &&
+    loginHtml.includes('开放注册') &&
+    loginHtml.includes('game-auth-modal-close') &&
     !loginHtml.includes('GAMEHUB ACCOUNT') &&
     !loginHtml.includes('PLAY · CREATE · SHARE'),
-  'login page labels must stay localized for the Chinese GameHub experience'
+  'login modal labels must stay localized for the Chinese GameHub experience'
 )
 const gameEyebrowStyleStart = gameCommunityTokens.indexOf('.game-eyebrow {')
 const gameEyebrowStyleEnd = gameCommunityTokens.indexOf('}', gameEyebrowStyleStart)

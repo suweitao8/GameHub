@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output, signal } from '@angular/core'
 import { Router } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { GamesService } from './games.service'
 import { getGameActionErrorMessage } from './game-action-feedback'
 
@@ -16,8 +17,10 @@ import { getGameActionErrorMessage } from './game-action-feedback'
   styleUrl: './game-report-dialog.component.scss',
   template: `
     @if (open()) {
-      <div class="report-dialog-overlay" (click)="requestClose()">
-        <div class="report-dialog" (click)="$event.stopPropagation()">
+      <div class="report-dialog-overlay" role="button" tabindex="-1"
+           (click)="requestClose()" (keydown.escape)="requestClose()">
+        <div class="report-dialog" role="dialog" tabindex="-1"
+             (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
           <div class="report-dialog-header">
             <h3>举报游戏</h3>
             <button type="button" class="report-close-btn" (click)="requestClose()">&times;</button>
@@ -54,6 +57,7 @@ import { getGameActionErrorMessage } from './game-action-feedback'
 export class GameReportDialogComponent {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
 
   readonly reportReasons = [
@@ -68,26 +72,28 @@ export class GameReportDialogComponent {
   readonly open = input(false)
 
   readonly openChange = output<boolean>()
-  readonly close = output<void>()
-  readonly submitted = output<void>()
+  readonly closed = output()
+  readonly submitted = output()
 
   readonly reason = signal('')
   readonly predefined = signal<string[]>([])
   readonly submitting = signal(false)
   readonly feedback = signal('')
 
-  // 当 open 变为 true 时重置表单（替代原 setter 副作用）
-  private readonly openEffect = effect(() => {
-    if (this.open()) {
-      this.reason.set('')
-      this.predefined.set([])
-      this.feedback.set('')
-    }
-  })
+  constructor () {
+    // 当 open 变为 true 时重置表单（替代原 setter 副作用）
+    effect(() => {
+      if (this.open()) {
+        this.reason.set('')
+        this.predefined.set([])
+        this.feedback.set('')
+      }
+    })
+  }
 
   requestClose () {
     this.openChange.emit(false)
-    this.close.emit()
+    this.closed.emit()
   }
 
   togglePredefined (item: string) {
@@ -124,7 +130,7 @@ export class GameReportDialogComponent {
 
   private requireLogin () {
     if (this.authService.isLoggedIn()) return true
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
     return false
   }
 }

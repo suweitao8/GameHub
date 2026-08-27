@@ -5,6 +5,7 @@ import type { GameActivity } from './games.service'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 
 @Component({
   selector: 'my-game-activity-feed',
@@ -97,6 +98,7 @@ import { AuthService } from '@app/core/auth/auth.service'
 export class GameActivityFeedComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
   activities = signal<GameActivity[]>([])
   tab = signal<'following' | 'public'>('public')
@@ -116,7 +118,7 @@ export class GameActivityFeedComponent implements OnInit {
   setTab (tab: 'following' | 'public') {
     if (this.tab() === tab) return
     if (tab === 'following' && !this.authService.isLoggedIn()) {
-      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
       return
     }
     this.tab.set(tab)

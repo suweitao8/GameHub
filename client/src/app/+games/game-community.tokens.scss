@@ -10,7 +10,10 @@
    组件内的 @use 只是为了局部编译安全，值以这里为准。
    ========================================================================== */
 
-.game-experience {
+/* 令牌同时发射到 body:NgbModal/ngbDropdown 等浮层挂在 body 下,
+   不在 .game-experience 容器内,需要从 body 继承同一份令牌 */
+.game-experience,
+body {
   /* ---- 画布与表面 ---- */
   --game-page-bg: #f4f5fa;
   --game-surface: #ffffff;

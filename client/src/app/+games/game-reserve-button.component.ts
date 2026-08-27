@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal, input, OnDestroy } from '@angular/core'
 import { Router } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { CommonModule } from '@angular/common'
 import { GamesService } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -30,6 +31,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
 export class GameReserveButtonComponent implements OnDestroy {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
   uuid = input.required<string>()
   reserved = signal(false)
@@ -70,7 +72,7 @@ export class GameReserveButtonComponent implements OnDestroy {
   toggleReserve () {
     if (this.loading()) return
     if (!this.authService.isLoggedIn()) {
-      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
       return
     }
     if (this.reserved()) {

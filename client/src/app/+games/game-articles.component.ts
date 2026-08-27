@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'
 import { Router, RouterLink } from '@angular/router'
 import { map } from 'rxjs/operators'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { createAsyncState } from './shared'
 import { GamesService, type GameArticle } from './games.service'
@@ -72,6 +73,7 @@ import { GamesService, type GameArticle } from './games.service'
 export class GameArticlesComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
   readonly articlesState = createAsyncState<GameArticle[]>()
   /** 模板兼容：直接返回 data，空数组兜底 */
@@ -94,7 +96,7 @@ export class GameArticlesComponent implements OnInit {
 
   startCreate () {
     if (!this.authService.isLoggedIn()) {
-      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: '/games/articles/new' } })
+      this.loginModalService.open({ returnUrl: '/games/articles/new', inPlace: true })
       return
     }
 

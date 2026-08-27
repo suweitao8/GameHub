@@ -1,5 +1,6 @@
 import { Injectable, inject, OnDestroy, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { Router } from '@angular/router'
 import type { GameChatMessage } from '@peertube/peertube-models'
 import { getGameActionErrorMessage } from './game-action-feedback'
@@ -11,6 +12,7 @@ import { GameCommunityService } from './services/game-community.service'
 export class GameDiscussStore implements OnDestroy {
   private readonly communityService = inject(GameCommunityService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
 
   readonly messages = signal<GameChatMessage[]>([])
@@ -165,7 +167,7 @@ export class GameDiscussStore implements OnDestroy {
 
   private requireLogin () {
     if (this.authService.isLoggedIn()) return true
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
     return false
   }
 }

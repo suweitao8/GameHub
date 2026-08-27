@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { ActivatedRoute, Router } from '@angular/router'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 import { GameCardComponent } from './game-card.component'
@@ -19,6 +20,7 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute)
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
   private routeSubscription: Subscription | undefined
   private currentAccountId = ''
@@ -65,7 +67,7 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
     const current = this.author()
     if (!current || this.followLoading()) return
     if (!this.authService.isLoggedIn()) {
-      void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+      this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
       return
     }
     this.actionFeedback.set('')

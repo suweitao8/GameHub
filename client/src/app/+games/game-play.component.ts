@@ -5,6 +5,7 @@ import {
 } from '@angular/core'
 import { DomSanitizer, Meta, SafeResourceUrl, Title } from '@angular/platform-browser'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameCommunity, GameRelatedGame } from './games.service'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -38,6 +39,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router)
   private readonly http = inject(HttpClient)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly gamesService = inject(GamesService)
   private readonly sanitizer = inject(DomSanitizer)
   private readonly meta = inject(Meta, { optional: true })
@@ -330,7 +332,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   private requireLogin () {
     if (this.authService.isLoggedIn()) return true
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
     return false
   }
 }

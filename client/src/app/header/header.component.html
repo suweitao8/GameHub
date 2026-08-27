@@ -49,8 +49,10 @@
         </a>
       }
 
-      <my-login-link class="login-label" className="peertube-button-link primary-button w-100 ellipsis"></my-login-link>
-      <my-login-link class="login-icon" className="peertube-button-link primary-button icon-only w-100 ellipsis" icon="true" label=""></my-login-link>
+      <button type="button" i18n class="login-label peertube-button-link primary-button w-100 ellipsis margin-button" (click)="openLoginModal()">登录</button>
+      <button type="button" i18n-title title="登录" aria-label="登录" class="login-icon peertube-button-link primary-button icon-only w-100 ellipsis margin-button" (click)="openLoginModal()">
+        <my-global-icon iconName="sign-in" aria-hidden="true"></my-global-icon>
+      </button>
     } @else {
       <div
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"

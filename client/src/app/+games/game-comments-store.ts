@@ -1,5 +1,6 @@
 import { Injectable, inject, OnDestroy, signal } from '@angular/core'
 import { AuthService } from '@app/core/auth/auth.service'
+import { LoginModalService } from '@app/+login/login-modal.service'
 import { Router } from '@angular/router'
 import { GamesService, GameComment } from './games.service'
 import { getGameActionErrorMessage } from './game-action-feedback'
@@ -15,6 +16,7 @@ import { buildGameAvatarDataUrl } from '../shared/game-avatar'
 export class GameCommentsStore implements OnDestroy {
   private readonly gamesService = inject(GamesService)
   private readonly authService = inject(AuthService)
+  private readonly loginModalService = inject(LoginModalService)
   private readonly router = inject(Router)
 
   readonly comments = signal<GameComment[]>([])
@@ -359,7 +361,7 @@ export class GameCommentsStore implements OnDestroy {
 
   private requireLogin () {
     if (this.authService.isLoggedIn()) return true
-    void this.router.navigate([ '/login' ], { queryParams: { returnUrl: this.router.url } })
+    this.loginModalService.open({ returnUrl: this.router.url, inPlace: true })
     return false
   }
 }

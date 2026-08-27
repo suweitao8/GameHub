@@ -1,0 +1,340 @@
+@use '_variables' as *;
+@use '_mixins' as *;
+@use '_form-mixins' as *;
+@use '../+games/game-community.tokens';
+
+/* ===========================================================================
+   GameHub 登录弹框样式
+   对齐「靛蓝霓虹·轻画布」设计系统:白浮卡 + 大圆角 + 统一阴影 + 品牌签名
+   参考 B 站登录弹窗形态:右上角关闭、双按钮行、其他方式登录、底部提示条
+   ======================================================================== */
+
+::ng-deep .game-auth-modal {
+  .modal-content {
+    background: var(--game-surface);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-md);
+    box-shadow: var(--game-shadow-popover);
+    overflow: hidden;
+    padding: 0;
+  }
+}
+
+:host {
+  /* 覆盖 PeerTube 输入框变量,让 my-input-text 自动对齐 GameHub 规范 */
+  --input-bg: var(--game-surface-alt);
+  --input-border-color: var(--game-border);
+  --input-border-radius: var(--game-radius-xs);
+  --input-placeholder-color: var(--game-text-hint);
+
+  display: block;
+  width: min(420px, calc(100vw - 40px));
+}
+
+.game-auth-modal-header {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  padding: 1.4rem 1.5rem 0.6rem;
+}
+
+.game-auth-modal-heading h1 {
+  color: var(--game-text-primary);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.game-auth-modal-close {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-hint);
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  margin: -4px -6px 0 0;
+  transition: background-color 140ms ease, color 140ms ease;
+  width: 32px;
+
+  &:hover {
+    background: var(--game-surface-alt);
+    color: var(--game-text-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-brand);
+    outline-offset: 2px;
+  }
+
+  my-global-icon {
+    height: 18px;
+    width: 18px;
+  }
+}
+
+.game-auth-modal-body {
+  display: flex;
+  flex-direction: column;
+  padding: 0.25rem 1.5rem 1.35rem;
+}
+
+/* ---------------------------------------------------------------------------
+   表单字段:对齐投稿页字段规范(粗体小标签 + 灰底输入 + 品牌 focus)
+   --------------------------------------------------------------------------- */
+:host label {
+  color: var(--game-text-primary);
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+:host my-input-text {
+  display: block;
+}
+
+.game-auth-label-row {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+
+.game-auth-forgot {
+  background: transparent;
+  border: 0;
+  color: var(--game-brand);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  transition: color 140ms ease;
+
+  &:hover {
+    color: var(--game-brand-hover);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-brand);
+    outline-offset: 2px;
+  }
+}
+
+/* 文本/邮箱输入框:灰底 + 小圆角,聚焦时白底 + 品牌色边框 + 柔和 ring */
+:host input[type='text'],
+:host input[type='email'] {
+  background: var(--game-surface-alt);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-primary);
+  font-size: 0.92rem;
+  padding: 0.6rem 0.75rem;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  width: 100%;
+
+  &::placeholder {
+    color: var(--game-text-hint);
+  }
+
+  &:focus {
+    background: var(--game-surface);
+    border-color: var(--game-brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
+    outline: 0;
+  }
+}
+
+:host input.input-error {
+  border-color: var(--game-danger);
+}
+
+:host .form-error {
+  color: var(--game-danger);
+  font-size: 0.8rem;
+  margin-top: 0.4rem;
+}
+
+/* ---------------------------------------------------------------------------
+   动作行:创建账户(描边) + 登录(品牌实底),参考 B 站双按钮并排
+   --------------------------------------------------------------------------- */
+.game-auth-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.game-auth-signup {
+  border: 1px solid var(--game-border-strong);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-secondary);
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 44px;
+  transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
+
+  &:hover {
+    background: var(--game-brand-soft);
+    border-color: var(--game-brand);
+    color: var(--game-brand);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--game-brand);
+    outline-offset: 3px;
+  }
+}
+
+.game-auth-submit {
+  background: var(--game-brand);
+  border: 0;
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-inverse);
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 44px;
+  transition: background-color 160ms ease, opacity 160ms ease;
+
+  &:hover:not(:disabled) {
+    background: var(--game-brand-hover);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--game-brand);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.game-auth-processing {
+  color: var(--game-text-secondary);
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   错误告警:危险色令牌(原 my-alert 走 PeerTube 主题变量,与新风格冲突)
+   --------------------------------------------------------------------------- */
+:host my-alert {
+  display: block;
+  margin-bottom: 1.1rem;
+}
+
+:host .alert.alert-danger {
+  background: var(--game-danger-soft);
+  border: 1px solid color-mix(in srgb, var(--game-danger) 32%, transparent);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-danger);
+
+  .link-primary {
+    color: inherit !important;
+    font-weight: 600;
+    text-decoration: none !important;
+
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   其他方式登录:横排入口(无外部登录时整块隐藏)
+   --------------------------------------------------------------------------- */
+.external-login-blocks {
+  border-top: 1px solid var(--game-border);
+  margin-top: 1.35rem;
+  padding-top: 1.1rem;
+  text-align: center;
+}
+
+.game-auth-external-label {
+  color: var(--game-text-hint);
+  font-size: 0.82rem;
+  margin-bottom: 0.6rem;
+}
+
+.game-auth-external-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.external-login-block {
+  align-items: center;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-secondary);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 1rem;
+  transition: background-color 160ms ease, border-color 160ms ease;
+
+  @include disable-default-a-behaviour;
+
+  &:hover {
+    background: var(--game-brand-soft);
+    border-color: var(--game-brand);
+    color: var(--game-brand);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   底部提示条:软靛蓝底,对齐 B 站登录弹窗底部的协议文案区
+   --------------------------------------------------------------------------- */
+.game-auth-notice {
+  background: var(--game-brand-soft);
+  border-top: 1px solid var(--game-brand-border);
+  color: var(--game-text-secondary);
+  line-height: 1.6;
+  padding: 0.85rem 1.5rem 1rem;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  .link-primary {
+    color: var(--game-brand);
+    font-weight: 600;
+    /* PeerTube 全局 .link-primary 用 !important 强制主题色下划线,这里同步 !important 覆盖 */
+    text-decoration: underline !important;
+    text-decoration-color: transparent !important;
+    text-underline-offset: 3px;
+    transition: color 140ms ease, text-decoration-color 140ms ease;
+
+    &:hover {
+      color: var(--game-brand-hover);
+      text-decoration-color: var(--game-brand-hover) !important;
+    }
+  }
+}
+
+.game-auth-notice-title {
+  color: var(--game-text-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   无障碍:尊重"减少动态"偏好
+   --------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :host input,
+  :host .peertube-button,
+  .external-login-block,
+  .game-auth-modal-close,
+  .game-auth-forgot {
+    transition: none;
+  }
+}
