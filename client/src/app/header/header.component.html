@@ -44,9 +44,9 @@
       }
 
       @if (isRegistrationAllowed()) {
-        <a routerLink="/signup" class="peertube-button-link secondary-button w-100 ellipsis margin-button create-account-button">
+        <button type="button" class="peertube-button-link secondary-button w-100 ellipsis margin-button create-account-button" (click)="openRegisterModal()">
           <my-signup-label [requiresApproval]="requiresApproval"></my-signup-label>
-        </a>
+        </button>
       }
 
       <button type="button" i18n class="login-label peertube-button-link primary-button w-100 ellipsis margin-button" (click)="openLoginModal()">登录</button>

@@ -4,7 +4,7 @@ import { Injectable, inject } from '@angular/core'
 import { RestExtractor, UserService } from '@app/core'
 import { UserRegister, UserRegistrationRequest, UserRegistration as UserRegistrationServerModel } from '@peertube/peertube-models'
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SignupService {
   private authHttp = inject(HttpClient)
   private restExtractor = inject(RestExtractor)

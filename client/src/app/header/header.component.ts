@@ -19,7 +19,7 @@ import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
 import { Game, GameNotification, GamesService } from '@app/+games/games.service'
-import { LoginModalService } from '@app/+login/login-modal.service'
+import { AuthModalService } from '@app/+login/auth-modal.service'
 import { GAME_FEATURES } from '@app/+games/shared'
 
 type GameHeaderPopup = 'notifications' | 'favorites' | 'history' | 'creator'
@@ -53,7 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private menu = inject(MenuService)
   private headerService = inject(HeaderService)
   private gamesService = inject(GamesService)
-  private loginModalService = inject(LoginModalService)
+  private authModal = inject(AuthModalService)
   readonly gameNotificationBadge = inject(GameNotificationBadgeService)
 
   /** 创作中心功能开关，模板用此属性控制入口显隐 */
@@ -584,11 +584,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
 
     // 登录成功后直接回跳投稿页,与原 /login returnUrl 行为一致
-    this.loginModalService.open({ returnUrl: '/games/upload' })
+    this.authModal.openLogin({ returnUrl: '/games/upload' })
+  }
+
+  openRegisterModal () {
+    this.authModal.openRegister()
   }
 
   openLoginModal () {
-    this.loginModalService.open({ inPlace: true })
+    this.authModal.openLogin({ inPlace: true })
   }
 
   isGameUploadRoute () {

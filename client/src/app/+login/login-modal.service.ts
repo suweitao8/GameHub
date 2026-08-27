@@ -1,31 +1,17 @@
 import { Injectable, inject } from '@angular/core'
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap'
-import { LoginModalComponent } from './login-modal.component'
+import { AuthModalService, LoginModalOptions } from './auth-modal.service'
 
-export interface LoginModalOptions {
-  /** 登录成功后的回跳地址(路由壳/守卫透传) */
-  returnUrl?: string
-  /** 外部登录回调参数(服务端重定向回 /login 时由路由壳透传) */
-  externalAuthToken?: string
-  externalAuthUsername?: string
-  externalAuthError?: boolean
-  /** 在当前页原位打开:登录成功后仅关闭弹框,不触发跳转 */
-  inPlace?: boolean
-}
-
+/**
+ * 登录弹框打开入口(守卫/头部/游戏域使用)。
+ * 实际打开逻辑统一在 AuthModalService,以便登录/注册弹框互相叠加。
+ */
 @Injectable({ providedIn: 'root' })
 export class LoginModalService {
-  private ngbModal = inject(NgbModal)
+  private authModal = inject(AuthModalService)
 
   open (options: LoginModalOptions = {}) {
-    const ref = this.ngbModal.open(LoginModalComponent, {
-      backdrop: 'static',
-      centered: true,
-      windowClass: 'game-auth-modal'
-    })
-
-    Object.assign(ref.componentInstance, options)
-
-    return ref
+    return this.authModal.openLogin(options)
   }
 }
+
+export type { LoginModalOptions }

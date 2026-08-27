@@ -159,7 +159,7 @@ assert(
     submitHeaderTs.includes('openGameUpload (event: MouseEvent)') &&
     submitHeaderTs.includes('event.button !== 0') &&
     submitHeaderTs.includes("this.router.navigate([ '/games/upload' ])") &&
-    submitHeaderTs.includes("loginModalService.open({ returnUrl: '/games/upload' })") &&
+    submitHeaderTs.includes("authModal.openLogin({ returnUrl: '/games/upload' })") &&
     submitHeaderScss.includes(':host-context(.game-experience) .game-header-right') &&
     submitHeaderScss.includes('z-index: 2;'),
   'GameHub submit action must explicitly preserve the upload return URL and stay above centered navigation'

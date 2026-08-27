@@ -1,218 +1,29 @@
-import { CdkStep, CdkStepperNext, CdkStepperPrevious } from '@angular/cdk/stepper'
-import { Component, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core'
-import { FormGroup } from '@angular/forms'
-import { ActivatedRoute, RouterLink } from '@angular/router'
-import { AuthService, ServerService } from '@app/core'
-import { HooksService } from '@app/core/plugins/hooks.service'
-import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
-import {
-  UserRegistrationState,
-  PeerTubeProblemDocument,
-  ServerConfig,
-  ServerStats,
-  UserRegister,
-  UserRegistration
-} from '@peertube/peertube-models'
-import { LoaderComponent } from '../../shared/shared-main/common/loader.component'
-import { SignupLabelComponent } from '../../shared/shared-main/users/signup-label.component'
-import { SignupStepTitleComponent } from '../shared/signup-step-title.component'
-import { SignupSuccessBeforeEmailComponent } from '../shared/signup-success-before-email.component'
-import { SignupService } from '../shared/signup.service'
-import { RegisterStepperComponent } from './register-stepper.component'
-import { RegisterStepAboutComponent } from './steps/register-step-about.component'
-import { RegisterStepChannelComponent } from './steps/register-step-channel.component'
-import { RegisterStepTermsComponent } from './steps/register-step-terms.component'
-import { RegisterStepUserComponent } from './steps/register-step-user.component'
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core'
+import { Router } from '@angular/router'
+import { AuthModalService } from '@app/+login/auth-modal.service'
 
+/**
+ * /signup 路由壳:仅负责打开注册弹框并保持旧地址可用。
+ * 真正的注册向导在 RegisterModalComponent 中,由 AuthModalService 打开。
+ * 直接访问 /signup(深链/旧链接)时,弹框浮在画布之上;关闭弹框时兜底回首页。
+ */
 @Component({
   selector: 'my-register',
-  templateUrl: './register.component.html',
-  styleUrls: [ './register.component.scss' ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [
-    SignupLabelComponent,
-    RegisterStepperComponent,
-    CdkStep,
-    SignupStepTitleComponent,
-    RegisterStepAboutComponent,
-    RouterLink,
-    CdkStepperNext,
-    RegisterStepTermsComponent,
-    CdkStepperPrevious,
-    RegisterStepUserComponent,
-    RegisterStepChannelComponent,
-    LoaderComponent,
-    SignupSuccessBeforeEmailComponent,
-    AlertComponent
-  ]
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class RegisterComponent implements OnInit {
-  private route = inject(ActivatedRoute)
-  private authService = inject(AuthService)
-  private signupService = inject(SignupService)
-  private server = inject(ServerService)
-  private hooks = inject(HooksService)
-
-  readonly lastStep = viewChild<CdkStep>('lastStep')
-  signupError: string
-  signupSuccess = false
-
-  videoUploadDisabled: boolean
-  videoQuota: number
-
-  formStepTerms: FormGroup
-  formStepUser: FormGroup
-  formStepChannel: FormGroup
-
-  defaultPreviousStepButtonLabel = $localize`Go to the previous step`
-  defaultNextStepButtonLabel = $localize`Go to the next step`
-  stepUserButtonLabel = this.defaultNextStepButtonLabel
-
-  signupDisabled = false
-
-  serverStats: ServerStats
-
-  private serverConfig: ServerConfig
-  private _requiresApproval: boolean
-
-  get requiresEmailVerification () {
-    return this.serverConfig.signup.requiresEmailVerification
-  }
-
-  get requiresApproval () {
-    return this._requiresApproval ?? this.serverConfig.signup.requiresApproval
-  }
-
-  set requiresApproval (value: boolean) {
-    this._requiresApproval = value
-  }
-
-  get minimumAge () {
-    return this.serverConfig.signup.minimumAge
-  }
-
-  get instanceName () {
-    return this.serverConfig.instance.name
-  }
+  private router = inject(Router)
+  private authModal = inject(AuthModalService)
 
   ngOnInit () {
-    this.serverConfig = this.route.snapshot.data.serverConfig
+    const ref = this.authModal.openRegister()
 
-    if (this.serverConfig.signup.allowed === false || this.serverConfig.signup.allowedForCurrentIP === false) {
-      this.signupDisabled = true
-      return
-    }
-
-    this.videoQuota = this.serverConfig.user.videoQuota
-    this.videoUploadDisabled = this.videoQuota === 0
-
-    this.stepUserButtonLabel = this.videoUploadDisabled
-      ? $localize`:Button on the registration form to finalize the account and channel creation:Signup`
-      : this.defaultNextStepButtonLabel
-
-    this.server.getServerStats()
-      .subscribe(stats => this.serverStats = stats)
-
-    this.hooks.runAction('action:signup.register.init', 'signup')
-  }
-
-  hasSameChannelAndAccountNames () {
-    return this.getUsername() === this.getChannelName()
-  }
-
-  getUsername () {
-    if (!this.formStepUser) return undefined
-
-    return this.formStepUser.value['username']
-  }
-
-  getChannelName () {
-    if (!this.formStepChannel) return undefined
-
-    return this.formStepChannel.value['name']
-  }
-
-  onTermsFormBuilt (form: FormGroup) {
-    this.formStepTerms = form
-  }
-
-  onUserFormBuilt (form: FormGroup) {
-    this.formStepUser = form
-  }
-
-  onChannelFormBuilt (form: FormGroup) {
-    this.formStepChannel = form
-  }
-
-  skipChannelCreation () {
-    this.formStepChannel.reset()
-    this.lastStep().select()
-
-    this.signup()
-  }
-
-  async signup () {
-    this.signupError = undefined
-
-    const termsForm = this.formStepTerms.value
-    const userForm = this.formStepUser.value
-    const channelForm = this.formStepChannel?.value
-
-    const channel = this.formStepChannel?.value?.name
-      ? { name: channelForm?.name, displayName: channelForm?.displayName }
-      : undefined
-
-    const body = await this.hooks.wrapObject(
-      {
-        username: userForm.username,
-        password: userForm.password,
-        email: userForm.email,
-        displayName: userForm.displayName,
-
-        registrationReason: termsForm.registrationReason,
-
-        channel
-      },
-      'signup',
-      'filter:api.signup.registration.create.params'
-    )
-
-    const obs = this.requiresApproval
-      ? this.signupService.requestSignup(body)
-      : this.signupService.signup(body)
-
-    obs.subscribe({
-      next: (registration) => {
-        if ('state' in registration) {
-          const { state } = registration as UserRegistration
-          this.requiresApproval = state.id === UserRegistrationState.PENDING
-        }
-
-        if (this.requiresEmailVerification || this.requiresApproval) {
-          this.signupSuccess = true
-          return
-        }
-
-        // Auto login
-        this.autoLogin(body)
-      },
-
-      error: err => {
-        this.signupError = (err.body as PeerTubeProblemDocument)?.detail || err.message
-      }
-    })
-  }
-
-  private autoLogin (body: UserRegister) {
-    this.authService.login({ username: body.username, password: body.password })
-      .subscribe({
-        next: () => {
-          this.signupSuccess = true
-        },
-
-        error: err => {
-          this.signupError = err.message
-        }
+    ref.result
+      .then(() => {})
+      .catch(() => {
+        // 关闭弹框或注册完成(已自动登录)后,都回首页离开注册路由
+        void this.router.navigateByUrl('/')
       })
   }
 }

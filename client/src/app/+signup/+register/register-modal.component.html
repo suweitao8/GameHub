@@ -1,0 +1,123 @@
+<header class="game-auth-modal-header">
+  <div class="game-auth-modal-heading">
+    <p class="game-eyebrow">GameHub 账户</p>
+    <h1 i18n>创建 GameHub 账户</h1>
+  </div>
+
+  <button
+    type="button" class="game-auth-modal-close" (click)="dismiss()"
+    i18n-title title="Close this dialog" i18n-aria-label aria-label="关闭注册弹框"
+  >
+    <my-global-icon iconName="cross" aria-hidden="true"></my-global-icon>
+  </button>
+</header>
+
+<div class="game-auth-modal-body">
+  @if (!ready) {
+    <div class="game-register-done">
+      <my-loader [loading]="true"></my-loader>
+    </div>
+  } @else if (signupDisabled) {
+    <my-alert type="warning" i18n>GameHub 当前暂未开放注册。</my-alert>
+  } @else {
+    @if (requiresApproval) {
+      <p class="game-auth-modal-note" i18n>
+        提交注册后，GameHub 管理员会审核你的申请，通过后即可登录。
+      </p>
+    }
+
+    <my-register-stepper linear>
+      <cdk-step i18n-label label="社区规范" [stepControl]="formStepTerms" [editable]="!signupSuccess">
+        <my-register-step-terms
+          [hasCodeOfConduct]="false" [minimumAge]="minimumAge" [instanceName]="'GameHub'"
+          [requiresApproval]="requiresApproval"
+          (formBuilt)="onTermsFormBuilt($event)"
+        ></my-register-step-terms>
+
+        <div class="game-auth-actions">
+          <button type="button" class="game-auth-switch-link" i18n (click)="openLogin()">
+            已有账户？直接登录
+          </button>
+          <button class="game-auth-submit" cdkStepperNext [disabled]="!formStepTerms || !formStepTerms.valid" i18n>
+            下一步
+          </button>
+        </div>
+      </cdk-step>
+
+      <cdk-step i18n-label label="账户资料" [stepControl]="formStepUser" [editable]="!signupSuccess">
+        <my-register-step-user
+          (formBuilt)="onUserFormBuilt($event)"
+          [videoUploadDisabled]="videoUploadDisabled" [requiresEmailVerification]="requiresEmailVerification"
+        ></my-register-step-user>
+
+        <div class="game-auth-actions">
+          <button class="game-auth-back" type="button" cdkStepperPrevious i18n>上一步</button>
+          <button
+            class="game-auth-submit" cdkStepperNext
+            [disabled]="!formStepUser || !formStepUser.valid"
+            (click)="videoUploadDisabled && signup()"
+            i18n
+          >
+            {{ videoUploadDisabled ? '完成注册' : '下一步' }}
+          </button>
+        </div>
+      </cdk-step>
+
+      @if (!videoUploadDisabled) {
+        <cdk-step i18n-label label="创作者主页" [optional]="true" [stepControl]="formStepChannel" [editable]="!signupSuccess">
+          <my-register-step-channel
+            (formBuilt)="onChannelFormBuilt($event)"
+            [videoQuota]="videoQuota" [instanceName]="instanceName" [username]="getUsername()"
+          ></my-register-step-channel>
+
+          <div class="game-auth-actions">
+            <button class="game-auth-back" type="button" cdkStepperPrevious i18n>上一步</button>
+
+            <button class="game-auth-skip" type="button" (click)="skipChannelCreation()" i18n>
+              暂时跳过创作者资料
+            </button>
+
+            <button
+              class="game-auth-submit" cdkStepperNext
+              [disabled]="!formStepChannel || !formStepChannel.valid || hasSameChannelAndAccountNames()"
+              (click)="signup()"
+            >
+              <my-signup-label [requiresApproval]="requiresApproval"></my-signup-label>
+            </button>
+          </div>
+        </cdk-step>
+      }
+
+      <cdk-step i18n-label label="完成" #lastStep [editable]="false">
+        <!-- Account creation can be a little bit long so display a loader  -->
+        @if (!requiresApproval && !signupSuccess && !signupError) {
+          <div class="game-register-done">
+            <my-loader [loading]="true"></my-loader>
+            <div i18n>GameHub 正在创建你的账户...</div>
+          </div>
+        }
+
+        @if (signupError) {
+          <my-alert type="danger">{{ signupError }}</my-alert>
+        }
+
+        @if (signupSuccess) {
+          <div class="game-register-done">
+            <my-signup-success-before-email
+              [requiresEmailVerification]="requiresEmailVerification" [requiresApproval]="requiresApproval" [instanceName]="instanceName"
+            ></my-signup-success-before-email>
+          </div>
+        }
+
+        @if (signupError || (signupSuccess && (requiresApproval || requiresEmailVerification))) {
+          <div class="game-auth-actions">
+            <button class="game-auth-back" type="button" (click)="dismiss()" i18n>关闭</button>
+            @if (signupError) {
+              <button class="game-auth-back" type="button" cdkStepperPrevious i18n>上一步</button>
+            }
+          </div>
+        }
+      </cdk-step>
+    </my-register-stepper>
+  }
+</div>

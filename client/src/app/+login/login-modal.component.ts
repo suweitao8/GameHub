@@ -11,6 +11,7 @@ import { FormReactiveService } from '@app/shared/shared-forms/form-reactive.serv
 import { InputTextComponent } from '@app/shared/shared-forms/input-text.component'
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
 import { NgbActiveModal, NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap'
+import { AuthModalService } from './auth-modal.service'
 import { getCompleteLocale, getExternalAuthHref } from '@peertube/peertube-core-utils'
 import { RegisteredExternalAuthConfig, ServerConfig, ServerErrorCode } from '@peertube/peertube-models'
 import { of, switchMap } from 'rxjs'
@@ -46,6 +47,7 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
   protected formReactiveService = inject(FormReactiveService)
   private modalService = inject(NgbModal)
   private activeModal = inject(NgbActiveModal)
+  private authModal = inject(AuthModalService)
   private authService = inject(AuthService)
   private userService = inject(UserService)
   private redirectService = inject(RedirectService)
@@ -124,8 +126,8 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
   }
 
   goSignup () {
-    this.activeModal.dismiss('signup')
-    void this.router.navigateByUrl('/signup')
+    // 注册弹框叠加在登录弹框之上,关闭注册后回到登录进度
+    this.authModal.openRegister()
   }
 
   getExternalLogins () {
