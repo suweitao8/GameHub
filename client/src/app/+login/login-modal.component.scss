@@ -11,12 +11,13 @@
 
 ::ng-deep .modal.d-block.game-auth-modal {
   /* PeerTube 全局把 .modal-dialog 强制为 width:40vw/min-width:500px,
-     会在内容较窄的弹卡右侧留出一截空白,这里让对话框严格贴合内容宽度 */
+     会在内容较窄的弹卡右侧留出一截空白,这里让对话框严格贴合内容宽度。
+     !important 防止任何全局/主题规则再次把 dialog 撑宽 */
   .modal-dialog {
-    margin-inline: auto;
-    max-width: calc(100vw - 24px);
-    min-width: 0;
-    width: min(420px, calc(100vw - 24px));
+    margin-inline: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    min-width: 0 !important;
+    width: min(420px, calc(100vw - 24px)) !important;
   }
 
   .modal-content {
