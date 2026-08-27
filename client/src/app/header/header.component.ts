@@ -63,10 +63,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
   readonly dropdown = viewChild<NgbDropdown>('dropdown')
-  readonly gameAvatarHoverVisible = signal(false)
-  readonly gameGuestCardVisible = signal(false)
   readonly gameCoinBalance = signal<number | null>(null)
-  readonly gameNavHover = signal<GameHeaderPopup | null>(null)
   readonly gameNavFavorites = signal<Game[]>([])
   readonly gameNavRecent = signal<Game[]>([])
   readonly gameNavOwned = signal<Game[]>([])
@@ -99,9 +96,39 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private hotkeysSub: Subscription
   private authSub: Subscription
   private routerEventsSub: Subscription
-  private gameAvatarHoverTimer: ReturnType<typeof setTimeout> | undefined
-  private gameNavHoverTimer: ReturnType<typeof setTimeout> | undefined
-  private gameNavCloseTimer: ReturnType<typeof setTimeout> | undefined
+
+  /** 鼠标离开后弹窗保底可见时长：期间移回鼠标即可继续操作 */
+  static readonly POPOVER_HIDE_GRACE_MS = 3000
+
+  /** 淡出过渡时长，过渡结束后才卸载 DOM */
+  static readonly POPOVER_FADE_MS = 200
+  /** 各弹窗「视觉开启」状态,驱动显隐 class 与 aria-expanded */
+  private readonly popoverOpen = signal<Record<string, boolean>>({
+    avatar: false,
+    guest: false,
+    notifications: false,
+    favorites: false,
+    history: false,
+    creator: false
+  })
+
+  /** 各弹窗是否仍挂载在 DOM 中（开启后延迟卸载以完成淡出过渡） */
+  private readonly popoverMounted = signal<Record<string, boolean>>({
+    avatar: false,
+    guest: false,
+    notifications: false,
+    favorites: false,
+    history: false,
+    creator: false
+  })
+
+  /** 关闭过程中的淡出态 */
+  private readonly popoverClosing = signal<Record<string, boolean>>({})
+  private popoverHideTimers: Record<string, {
+    hide?: ReturnType<typeof setTimeout>
+    unmount?: ReturnType<typeof setTimeout>
+  } | undefined> = {}
+
   private gameCoinBalanceRequested = false
   private gameNavLoaded = new Set<GameHeaderPopup>()
   private gameNavRequestGenerations = new Map<GameHeaderPopup, number>()
@@ -198,7 +225,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy () {
     this.cancelGameAvatarHover()
-    this.cancelGameNavHover()
+    for (const key of Object.keys(this.popoverHideTimers)) {
+      const t = this.popoverHideTimers[key]
+      if (t?.hide) clearTimeout(t.hide)
+      if (t?.unmount) clearTimeout(t.unmount)
+      this.popoverHideTimers[key] = undefined
+    }
     if (this.quickSettingsModalSub) this.quickSettingsModalSub.unsubscribe()
     if (this.hotkeysSub) this.hotkeysSub.unsubscribe()
     if (this.authSub) this.authSub.unsubscribe()
@@ -354,61 +386,95 @@ export class HeaderComponent implements OnInit, OnDestroy {
     document.querySelector('.peertube-container')?.classList.toggle('game-header-scrolled', shouldShrink)
   }
 
+  /** 弹窗状态读写 */
+  isOpenPopover (key: string) {
+    return this.popoverOpen()[key] === true
+  }
+
+  isPopoverMounted (key: string) {
+    return this.popoverMounted()[key] === true
+  }
+
+  isPopoverClosing (key: string) {
+    return this.popoverClosing()[key] === true
+  }
+
+  private setPopoverOpen (key: string, open: boolean) {
+    const hideTimerKey = 'hide:' + key
+
+    if (open) {
+      const pendingHide = this.popoverHideTimers[hideTimerKey]
+      if (pendingHide) {
+        clearTimeout(pendingHide.hide)
+        if (pendingHide.unmount) clearTimeout(pendingHide.unmount)
+        this.popoverHideTimers[hideTimerKey] = undefined
+      }
+      this.popoverMounted.update(m => ({ ...m, [key]: true }))
+      this.popoverClosing.update(c => ({ ...c, [key]: false }))
+      this.popoverOpen.update(o => ({ ...o, [key]: true }))
+      return
+    }
+
+    this.popoverOpen.update(o => ({ ...o, [key]: false }))
+    this.cancelPopoverHide(key)
+    this.popoverHideTimers[hideTimerKey] = {
+      hide: setTimeout(() => {
+        // 宽限期内未返回:开始淡出,过渡结束后卸载
+        this.popoverClosing.update(c => ({ ...c, [key]: true }))
+        this.popoverHideTimers[hideTimerKey] = {
+          unmount: setTimeout(() => {
+            this.popoverMounted.update(m => ({ ...m, [key]: false }))
+            this.popoverClosing.update(c => ({ ...c, [key]: false }))
+            this.popoverHideTimers[hideTimerKey] = undefined
+          }, HeaderComponent.POPOVER_FADE_MS)
+        }
+      }, HeaderComponent.POPOVER_HIDE_GRACE_MS)
+    }
+  }
+  private cancelPopoverHide (key: string) {
+    const hideTimerKey = 'hide:' + key
+    const timers = this.popoverHideTimers[hideTimerKey]
+    if (timers) {
+      clearTimeout(timers.hide)
+      clearTimeout(timers.unmount)
+      this.popoverHideTimers[hideTimerKey] = undefined
+    }
+  }
   scheduleGameAvatarMenu () {
     if (!this.isGameExperience()) return
 
     this.cancelGameAvatarHover(false)
-    this.gameAvatarHoverTimer = setTimeout(() => {
-      if (this.loggedIn) {
-        this.gameAvatarHoverVisible.set(true)
-        this.loadGameCoinBalance()
-      } else {
-        // 访客:悬停「登录」按钮展示 B 站式权益卡
-        this.gameGuestCardVisible.set(true)
-      }
-    }, 300)
+    if (this.loggedIn) {
+      this.setPopoverOpen('avatar', true)
+      this.loadGameCoinBalance()
+    } else {
+      // 访客:悬停「登录」按钮展示 B 站式权益卡
+      this.setPopoverOpen('guest', true)
+    }
   }
 
   cancelGameAvatarHover (close = true) {
-    if (this.gameAvatarHoverTimer) {
-      clearTimeout(this.gameAvatarHoverTimer)
-      this.gameAvatarHoverTimer = undefined
-    }
-
     if (close) {
-      this.gameAvatarHoverVisible.set(false)
-      this.gameGuestCardVisible.set(false)
+      // 撤「开启」态触发淡出;DOM 驻留 1 秒,期间移回鼠标会重新打开
+      this.setPopoverOpen('avatar', false)
+      this.setPopoverOpen('guest', false)
     }
   }
 
   scheduleGameNavHover (popup: GameHeaderPopup) {
     if (!this.isGameExperience()) return
 
-    this.cancelGameNavHover(false)
-    if (this.gameNavHoverTimer) {
-      clearTimeout(this.gameNavHoverTimer)
-      this.gameNavHoverTimer = undefined
-    }
-    this.gameNavHoverTimer = setTimeout(() => {
-      this.gameNavHover.set(popup)
-      this.loadGameNavData(popup)
-    }, 300)
+    // 进入即打开,并撤销该弹窗在宽限期的关闭
+    this.cancelPopoverHide(popup)
+    this.setPopoverOpen(popup, true)
+    this.loadGameNavData(popup)
   }
 
-  cancelGameNavHover (close = true) {
-    if (this.gameNavHoverTimer) {
-      clearTimeout(this.gameNavHoverTimer)
-      this.gameNavHoverTimer = undefined
-    }
+  cancelGameNavHover (popup: GameHeaderPopup, close = true) {
+    if (!popup || !close) return
 
-    if (!close) return
-
-    // 延迟关闭，给鼠标从按钮移动到弹窗的时间
-    if (this.gameNavCloseTimer) clearTimeout(this.gameNavCloseTimer)
-    this.gameNavCloseTimer = setTimeout(() => {
-      this.gameNavHover.set(null)
-      this.gameNavCloseTimer = undefined
-    }, 250)
+    // 撤「开启」态触发淡出,DOM 驻留 1 秒供鼠标移回弹窗继续操作
+    this.setPopoverOpen(popup, false)
   }
 
   isGameNavLoading (popup: GameHeaderPopup) {
@@ -416,20 +482,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   /** 鼠标进入弹窗区域时取消关闭（配合延迟关闭使用） */
-  retainGameNavHover () {
-    if (this.gameNavCloseTimer) {
-      clearTimeout(this.gameNavCloseTimer)
-      this.gameNavCloseTimer = undefined
-    }
+  retainGameNavHover (popup: GameHeaderPopup) {
+    this.cancelPopoverHide(popup)
   }
 
-  onGameNavFocusOut (event: FocusEvent) {
+  onGameNavFocusOut (event: FocusEvent, popup: GameHeaderPopup) {
     const container = event.currentTarget as HTMLElement | null
     const nextTarget = event.relatedTarget as Node | null
 
     if (container?.contains(nextTarget)) return
 
-    this.cancelGameNavHover()
+    this.cancelGameNavHover(popup)
   }
 
   onGameAvatarFocusOut (event: FocusEvent) {

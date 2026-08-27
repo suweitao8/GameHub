@@ -339,19 +339,22 @@
 }
 
 /* 弹窗出现时轻微淡入，保持导航项位置不跳动。 */
-.game-header-popover-anim {
-  animation: game-popover-fade-in 220ms var(--game-ease) forwards;
+/* 离开触发淡出:视觉隐藏但仍挂载,宽限期内可移回鼠标重新唤起 */
+.game-popover-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-@keyframes game-popover-fade-in {
-  from {
-    opacity: 0;
-    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(-0.4rem);
-  }
+/* 弹窗淡入淡出：过渡由 opacity 完成,挂载首帧经 @starting-style 起始 */
+.game-header-popover,
+.game-avatar-hover-card {
+  transition: opacity var(--game-dur) var(--game-ease);
+}
 
-  to {
-    opacity: 1;
-    transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift))) translateY(0);
+@starting-style {
+  .game-header-popover,
+  .game-avatar-hover-card {
+    opacity: 0;
   }
 }
 
@@ -362,11 +365,24 @@
   position: relative;
 }
 
+/* 悬停桥：盖住触发行与弹窗之间的间隙，鼠标直滑进弹窗时不触发离开计时 */
+.game-header-action-wrap::after,
+.logged-in-container::after {
+  content: '';
+  height: 0.7rem;
+  left: -0.5rem;
+  position: absolute;
+  right: -0.5rem;
+  top: 100%;
+}
+
 /* ---- 浮出面板：圆角浮卡 + 大投影，去箭头 ---- */
 
 .game-header-popover {
   --game-popover-edge-shift: 0%;
   --game-popover-x: -50%;
+
+  transition: opacity var(--game-dur) var(--game-ease);
 
   background: var(--game-surface);
   border: 1px solid var(--game-border);
@@ -908,6 +924,13 @@ my-actor-avatar {
 
 /* ---- 头像与个人浮卡 ---- */
 
+/* 悬停卡淡出态 */
+.game-avatar-hover-card.game-popover-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
 .game-user-avatar {
   aspect-ratio: 1;
   background: var(--game-brand-soft);
@@ -962,6 +985,7 @@ my-actor-avatar {
 }
 
 .game-avatar-hover-card {
+  transition: opacity var(--game-dur) var(--game-ease);
   background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-md);
@@ -1258,6 +1282,11 @@ my-actor-avatar {
     transition: none;
   }
 
+  .game-avatar-hover-card,
+  .game-header-popover {
+    transition: none;
+  }
+
   .game-brand::before {
     transition: none;
   }
@@ -1277,5 +1306,10 @@ my-actor-avatar {
   .game-header-actions a.game-header-action-active my-global-icon,
   .game-header-popover-anim {
     animation: none;
+  }
+
+  .game-header-popover,
+  .game-avatar-hover-card {
+    transition: none;
   }
 }
