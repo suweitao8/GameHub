@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal, WritableSignal, Input } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, WritableSignal, Input } from '@angular/core'
 import { Router, RouterLink } from '@angular/router'
 import { AuthService } from '@app/core/auth/auth.service'
 import { LoginModalService } from '@app/+login/login-modal.service'
@@ -70,9 +70,9 @@ import { getGameActionErrorMessage } from './game-action-feedback'
           >
             @if (descriptionTab() === 'overview') {
               <p>{{ game()?.description || '作者还没有填写简介。' }}</p>
-              @if (game()?.tags?.length) {
+              @if (displayTags().length) {
                 <div class="game-tags description-tags">
-                  @for (tag of game()!.tags!; track tag) {
+                  @for (tag of displayTags(); track tag) {
                     <a class="game-tag" [routerLink]="['/games']" [queryParams]="{ search: tag }">{{ tag }}</a>
                   }
                 </div>
@@ -117,6 +117,12 @@ export class GameCommunityPanelComponent {
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)
   readonly actionFeedback = signal('')
   readonly descriptionTab = signal<'overview' | 'controls'>('overview')
+
+  /** 标签展示前过滤与游戏名重复的项，避免简介区出现同词双入口 */
+  readonly displayTags = computed(() => {
+    const title = (this.game()?.title || '').trim().toLowerCase()
+    return (this.game()?.tags || []).filter(tag => tag.trim().toLowerCase() !== title)
+  })
 
   onDescriptionTabKeydown (event: KeyboardEvent, current: 'overview' | 'controls') {
     const tabs = [ 'overview', 'controls' ] as const

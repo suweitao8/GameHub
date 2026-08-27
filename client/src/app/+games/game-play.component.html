@@ -47,15 +47,18 @@
               <div class="developer-profile">
                 <a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a>
               </div>
-              <button
-                type="button"
-                class="developer-follow-button"
-                [class.active]="community()!.following"
-                [disabled]="community()!.isOwner"
-                (click)="toggleFollow()"
-              >
-                {{ community()!.following ? '已关注' : '+ 关注' }}
-              </button>
+              @if (!community()!.isOwner) {
+                <button
+                  type="button"
+                  class="developer-follow-button"
+                  [class.active]="community()!.following"
+                  (click)="toggleFollow()"
+                >
+                  {{ community()!.following ? '已关注' : '+ 关注' }}
+                </button>
+              } @else {
+                <span class="developer-owner-badge">作者</span>
+              }
             </div>
           } @else {
             <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:var(--game-surface-alt)"></div>

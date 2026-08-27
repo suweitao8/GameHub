@@ -770,7 +770,7 @@ assert(gamePlayHtml.includes('class="game-stage-row"'), 'game play must share a 
 assert(gamePlayHtml.includes('game-title-developer'), 'developer information must stay in the title row above the discussion sidebar')
 assert(!gamePlayHtml.includes('developer-title') && !/developer-name[\s\S]{0,200}game\(\)!\.title/.test(gamePlayHtml), 'developer card must not repeat the game title under the developer name')
 assert(!gamePlayHtml.includes('author.handle'), 'developer card must not render the account handle')
-assert(gamePlayHtml.includes('[disabled]="community()!.isOwner"'), 'developer card must keep a visible follow button for the owner view')
+assert(gamePlayHtml.includes('developer-owner-badge') && !gamePlayHtml.includes('[disabled]="community()!.isOwner"'), 'owner view must show an author badge instead of a disabled follow button')
 assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
 assert(gamePlayScss.includes('.play-side my-game-discuss'), 'discussion sidebar must define its own stage-height region')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
@@ -913,10 +913,9 @@ assert(
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
-    /\.game-description-content\s*\{[\s\S]*display: flex;[\s\S]*flex-direction: column;[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
-    communityPanelTs.includes('min-height: 200px;') &&
-    /\.game-description-fallback\s*\{[\s\S]*height: 200px;[\s\S]*max-height: 200px;[\s\S]*min-height: 200px;[\s\S]*overflow-y: auto;/.test(communityPanelTs),
-  'game overview and controls must share a fixed 200px content area, including fallback state'
+    /\.game-description-content\s*\{[\s\S]*display: flex;[\s\S]*flex-direction: column;[\s\S]*min-height: 72px;[\s\S]*max-height: 260px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
+    /\.game-description-fallback\s*\{[\s\S]*min-height: 72px;[\s\S]*overflow-y: auto;/.test(communityPanelTs),
+  'game overview and controls must size to content with a bounded scrollable area, including fallback state'
 )
 // 2h) GameHub only supports text comments; the former star-rating/review
 // subsystem must not remain reachable through public routes, models, or UI.

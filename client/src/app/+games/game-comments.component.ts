@@ -35,7 +35,7 @@ import { GameCommentsStore } from './game-comments-store'
             aria-label="评论内容"
             [value]="store.draft()"
             (input)="store.draft.set($any($event.target).value)"
-            [placeholder]="store.replyTo() ? '回复这条评论...' : '这里是评论区，不是无人区:-)'"
+            [placeholder]="store.replyTo() ? '回复这条评论...' : '写下你的评论，聊聊这个游戏…'"
             maxlength="5000"
           >
           @if (store.commentImage(); as image) {
