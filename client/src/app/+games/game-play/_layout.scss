@@ -94,7 +94,7 @@
   width: 90%;
 }
 
-/* 标题栏为扁平排版：不做成圆角卡片，仅保留左缘品牌细条与数据行 */
+/* 标题栏为扁平排版：不做成圆角卡片，仅保留数据行 */
 .game-play-page .game-title-bar {
   background: transparent;
   border: 0;
@@ -104,16 +104,6 @@
   gap: var(--game-detail-gap);
   grid-template-columns: var(--game-detail-columns);
   padding: 4px 4px 10px;
-  position: relative;
-}
-
-.game-play-page .game-title-bar::before {
-  background: linear-gradient(180deg, var(--game-brand), var(--game-accent));
-  border-radius: var(--game-radius-pill);
-  content: '';
-  inset: 0 auto 0 0;
-  position: absolute;
-  width: 4px;
 }
 
 .game-play-page .game-stage-row {
