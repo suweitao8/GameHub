@@ -920,9 +920,9 @@ assert(
 )
 assert(
   communityPanelTs.includes('class="game-description-content"') &&
-    /\.game-description-content\s*\{[\s\S]*display: flex;[\s\S]*flex-direction: column;[\s\S]*min-height: 72px;[\s\S]*max-height: 260px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
-    /\.game-description-fallback\s*\{[\s\S]*min-height: 72px;[\s\S]*overflow-y: auto;/.test(communityPanelTs),
-  'game overview and controls must size to content with a bounded scrollable area, including fallback state'
+    /\.game-description-content\s*\{[\s\S]*display: flex;[\s\S]*flex-direction: column;[\s\S]*max-height: 260px;[\s\S]*overflow-y: auto;/.test(communityPanelTs) &&
+    !communityPanelScss.includes('min-height: 72px'),
+  'game overview and controls must size to content (no fixed min-height) with a bounded scrollable area, including fallback state'
 )
 // 2h) GameHub only supports text comments; the former star-rating/review
 // subsystem must not remain reachable through public routes, models, or UI.
