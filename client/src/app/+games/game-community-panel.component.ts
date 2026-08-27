@@ -41,8 +41,17 @@ import { getGameActionErrorMessage } from './game-action-feedback'
           <button class="game-action-button" type="button" [attr.aria-label]="'分享 ' + state.shares" (click)="share.emit()">
             <my-global-icon iconName="share" /><strong>{{ state.shares }}</strong>
           </button>
+          <span class="interaction-spacer" aria-hidden="true"></span>
+          <button class="game-action-button game-action-watch-later" type="button"
+            [class.active]="inWatchLater()"
+            [disabled]="watchLaterActionLoading()"
+            [attr.aria-label]="inWatchLater() ? '从稍后再玩移除' : '加入稍后再玩'"
+            (click)="watchLaterToggle.emit()">
+            <my-global-icon iconName="clock" />{{ inWatchLater() ? '已在稍后再玩' : '稍后再玩' }}
+          </button>
         </div>
         @if (actionFeedback()) { <p class="feedback action-feedback" role="status">{{ actionFeedback() }}</p> }
+        @if (watchLaterFeedback()) { <p class="feedback watch-later-feedback" role="status">{{ watchLaterFeedback() }}</p> }
 
         <section class="game-description-panel" aria-labelledby="game-description-title">
           <h2 id="game-description-title" class="visually-hidden">游戏信息</h2>
@@ -112,6 +121,12 @@ export class GameCommunityPanelComponent {
   readonly communityError = input('')
 
   readonly share = output()
+
+  /** 稍后再玩（由宿主持有状态，本组件只负责展示与转发点击） */
+  readonly inWatchLater = input(false)
+  readonly watchLaterActionLoading = input(false)
+  readonly watchLaterFeedback = input('')
+  readonly watchLaterToggle = output()
 
   readonly coinLoading = signal(false)
   readonly actionLoading = signal<'rate' | 'favorite' | 'coin' | null>(null)

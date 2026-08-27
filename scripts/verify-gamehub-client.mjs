@@ -629,7 +629,6 @@ const databaseTs = read('server/core/initializers/database.ts')
 const openapiTs = read('support/doc/api/openapi.yaml')
 const gameShareControllerTs = read('server/core/controllers/api/games/game-share.ts')
 const analyticsTs = read('client/src/app/+games/game-analytics-dashboard.component.ts')
-const reserveTs = read('client/src/app/+games/game-reserve-button.component.ts')
 const uploadHtml = read('client/src/app/+games/game-upload.component.html')
 const uploadScss = read('client/src/app/+games/game-upload.component.scss')
 const uploadTs = read('client/src/app/+games/game-upload.component.ts')
@@ -763,6 +762,15 @@ assert(
   'game interaction buttons must share a request lock and always release it on success or failure'
 )
 assert(!communityPanelTs.includes('余额') && !communityPanelTs.includes('coin-row'), 'community actions must not expose a duplicate coin balance composer')
+assert(
+  communityPanelTs.includes('class="interaction-spacer"') &&
+    communityPanelTs.includes('game-action-watch-later') &&
+    communityPanelTs.includes('readonly watchLaterToggle = output()') &&
+    communityPanelTs.includes('watchLaterToggle.emit()') &&
+    !gamePlayHtml.includes('my-game-reserve-button') &&
+    !gamePlayHtml.includes('game-secondary-actions'),
+  'watch-later action must live at the right end of the like/coin interaction row instead of a separate reserve row'
+)
 assert(!communityPanelTs.includes('description-rating') && !communityPanelTs.includes('reviewScores'), 'game description must not expose star rating UI')
 assert(!commentsTs.includes('评分') && !commentsTs.includes('review'), 'comments must be text-only and must not expose rating controls')
 assert(!gamePlayHtml.includes('game-title-score'), 'game title must not expose a rating score')
@@ -847,7 +855,6 @@ assert(
   'creator analytics time range must reach the API, queries, and range-specific caches'
 )
 assert(homeHtml.includes('iconName="search"') && !homeHtml.includes('🔍'), 'game home empty state must use the shared search icon instead of an emoji')
-assert(reserveTs.includes('iconName="bell"') && reserveTs.includes('iconName="tick"') && !reserveTs.includes('🔔') && !reserveTs.includes('✓'), 'game reservation states must use shared library icons instead of emoji glyphs')
 assert(
   gameCreatorHtml.includes('iconName="award"') && !gameCreatorHtml.includes('🎁'),
   'creator daily sign-in must use the shared icon library instead of an emoji glyph'

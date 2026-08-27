@@ -18,7 +18,6 @@ import { GameShareDialogComponent } from './game-share-dialog.component'
 import { GameCommentsComponent } from './game-comments.component'
 import { GameDiscussComponent } from './game-discuss.component'
 import { GameCommunityPanelComponent } from './game-community-panel.component'
-import { GameReserveButtonComponent } from './game-reserve-button.component'
 import { GameCommentsStore } from './game-comments-store'
 import { GameDiscussStore } from './game-discuss-store'
 
@@ -30,7 +29,7 @@ import { GameDiscussStore } from './game-discuss-store'
   imports: [
     DatePipe, GlobalIconComponent, RouterLink,
     GameScreenshotsComponent, GameShareDialogComponent,
-    GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent, GameReserveButtonComponent
+    GameCommentsComponent, GameDiscussComponent, GameCommunityPanelComponent
   ]
 })
 export class GamePlayComponent implements OnInit, OnDestroy {

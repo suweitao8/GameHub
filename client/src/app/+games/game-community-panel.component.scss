@@ -13,6 +13,8 @@
   border-bottom: 1px solid var(--game-border);
   gap: 2rem;
   padding: 0.25rem 0 0.3rem; }
+.interaction-spacer { flex: 1 1 auto; }
+.watch-later-feedback { margin-top: 0.35rem; }
 .interaction-row button { align-items: center;
   background: transparent;
   border: 0;
