@@ -50,16 +50,16 @@ h1 { margin: 0 0 28px;
   margin-bottom: 1.25rem; }
 .manage-search { flex: 1;
   min-width: 0; }
-.manage-search input { background: #fff;
+.manage-search input { background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   color: var(--game-text);
   font-size: 0.85rem;
   height: 2.4rem;
   padding: 0 0.75rem;
   width: 100%; }
 .manage-search input:focus { border-color: var(--game-brand);
-  box-shadow: 0 0 0 2px rgb(0 174 236 / 10%); }
+  box-shadow: 0 0 0 2px var(--game-brand-glow); }
 .manage-status-tabs { display: flex;
   gap: 0.25rem; }
 .manage-status-tabs button { background: transparent;
@@ -90,7 +90,7 @@ h1 { margin: 0 0 28px;
 }
 
 .manage-skeleton-card {
-  background: #eceff3;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius);
   height: 4.5rem;
 }

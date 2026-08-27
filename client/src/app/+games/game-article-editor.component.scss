@@ -20,7 +20,7 @@
   text-decoration: none;
   white-space: nowrap; }
 
-.article-editor-form { background: #fff;
+.article-editor-form { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   box-shadow: var(--game-shadow);
@@ -35,9 +35,9 @@
   font-weight: 700;
   gap: 0.4rem; }
 .article-editor-form input,
-.article-editor-form textarea { background: #fff;
+.article-editor-form textarea { background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text);
   font: inherit;
   font-weight: 400;
@@ -58,13 +58,13 @@
   justify-content: flex-end; }
 .article-editor-form footer a,
 .article-editor-form footer button { border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 700;
   padding: 0.55rem 0.95rem;
   text-decoration: none; }
-.article-editor-form footer a { background: #fff;
+.article-editor-form footer a { background: var(--game-surface);
   color: var(--game-text); }
 .article-editor-form footer button { background: var(--game-brand);
   border-color: var(--game-brand);

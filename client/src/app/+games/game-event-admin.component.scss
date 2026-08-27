@@ -15,7 +15,7 @@
   align-items: center;
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   cursor: pointer;
   display: inline-flex;
@@ -26,7 +26,7 @@
 }
 
 .event-form {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   display: flex;
@@ -51,7 +51,7 @@
 .event-form select,
 .event-form textarea {
   border: 1px solid var(--game-border);
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   padding: 0.4rem 0.5rem;
   font-size: 0.88rem;
 }
@@ -61,9 +61,9 @@
   justify-content: flex-end;
   margin-top: 0.5rem; }
 .form-actions button { padding: 0.4rem 0.85rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   border: 1px solid var(--game-border);
-  background: #fff;
+  background: var(--game-surface);
   cursor: pointer; }
 .form-actions button.primary { background: var(--game-brand);
   border-color: var(--game-brand);
@@ -85,9 +85,9 @@
   font-weight: 600; }
 .event-admin-table a:hover { color: var(--game-brand); }
 .event-row-actions { white-space: nowrap; }
-.event-row-actions button { background: #fff;
+.event-row-actions button { background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text-button);
   cursor: pointer;
   margin-right: 0.35rem;
@@ -102,18 +102,18 @@
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   text-transform: uppercase; }
-.badge-type.activity { background: #e0f2fe;
+.badge-type.activity { background: var(--game-brand-soft);
   color: #0369a1; }
 .badge-type.competition { background: #fef3c7;
   color: #92400e; }
 .badge-status.upcoming { background: #dcfce7;
   color: #166534; }
-.badge-status.ongoing { background: #dbeafe;
+.badge-status.ongoing { background: var(--game-brand-soft);
   color: #1e40af; }
-.badge-status.ended { background: #f3f4f6;
-  color: #4b5563; }
+.badge-status.ended { background: var(--game-surface-alt);
+  color: var(--game-text-secondary); }
 .badge-status.cancelled { background: #fee2e2;
   color: #991b1b; }
 
@@ -128,9 +128,9 @@
 .event-admin-state p { margin: 0 0 1rem; }
 .event-admin-state button,
 .admin-feedback { border: 1px solid var(--game-border);
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   padding: 0.4rem 0.85rem; }
-.event-admin-state button { background: #fff;
+.event-admin-state button { background: var(--game-surface);
   cursor: pointer; }
 .admin-feedback { color: #b42318;
   margin: 0 0 1rem; }
@@ -138,4 +138,4 @@
   flex-direction: column;
   gap: 0.5rem; }
 .admin-skeleton-row { height: 2.5rem;
-  border-radius: 4px; }
+  border-radius: var(--game-radius-xs); }

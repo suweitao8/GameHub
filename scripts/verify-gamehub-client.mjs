@@ -443,8 +443,14 @@ assert(
     !/<a class="game-card"[\s\S]*<a class="author-name-link"/.test(gameCardHtml),
   'game cards must keep the author link outside the main game link to avoid nested interactive elements'
 )
-assert(!gameCardScss.includes('.game-card:hover'), 'game cards must not add a hover highlight overlay or lift effect')
-assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must not zoom on hover')
+assert(
+  gameCardScss.includes('.game-card:hover') &&
+    gameCardScss.includes('transform: translateY(-4px);') &&
+    /\.game-card:hover \.game-cover img,[\s\S]*?transform: scale\(1\.05\);/.test(gameCardScss) &&
+    gameCardScss.includes('@media (prefers-reduced-motion: reduce)'),
+  'game cards must lift on hover with a cover zoom and respect reduced motion'
+)
+assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must keep the unified 1.05 hover zoom')
 assert(
   notificationHtml.includes('class="notification-item"') &&
     notificationHtml.includes('(click)="markRead(notification)"') &&
@@ -558,8 +564,8 @@ assert(
   'recently played games must keep the server-provided latest-first order without shuffle controls'
 )
 assert(
-  /\.game-submit-button\s*\{[\s\S]*?font-weight: 400;[\s\S]*?\}/.test(headerScss),
-  'GameHub submit navigation text must use regular weight instead of bold styling'
+  /\.game-submit-button\s*\{[\s\S]*?font-weight: 700;[\s\S]*?\}/.test(headerScss),
+  'GameHub submit navigation text must use bold weight for the primary CTA'
 )
 assert(
   headerHtml.includes('class="game-submit-button"') &&
@@ -691,14 +697,14 @@ assert(
     gamePlayScss.includes('width: 0.72rem;') && gamePlayScss.includes('stroke-width: 2;'),
   'related game stats must use a smaller centered icon box'
 )
-assert(/\.game-discuss-panel\s*\{\s*background: #fff;/.test(discussTs), 'discussion panel and its body must use a white surface')
+assert(/\.game-discuss-panel\s*\{\s*background: var\(--game-surface\);/.test(discussTs), 'discussion panel and its body must use the shared white surface token')
 assert(discussTs.includes('wechat-time-separator') && discussStoreTs.includes('shouldShowTime'), 'discussion timestamps must group messages within ten minutes')
 assert(
   discussTs.includes('[disabled]="!store.draft().trim() || store.submitting()"') &&
     /\.discuss-composer button:disabled\s*\{/.test(discussTs),
   'discussion send button must be disabled and gray for empty text or an in-flight request'
 )
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #1e1e1e;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'own discussion messages must use the picked light green background with ink text')
 assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
 assert(
   commentsStoreTs.includes('private requestGeneration = 0') &&
@@ -813,9 +819,9 @@ assert(communityPanelTs.includes('align-items: center') && communityPanelTs.incl
 assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game()?.instructions'), 'game description must expose separate overview and controls tabs')
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
-assert(gamePlayScss.includes('background: #fff;') && gamePlayScss.includes('min-height: 28px'), 'developer follow button must use a compact white style')
-assert(gameCommunityTokens.includes('--game-text: #1e1e1e') && gameCommunityTokens.includes('--game-muted: #646464'), 'game colors must use the shared deep-black primary and gray secondary text')
-assert(gamePlayScss.includes('--game-text: #1e1e1e') && gamePlayScss.includes('--game-muted: #646464'), 'detail page must apply the shared deep-black palette within the component scope')
+assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('border-radius: var(--game-radius-pill);') && gamePlayScss.includes('min-height: 2rem;'), 'developer follow button must use the unified pill brand style')
+assert(gameCommunityTokens.includes('--game-text: #171a33') && gameCommunityTokens.includes('--game-muted: #7c819e'), 'game colors must use the indigo-ink primary and slate hint text from the shared token source')
+assert(gamePlayScss.includes('--game-text: var(--game-text-primary);') && gamePlayScss.includes('--game-muted: var(--game-text-secondary);'), 'detail page must alias the shared ink palette instead of redefining values')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
 assert(
@@ -853,8 +859,8 @@ assert(
   gameEmptyStateTs.includes('GlobalIconComponent') && gameEmptyStateTs.includes('<my-global-icon') && !gameEmptyStateTs.includes("icon = '🎮'"),
   'game empty state must use a shared library icon instead of an emoji glyph'
 )
-assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: #1e1e1e;/.test(discussTs), 'other discussion messages must use the picked light gray background with black text')
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: #1e1e1e;/.test(discussTs), 'own discussion messages must use the picked light green background with black text')
+assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'other discussion messages must use the picked light gray background with ink text')
+assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'own discussion messages must use the picked light green background with ink text')
 assert(gamePlayScss.includes('width: 90%;') && !gamePlayScss.includes('max-width: 1280px;'), 'detail page must follow the homepage 5 percent side spacing without a narrower desktop cap')
 assert(/\.game-play-page \.game-title-developer\s*\{[\s\S]*justify-self: end;[\s\S]*width: 100%;/.test(gamePlayScss), 'developer card must share the discussion sidebar right boundary')
 assert(gameCommunityModelTs.includes('favorites: number') && gameCommunityModelTs.includes('shares: number'), 'game community model must expose favorite and share counts')
@@ -991,11 +997,11 @@ assert(
 )
 assert(
   /\.upload-page\s*\{[\s\S]*?background:\s*var\(--game-form-surface-muted\)/.test(uploadScss) &&
-    /\.upload-page\s*\{[\s\S]*?--game-form-radius:\s*12px;/.test(uploadScss) &&
+    /\.upload-page\s*\{[\s\S]*?--game-form-radius:\s*var\(--game-radius-md\);/.test(uploadScss) &&
     /\.upload-page\s*> \.game-community-content\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*760px;[\s\S]*?width:\s*90%;/.test(uploadScss) &&
     /\.form-section\s*\{[\s\S]*?border-radius:\s*var\(--game-form-radius\);[\s\S]*?box-shadow:\s*var\(--game-form-shadow\)/.test(uploadScss) &&
     /\.form-section-heading::before\s*\{[\s\S]*?background:\s*var\(--game-brand\)/.test(uploadScss),
-  'game upload must use a gray surface with elevated white form-section cards, a 12px radius, and a brand accent bar to match the detail-page visual contract'
+  'game upload must use a gray surface with elevated white form-section cards, a shared radius token, and a brand accent bar to match the detail-page visual contract'
 )
 assert(
   uploadTs.includes('isSupportedGameRuntimeFilename') &&
@@ -1140,7 +1146,6 @@ assert(
     popoverFadeInTo.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
     basePopoverBlock.includes('position: absolute;') &&
     basePopoverBlock.includes('transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));') &&
-    headerScss.includes('left: calc(50% + var(--game-popover-edge-shift));') &&
     headerScss.includes('@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px)') &&
     headerScss.includes('@media screen and (min-width: $mobile-view + 31px) and (max-width: $mobile-view + 60px)') &&
     headerScss.includes('@media screen and (min-width: $mobile-view + 61px) and (max-width: $small-view)') &&
@@ -1243,14 +1248,14 @@ assert(
   'comment and discussion polling must handle transient request failures without global console errors'
 )
 assert(
-  /\.game-header-left-nav a:hover,[\s\S]*?background: transparent;[\s\S]*?color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
-    /\.game-header-actions a:hover,[\s\S]*?background: transparent;[\s\S]*?color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
-    /\.game-header-actions a\.game-header-action-active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss) &&
-    /\.game-header-left-nav a\.active \{[\s\S]*background: transparent;[\s\S]*color: var\(--game-header-nav-foreground, var\(--game-text-secondary\)\) !important;/.test(headerScss),
-  'GameHub navigation must keep a transparent selected and hover state while only animating the icon'
+  /\.game-header-left-nav a:hover,[\s\S]*?background: var\(--game-surface-alt\);[\s\S]*?color: var\(--game-text-primary\) !important;/.test(headerScss) &&
+    /\.game-header-actions a:hover,[\s\S]*?background: var\(--game-surface-alt\);[\s\S]*?color: var\(--game-text-primary\) !important;/.test(headerScss) &&
+    /\.game-header-actions a\.game-header-action-active \{[\s\S]*color: var\(--game-brand-deep\) !important;/.test(headerScss) &&
+    /\.game-header-left-nav a\.active \{[\s\S]*background: var\(--game-brand-soft\);[\s\S]*color: var\(--game-brand-deep\) !important;/.test(headerScss),
+  'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(
-  headerScss.includes('background-color: #fff;') &&
+  headerScss.includes('background-color: rgb(255 255 255 / 88%);') &&
     headerScss.includes('background-image: none;') &&
     !headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
     !headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
@@ -1260,7 +1265,7 @@ assert(
     !appScss.includes('--header-height: 50px;') &&
     !/\.home-discovery-nav\s*\{[\s\S]*?position:\s*(?:sticky|fixed);/.test(gamesHomeDiscoveryNavScss) &&
     /\.home-discovery-links\s*\{[\s\S]*?overflow-x:\s*auto;/.test(gamesHomeDiscoveryNavScss),
-  'GameHub desktop header must keep a white background, no banner image, fixed 56px height, and a page-scrolling discovery nav'
+  'GameHub desktop header must keep the glassy white surface, no banner image, fixed 56px height, and a page-scrolling discovery nav'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
@@ -1463,13 +1468,13 @@ const gamehubPaletteSources = [
   gameErrorRetryTs
 ].join('\n')
 assert(
-  appScss.includes('--game-text: #1e1e1e') &&
-    appScss.includes('--game-text-button: #646464') &&
-    appScss.includes('--game-text-hint: #8c8c8c') &&
-    headerScss.includes('--game-text-primary: #1e1e1e') &&
-    headerScss.includes('--game-text-secondary: #646464') &&
-    gameCommunityTokens.includes('--game-muted: #646464'),
-  'GameHub shared palette must use #1e1e1e primary, #646464 secondary, and #8c8c8c hint text'
+  gameCommunityTokens.includes('--game-text: #171a33') &&
+    gameCommunityTokens.includes('--game-text-button: #565d78') &&
+    gameCommunityTokens.includes('--game-text-hint: #7c819e') &&
+    gameCommunityTokens.includes('--game-muted: #7c819e') &&
+    !appScss.includes('--game-text:') &&
+    !headerScss.includes('--game-text-primary: #'),
+  'GameHub shared palette must keep the indigo-ink ink scale in the single token source without component-level duplicates'
 )
 assert(
   !/(#303133|#18191c|#4e5969|#61666d|#646970|#6b6f75|#6b7280|#9499a0|#666(?:\b|;)|#999(?:\b|;)|rgb\(78 89 105)/i.test(gamehubPaletteSources),

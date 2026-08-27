@@ -1,4 +1,6 @@
-.reservations-container { max-width: 900px; margin: 0 auto; padding: 1rem; }
+.reservations-container { max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem; }
 
 .reservations-header {
   display: flex;
@@ -9,7 +11,8 @@
   border-bottom: 1px solid var(--game-border);
 }
 
-.reservations-header h2 { font-size: 1.4rem; margin: 0; }
+.reservations-header h2 { font-size: 1.4rem;
+  margin: 0; }
 
 .reservations-count {
   font-size: 0.8rem;
@@ -41,8 +44,11 @@
   color: var(--game-muted);
 }
 
-.reservations-error span { font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
-.reservations-error p { font-size: 0.85rem; margin-bottom: 1rem; }
+.reservations-error span { font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem; }
+.reservations-error p { font-size: 0.85rem;
+  margin-bottom: 1rem; }
 
 .reservations-error button {
   padding: 0.45rem 1.1rem;
@@ -56,9 +62,12 @@
   transition: all 0.2s;
 }
 
-.reservations-error button:hover { background: var(--game-brand); color: #fff; }
+.reservations-error button:hover { background: var(--game-brand);
+  color: #fff; }
 
-.reservations-list { display: flex; flex-direction: column; gap: 0.75rem; }
+.reservations-list { display: flex;
+  flex-direction: column;
+  gap: 0.75rem; }
 
 .reservation-card {
   display: flex;
@@ -76,7 +85,7 @@
 .reservation-cover {
   width: 5rem;
   height: 5rem;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   overflow: hidden;
   flex-shrink: 0;
   display: block;
@@ -100,7 +109,8 @@
   font-weight: 700;
 }
 
-.reservation-info { flex: 1; min-width: 0; }
+.reservation-info { flex: 1;
+  min-width: 0; }
 .reservation-title {
   font-size: 0.95rem;
   font-weight: 600;
@@ -128,7 +138,7 @@
 .notified-badge {
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   background: #dcfce7;
   color: #166534;
   font-weight: 600;
@@ -137,7 +147,7 @@
 .pending-badge {
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   background: #fef3c7;
   color: #92400e;
   font-weight: 600;
@@ -150,12 +160,15 @@
   color: var(--game-muted);
 }
 
-.reservation-stats span { display: inline-flex; align-items: center; gap: 0.2rem; }
-.reservation-stats my-global-icon { height: 0.75rem; width: 0.75rem; }
+.reservation-stats span { display: inline-flex;
+  align-items: center;
+  gap: 0.2rem; }
+.reservation-stats my-global-icon { height: 0.75rem;
+  width: 0.75rem; }
 
 .cancel-btn {
   padding: 0.4rem 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   border: 1px solid var(--game-border);
   background: var(--game-surface);
   color: var(--game-muted);
@@ -171,7 +184,8 @@
   border-color: #ef4444;
 }
 
-.cancel-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.cancel-btn:disabled { opacity: 0.6;
+  cursor: not-allowed; }
 
 .reservations-empty {
   text-align: center;
@@ -179,8 +193,11 @@
   color: var(--game-muted);
 }
 
-.reservations-empty span { font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
-.reservations-empty p { font-size: 0.8rem; margin-bottom: 1rem; }
+.reservations-empty span { font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem; }
+.reservations-empty p { font-size: 0.8rem;
+  margin-bottom: 1rem; }
 
 .browse-link {
   display: inline-block;
@@ -194,4 +211,5 @@
   transition: all 0.2s;
 }
 
-.browse-link:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.browse-link:hover { transform: translateY(-1px);
+  filter: brightness(1.05); }

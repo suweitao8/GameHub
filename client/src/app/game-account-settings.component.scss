@@ -22,10 +22,10 @@
   margin: 0.5rem 0 0; }
 
 .game-settings-card {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
-  box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
+  box-shadow: 0 1px 4px rgb(23 26 51 / 4%);
   margin-bottom: 1rem;
   max-width: 760px;
   padding: 1.5rem;
@@ -51,7 +51,7 @@
   margin-top: 1.25rem; }
 .game-settings-submit { background: var(--game-brand);
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   font-weight: 700;
   justify-self: start;
@@ -64,7 +64,7 @@
   gap: 0.5rem;
   grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .game-settings-links a { border: 1px solid var(--game-border);
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text);
   padding: 0.75rem;
   text-decoration: none; }

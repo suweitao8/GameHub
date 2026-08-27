@@ -8,9 +8,9 @@
 
 /* WeChat-style discussion group */
 .game-discuss-panel {
-  background: #fff;
-  border: 1px solid #e3e5e7;
-  border-radius: 8px;
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-sm);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -21,8 +21,8 @@
 }
 .discuss-header {
   align-items: center;
-  background: #fff;
-  border-bottom: 1px solid #e3e5e7;
+  background: var(--game-surface);
+  border-bottom: 1px solid var(--game-border);
   display: flex;
   height: 36px;
   justify-content: flex-start;
@@ -30,7 +30,7 @@
   padding: 0 12px;
 }
 .discuss-header h2 {
-  color: #1e1e1e;
+  color: var(--game-text-primary);
   font-size: 0.9rem;
   line-height: 20px;
   margin: 0;
@@ -39,7 +39,7 @@
   display: none;
 }
 .wechat-message-list {
-  background: #fff;
+  background: var(--game-surface);
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -69,7 +69,7 @@
   min-width: 0;
 }
 .wechat-message-name {
-  color: #646464;
+  color: var(--game-text-secondary);
   display: block;
   font-size: 0.7rem;
   margin: 0 0 0.2rem;
@@ -77,9 +77,9 @@
 .wechat-message.own .wechat-message-name { text-align: right; }
 .wechat-bubble {
   background: #eeeef0;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--game-border);
   border-radius: 0.25rem 0.65rem 0.65rem;
-  color: #1e1e1e;
+  color: var(--game-text-primary);
   font-size: 0.82rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
@@ -90,11 +90,11 @@
   background: #9df29f;
   border-color: #9df29f;
   border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
-  color: #1e1e1e;
+  color: var(--game-text-primary);
 }
 .wechat-time-separator {
   align-self: center;
-  color: #8c8c8c;
+  color: var(--game-text-hint);
   display: block;
   font-size: 0.66rem;
   line-height: 20px;
@@ -108,23 +108,23 @@
   text-align: center;
 }
 .discuss-skeleton {
-  background: #e8eaed;
-  border-radius: 8px;
+  background: var(--game-border);
+  border-radius: var(--game-radius-sm);
   height: 3rem;
 }
 .discuss-composer {
   align-items: center;
-  background: #fff;
-  border-top: 1px solid #e3e5e7;
+  background: var(--game-surface);
+  border-top: 1px solid var(--game-border);
   display: flex;
   gap: 8px;
   min-height: 52px;
   padding: 10px 12px;
 }
 .discuss-composer input {
-  background: #f1f2f3;
+  background: var(--game-surface-alt);
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   flex: 1;
   font-size: 0.82rem;
   line-height: 20px;
@@ -132,13 +132,13 @@
   padding: 6px 8px;
 }
 .discuss-composer input:focus {
-  border-color: #00aeec;
+  border-color: var(--game-brand);
   outline: 0;
 }
 .discuss-composer button {
   background: var(--game-brand);
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   flex: 0 0 auto;
   font-size: 0.8rem;
@@ -148,13 +148,15 @@
   padding: 6px 10px;
 }
 .discuss-composer button:disabled {
-  background: #e3e5e7;
-  color: #8c8c8c;
+  background: var(--game-border);
+  color: var(--game-text-hint);
   cursor: not-allowed;
 }
 
 @media (max-width: 900px) {
   :host { flex: 0 0 auto; }
-  .game-discuss-panel { height: auto; min-height: 260px; }
-  .discuss-composer { align-items: stretch; flex-direction: column; }
+  .game-discuss-panel { height: auto;
+    min-height: 260px; }
+  .discuss-composer { align-items: stretch;
+    flex-direction: column; }
 }

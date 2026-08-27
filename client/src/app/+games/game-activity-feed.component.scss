@@ -1,6 +1,9 @@
-.feed-container { max-width: 680px; margin: 0 auto; padding: 1rem; }
+.feed-container { max-width: 680px;
+  margin: 0 auto;
+  padding: 1rem; }
 .feed-header { margin-bottom: 1rem; }
-.feed-header h2 { font-size: 1.4rem; margin-bottom: 0.75rem; }
+.feed-header h2 { font-size: 1.4rem;
+  margin-bottom: 0.75rem; }
 
 .feed-tabs {
   display: flex;
@@ -11,7 +14,7 @@
 .feed-tabs button {
   padding: 0.5rem 1rem;
   background: none;
-  border: none;
+  border: 0;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   font-size: 0.9rem;
@@ -24,7 +27,9 @@
   border-bottom-color: var(--game-brand);
 }
 
-.feed-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.feed-list { display: flex;
+  flex-direction: column;
+  gap: 0.5rem; }
 
 .feed-refresh-bar {
   align-items: center;
@@ -60,8 +65,10 @@
 }
 
 @keyframes feedItemIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0;
+    transform: translateY(8px); }
+  to { opacity: 1;
+    transform: translateY(0); }
 }
 
 .feed-item:hover {
@@ -83,26 +90,39 @@
   flex-shrink: 0;
 }
 
-.feed-content { flex: 1; min-width: 0; }
-.feed-message { font-size: 0.9rem; color: var(--game-text); margin: 0 0 0.25rem; }
-.feed-game { font-size: 0.8rem; color: var(--game-brand); text-decoration: none; }
+.feed-content { flex: 1;
+  min-width: 0; }
+.feed-message { font-size: 0.9rem;
+  color: var(--game-text);
+  margin: 0 0 0.25rem; }
+.feed-game { font-size: 0.8rem;
+  color: var(--game-brand);
+  text-decoration: none; }
 .feed-game:hover { text-decoration: underline; }
-.feed-time { font-size: 0.7rem; color: var(--game-muted); display: block; margin-top: 0.25rem; }
+.feed-time { font-size: 0.7rem;
+  color: var(--game-muted);
+  display: block;
+  margin-top: 0.25rem; }
 
 .feed-kind-badge {
   font-size: 0.65rem;
   padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   background: var(--game-border);
   color: var(--game-muted);
   flex-shrink: 0;
 }
 
-.feed-kind-badge.publish { background: #dbeafe; color: #3b82f6; }
-.feed-kind-badge.like { background: #fee2e2; color: #ef4444; }
-.feed-kind-badge.coin { background: #fef3c7; color: #f59e0b; }
-.feed-kind-badge.favorite { background: #dbeafe; color: #3b82f6; }
-.feed-kind-badge.comment { background: #d1fae5; color: #22c55e; }
+.feed-kind-badge.publish { background: var(--game-brand-soft);
+  color: #3b82f6; }
+.feed-kind-badge.like { background: #fee2e2;
+  color: #ef4444; }
+.feed-kind-badge.coin { background: #fef3c7;
+  color: #f59e0b; }
+.feed-kind-badge.favorite { background: var(--game-brand-soft);
+  color: #3b82f6; }
+.feed-kind-badge.comment { background: #d1fae5;
+  color: #22c55e; }
 
 .feed-empty {
   text-align: center;
@@ -110,12 +130,15 @@
   color: var(--game-muted);
 }
 
-.feed-empty span { font-size: 1.1rem; display: block; margin-bottom: 0.5rem; }
-.feed-empty p { font-size: 0.8rem; margin: 0 0 1rem; }
+.feed-empty span { font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem; }
+.feed-empty p { font-size: 0.8rem;
+  margin: 0 0 1rem; }
 .feed-empty button {
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   cursor: pointer;
   font-size: 0.85rem;
@@ -139,12 +162,17 @@
   gap: 0.35rem;
 }
 
-.load-more my-global-icon { animation: spin 0.8s linear infinite; height: 0.85rem; width: 0.85rem; }
+.load-more my-global-icon { animation: spin 0.8s linear infinite;
+  height: 0.85rem;
+  width: 0.85rem; }
 .load-more:hover:not(:disabled) { background: var(--game-border); }
-.load-more:disabled { opacity: 0.6; cursor: not-allowed; }
+.load-more:disabled { opacity: 0.6;
+  cursor: not-allowed; }
 
 /* Skeleton */
-.feed-skeleton-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.feed-skeleton-list { display: flex;
+  flex-direction: column;
+  gap: 0.5rem; }
 .feed-skeleton-item {
   align-items: center;
   display: flex;
@@ -158,7 +186,7 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: #eceff3;
+  background: var(--game-surface-alt);
   flex-shrink: 0;
 }
 .skeleton-content {
@@ -169,6 +197,6 @@
 }
 .skeleton-line {
   height: 0.75rem;
-  border-radius: 4px;
-  background: #eceff3;
+  border-radius: var(--game-radius-xs);
+  background: var(--game-surface-alt);
 }

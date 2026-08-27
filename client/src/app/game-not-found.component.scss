@@ -6,7 +6,7 @@
 }
 
 .game-not-found-card {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   box-shadow: var(--game-shadow);
@@ -37,7 +37,7 @@
 
 .game-not-found-primary,
 .game-not-found-secondary {
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   font-weight: 700;
   padding: 0.65rem 1.1rem;
   text-decoration: none;
@@ -50,7 +50,7 @@
 }
 
 .game-not-found-secondary {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   color: var(--game-text);
 }

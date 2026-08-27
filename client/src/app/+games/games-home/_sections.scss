@@ -1,3 +1,5 @@
+/* 首页各区块：白卡浮于画布之上，悬停统一“抬升 + 投影加深” */
+
 .community-hub {
   padding-bottom: 4rem;
 }
@@ -14,27 +16,41 @@
 
 .community-hub-card {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   gap: 0.9rem;
   min-height: 8rem;
   padding: 1.2rem;
+  text-decoration: none;
+  transition: border-color var(--game-dur) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur) var(--game-ease);
+}
+
+.community-hub-card:hover,
+.community-hub-card:focus-visible {
+  border-color: var(--game-brand-border);
+  box-shadow: var(--game-shadow-lg);
+  outline: none;
+  transform: translateY(-3px);
 }
 
 .community-hub-icon {
   align-items: center;
-  background: var(--game-brand-soft);
+  background: linear-gradient(135deg, var(--game-brand-soft), #ffffff);
+  border: 1px solid var(--game-brand-border);
   border-radius: 50%;
   color: var(--game-brand-deep);
   display: inline-flex;
-  flex: 0 0 2.5rem;
+  flex: 0 0 2.6rem;
   font-size: 0.92rem;
   font-weight: 800;
-  height: 2.5rem;
+  height: 2.6rem;
   justify-content: center;
-  width: 2.5rem;
+  width: 2.6rem;
 }
 
 .community-hub-icon my-global-icon {
@@ -48,8 +64,9 @@
 }
 
 .community-hub-card h3 {
-  color: var(--game-text);
+  color: var(--game-text-primary);
   font-size: 1rem;
+  font-weight: 700;
 }
 
 .community-hub-card p {
@@ -68,8 +85,8 @@
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 6px;
-  color: var(--game-brand);
+  border-radius: var(--game-radius-sm);
+  color: var(--game-brand-deep);
   cursor: pointer;
   display: inline-flex;
   flex-direction: row;
@@ -79,13 +96,15 @@
   justify-content: center;
   min-height: 2rem;
   padding: 0.3rem 0.55rem;
-  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease),
+    transform var(--game-dur-fast) var(--game-ease);
 }
 
 .shuffle-button:hover,
 .shuffle-button:focus-visible {
-  background: var(--game-brand-soft, #eaf8ff);
-  color: var(--game-brand-deep, #0087b8);
+  background: var(--game-brand-soft);
+  color: var(--game-brand-deep);
   outline: none;
 }
 
@@ -125,16 +144,18 @@
 
 .section-more-link {
   align-items: center;
-  color: var(--game-muted);
+  color: var(--game-text-secondary);
   display: inline-flex;
   font-size: 0.78rem;
   gap: 0.15rem;
   text-decoration: none;
-  transition: color 160ms ease;
+  transition: color var(--game-dur-fast) var(--game-ease),
+    transform var(--game-dur-fast) var(--game-ease);
 }
 
 .section-more-link:hover {
   color: var(--game-brand);
+  transform: translateX(2px);
 }
 
 .section-more-link my-global-icon {
@@ -156,26 +177,30 @@
 
 .collection-pill {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 8px;
-  color: var(--game-text);
+  border-radius: var(--game-radius-sm);
+  box-shadow: var(--game-shadow-xs);
+  color: var(--game-text-primary);
   display: inline-flex;
   flex: 0 0 auto;
   gap: 0.55rem;
   padding: 0.45rem 0.7rem;
   text-decoration: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition: border-color var(--game-dur-fast) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur) var(--game-ease);
 }
 
 .collection-pill:hover {
-  border-color: var(--game-brand);
+  border-color: var(--game-brand-border);
   box-shadow: var(--game-shadow);
-  transform: translateY(-1px);
+  outline: none;
+  transform: translateY(-2px);
 }
 
 .collection-pill-cover {
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   flex: 0 0 auto;
   height: 2.2rem;
   overflow: hidden;
@@ -191,8 +216,9 @@
 
 .collection-pill-placeholder {
   align-items: center;
-  background: var(--game-brand-soft);
-  border-radius: 4px;
+  background: linear-gradient(135deg, var(--game-brand-soft), #ffffff);
+  border: 1px solid var(--game-brand-border);
+  border-radius: var(--game-radius-xs);
   color: var(--game-brand-deep);
   display: inline-flex;
   flex: 0 0 auto;
@@ -221,8 +247,8 @@
 }
 
 .featured-editor-section .game-section-heading::before {
-  background: var(--game-brand);
-  border-radius: 2px;
+  background: linear-gradient(180deg, var(--game-brand), var(--game-accent));
+  border-radius: var(--game-radius-pill);
   content: '';
   display: inline-block;
   height: 1.1rem;
@@ -231,28 +257,53 @@
 
 /* Category directory */
 .category-directory { padding-bottom: 4rem; }
-.category-directory-grid { display: grid;
+
+.category-directory-grid {
+  display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.category-directory-card { background: #fff;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.category-directory-card {
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   cursor: pointer;
   display: grid;
   gap: 0.45rem;
   padding: 1.25rem;
   text-decoration: none;
-  transition: border-color 160ms ease, box-shadow 160ms ease; }
-.category-directory-card:hover { border-color: var(--game-brand);
-  box-shadow: var(--game-shadow); }
-.category-directory-card strong { color: var(--game-text);
-  font-size: 1.1rem; }
-.category-directory-card span { color: var(--game-muted);
-  font-size: 0.86rem; }
-.category-directory-card em { color: var(--game-brand-deep);
+  transition: border-color var(--game-dur) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur) var(--game-ease);
+}
+
+.category-directory-card:hover,
+.category-directory-card:focus-visible {
+  border-color: var(--game-brand-border);
+  box-shadow: var(--game-shadow-lg);
+  outline: none;
+  transform: translateY(-3px);
+}
+
+.category-directory-card strong {
+  color: var(--game-text-primary);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.category-directory-card span {
+  color: var(--game-muted);
+  font-size: 0.86rem;
+}
+
+.category-directory-card em {
+  color: var(--game-brand-deep);
   font-size: 0.8rem;
   font-style: normal;
-  font-weight: 700; }
+  font-weight: 700;
+}
 
 /* Load more button */
 .load-more-row {
@@ -262,21 +313,31 @@
 }
 
 .load-more-btn {
-  background: #fff;
-  border: 1px solid var(--game-border);
-  border-radius: 6px;
-  color: var(--game-text);
+  background: var(--game-surface);
+  border: 1px solid var(--game-border-strong);
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-primary);
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
-  padding: 0.55rem 2rem;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+  padding: 0.6rem 2.2rem;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    border-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur) var(--game-ease);
 }
 
 .load-more-btn:hover:not(:disabled) {
   background: var(--game-brand-soft);
-  border-color: var(--game-brand);
+  border-color: var(--game-brand-border);
+  box-shadow: var(--game-shadow);
   color: var(--game-brand-deep);
+  transform: translateY(-1px);
+}
+
+.load-more-btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .load-more-btn:disabled {
@@ -285,11 +346,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .shuffle-button,
   .collection-pill,
   .category-directory-card,
-  .load-more-btn {
+  .community-hub-card,
+  .load-more-btn,
+  .section-more-link {
     transition: none;
+  }
+
+  .community-hub-card:hover,
+  .category-directory-card:hover,
+  .collection-pill:hover,
+  .load-more-btn:hover:not(:disabled) {
+    transform: none;
   }
 
   .shuffle-button:hover my-global-icon,

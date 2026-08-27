@@ -43,7 +43,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     .game-grid {
       display: grid;
       column-gap: 1rem;
-      row-gap: 0.62rem;
+      row-gap: 0.9rem;
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 

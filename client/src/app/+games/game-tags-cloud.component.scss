@@ -30,7 +30,7 @@
 
 .tag-pill {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: 999px;
   color: var(--game-text);
@@ -76,5 +76,5 @@
   width: 4rem;
   height: 1.8rem;
   border-radius: 999px;
-  background: #eceff3;
+  background: var(--game-surface-alt);
 }

@@ -31,32 +31,12 @@
   width: 100%;
 
   @media (max-width: 760px) {
-    margin-top: 105px !important;
+    margin-top: 120px !important;
   }
 }
 
 .game-experience {
   --header-height: 56px;
-  --game-page-bg: #fff;
-  --game-card-bg: #fff;
-  --game-text: #1e1e1e;
-  --game-text-button: #646464;
-  --game-text-hint: #8c8c8c;
-  --game-muted: #646464;
-  --game-border: #e3e5e7;
-  --game-brand: #00aeec;
-  --game-brand-hover: #00a1d6;
-  --game-brand-deep: #008acb;
-  --game-brand-soft: #e5f7ff;
-  --game-accent: #fb7299;
-  --game-accent-deep: #e95b86;
-  --game-accent-soft: #fff0f5;
-  --game-success: #00c091;
-  --game-warning: #ffb400;
-  --game-danger: #f25d8e;
-  --game-radius: 6px;
-  --game-shadow: 0 2px 12px rgb(25 30 40 / 8%);
-  --game-content-width: 1600px;
 
   background: var(--game-page-bg);
 
@@ -69,11 +49,6 @@
     &.game-header-scrolled > .root-header {
       position: fixed;
     }
-  }
-
-  ::selection {
-    background: rgb(0 174 236 / 32%);
-    color: #1e1e1e;
   }
 
   #left-menu {

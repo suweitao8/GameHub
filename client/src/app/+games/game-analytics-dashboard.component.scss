@@ -26,7 +26,7 @@
   display: flex;
   background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   overflow: hidden;
 }
 
@@ -51,8 +51,8 @@
   gap: 0.35rem;
   padding: 0.4rem 0.85rem;
   border: 1px solid var(--game-border);
-  border-radius: 6px;
-  background: #fff;
+  border-radius: var(--game-radius-xs);
+  background: var(--game-surface);
   color: var(--game-text);
   font-size: 0.82rem;
   cursor: pointer;
@@ -103,7 +103,7 @@
 .analytics-state button {
   padding: 0.45rem 0.9rem;
   border: 1px solid var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   background: var(--game-brand);
   color: #fff;
   cursor: pointer;

@@ -1,4 +1,6 @@
-.watch-later-list { max-width: 900px; margin: 0 auto; padding: 1rem; }
+.watch-later-list { max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem; }
 
 .watch-later-item {
   display: flex;
@@ -24,7 +26,7 @@
 .watch-later-cover {
   width: 5rem;
   height: 5rem;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -38,7 +40,7 @@
 .watch-later-placeholder {
   width: 5rem;
   height: 5rem;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   background: linear-gradient(135deg, var(--game-brand), #34d399);
   color: #fff;
   display: flex;
@@ -82,7 +84,7 @@
   align-self: flex-start;
   background: none;
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   padding: 0.35rem 0.75rem;
   color: var(--game-muted);
   font-size: 0.8rem;

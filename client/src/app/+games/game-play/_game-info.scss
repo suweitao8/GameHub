@@ -39,9 +39,9 @@
   gap: 0.55rem; }
 .game-actions button,
 .interaction-row button,
-.coin-row button { background: #fff;
+.coin-row button { background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 7px;
+  border-radius: var(--game-radius-sm);
   color: var(--game-text);
   padding: 0.58rem 0.8rem; }
 .game-actions button:last-child { background: var(--game-brand);
@@ -77,7 +77,7 @@
   margin-top: 0.75rem; }
 .game-community-panel,
 .game-comments,
-.game-info-card { background: #fff;
+.game-info-card { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   margin-top: 1rem;
@@ -96,10 +96,10 @@
   justify-content: space-between; }
 .game-play-page .game-comments,
 .game-play-page .bili-comment-panel {
-  background: #fff;
+  background: var(--game-surface);
   border: 0;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgb(25 30 40 / 4%);
+  border-radius: var(--game-radius-sm);
+  box-shadow: 0 1px 4px rgb(23 26 51 / 4%);
   display: flex;
   flex-direction: column;
   /* Stay in left column only — never span full width */

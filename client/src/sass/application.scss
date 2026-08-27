@@ -12,6 +12,8 @@
 @use "./class-helpers/index.scss";
 @use "_css-variables" as *;
 @use "./primeng";
+// GameHub 设计系统令牌：全局加载一次，供所有 game-experience 组件消费
+@use "../app/+games/game-community.tokens";
 
 @mixin main-col-expanded {
   --menu-width: #{$menu-collapsed-width};
@@ -52,8 +54,8 @@ body {
 }
 
 .game-experience ::selection {
-  background-color: #008acb;
-  color: #fff;
+  background-color: var(--game-brand-glow);
+  color: var(--game-text);
 }
 
 // Force to override bootstrap utilities
@@ -232,7 +234,7 @@ my-global-icon[iconName="external-link"] {
 // routed content below that row instead of allowing it to overlap the nav.
 @media (max-width: 760px) {
   .game-experience > .sub-header-container {
-    margin-top: 105px !important;
+    margin-top: 120px !important;
   }
 }
 

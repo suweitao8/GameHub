@@ -5,24 +5,43 @@
   min-width: 0;
 }
 
+/* 游戏卡片：画布上的白卡；悬停整体抬升、封面微缩放，形成可点感 */
+
 .game-card {
-  background: transparent;
-  border: 0;
-  border-radius: var(--game-radius);
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: block;
   overflow: hidden;
+  transition: box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur) var(--game-ease),
+    border-color var(--game-dur) var(--game-ease);
+}
+
+.game-card:hover,
+.game-card:focus-within {
+  border-color: var(--game-brand-border);
+  box-shadow: var(--game-shadow-lg);
+  transform: translateY(-4px);
 }
 
 .game-card-main {
   color: inherit;
   cursor: pointer;
   display: block;
+  outline: none;
   text-decoration: none;
+}
+
+.game-card-main:focus-visible {
+  outline: 2px solid var(--game-brand-glow);
+  outline-offset: -2px;
 }
 
 .game-cover {
   aspect-ratio: 16 / 9;
-  background: #8f6a52;
+  background: var(--game-cover-fallback-deep);
   overflow: hidden;
   position: relative;
 }
@@ -30,15 +49,26 @@
 .game-cover img {
   height: 100%;
   object-fit: cover;
+  transition: transform var(--game-dur-slow) var(--game-ease);
   width: 100%;
 }
 
+.game-card:hover .game-cover img,
+.game-card-main:focus-visible .game-cover img {
+  transform: scale(1.05);
+}
+
 .game-cover.placeholder {
-  background: linear-gradient(135deg, #6e4d3b 0%, #8f6a52 52%, #b48a68 100%);
+  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 60%, #514c96 130%);
   display: flex;
-  justify-content: center;
   isolation: isolate;
+  justify-content: center;
   overflow: hidden;
+  transition: filter var(--game-dur) var(--game-ease);
+}
+
+.game-card:hover .game-cover.placeholder {
+  filter: brightness(1.08);
 }
 
 .game-cover.placeholder::before,
@@ -50,7 +80,7 @@
 }
 
 .game-cover.placeholder::before {
-  background: rgb(255 255 255 / 16%);
+  background: rgb(255 255 255 / 10%);
   height: 180%;
   right: -22%;
   top: -65%;
@@ -59,7 +89,7 @@
 }
 
 .game-cover.placeholder::after {
-  border: 1px solid rgb(255 255 255 / 20%);
+  border: 1px solid rgb(255 255 255 / 16%);
   height: 130%;
   left: -38%;
   top: 35%;
@@ -68,9 +98,9 @@
 
 .cover-letter {
   align-items: center;
-  background: rgb(20 30 48 / 22%);
-  border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 0.7rem;
+  background: rgb(23 26 51 / 30%);
+  border: 1px solid rgb(255 255 255 / 26%);
+  border-radius: var(--game-radius-sm);
   color: #fff;
   display: inline-flex;
   flex: 0 0 3.2rem;
@@ -78,7 +108,6 @@
   font-weight: 800;
   height: 3.2rem;
   justify-content: center;
-  text-shadow: 0 2px 12px rgb(0 92 126 / 28%);
 }
 
 .cover-placeholder-content {
@@ -116,16 +145,23 @@
 }
 
 .game-card-body {
-  padding: 0.55rem 0.4rem 0;
+  padding: 0.6rem 0.7rem 0;
 }
 
 .game-card h3 {
-  font-size: 0.95rem;
+  color: var(--game-text-primary);
+  font-size: 0.94rem;
+  font-weight: 700;
   line-height: 1.35;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--game-dur-fast) var(--game-ease);
   white-space: nowrap;
+}
+
+.game-card:hover h3 {
+  color: var(--game-brand-deep);
 }
 
 .game-card-author,
@@ -140,15 +176,15 @@
 .game-card-author {
   margin-top: 0.35rem;
   min-width: 0;
-  padding: 0 0.4rem 0.8rem;
+  padding: 0 0.7rem 0.7rem;
 }
 
 .author-up-badge {
   align-items: center;
-  background: rgb(0 174 236 / 10%);
-  border: 1px solid rgb(0 174 236 / 22%);
-  border-radius: 3px;
-  color: var(--game-brand);
+  background: var(--game-brand-soft);
+  border: 1px solid var(--game-brand-border);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-brand-deep);
   display: inline-flex;
   flex: 0 0 auto;
   font-size: 0.58rem;
@@ -158,14 +194,17 @@
   letter-spacing: 0.02em;
   line-height: 1;
   min-width: 1.35rem;
-  padding: 0 0.22rem;
+  padding: 0 0.24rem;
   user-select: none;
 }
 
 .author-name-link {
-  color: var(--game-text-button);
+  color: var(--game-text-secondary);
+  overflow: hidden;
   text-decoration: none;
-  transition: color 160ms ease;
+  text-overflow: ellipsis;
+  transition: color var(--game-dur-fast) var(--game-ease);
+  white-space: nowrap;
 }
 
 .author-name-link:hover {
@@ -174,22 +213,29 @@
 }
 
 .game-card-time {
-  color: var(--game-text-button);
+  color: var(--game-text-hint);
   margin-left: 0;
   white-space: nowrap;
 }
 
+/* 封面左下角数据条：靛墨渐变承托白字 */
 .game-card-meta {
   align-items: center;
-  background: linear-gradient(180deg, transparent 0%, rgb(25 30 40 / 72%) 100%);
+  background: linear-gradient(180deg, transparent 0%, rgb(19 21 44 / 74%) 100%);
   bottom: 0;
   color: #fff;
   display: flex;
   gap: 0.8rem;
   left: 0;
+  opacity: 0.85;
   padding: 1.1rem 0.65rem 0.25rem;
   position: absolute;
   right: 0;
+  transition: opacity var(--game-dur) var(--game-ease);
+}
+
+.game-card:hover .game-card-meta {
+  opacity: 1;
 }
 
 .game-card-stat {
@@ -226,12 +272,35 @@
   line-height: 1;
 }
 
+/* 占位骨架（isVisible=false 时渲染） */
 .game-card-placeholder {
+  animation: cardSkeletonShimmer 1.4s ease infinite;
+  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
+  background-size: 240% 100%;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
   display: block;
   min-height: 180px;
+  overflow: hidden;
+}
+
+@keyframes cardSkeletonShimmer {
+
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
 }
 
 @media (max-width: 720px) {
+  .game-card:hover,
+  .game-card:focus-within {
+    transform: none;
+  }
+
   .game-card-body {
     padding: 0.35rem 0.25rem 0;
   }
@@ -313,11 +382,38 @@
   }
 }
 
-/* Search highlight */
+/* Search highlight：软底高亮，取代旧的实底反白 */
 :host ::ng-deep .search-highlight {
-  background: var(--game-brand);
-  color: #fff;
-  border-radius: 2px;
+  background: var(--game-brand-soft);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-brand-deep);
+  font-weight: 800;
   padding: 0 2px;
-  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .game-card,
+  .game-cover img,
+  .game-cover.placeholder,
+  .game-card-meta,
+  .game-card h3,
+  .author-name-link {
+    transition: none;
+  }
+
+  .game-card:hover,
+  .game-card:focus-within {
+    transform: none;
+  }
+
+  .game-card:hover .game-cover img,
+  .game-card-main:focus-visible .game-cover img {
+    transform: none;
+  }
+
+  .game-card-placeholder {
+    animation: none;
+    background: var(--game-surface-alt);
+  }
 }

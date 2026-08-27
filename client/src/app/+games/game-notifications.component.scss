@@ -71,15 +71,17 @@
   padding: 0.9rem 0; }
 
 @keyframes notificationSlideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+  from { opacity: 0;
+    transform: translateX(-12px); }
+  to { opacity: 1;
+    transform: translateX(0); }
 }
 .notification-item:last-child { border-bottom: 0; }
 .notification-item.unread { background: var(--game-brand-soft);
   margin-inline: -0.6rem;
   padding-inline: 0.6rem; }
 .notification-icon { background: var(--game-brand-soft);
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   color: var(--game-brand-deep);
   flex: 0 0 3.4rem;
   font-size: 0.75rem;
@@ -113,8 +115,8 @@
 .notification-delete-btn {
   align-items: center;
   background: transparent;
-  border: none;
-  border-radius: 4px;
+  border: 0;
+  border-radius: var(--game-radius-xs);
   color: var(--game-muted);
   cursor: pointer;
   display: inline-flex;
@@ -157,8 +159,8 @@
 }
 
 .skeleton-notification-item {
-  background: #eceff3;
-  border-radius: 0.5rem;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-md);
   height: 3.5rem;
   width: 100%;
 }

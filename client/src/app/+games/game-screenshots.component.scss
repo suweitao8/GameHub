@@ -32,7 +32,7 @@
 .screenshot-thumbs button {
   width: 4.5rem;
   height: 4.5rem;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   overflow: hidden;
   border: 2px solid transparent;
   cursor: pointer;
@@ -70,7 +70,7 @@
 
 .lightbox-close {
   background: none;
-  border: none;
+  border: 0;
   color: #fff;
   cursor: pointer;
   font-size: 2rem;
@@ -87,7 +87,7 @@
 .lightbox-nav {
   align-items: center;
   background: rgb(255 255 255 / 10%);
-  border: none;
+  border: 0;
   border-radius: 50%;
   color: #fff;
   cursor: pointer;
@@ -123,9 +123,13 @@
 }
 
 @media (max-width: 600px) {
-  .lightbox-nav { height: 2.5rem; width: 2.5rem; }
-  .lightbox-nav my-global-icon { height: 1.2rem; width: 1.2rem; }
+  .lightbox-nav { height: 2.5rem;
+    width: 2.5rem; }
+  .lightbox-nav my-global-icon { height: 1.2rem;
+    width: 1.2rem; }
   .lightbox-prev { left: 0.5rem; }
   .lightbox-next { right: 0.5rem; }
-  .lightbox-close { right: 0.75rem; top: 0.75rem; font-size: 1.5rem; }
+  .lightbox-close { right: 0.75rem;
+    top: 0.75rem;
+    font-size: 1.5rem; }
 }
