@@ -756,6 +756,131 @@ my-actor-avatar {
   display: none;
 }
 
+/* ---- 访客登录入口:B 站式登录胶囊 + 悬停权益卡 ---- */
+
+.game-login-pill {
+  align-self: center;
+  background: var(--game-brand);
+  border: 0;
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-inverse);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1;
+  min-height: 34px;
+  padding: 0 1.05rem;
+  transition: background-color var(--game-dur) var(--game-ease), box-shadow var(--game-dur) var(--game-ease);
+
+  &:hover {
+    background: var(--game-brand-hover);
+    box-shadow: 0 0 0 3px var(--game-brand-glow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-header-focus-ring);
+    outline-offset: 3px;
+  }
+}
+
+.game-guest-card {
+  padding: 1rem 1.1rem 0.95rem;
+}
+
+.game-guest-card-title {
+  color: var(--game-text-primary);
+  font-size: 0.94rem;
+  font-weight: 800;
+  margin: 0 0 0.7rem;
+}
+
+.game-guest-card-list {
+  color: var(--game-text-secondary);
+  display: grid;
+  font-size: 0.86rem;
+  gap: 0.55rem 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  line-height: 1.45;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+
+  li {
+    align-items: flex-start;
+    display: flex;
+    gap: 0.5rem;
+
+    &::before {
+      background: var(--game-brand);
+      border-radius: 50%;
+      content: '';
+      flex: 0 0 6px;
+      height: 6px;
+      margin-top: 0.42rem;
+      width: 6px;
+    }
+
+    &:nth-child(even)::before {
+      background: var(--game-accent);
+    }
+
+    strong {
+      color: var(--game-text-primary);
+      font-weight: 700;
+    }
+  }
+}
+
+.game-guest-card-btn {
+  background: var(--game-brand);
+  border: 0;
+  border-radius: var(--game-radius-sm);
+  color: var(--game-text-inverse);
+  cursor: pointer;
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  min-height: 40px;
+  transition: background-color var(--game-dur) var(--game-ease);
+  width: 100%;
+
+  &:hover {
+    background: var(--game-brand-hover);
+    box-shadow: var(--game-shadow-brand);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-header-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.game-guest-card-footer {
+  color: var(--game-text-hint);
+  font-size: 0.84rem;
+  margin: 0.75rem 0 0;
+  text-align: center;
+}
+
+.game-guest-card-register {
+  background: transparent;
+  border: 0;
+  color: var(--game-brand);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 700;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-brand);
+    outline-offset: 2px;
+  }
+}
+
 .tertiary-button {
   color: pvar(--header-fg-200);
 }

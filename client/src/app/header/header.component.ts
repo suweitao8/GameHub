@@ -64,6 +64,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
   readonly dropdown = viewChild<NgbDropdown>('dropdown')
   readonly gameAvatarHoverVisible = signal(false)
+  readonly gameGuestCardVisible = signal(false)
   readonly gameCoinBalance = signal<number | null>(null)
   readonly gameNavHover = signal<GameHeaderPopup | null>(null)
   readonly gameNavFavorites = signal<Game[]>([])
@@ -356,9 +357,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.cancelGameAvatarHover(false)
     this.gameAvatarHoverTimer = setTimeout(() => {
-      this.gameAvatarHoverVisible.set(true)
-      this.loadGameCoinBalance()
-    }, 500)
+      if (this.loggedIn) {
+        this.gameAvatarHoverVisible.set(true)
+        this.loadGameCoinBalance()
+      } else {
+        // 访客:悬停「登录」按钮展示 B 站式权益卡
+        this.gameGuestCardVisible.set(true)
+      }
+    }, 300)
   }
 
   cancelGameAvatarHover (close = true) {
@@ -367,7 +373,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameAvatarHoverTimer = undefined
     }
 
-    if (close) this.gameAvatarHoverVisible.set(false)
+    if (close) {
+      this.gameAvatarHoverVisible.set(false)
+      this.gameGuestCardVisible.set(false)
+    }
   }
 
   scheduleGameNavHover (popup: GameHeaderPopup) {
