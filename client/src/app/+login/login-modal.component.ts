@@ -323,8 +323,7 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
     this.userService.askResetPassword(this.forgotPasswordEmail)
       .subscribe({
         next: () => {
-          const message = $localize`An email with the reset password instructions will be sent to ${this.forgotPasswordEmail}.
-The link will expire within 1 hour.`
+          const message = $localize`重置邮件已发送至 ${this.forgotPasswordEmail}，链接 1 小时内有效。`
 
           this.notifier.success(message)
           this.hideForgotPasswordModal()

@@ -1053,6 +1053,44 @@ my-actor-avatar {
   padding: 0.18rem 0.7rem;
 }
 
+/* 悬停卡底部操作区:登出入口 */
+.game-avatar-hover-actions {
+  border-top: 1px solid var(--game-border);
+  padding: 0.75rem 1rem 1rem;
+}
+
+.game-avatar-logout {
+  align-items: center;
+  background: var(--game-surface-alt);
+  border: 0;
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-secondary);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.88rem;
+  font-weight: 600;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 38px;
+  transition: background-color var(--game-dur) var(--game-ease), color var(--game-dur) var(--game-ease);
+  width: 100%;
+
+  &:hover {
+    background: var(--game-danger-soft);
+    color: var(--game-danger);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-header-focus-ring);
+    outline-offset: 2px;
+  }
+
+  my-global-icon {
+    height: 15px;
+    width: 15px;
+  }
+}
+
 @media screen and (max-width: $mobile-view) {
   :host-context(.game-experience) {
     .buttons-container .settings-button,

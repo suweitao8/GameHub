@@ -99,6 +99,13 @@
                   <strong>{{ user?.account?.displayName || user?.username || 'GameHub 玩家' }}</strong>
                   <span>硬币 {{ gameCoinBalance() ?? 0 }}</span>
                 </div>
+
+                <div class="game-avatar-hover-actions">
+                  <button type="button" class="game-avatar-logout" (click)="logout($event)">
+                    <my-global-icon iconName="sign-out" aria-hidden="true"></my-global-icon>
+                    退出登录
+                  </button>
+                </div>
               </div>
             }
           }

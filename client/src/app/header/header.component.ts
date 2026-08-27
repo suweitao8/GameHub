@@ -323,6 +323,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     event.preventDefault()
 
     this.authService.logout()
+    // 收起游戏态头像悬停卡,避免登出后仍展示个人信息
+    this.cancelGameAvatarHover()
     // Redirect to home page
     this.redirectService.redirectToHomepage()
   }

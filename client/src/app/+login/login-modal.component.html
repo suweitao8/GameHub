@@ -119,7 +119,7 @@
         <label i18n for="reg-username">用户名</label>
         <input
           type="text" id="reg-username" i18n-placeholder placeholder="仅限小写字母、数字、点或下划线" required
-          [(ngModel)]="regUsername" name="regUsername" class="form-control"
+          [(ngModel)]="regUsername" name="regUsername" (ngModelChange)="regErrors['username'] = null" class="form-control"
           [ngClass]="{ 'input-error': regErrors['username'] }" autocomplete="username" myAutofocus
           >
       </div>
@@ -131,7 +131,7 @@
         <label i18n for="reg-password">密码</label>
         <input
           type="password" id="reg-password" i18n-placeholder placeholder="至少 6 个字符" required
-          [(ngModel)]="regPassword" name="regPassword" class="form-control"
+          [(ngModel)]="regPassword" name="regPassword" (ngModelChange)="regErrors['password'] = null" class="form-control"
           [ngClass]="{ 'input-error': regErrors['password'] }" autocomplete="new-password"
           >
       </div>
@@ -143,7 +143,7 @@
         <label i18n for="reg-confirm">确认密码</label>
         <input
           type="password" id="reg-confirm" placeholder required
-          [(ngModel)]="regConfirmPassword" name="regConfirmPassword" class="form-control"
+          [(ngModel)]="regConfirmPassword" name="regConfirmPassword" (ngModelChange)="regErrors['confirmPassword'] = null" class="form-control"
           [ngClass]="{ 'input-error': regErrors['confirmPassword'] }" autocomplete="new-password"
           >
       </div>
@@ -155,7 +155,7 @@
         <label i18n for="reg-email">邮箱</label>
         <input
           type="email" id="reg-email" i18n-placeholder placeholder="用于找回密码和接收通知" required
-          [(ngModel)]="regEmail" name="regEmail" class="form-control"
+          [(ngModel)]="regEmail" name="regEmail" (ngModelChange)="regErrors['email'] = null" class="form-control"
           [ngClass]="{ 'input-error': regErrors['email'] }" autocomplete="email"
           >
       </div>
@@ -219,7 +219,7 @@
 
 <ng-template #forgotPasswordModal>
   <div class="modal-header">
-    <h4 i18n class="modal-title">Forgot your password</h4>
+    <h4 i18n class="modal-title">找回密码</h4>
 
     <button type="button" class="border-0 p-0" title="Close this modal" i18n-title (click)="hideForgotPasswordModal()">
       <my-global-icon iconName="cross"></my-global-icon>
@@ -230,20 +230,20 @@
 
     @if (isEmailDisabled()) {
       <my-alert type="danger" i18n>
-        We are sorry, you cannot recover your password because the GameHub email system is not configured.
+        当前站点未配置邮件系统，暂时无法自助找回密码，请通过「关于 GameHub」页面联系管理员。
       </my-alert>
     }
 
     @if (!isEmailDisabled()) {
       <div class="mb-4" i18n>
-        Enter your email address and we will send you a link to reset your password.
+        输入注册时使用的邮箱地址，我们会发送一封包含重置链接的邮件（1 小时内有效）。
       </div>
     }
 
     <div class="form-group" [hidden]="isEmailDisabled()">
-      <label i18n for="forgot-password-email">Email</label>
+      <label i18n for="forgot-password-email">邮箱地址</label>
       <input
-        type="email" id="forgot-password-email" i18n-placeholder placeholder="Email address" required
+        type="email" id="forgot-password-email" i18n-placeholder placeholder="例如：you@example.com" required
         [(ngModel)]="forgotPasswordEmail" #forgotPasswordEmailInput
         >
     </div>
@@ -251,12 +251,12 @@
 
   <div class="modal-footer inputs">
     <input
-      type="button" role="button" i18n-value value="Cancel" class="peertube-button secondary-button d-none d-sm-block"
+      type="button" role="button" i18n-value value="取消" class="peertube-button secondary-button d-none d-sm-block"
       (click)="hideForgotPasswordModal()" (key.enter)="hideForgotPasswordModal()"
       >
 
     <input
-      type="submit" i18n-value="Password reset button" value="Reset" class="peertube-button primary-button"
+      type="submit" i18n-value value="发送重置邮件" class="peertube-button primary-button"
       (click)="askResetPassword()" [disabled]="!forgotPasswordEmailInput.validity.valid"
       >
   </div>
