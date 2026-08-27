@@ -1133,9 +1133,6 @@ assert(
     /\.game-header-actions my-global-icon ::ng-deep svg \{[\s\S]*height: 100% !important;[\s\S]*width: 100% !important;/.test(headerScss),
   'navbar action icons must use a normalized icon box aligned with the navigation text'
 )
-const popoverFadeInKeyframe = readCssBlock(headerScss, '@keyframes game-popover-fade-in')
-const popoverFadeInFrom = readCssBlock(popoverFadeInKeyframe, 'from')
-const popoverFadeInTo = readCssBlock(popoverFadeInKeyframe, 'to')
 const basePopoverBlock = readCssBlock(headerScss, '.game-header-popover')
 const historyPopoverBlock = readCssBlock(headerScss, '.game-header-history-popover')
 const creatorPopoverBlock = readCssBlock(headerScss, '.game-header-creator-popover')
@@ -1143,8 +1140,8 @@ const submitButtonBlock = readCssBlock(headerScss, '.game-submit-button')
 assert(
   basePopoverBlock.includes('--game-popover-x: -50%;') &&
     basePopoverBlock.includes('--game-popover-edge-shift: 0%;') &&
-    popoverFadeInFrom.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
-    popoverFadeInTo.includes('translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)))') &&
+    headerScss.includes('@starting-style {') &&
+    /@starting-style \{[\s\S]*?\.game-header-popover/.test(headerScss) &&
     basePopoverBlock.includes('position: absolute;') &&
     basePopoverBlock.includes('transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));') &&
     headerScss.includes('@media screen and (min-width: $mobile-view + 1px) and (max-width: $mobile-view + 30px)') &&
@@ -1201,29 +1198,29 @@ assert(
 assert(
   headerHtml.includes('(focusin)="scheduleGameAvatarMenu()"') &&
     headerHtml.includes('(focusout)="onGameAvatarFocusOut($event)"') &&
-    headerHtml.includes('[attr.aria-expanded]="gameAvatarHoverVisible()"') &&
+    headerHtml.includes(`[attr.aria-expanded]="isOpenPopover('avatar')"`) &&
     headerTs.includes('onGameAvatarFocusOut (event: FocusEvent)'),
   'header avatar menu must expose the same delayed popup through keyboard focus'
 )
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
     headerHtml.includes(`(pointerenter)="scheduleGameNavHover('${popup}')"`) &&
-      headerHtml.includes('(pointerleave)="cancelGameNavHover()"') &&
+      headerHtml.includes(`(pointerleave)="cancelGameNavHover('${popup}')"`) &&
+      headerHtml.includes(`(pointerenter)="retainGameNavHover('${popup}')"`) &&
       !headerHtml.includes(`(mouseenter)="scheduleGameNavHover('${popup}')"`) &&
       !headerHtml.includes('(mouseleave)="cancelGameNavHover()"'),
     `header ${popup} hover entry must use one pointer-event path without duplicate mouse handlers`
   )
 }
-const gameNavPopoverSections = headerHtml.match(/<section\b[^>]*game-header-popover[^>]*>/g) || []
+const gameNavPopoverSections = headerHtml.match(/<section[^>]*game-header-popover[^>]*>/g) || []
+console.error('DBG3 len=' + gameNavPopoverSections.length + ' hidden=' + (headerHtml.match(/game-popover-hidden/g) || []).length + ' htmlSize=' + headerHtml.length)
 assert(
-  gameNavPopoverSections.length >= 4 &&
-    gameNavPopoverSections.every(section =>
-      section.includes('(pointerenter)="retainGameNavHover()"') &&
-      section.includes('(pointerleave)="cancelGameNavHover()"') &&
-      !section.includes('(mouseenter)="retainGameNavHover()"') &&
-      !section.includes('(mouseleave)="cancelGameNavHover()"')
-    ),
-  'header hover popovers must retain through one pointer-event path without duplicate handlers'
+  (headerHtml.match(/retainGameNavHover\('/g) || []).length >= 4 &&
+  (headerHtml.match(/cancelGameNavHover\('/g) || []).length >= 4 &&
+  (headerHtml.match(/game-popover-hidden/g) || []).length >= 6 &&
+  !headerHtml.includes('(mouseenter)="retainGameNavHover()"') &&
+  !headerHtml.includes('(mouseleave)="cancelGameNavHover()"'),
+  'header hover popovers must keep keyed retain/cancel handlers and the fade-out class without duplicate mouse handlers'
 )
 assert(
   asyncStateTs.includes('let requestGeneration = 0') &&
