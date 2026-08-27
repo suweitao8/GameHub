@@ -151,12 +151,8 @@
 
   .game-play-page .game-title-meta { gap: 4px 12px; }
 
-  .game-play-page .game-title-developer {
-    min-height: 64px;
-  }
-
   .game-play-page .developer-identity {
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 40px minmax(0, 1fr) auto;
   }
 
   .game-play-page .developer-identity img {

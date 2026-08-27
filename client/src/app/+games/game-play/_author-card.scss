@@ -58,9 +58,8 @@
   font-size: 0.78rem;
   font-weight: 700;
   justify-content: center;
-  line-height: 20px;
-  min-height: 2rem;
-  padding: 0.15rem 0.95rem;
+  line-height: 18px;
+  padding: 0.25rem 0.85rem;
   transition: background-color var(--game-dur-fast) var(--game-ease),
     border-color var(--game-dur-fast) var(--game-ease),
     color var(--game-dur-fast) var(--game-ease),
@@ -93,21 +92,6 @@
   opacity: 0.7;
 }
 
-.developer-report-button {
-  background: transparent;
-  border: 1px solid var(--game-border-strong);
-  border-radius: var(--game-radius-pill);
-  color: var(--game-text-hint);
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.7rem;
-  transition: color var(--game-dur-fast) var(--game-ease),
-    border-color var(--game-dur-fast) var(--game-ease);
-}
-.developer-report-button:hover {
-  border-color: var(--game-danger);
-  color: var(--game-danger);
-}
 .developer-owner-label {
   grid-column: 2;
   grid-row: 2;
@@ -118,20 +102,19 @@
   align-items: center;
   display: flex;
   grid-column: 2;
+  justify-content: flex-end;
   justify-self: end;
-  min-height: 73px;
   max-width: 100%;
-  margin-left: auto;
-  width: 100%;
+  min-height: 0;
+  width: auto;
 }
 
 .game-play-page .developer-identity {
   align-items: center;
+  column-gap: 10px;
   display: grid;
-  gap: 10px;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   min-width: 0;
-  width: 100%;
 }
 
 .game-play-page .developer-identity img {
@@ -140,9 +123,9 @@
   box-shadow: var(--game-detail-avatar-shadow);
   grid-column: 1;
   grid-row: auto;
-  height: 48px;
+  height: 44px;
   justify-self: start;
-  width: 48px;
+  width: 44px;
 }
 
 .game-play-page .developer-profile {
@@ -155,6 +138,12 @@
   min-width: 0;
   padding-top: 0;
   text-align: left;
+}
+
+.game-play-page .developer-follow-button {
+  grid-column: 3;
+  grid-row: auto;
+  justify-self: end;
 }
 
 .game-play-page .developer-identity a {

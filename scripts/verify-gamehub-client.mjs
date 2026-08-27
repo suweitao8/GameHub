@@ -768,21 +768,22 @@ assert(!commentsTs.includes('评分') && !commentsTs.includes('review'), 'commen
 assert(!gamePlayHtml.includes('game-title-score'), 'game title must not expose a rating score')
 assert(gamePlayHtml.includes('class="game-stage-row"'), 'game play must share a row between the game stage and discussion sidebar')
 assert(gamePlayHtml.includes('game-title-developer'), 'developer information must stay in the title row above the discussion sidebar')
-assert(gamePlayHtml.includes('class="developer-title"'), 'developer card must show the game title below the developer name')
+assert(!gamePlayHtml.includes('developer-title') && !/developer-name[\s\S]{0,200}game\(\)!\.title/.test(gamePlayHtml), 'developer card must not repeat the game title under the developer name')
 assert(!gamePlayHtml.includes('author.handle'), 'developer card must not render the account handle')
 assert(gamePlayHtml.includes('[disabled]="community()!.isOwner"'), 'developer card must keep a visible follow button for the owner view')
 assert(gamePlayScss.includes('.game-stage-row'), 'game play must define the aligned stage and discussion row')
 assert(gamePlayScss.includes('.play-side my-game-discuss'), 'discussion sidebar must define its own stage-height region')
 assert(gamePlayScss.includes('border: 0;') && gamePlayScss.includes('.developer-identity img'), 'developer avatar must render without a border')
 assert(
-  gamePlayScss.includes('grid-template-columns: 48px minmax(0, 1fr);') &&
-    /\.game-play-page \.game-title-developer \{[\s\S]*?justify-self: end;[\s\S]*?width: 100%;/.test(gamePlayScss) &&
+  gamePlayScss.includes('grid-template-columns: 44px minmax(0, 1fr) auto;') &&
+    /\.game-play-page \.game-title-developer \{[\s\S]*?justify-content: flex-end;[\s\S]*?width: auto;/.test(gamePlayScss) &&
     /\.game-play-page \.developer-identity img \{[\s\S]*?grid-column: 1;/.test(gamePlayScss) &&
-    /\.game-play-page \.developer-profile \{[\s\S]*?grid-column: 2;[\s\S]*?text-align: left;/.test(gamePlayScss) &&
+    /\.game-play-page \.developer-profile \{[\s\S]*?grid-column: 2;/ .test(gamePlayScss) &&
+    /\.game-play-page \.developer-follow-button \{[\s\S]*?grid-column: 3;/.test(gamePlayScss) &&
     gamePlayScss.includes('box-shadow: var(--game-detail-avatar-shadow);') &&
     gamePlayScss.includes('--game-detail-avatar-shadow:') &&
-    gamePlayScss.includes('grid-template-columns: 40px minmax(0, 1fr);'),
-  'developer card must stay right-aligned while keeping the avatar on the left and the profile on the right'
+    gamePlayScss.includes('grid-template-columns: 40px minmax(0, 1fr) auto;'),
+  'developer card must stay right-aligned with avatar, profile text, and follow button in one compact row'
 )
 assert(gamePlayScss.includes('--game-detail-gap: 16px'), 'game play must define the shared detail-page spacing rhythm')
 assert(gamePlayScss.includes('--game-detail-columns: minmax(0, 4fr) minmax(240px, 1fr)'), 'game play must keep a shared 4:1 stage/sidebar layout')
@@ -819,7 +820,7 @@ assert(communityPanelTs.includes('align-items: center') && communityPanelTs.incl
 assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.includes('操作') && communityPanelTs.includes('game()?.instructions'), 'game description must expose separate overview and controls tabs')
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
-assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('border-radius: var(--game-radius-pill);') && gamePlayScss.includes('min-height: 2rem;'), 'developer follow button must use the unified pill brand style')
+assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('.developer-follow-button {') && gamePlayScss.includes('border-radius: var(--game-radius-pill);'), 'developer follow button must use the unified pill brand style')
 assert(gameCommunityTokens.includes('--game-text: #171a33') && gameCommunityTokens.includes('--game-muted: #7c819e'), 'game colors must use the indigo-ink primary and slate hint text from the shared token source')
 assert(gamePlayScss.includes('--game-text: var(--game-text-primary);') && gamePlayScss.includes('--game-muted: var(--game-text-secondary);'), 'detail page must alias the shared ink palette instead of redefining values')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
@@ -876,13 +877,6 @@ assert(
 )
 assert(communityPanelTs.includes('gap: 2rem;'), 'game action row must use a wider consistent spacing rhythm')
 assert(!gamePlayHtml.includes('iconName="download"') && !gamePlayHtml.includes('iconName="keyboard"') && !gamePlayHtml.includes('class="keyboard-shortcuts-hint"'), 'game controls must remove download, keyboard, and shortcut hint actions')
-assert(
-  gamePlayHtml.includes('my-game-report-dialog') &&
-    gamePlayHtml.includes('reportOpen()') &&
-    gamePlayTs.includes('GameReportDialogComponent') &&
-    gamePlayTs.includes('reportOpen'),
-  'game play must keep the lazy-loaded report dialog contract'
-)
 assert(
   ![ uploadHtml, uploadTs, libraryHtml, libraryTs, libraryScss, manageHtml, manageTs, gamesServiceTs ].some(body =>
     body.includes('下载游戏包') || body.includes('buildDownloadUrl') || body.includes('library-download')

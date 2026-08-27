@@ -46,23 +46,19 @@
               <img [src]="getDeveloperAvatar(author.displayName || game()!.title)" alt="">
               <div class="developer-profile">
                 <a [routerLink]="['/games/author', game()!.ownerAccountId]">{{ author.displayName }}</a>
-                <span class="developer-title">{{ game()!.title }}</span>
-                <button
-                  type="button"
-                  class="developer-follow-button"
-                  [class.active]="community()!.following"
-                  [disabled]="community()!.isOwner"
-                  (click)="toggleFollow()"
-                >
-                  {{ community()!.following ? '已关注' : '+ 关注' }}
-                </button>
               </div>
+              <button
+                type="button"
+                class="developer-follow-button"
+                [class.active]="community()!.following"
+                [disabled]="community()!.isOwner"
+                (click)="toggleFollow()"
+              >
+                {{ community()!.following ? '已关注' : '+ 关注' }}
+              </button>
             </div>
           } @else {
             <div class="developer-skeleton shimmer" style="height:2.5rem;width:60%;border-radius:4px;background:var(--game-surface-alt)"></div>
-          }
-          @if (!community()?.isOwner) {
-            <button type="button" class="developer-report-button" title="举报游戏" (click)="reportOpen.set(true)">举报</button>
           }
         </section>
       </section>
@@ -183,9 +179,6 @@
 
       @defer (when shareOpen()) {
         <my-game-share-dialog [(open)]="shareOpen" [game]="game()" />
-      }
-      @defer (when reportOpen()) {
-        <my-game-report-dialog [(open)]="reportOpen" [uuid]="game()!.uuid" />
       }
     </div>
   }

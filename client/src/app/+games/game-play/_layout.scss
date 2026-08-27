@@ -99,9 +99,10 @@
   border: 1px solid var(--game-border);
   border-radius: var(--game-detail-radius);
   box-shadow: var(--game-detail-shadow);
+  align-items: center;
   gap: var(--game-detail-gap);
   grid-template-columns: var(--game-detail-columns);
-  padding: 18px 20px 16px;
+  padding: 12px 16px 10px;
   position: relative;
 }
 
