@@ -12,7 +12,8 @@
  *  - 幂等：重复运行前先按标题删除同名游戏，避免重复入库。
  */
 import { readFileSync } from 'fs'
-import { join } from 'path'
+import { rm } from 'fs/promises'
+import { join, resolve, sep } from 'path'
 import { CONFIG } from '@server/initializers/config.js'
 import { initDatabaseModels, sequelizeTypescript } from '@server/initializers/database.js'
 import { GameModel } from '@server/models/game/game.js'
@@ -300,7 +301,15 @@ async function main () {
     const content = readFileSync(filePath)
     console.log(`→ 入库《${spec.title}》(${spec.file}, ${(content.length / 1024).toFixed(1)} KB)...`)
 
-    // 幂等：先删同名旧记录(可能是上次 seed 残留)
+    // 幂等：先删同名旧记录及其 runtime 目录，避免重复入库和孤儿目录堆积
+    const previousGames = await GameModel.findAll({ where: { title: spec.title, ownerAccountId: ownerId } })
+    const storageRoot = resolve(CONFIG.STORAGE.GAMES_DIR)
+    for (const previous of previousGames) {
+      if (!previous.runtimePath) continue
+      const absoluteDirectory = resolve(storageRoot, previous.runtimePath, '..')
+      if (!absoluteDirectory.startsWith(storageRoot + sep)) continue
+      await rm(absoluteDirectory, { recursive: true, force: true })
+    }
     await GameModel.destroy({ where: { title: spec.title, ownerAccountId: ownerId } })
 
     const stored = await storeGameRuntimePackage({

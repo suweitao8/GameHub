@@ -15,6 +15,7 @@ import {
 import { readGameRuntimePreviewFile } from '@server/lib/games/game-runtime-preview.js'
 import { generateGameAssetETag, getGameCoverCacheHeaders, getGameRuntimeAssetCacheHeaders, verifyGameSignedUrl } from '@server/lib/games/game-cdn.js'
 import { traceGameOperation } from '@server/lib/games/game-tracing.js'
+import { logger } from '@server/helpers/logger.js'
 import express from 'express'
 
 const runtimeRouter = express.Router()
@@ -34,6 +35,10 @@ runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
 
     const hashValid = await verifyGameRuntimeHash(CONFIG.STORAGE.GAMES_DIR, game.runtimePath, game.runtimeSha256)
     if (!hashValid) {
+      logger.warn('Game runtime integrity verification failed.', {
+        uuid: req.params.uuid,
+        runtimePath: game.runtimePath
+      })
       return res.status(500).json({ error: 'Game runtime integrity verification failed' })
     }
 
