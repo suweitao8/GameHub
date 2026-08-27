@@ -367,30 +367,20 @@
   min-width: 0;
 }
 
-.game-grid {
-  display: grid;
-  column-gap: 1rem;
-  row-gap: 0.9rem;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
 
 @media (max-width: 1250px) {
-  .game-grid,
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.8rem; }
 }
 
 @media (max-width: 1050px) {
-  .game-grid,
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.65rem; }
   .featured-cover { min-height: 0; }
   .featured-caption h3 { font-size: 1.05rem; }
-  .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 720px) {
-  .game-grid,
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.4rem; }
   .section-with-side-action { padding-right: 3.1rem; }
@@ -419,7 +409,6 @@
 }
 
 @media (max-width: 450px) {
-  .game-grid,
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.35rem; }
 }

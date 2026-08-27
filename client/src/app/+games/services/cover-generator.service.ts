@@ -20,8 +20,8 @@ export class CoverGeneratorService {
     if (!context) return null
 
     const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height)
-    gradient.addColorStop(0, '#00aeec')
-    gradient.addColorStop(1, '#fb7299')
+    gradient.addColorStop(0, '#5044e4')
+    gradient.addColorStop(1, '#7c3aed')
     context.fillStyle = gradient
     context.fillRect(0, 0, canvas.width, canvas.height)
     context.fillStyle = 'rgba(255, 255, 255, .16)'

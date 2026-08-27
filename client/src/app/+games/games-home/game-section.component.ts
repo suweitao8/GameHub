@@ -75,10 +75,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
 
     .section-side-action:hover,
     .section-side-action:focus-visible {
-      background: #ecf9ff;
-      border-color: #b6e5f8;
-      box-shadow: 0 1px 4px rgb(0 174 236 / 12%);
-      color: #00aeec;
+      background: var(--game-brand-soft, #edebfd);
+      border-color: var(--game-brand-border, #cfc9f8);
+      box-shadow: 0 1px 4px rgb(80 68 228 / 16%);
+      color: var(--game-brand, #5044e4);
       outline: none;
     }
 
@@ -92,7 +92,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     .section-side-action:focus-visible {
-      outline: 2px solid rgb(0 174 236 / 35%);
+      outline: 2px solid rgb(80 68 228 / 35%);
       outline-offset: 2px;
     }
 
