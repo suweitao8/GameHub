@@ -19,7 +19,7 @@ export class RedirectService {
   private static SESSION_STORAGE_LATEST_SESSION_URL_KEY = 'redirect-latest-session-url'
 
   // Default route could change according to the instance configuration
-  static INIT_DEFAULT_ROUTE = '/games'
+  static INIT_DEFAULT_ROUTE = '/'
   static INIT_DEFAULT_TRENDING_ALGORITHM = 'most-viewed'
 
   private previousUrl: string
@@ -33,9 +33,9 @@ export class RedirectService {
 
   init () {
     const config = this.serverService.getHTMLConfig()
-    // GameHub only serves /games* as homepage. Ignore PeerTube defaults like /videos/browse.
+    // Accept the root homepage and the legacy '/games' prefix, ignore PeerTube defaults like /videos/browse.
     const configured = config.instance.defaultClientRoute || ''
-    this.defaultRoute = configured.startsWith('/games')
+    this.defaultRoute = configured === '/' || configured.startsWith('/games')
       ? configured
       : RedirectService.INIT_DEFAULT_ROUTE
     if (config.trending.videos.algorithms.default) {
