@@ -1166,6 +1166,11 @@ assert(
   'GameHub header popovers must stay centered on their action icons and the submit label must use an explicit centered line-height'
 )
 assert(
+  basePopoverBlock.includes('width: 300px;') &&
+    (headerScss.match(/\.game-header-(?:notification|list|history)-popover[^{]*\{[^}]*width:/g) || []).length === 0,
+  '动态/收藏/历史 popovers must share the single narrowed width from the base popover rule without per-variant width overrides'
+)
+assert(
   (headerTs.match(/this\.gameNavLoaded\.delete\(popup\)/g) || []).length >= 4,
   'header game navigation popovers must be retryable after a failed request'
 )

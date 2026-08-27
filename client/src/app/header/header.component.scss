@@ -380,7 +380,8 @@
   position: absolute;
   top: calc(100% + 0.55rem);
   transform: translateX(calc(var(--game-popover-x) - var(--game-popover-edge-shift)));
-  width: 360px;
+  /* 动态/收藏/历史三个弹窗共用此宽度；变体不得各自覆写（契约校验器把关） */
+  width: 300px;
   z-index: 55;
 }
 
