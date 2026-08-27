@@ -624,6 +624,22 @@ my-game-navigation {
   }
 }
 
+/* ---- 搜索框页面级居中（仅宽屏）----
+   网格列方案只能在中列内居中，左窄右宽时搜索框整体偏左。
+   宽屏下让搜索组件脱离网格流，以整条顶栏为基准水平居中；
+   阈值以下保持原布局，避免与左侧品牌/右侧操作簇挤压重叠。 */
+@media screen and (min-width: 1360px) {
+  :host-context(.game-experience) my-game-navigation {
+    height: var(--header-height);
+    left: 50%;
+    max-width: 540px;
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    width: min(500px, 34vw);
+  }
+}
+
 /* ---- 投稿 CTA ---- */
 
 .game-submit-button {
