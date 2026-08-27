@@ -17,7 +17,7 @@
 .library-tabs button.active { border-bottom: 2px solid var(--game-brand);
   color: var(--game-brand);
   font-weight: 700; }
-.library-empty { background: #fff;
+.library-empty { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   color: var(--game-muted);
@@ -30,7 +30,7 @@
 .library-empty p { font-size: 0.85rem;
   margin: 0 0 1rem; }
 .library-empty a { background: var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   display: inline-block;
   font-size: 0.85rem;
@@ -49,6 +49,7 @@
 .library-page .game-grid { display: grid;
   gap: 1rem;
   grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
 @media (max-width: 1050px) {
   .library-page .game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

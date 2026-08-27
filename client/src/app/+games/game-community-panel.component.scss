@@ -87,7 +87,7 @@
   padding-top: 0.45rem;
 }
 .game-description-fallback {
-  background: #fff;
+  background: var(--game-surface);
   border-bottom: 1px solid var(--game-border);
   border-top: 1px solid var(--game-border);
   box-sizing: border-box;
@@ -185,8 +185,8 @@
 .game-tags { display: flex;
   flex-wrap: wrap;
   gap: 0.5rem; }
-.game-tag { background: rgb(0 174 236 / 8%);
-  border: 1px solid rgb(0 174 236 / 18%);
+.game-tag { background: var(--game-brand-glow);
+  border: 1px solid var(--game-brand-glow);
   border-radius: 999px;
   color: var(--game-brand);
   display: inline-block;
@@ -263,7 +263,7 @@
   background: var(--game-detail-surface, #fff);
   border: 1px solid var(--game-border);
   border-radius: var(--game-detail-radius, 12px);
-  box-shadow: var(--game-detail-shadow, 0 8px 24px rgb(25 30 40 / 6%));
+  box-shadow: var(--game-detail-shadow, 0 8px 24px rgb(23 26 51 / 6%));
   margin-top: 0;
   padding: 16px 18px;
 }

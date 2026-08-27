@@ -97,9 +97,9 @@
   min-width: 0;
 }
 .bili-composer-body input {
-  background: #f1f2f3;
+  background: var(--game-surface-alt);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   color: var(--game-text);
   font-size: 0.9rem;
   min-height: 2.75rem;
@@ -136,7 +136,7 @@
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   box-sizing: border-box;
   color: var(--game-muted);
   cursor: pointer;
@@ -154,7 +154,7 @@
 .bili-composer-tool-wrap:hover .bili-composer-tool,
 .bili-composer-tool:hover,
 .bili-composer-tool:focus-visible {
-  background: #f1f2f3;
+  background: var(--game-surface-alt);
   color: var(--game-brand);
   outline: 0;
 }
@@ -175,11 +175,11 @@
   display: none;
 }
 .bili-emoji-picker {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   bottom: calc(100% + 0.45rem);
-  box-shadow: 0 8px 24px rgb(25 30 40 / 12%);
+  box-shadow: 0 8px 24px rgb(23 26 51 / 12%);
   display: grid;
   gap: 0.2rem;
   grid-template-columns: repeat(6, 1fr);
@@ -193,7 +193,7 @@
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--game-radius-xs);
   cursor: pointer;
   display: flex;
   font-size: 1.05rem;
@@ -205,20 +205,20 @@
 }
 .bili-emoji-option:hover,
 .bili-emoji-option:focus-visible {
-  background: #f1f2f3;
+  background: var(--game-surface-alt);
   outline: 0;
 }
 .bili-composer-image {
   align-items: center;
-  background: #f6f7f8;
+  background: var(--game-surface-alt);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   display: flex;
   gap: 0.5rem;
   padding: 0.35rem 0.5rem;
 }
 .bili-composer-image img {
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   height: 3rem;
   object-fit: cover;
   width: 3rem;
@@ -251,7 +251,7 @@
   width: 1rem;
 }
 .bili-comment-image {
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   display: block;
   margin: 0 0 0.5rem;
   max-height: 220px;
@@ -267,7 +267,7 @@
 .bili-send-btn {
   background: var(--game-brand);
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 600;
@@ -284,7 +284,7 @@
   flex-direction: column;
 }
 .bili-comment-item {
-  border-top: 1px solid #f1f2f3;
+  border-top: 1px solid var(--game-surface-alt);
   display: flex;
   gap: 0.75rem;
   padding: 1rem 0;
@@ -387,8 +387,8 @@
   padding: 0;
 }
 .bili-reply-list {
-  background: #f6f7f8;
-  border-radius: 6px;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-xs);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -405,7 +405,7 @@
   margin-bottom: 1rem;
 }
 .bili-skeleton-avatar {
-  background: #eceff3;
+  background: var(--game-surface-alt);
   border-radius: 50%;
   flex: 0 0 2.5rem;
   height: 2.5rem;
@@ -416,8 +416,8 @@
   gap: 0.45rem;
 }
 .bili-skeleton-line {
-  background: #eceff3;
-  border-radius: 4px;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-xs);
   height: 0.85rem;
 }
 .bili-skeleton-line.short {
@@ -427,7 +427,7 @@
 .comment-dialog { align-items: center;
   background: var(--game-brand-soft);
   border: 1px solid var(--game-border);
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
@@ -436,12 +436,12 @@
 .comment-dialog p { flex-basis: 100%;
   margin: 0; }
 .comment-dialog input { border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   flex: 1;
   min-width: 180px;
   padding: 0.55rem; }
 .comment-dialog button { border: 0;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   padding: 0.5rem 0.75rem; }
 .comment-dialog .danger { background: var(--game-danger);
   color: #fff; }
@@ -454,9 +454,9 @@
 }
 
 .comments-load-more button {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text);
   cursor: pointer;
   font-size: 0.82rem;

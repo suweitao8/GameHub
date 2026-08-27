@@ -6,11 +6,11 @@
    其他内页保持一致的视觉节奏,而不是一张"飘着的白纸"。
    --------------------------------------------------------------------------- */
 .upload-page {
-  --game-form-surface: #fff;
-  --game-form-surface-muted: #f6f8fa;   /* 灰底,让白卡浮起 */
-  --game-form-radius: 12px;             /* 主表单卡用大圆角,对齐详情页 */
-  --game-form-radius-sm: 6px;           /* 内部小元素用小圆角 */
-  --game-form-shadow: 0 8px 24px rgb(25 30 40 / 6%);
+  --game-form-surface: var(--game-surface);
+  --game-form-surface-muted: var(--game-surface-alt);   /* 灰底,让白卡浮起 */
+  --game-form-radius: var(--game-radius-md);           /* 主表单卡用大圆角,对齐详情页 */
+  --game-form-radius-sm: var(--game-radius-xs);        /* 内部小元素用小圆角 */
+  --game-form-shadow: var(--game-shadow-xs);
   --game-form-gap: 1.25rem;
   --game-form-field-gap: 1rem;
 

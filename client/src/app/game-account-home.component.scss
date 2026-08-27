@@ -20,7 +20,7 @@
   object-fit: cover;
   width: 5rem; }
 .game-account-profile { align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   display: flex;
@@ -46,7 +46,7 @@
   gap: 0.9rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 1rem; }
-.game-account-links a { background: #fff;
+.game-account-links a { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   display: grid;
@@ -62,7 +62,7 @@
 .game-account-note { color: var(--game-muted);
   font-size: 0.85rem; }
 .game-account-note { margin: 1.25rem 0 0; }
-.game-account-empty { background: #fff;
+.game-account-empty { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   padding: 3rem 1.5rem;

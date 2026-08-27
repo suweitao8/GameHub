@@ -11,7 +11,7 @@
   inset: 0;
   pointer-events: none;
   position: absolute; }
-.author-hero-banner { background: radial-gradient(circle at 68% 24%, rgb(255 255 255 / 62%), transparent 19%), radial-gradient(circle at 82% 74%, rgb(251 114 153 / 28%), transparent 27%), linear-gradient(118deg, #1c9fc1 0%, #82d8e9 38%, #f5d8e2 72%, #f6eef0 100%);
+.author-hero-banner { background: radial-gradient(circle at 68% 24%, rgb(255 255 255 / 62%), transparent 19%), radial-gradient(circle at 82% 74%, var(--game-accent-glow), transparent 27%), linear-gradient(118deg, #1c9fc1 0%, #82d8e9 38%, var(--game-accent-soft) 72%, var(--game-accent-soft) 100%);
   inset: 0;
   position: absolute; }
 .author-hero-banner::before,
@@ -40,7 +40,7 @@
   display: flex;
   gap: 1.1rem;
   min-width: 0; }
-.author-large-avatar { background: #fff;
+.author-large-avatar { background: var(--game-surface);
   border: 4px solid #fff;
   border-radius: 50%;
   box-shadow: 0 6px 20px rgb(12 25 42 / 25%);
@@ -77,10 +77,10 @@
   margin-top: 0.65rem; }
 .author-profile-meta span + span::before { content: '•';
   margin-right: 0.8rem; }
-.follow-button { background: #00aeec;
+.follow-button { background: var(--game-brand);
   border: 0;
-  border-radius: 6px;
-  box-shadow: 0 5px 12px rgb(0 174 236 / 20%);
+  border-radius: var(--game-radius-xs);
+  box-shadow: 0 5px 12px var(--game-brand-glow);
   color: #fff;
   font-weight: 700;
   margin-left: 1rem;
@@ -104,7 +104,7 @@
 .author-content { background: var(--game-page-bg);
   padding-top: 0.15rem; }
 .author-navigation-row { align-items: stretch;
-  background: #fff;
+  background: var(--game-surface);
   border-bottom: 1px solid var(--game-border);
   display: flex;
   gap: 1rem;
@@ -133,9 +133,9 @@
   font-size: 0.82rem;
   margin-right: 0.2rem;
   white-space: nowrap; }
-.author-filter-row button { background: #fff;
+.author-filter-row button { background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text-button);
   flex: 0 0 auto;
   font-size: 0.78rem;
@@ -170,8 +170,8 @@
 
 /* Skeleton loading */
 .author-skeleton-cover {
-  background: #eceff3;
-  border-radius: 0.5rem;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-md);
   height: 10rem;
   margin-bottom: 1rem;
 }
@@ -185,8 +185,8 @@
 }
 
 .author-skeleton-stat {
-  background: #eceff3;
-  border-radius: 4px;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-xs);
   height: 2.2rem;
   width: 4.5rem;
 }

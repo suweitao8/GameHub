@@ -1,13 +1,13 @@
 // Game runtime iframe stage, loading bar, and player controls.
 
-.game-stage { background: #6e4d3b;
+.game-stage { background: var(--game-cover-fallback-deep);
   border-radius: var(--game-radius);
   height: max(520px, min(86vh, 980px));
   min-height: min(70vh, 600px);
   overflow: hidden;
   position: relative; }
 .game-play-page .game-stage { width: 100%; }
-.game-stage iframe { background: #8f6a52;
+.game-stage iframe { background: var(--game-cover-fallback);
   border: 0;
   display: block;
   height: 100%;
@@ -153,9 +153,9 @@
 
 .frame-error-card {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid rgb(242 93 142 / 35%);
-  border-radius: 12px;
+  border-radius: var(--game-radius-md);
   box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
   display: flex;
   gap: 12px;
@@ -203,7 +203,7 @@
 .frame-error-retry {
   background: var(--game-brand);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--game-radius-sm);
   color: #fff;
   flex: 0 0 auto;
   font-size: 0.82rem;

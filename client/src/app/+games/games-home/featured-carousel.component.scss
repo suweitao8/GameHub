@@ -15,9 +15,9 @@
 
 .section-side-action {
   align-items: center;
-  background: #f6f7f8;
+  background: var(--game-surface-alt);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-muted);
   cursor: pointer;
   display: flex;
@@ -35,10 +35,10 @@
 
 .section-side-action:hover,
 .section-side-action:focus-visible {
-  background: #ecf9ff;
-  border-color: #b6e5f8;
-  box-shadow: 0 1px 4px rgb(0 174 236 / 12%);
-  color: #00aeec;
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand-border);
+  box-shadow: 0 1px 4px var(--game-brand-glow);
+  color: var(--game-brand);
   outline: none;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .section-side-action:focus-visible {
-  outline: 2px solid rgb(0 174 236 / 35%);
+  outline: 2px solid var(--game-brand-glow);
   outline-offset: 2px;
 }
 
@@ -101,8 +101,10 @@
 .featured-carousel {
   /* Stop at the second-row cover; the card metadata below it stays outside. */
   align-self: start;
-  background: transparent;
-  border-radius: var(--game-radius);
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   flex-direction: column;
   grid-column: span 2;
@@ -112,6 +114,11 @@
   min-width: 0;
   overflow: hidden;
   position: relative;
+  transition: box-shadow var(--game-dur) var(--game-ease);
+}
+
+.featured-carousel:hover {
+  box-shadow: var(--game-shadow-lg);
 }
 
 .featured-carousel-link,
@@ -131,7 +138,7 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, #1c252c 0%, #272f37 52%, #2e373f 100%);
+  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, #514c96 100%);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -179,7 +186,13 @@
   object-position: center top;
   position: absolute;
   top: 0;
+  transition: transform var(--game-dur-slow) var(--game-ease);
   width: 100%;
+}
+
+.featured-carousel-link:hover .featured-cover img,
+.featured-carousel-link:focus-visible .featured-cover img {
+  transform: scale(1.04);
 }
 
 /* Bottom of cover: average-color fade that reaches full opacity at the footer edge */
@@ -209,7 +222,7 @@
   align-items: center;
   background: rgb(20 30 48 / 22%);
   border: 1px solid rgb(255 255 255 / 28%);
-  border-radius: 0.85rem;
+  border-radius: var(--game-radius-md);
   display: inline-flex;
   flex: 0 0 4.2rem;
   font-size: 2.4rem;
@@ -304,7 +317,7 @@
 }
 
 .featured-dots button.active {
-  background: #fff;
+  background: var(--game-surface);
   border-radius: 999px;
   width: 1rem;
 }
@@ -357,7 +370,7 @@
 .game-grid {
   display: grid;
   column-gap: 1rem;
-  row-gap: 0.62rem;
+  row-gap: 0.9rem;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
@@ -415,6 +428,15 @@
   .section-side-action,
   .featured-dots button {
     transition: none;
+  }
+
+  .featured-cover img {
+    transition: none;
+  }
+
+  .featured-carousel-link:hover .featured-cover img,
+  .featured-carousel-link:focus-visible .featured-cover img {
+    transform: none;
   }
 
   .section-side-action:hover .section-side-action-icon,

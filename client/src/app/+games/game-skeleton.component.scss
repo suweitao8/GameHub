@@ -7,8 +7,8 @@
 
 .game-skeleton-cover {
   aspect-ratio: 16 / 9;
-  background: #eceff3;
-  border-radius: 0.5rem;
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-md);
 }
 
 .game-skeleton-stats {
@@ -20,7 +20,7 @@
 .skeleton-stat {
   height: 0.75rem;
   width: 2.2rem;
-  background: #eceff3;
+  background: var(--game-surface-alt);
   border-radius: 0.2rem;
 }
 
@@ -30,14 +30,14 @@
 
 .game-skeleton-title {
   height: 1rem;
-  background: #eceff3;
+  background: var(--game-surface-alt);
   border-radius: 0.25rem;
   width: 75%;
 }
 
 .game-skeleton-author {
   height: 0.8rem;
-  background: #eceff3;
+  background: var(--game-surface-alt);
   border-radius: 0.25rem;
   margin-top: 0.35rem;
   width: 45%;
@@ -53,7 +53,7 @@
 }
 
 .shimmer {
-  background: linear-gradient(90deg, #eceff3 25%, #f5f7fa 50%, #eceff3 75%);
+  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-alt) 50%, var(--game-surface-alt) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
 }

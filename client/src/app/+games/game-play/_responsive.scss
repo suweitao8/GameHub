@@ -144,7 +144,7 @@
   .game-play-page .game-title-bar { padding-bottom: 12px; }
 
   .game-play-page .game-title-bar {
-    border-radius: 10px;
+    border-radius: var(--game-radius-sm);
     padding-left: 16px;
     padding-right: 16px;
   }

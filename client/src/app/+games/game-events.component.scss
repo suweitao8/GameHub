@@ -16,9 +16,9 @@
 }
 
 .events-filters button {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: var(--game-muted);
   cursor: pointer;
   font-size: 0.82rem;
@@ -28,7 +28,7 @@
 }
 
 .events-filters button:hover {
-  background: #f0f2f4;
+  background: var(--game-surface-alt);
   color: var(--game-text);
 }
 
@@ -45,7 +45,7 @@
 }
 
 .event-card {
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   display: flex;
@@ -89,22 +89,22 @@
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.15rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--game-radius-xs);
   margin-right: 0.35rem;
   text-transform: uppercase;
 }
 
-.event-type.activity { background: #e0f2fe;
+.event-type.activity { background: var(--game-brand-soft);
   color: #0369a1; }
 .event-type.competition { background: #fef3c7;
   color: #92400e; }
 
 .event-status.upcoming { background: #dcfce7;
   color: #166534; }
-.event-status.ongoing { background: #dbeafe;
+.event-status.ongoing { background: var(--game-brand-soft);
   color: #1e40af; }
-.event-status.ended { background: #f3f4f6;
-  color: #4b5563; }
+.event-status.ended { background: var(--game-surface-alt);
+  color: var(--game-text-secondary); }
 .event-status.cancelled { background: #fee2e2;
   color: #991b1b; }
 
@@ -153,7 +153,7 @@
 .events-state button {
   background: var(--game-brand);
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   cursor: pointer;
   font-weight: 600;

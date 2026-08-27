@@ -1,28 +1,93 @@
+/* ==========================================================================
+   GameHub 设计系统 —— 唯一令牌源
+   --------------------------------------------------------------------------
+   视觉语言：靛蓝霓虹 · 轻画布
+   - 主品牌：电光靛蓝（游戏感、科技感）
+   - 行动强调：覆盆子红（投稿、热门等高能量 CTA）
+   - 文本：冷灰蓝墨阶；画布：淡雾灰蓝，卡片浮于其上
+   所有颜色/圆角/阴影/动效一律引用这里的变量，禁止在组件里硬编码。
+   通过 client/src/sass/application.scss 全局引入一次；
+   组件内的 @use 只是为了局部编译安全，值以这里为准。
+   ========================================================================== */
+
 .game-experience {
-  --game-page-bg: #fff;
-  --game-card-bg: #fff;
-  /* Avoid near-black pure text; keep readable charcoal grays. */
-  --game-text: #1e1e1e;
-  --game-text-button: #646464;
-  --game-text-hint: #8c8c8c;
-  --game-muted: #646464;
-  --game-border: #e3e5e7;
-  --game-brand: #00aeec;
-  --game-brand-hover: #00a1d6;
-  --game-brand-deep: #008acb;
-  --game-brand-soft: #e5f7ff;
-  --game-accent: #fb7299;
-  --game-accent-deep: #e95b86;
-  --game-accent-soft: #fff0f5;
-  --game-success: #00c091;
-  --game-warning: #ffb400;
-  --game-danger: #f25d8e;
-  --game-cover-fallback: #8f6a52;
-  --game-cover-fallback-deep: #6e4d3b;
-  --game-radius: 6px;
-  --game-shadow: 0 2px 12px rgb(25 30 40 / 8%);
+  /* ---- 画布与表面 ---- */
+  --game-page-bg: #f4f5fa;
+  --game-surface: #ffffff;
+  --game-card-bg: #ffffff;
+  --game-surface-alt: #eff1f7;
+  --game-surface-active: #e8ebf4;
+  --game-overlay: rgb(19 21 44 / 58%);
   --game-content-width: 1600px;
+
+  /* ---- 墨阶文本 ---- */
+  --game-text: #171a33;
+  --game-text-primary: #171a33;
+  --game-text-secondary: #565d78;
+  --game-text-button: #565d78;
+  --game-text-hint: #7c819e;
+  --game-muted: #7c819e;
+  --game-text-inverse: #ffffff;
+
+  /* ---- 边框与分隔 ---- */
+  --game-border: #e4e6f0;
+  --game-border-strong: #ccd1e0;
+
+  /* ---- 主品牌：电光靛蓝 ---- */
+  --game-brand: #5044e4;
+  --game-brand-vivid: #7c3aed;
+  --game-brand-hover: #4034cf;
+  --game-brand-deep: #352bb0;
+  --game-brand-soft: #edebfd;
+  --game-brand-border: #cfc9f8;
+  --game-brand-glow: rgb(80 68 228 / 18%);
+
+  /* ---- 行动强调：覆盆子红 ---- */
+  --game-accent: #e11d48;
+  --game-accent-vivid: #f0641e;
+  --game-accent-hover: #cf1037;
+  --game-accent-deep: #be123c;
+  --game-accent-soft: #ffe9ee;
+  --game-accent-glow: rgb(225 29 72 / 26%);
+
+  /* ---- 语义色 ---- */
+  --game-success: #109a76;
+  --game-success-soft: #e2f7ef;
+  --game-warning: #dd8500;
+  --game-warning-soft: #fdf1dd;
+  --game-danger: #d92d20;
+  --game-danger-soft: #feeceb;
+
+  /* ---- 封面兜底（靛夜渐变，取代旧棕色）---- */
+  --game-cover-fallback: #3b3775;
+  --game-cover-fallback-deep: #2b2856;
+
+  /* ---- 圆角阶梯 ---- */
+  --game-radius-xs: 6px;
+  --game-radius-sm: 10px;
+  --game-radius-md: 14px;
+  --game-radius-lg: 20px;
+  --game-radius-pill: 999px;
+  /* 兼容别名：全站基础圆角从旧 6px 升级为 10px */
+  --game-radius: var(--game-radius-sm);
+
+  /* ---- 阴影阶梯（靛墨基调）---- */
+  --game-shadow-xs: 0 1px 2px rgb(23 26 51 / 5%), 0 1px 6px rgb(23 26 51 / 4%);
+  --game-shadow: 0 2px 6px rgb(23 26 51 / 6%), 0 8px 24px rgb(80 68 228 / 8%);
+  --game-shadow-lg: 0 2px 8px rgb(23 26 51 / 7%), 0 16px 36px rgb(23 26 51 / 13%);
+  --game-shadow-popover: 0 4px 12px rgb(23 26 51 / 7%), 0 20px 44px rgb(23 26 51 / 16%);
+  --game-shadow-brand: 0 6px 18px rgb(80 68 228 / 28%);
+
+  /* ---- 动效 ---- */
+  --game-ease: cubic-bezier(0.22, 0.72, 0.28, 1);
+  --game-dur-fast: 140ms;
+  --game-dur: 190ms;
+  --game-dur-slow: 280ms;
 }
+
+/* --------------------------------------------------------------------------
+   页面基底
+   -------------------------------------------------------------------------- */
 
 .game-community-page {
   color: var(--game-text);
@@ -48,7 +113,7 @@
 .game-community-page input:focus-visible,
 .game-community-page textarea:focus-visible,
 .game-community-page select:focus-visible {
-  outline: 2px solid var(--game-brand);
+  outline: 2px solid var(--game-brand-glow);
   outline-offset: 2px;
 }
 
@@ -70,44 +135,59 @@
   margin: 0 0 0.4rem;
 }
 
-/* Global scrollbar styling */
+/* --------------------------------------------------------------------------
+   全局滚动条与选区
+   -------------------------------------------------------------------------- */
+
 @supports (scrollbar-color: auto) {
-  :root {
-    scrollbar-color: #c9cdd1 #f7f8f9;
+  .game-experience {
+    scrollbar-color: var(--game-border-strong) transparent;
     scrollbar-width: thin;
   }
 }
 
-::-webkit-scrollbar {
+.game-experience ::-webkit-scrollbar {
   height: 6px;
   width: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f7f8f9;
-  border-radius: 3px;
+.game-experience ::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--game-radius-xs);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #c9cdd1;
-  border-radius: 3px;
+.game-experience ::-webkit-scrollbar-thumb {
+  background: var(--game-border-strong);
+  border-radius: var(--game-radius-pill);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a8adb3;
+.game-experience ::-webkit-scrollbar-thumb:hover {
+  background: var(--game-text-hint);
 }
+
+.game-experience ::selection {
+  background: var(--game-brand-glow);
+  color: var(--game-text);
+}
+
+/* --------------------------------------------------------------------------
+   区块标题
+   -------------------------------------------------------------------------- */
 
 .game-section-heading {
   align-items: end;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin: 2rem 0 1rem;
+  margin: 2rem 0 1.1rem;
 }
 
 .game-section-heading h2 {
-  font-size: 1.35rem;
+  font-size: 1.32rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   margin: 0;
+  position: relative;
 }
 
 .game-section-heading p {

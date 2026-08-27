@@ -1,6 +1,6 @@
 .category-empty {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   display: flex;
@@ -37,7 +37,7 @@
 
 .empty-cta {
   background: var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   display: inline-block;
   font-size: 0.85rem;
@@ -51,7 +51,7 @@
 
 .game-empty-feed {
   align-items: center;
-  background: #fff;
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
   color: var(--game-muted);
@@ -83,7 +83,7 @@
 
 .game-empty-feed a {
   background: var(--game-brand);
-  border-radius: 6px;
+  border-radius: var(--game-radius-xs);
   color: #fff;
   display: inline-block;
   font-size: 0.82rem;
@@ -100,7 +100,7 @@
 .game-state a {
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
-  border-radius: 7px;
+  border-radius: var(--game-radius-sm);
   color: #fff;
   font-weight: 700;
   padding: 0.65rem 1rem;
