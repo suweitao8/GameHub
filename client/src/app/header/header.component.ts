@@ -98,7 +98,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private routerEventsSub: Subscription
 
   /** 鼠标离开后弹窗保底可见时长：期间移回鼠标即可继续操作 */
-  static readonly POPOVER_HIDE_GRACE_MS = 1000
+  static readonly POPOVER_HIDE_GRACE_MS = 3000
 
   /** 淡出过渡时长，过渡结束后才卸载 DOM */
   static readonly POPOVER_FADE_MS = 200

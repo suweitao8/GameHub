@@ -365,6 +365,17 @@
   position: relative;
 }
 
+/* 悬停桥：盖住触发行与弹窗之间的间隙，鼠标直滑进弹窗时不触发离开计时 */
+.game-header-action-wrap::after,
+.logged-in-container::after {
+  content: '';
+  height: 0.7rem;
+  left: -0.5rem;
+  position: absolute;
+  right: -0.5rem;
+  top: 100%;
+}
+
 /* ---- 浮出面板：圆角浮卡 + 大投影，去箭头 ---- */
 
 .game-header-popover {

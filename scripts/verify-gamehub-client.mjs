@@ -1169,6 +1169,11 @@ assert(
   '动态/收藏/历史 popovers must share the single narrowed width from the base popover rule without per-variant width overrides'
 )
 assert(
+  headerTs.includes('POPOVER_HIDE_GRACE_MS = 3000') &&
+    /\.game-header-action-wrap::after,\s*\n\.logged-in-container::after \{[^}]*height: 0\.7rem;[^}]*top: 100%;/.test(headerScss.replace(/\r\n/g, '\n')),
+  'header popovers must keep a 3s hide grace plus a hover bridge over the trigger-to-popover gap so the mouse can reach the panel'
+)
+assert(
   (headerTs.match(/this\.gameNavLoaded\.delete\(popup\)/g) || []).length >= 4,
   'header game navigation popovers must be retryable after a failed request'
 )
