@@ -56,25 +56,25 @@ export class AuthService {
     // Set HotKeys
     this.loggedInHotkeys = [
       new Hotkey('m s', e => {
-        this.router.navigate([ '/videos/subscriptions' ])
+        this.router.navigate([ '/games/following' ])
         return false
-      }, $localize`Go to my subscriptions`),
+      }, $localize`Go to games from creators I follow`),
       new Hotkey('m v', e => {
-        this.router.navigate([ '/my-library/videos' ])
+        this.router.navigate([ '/games/library' ])
         return false
-      }, $localize`Go to my videos`),
+      }, $localize`Go to my game library`),
       new Hotkey('m i', e => {
-        this.router.navigate([ '/my-library/video-imports' ])
+        this.router.navigate([ '/games/watch-later' ])
         return false
-      }, $localize`Go to my imports`),
+      }, $localize`Go to my watch later list`),
       new Hotkey('m c', e => {
-        this.router.navigate([ '/my-library/video-channels' ])
+        this.router.navigate([ '/games/creator' ])
         return false
-      }, $localize`Go to my channels`),
+      }, $localize`Go to my creator space`),
       new Hotkey('m p', e => {
-        this.router.navigate([ '/my-library/video-playlists' ])
+        this.router.navigate([ '/games/collections' ])
         return false
-      }, $localize`Go to my playlists`)
+      }, $localize`Go to my collections`)
     ]
   }
 

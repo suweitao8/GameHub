@@ -137,16 +137,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.injectCSS()
     this.injectBroadcastMessage()
 
-    this.serverService.configReloaded
-      .subscribe(config => {
-        this.serverConfig = config
-
-        this.injectBroadcastMessage()
-        this.injectCSS()
-
-        // Don't reinject JS since it could conflict with existing one
-      })
-
     this.initHotkeys()
 
     this.location.onPopState(() => this.modalService.dismissAll(POP_STATE_MODAL_DISMISS))
