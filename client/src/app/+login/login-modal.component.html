@@ -68,8 +68,10 @@
           </div>
 
           <my-input-text
-            formControlName="password" inputId="password" i18n-placeholder placeholder="Password"
+            class="game-auth-password"
+            formControlName="password" inputId="password" placeholder="请输入密码"
             [formError]="formErrors['password']" autocomplete="current-password"
+            toggleShowText="显示密码" toggleHideText="隐藏密码"
           ></my-input-text>
         </div>
       }
@@ -129,27 +131,25 @@
 
       <div class="form-group">
         <label i18n for="reg-password">密码</label>
-        <input
-          type="password" id="reg-password" i18n-placeholder placeholder="至少 6 个字符" required
-          [(ngModel)]="regPassword" name="regPassword" (ngModelChange)="regErrors['password'] = null" class="form-control"
-          [ngClass]="{ 'input-error': regErrors['password'] }" autocomplete="new-password"
-          >
+        <my-input-text
+          class="game-auth-password"
+          inputId="reg-password" placeholder="至少 6 个字符"
+          [(ngModel)]="regPassword" name="regPassword" (ngModelChange)="regErrors['password'] = null"
+          autocomplete="new-password" [formError]="regErrors['password']"
+          toggleShowText="显示密码" toggleHideText="隐藏密码"
+        ></my-input-text>
       </div>
-      @if (regErrors['password']) {
-        <div class="form-error" role="alert">{{ regErrors['password'] }}</div>
-      }
 
       <div class="form-group">
         <label i18n for="reg-confirm">确认密码</label>
-        <input
-          type="password" id="reg-confirm" placeholder required
-          [(ngModel)]="regConfirmPassword" name="regConfirmPassword" (ngModelChange)="regErrors['confirmPassword'] = null" class="form-control"
-          [ngClass]="{ 'input-error': regErrors['confirmPassword'] }" autocomplete="new-password"
-          >
+        <my-input-text
+          class="game-auth-password"
+          inputId="reg-confirm" placeholder="再次输入密码"
+          [(ngModel)]="regConfirmPassword" name="regConfirmPassword" (ngModelChange)="regErrors['confirmPassword'] = null"
+          autocomplete="new-password" [formError]="regErrors['confirmPassword']"
+          toggleShowText="显示密码" toggleHideText="隐藏密码"
+        ></my-input-text>
       </div>
-      @if (regErrors['confirmPassword']) {
-        <div class="form-error" role="alert">{{ regErrors['confirmPassword'] }}</div>
-      }
 
       <div class="form-group">
         <label i18n for="reg-email">邮箱</label>
@@ -194,25 +194,16 @@
 
 @if (serverConfig && !externalAuthError && !isAuthenticatedWithExternalAuth) {
   <footer class="game-auth-notice">
-    <p class="game-auth-notice-title">
-      @if (mode === 'register') {
-        <ng-container i18n>创建账户后即可发现并游玩社区创作的 HTML 小游戏</ng-container>
-      } @else if (signupAllowed) {
-        <ng-container i18n>登录后可以发布和管理自己的小游戏</ng-container>
-      } @else {
-        <ng-container i18n>登录后可以收藏游戏并接收社区动态</ng-container>
-      }
-    </p>
+    @if (mode === 'register') {
+      <p class="game-auth-notice-title">创建账户后即可发现并游玩社区创作的 HTML 小游戏</p>
+    } @else if (signupAllowed) {
+      <p class="game-auth-notice-title">GameHub 开放注册。登录后可收藏游戏、同步进度并投稿自己的小游戏。</p>
+    } @else {
+      <p class="game-auth-notice-title">GameHub 当前暂未开放注册，请前往 <a class="link-primary" target="_blank" routerLink="/about">关于 GameHub</a> 查看社区说明。</p>
+    }
 
     @if (signupAllowed) {
-      <p i18n>
-        GameHub 开放注册。创建账户前，请先阅读 <a class="link-primary" target="_blank" routerLink="/about">社区规范</a>。
-        注册后即可发现并游玩社区创作的 HTML 小游戏。
-      </p>
-    } @else {
-      <p i18n>
-        GameHub 当前暂未开放注册，请前往 <a class="link-primary" target="_blank" routerLink="/about">关于 GameHub</a> 查看社区说明。
-      </p>
+      <p class="game-auth-notice-terms">继续即表示同意 <a class="link-primary" target="_blank" routerLink="/about">社区规范</a></p>
     }
   </footer>
 }

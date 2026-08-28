@@ -32,6 +32,9 @@ export class InputTextComponent implements ControlValueAccessor, AfterViewInit {
   readonly withCopy = input(false)
   readonly readonly = input(false)
   readonly show = model(false)
+  /** 显示/隐藏切换按钮的可选文字说明(隐藏时展示),仅需要强提示的表单传入 */
+  readonly toggleShowText = input('')
+  readonly toggleHideText = input('')
   readonly formError = input<string | FormReactiveErrors | FormReactiveErrors[]>(undefined)
   readonly autofocus = input(false)
   readonly ariaLabel = input<string>(undefined)

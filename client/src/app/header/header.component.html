@@ -62,31 +62,7 @@
         >
         @if (isGameExperience()) {
           @if (!loggedIn) {
-            <button
-              type="button" class="game-login-pill" aria-haspopup="dialog"
-              [attr.aria-expanded]="isOpenPopover('guest')"
-              (click)="openLoginModal()"
-            >
-              登录
-            </button>
-            @if (isPopoverMounted('guest')) {
-              <div
-                class="game-avatar-hover-card game-guest-card" role="dialog" aria-label="登录 GameHub"
-                [class.game-popover-hidden]="isPopoverClosing('guest')"
-              >
-                <p class="game-guest-card-title">登录后你可以：</p>
-                <ul class="game-guest-card-list">
-                  <li><strong>收藏</strong>游戏，多端同步游玩记录</li>
-                  <li>发表<strong>评论</strong>并接收创作者动态</li>
-                  <li><strong>关注</strong>喜欢的作者，新作品不迷路</li>
-                  <li>进入创作中心<strong>投稿小游戏</strong></li>
-                </ul>
-                <button type="button" class="game-guest-card-btn" (click)="openLoginModal()">立即登录</button>
-                <p class="game-guest-card-footer">
-                  首次使用？<button type="button" class="game-guest-card-register" (click)="openRegisterModal()">点我注册</button>
-                </p>
-              </div>
-            }
+            <button type="button" class="game-login-pill" aria-label="登录" (click)="openLoginModal()">登录</button>
           } @else {
             <button
               class="tertiary-button" type="button" aria-label="打开个人主页"

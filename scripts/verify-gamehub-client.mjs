@@ -1234,7 +1234,7 @@ console.error('DBG3 len=' + gameNavPopoverSections.length + ' hidden=' + (header
 assert(
   (headerHtml.match(/retainGameNavHover\('/g) || []).length >= 4 &&
   (headerHtml.match(/cancelGameNavHover\('/g) || []).length >= 4 &&
-  (headerHtml.match(/game-popover-hidden/g) || []).length >= 6 &&
+  (headerHtml.match(/game-popover-hidden/g) || []).length >= 5 &&
   !headerHtml.includes('(mouseenter)="retainGameNavHover()"') &&
   !headerHtml.includes('(mouseleave)="cancelGameNavHover()"'),
   'header hover popovers must keep keyed retain/cancel handlers and the fade-out class without duplicate mouse handlers'

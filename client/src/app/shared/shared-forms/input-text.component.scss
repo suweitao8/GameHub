@@ -19,6 +19,13 @@ my-copy-button ::ng-deep .btn {
 
 .btn {
   @include button-with-icon(18px, 3px, 0);
+
+  .toggle-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
 }
 
 .copy-text {

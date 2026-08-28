@@ -105,7 +105,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /** 各弹窗「视觉开启」状态,驱动显隐 class 与 aria-expanded */
   private readonly popoverOpen = signal<Record<string, boolean>>({
     avatar: false,
-    guest: false,
     notifications: false,
     favorites: false,
     history: false,
@@ -115,7 +114,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /** 各弹窗是否仍挂载在 DOM 中（开启后延迟卸载以完成淡出过渡） */
   private readonly popoverMounted = signal<Record<string, boolean>>({
     avatar: false,
-    guest: false,
     notifications: false,
     favorites: false,
     history: false,
@@ -453,23 +451,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.popoverClosing.update(c => ({ ...c, [key]: false }))
   }
   scheduleGameAvatarMenu () {
-    if (!this.isGameExperience()) return
+    // 访客点击「登录」直达登录弹框,悬停卡仅服务已登录头像菜单
+    if (!this.isGameExperience() || !this.loggedIn) return
 
-    this.cancelGameAvatarHover(false)
-    if (this.loggedIn) {
-      this.setPopoverOpen('avatar', true)
-      this.loadGameCoinBalance()
-    } else {
-      // 访客:悬停「登录」按钮展示 B 站式权益卡
-      this.setPopoverOpen('guest', true)
-    }
+    this.setPopoverOpen('avatar', true)
+    this.loadGameCoinBalance()
   }
 
   cancelGameAvatarHover (close = true) {
     if (close) {
       // 撤「开启」态触发淡出;DOM 驻留 1 秒,期间移回鼠标会重新打开
       this.setPopoverOpen('avatar', false)
-      this.setPopoverOpen('guest', false)
     }
   }
 

@@ -107,6 +107,76 @@
   display: block;
 }
 
+/* ---------------------------------------------------------------------------
+   密码输入框:显示/隐藏切换与输入框融为一体,「眼睛图标 + 文字」双提示,
+   弱视/高分屏下也能一眼看清当前状态与可点击目标
+   --------------------------------------------------------------------------- */
+:host ::ng-deep .game-auth-password {
+  .input-group {
+    position: relative;
+  }
+
+  input.form-control {
+    background: var(--game-surface-alt);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-xs) !important;
+    color: var(--game-text-primary);
+    min-height: 44px;
+    padding-right: 6.6rem;
+    transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+
+    &::placeholder {
+      color: var(--game-text-hint);
+    }
+
+    &:focus {
+      background: var(--game-surface);
+      border-color: var(--game-brand);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
+      outline: 0;
+    }
+  }
+
+  .btn {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 0 var(--game-radius-xs) var(--game-radius-xs) 0;
+    color: var(--game-text-secondary);
+    display: inline-flex;
+    gap: 0.32rem;
+    height: 44px;
+    justify-content: center;
+    opacity: 1;
+    padding: 0 0.75rem;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: color 140ms ease;
+
+    &:hover {
+      background: transparent;
+      color: var(--game-brand);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      border-radius: var(--game-radius-xs);
+      box-shadow: none;
+      color: var(--game-brand);
+      outline: 2px solid var(--game-brand);
+      outline-offset: -2px;
+    }
+
+    my-global-icon {
+      height: 18px;
+      margin-right: 0;
+      position: static;
+      width: 18px;
+    }
+  }
+}
+
 .game-auth-label-row {
   align-items: baseline;
   display: flex;
@@ -345,6 +415,12 @@
   font-size: 0.92rem;
   font-weight: 700;
   margin: 0 0 0.25rem;
+}
+
+.game-auth-notice-terms {
+  color: var(--game-text-hint);
+  font-size: 0.82rem;
+  margin: 0.3rem 0 0;
 }
 
 /* ---------------------------------------------------------------------------

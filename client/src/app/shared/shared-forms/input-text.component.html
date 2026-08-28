@@ -9,10 +9,13 @@
 
   @if (withToggle()) {
     <button (click)="toggle()" type="button" class="btn" [title]="toggleTitle">
+      <!-- 密码隐藏时展示「睁开眼」引导显示,显示中换「闭眼」表示点击即隐藏 -->
       @if (show()) {
-        <my-global-icon iconName="eye-open"></my-global-icon>
-      } @else {
         <my-global-icon iconName="eye-close"></my-global-icon>
+        @if (toggleHideText()) { <span class="toggle-text">{{ toggleHideText() }}</span> }
+      } @else {
+        <my-global-icon iconName="eye-open"></my-global-icon>
+        @if (toggleShowText()) { <span class="toggle-text">{{ toggleShowText() }}</span> }
       }
     </button>
   }
