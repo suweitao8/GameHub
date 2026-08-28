@@ -32,6 +32,10 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   readonly followLoading = signal(false)
   readonly actionFeedback = signal('')
   readonly sort = signal<'latest' | 'plays' | 'favorites'>('latest')
+  /** 排序切换时的网格局部刷新状态（不触发整页骨架屏） */
+  readonly gridLoading = signal(false)
+  readonly gridError = signal('')
+  private worksGeneration = 0
 
   constructor () {
     // 初始即处于加载态（对齐原 signal(true)），避免首帧渲染错误占位
@@ -44,8 +48,11 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
       if (!accountId) return
       const sort = query.get('sort')
       this.sort.set(sort === 'plays' || sort === 'favorites' ? sort : 'latest')
+      // 同一作者内仅排序变化时局部刷新作品网格，横幅/统计保持不动，避免整页骨架屏闪烁
+      const isSameAuthor = this.currentAccountId === accountId && this.author() !== null
       this.currentAccountId = accountId
-      this.loadAuthor(accountId)
+      if (isSameAuthor) this.refreshWorks(accountId)
+      else this.loadAuthor(accountId)
     })
   }
 
@@ -105,6 +112,28 @@ export class GameAuthorComponent implements OnInit, OnDestroy {
   }
 
   private loadAuthor (accountId: string) {
+    this.worksGeneration += 1
+    this.gridLoading.set(false)
+    this.gridError.set('')
     this.authorState.load(this.gamesService.author(accountId, this.sort()))
+  }
+
+  /** 排序切换：仅回写作品列表，页面主体与旧网格保持挂载 */
+  private refreshWorks (accountId: string) {
+    const generation = ++this.worksGeneration
+    this.gridLoading.set(true)
+    this.gridError.set('')
+    this.gamesService.author(accountId, this.sort()).subscribe({
+      next: result => {
+        if (generation !== this.worksGeneration || this.currentAccountId !== accountId) return
+        this.authorState.data.update(value => value ? { ...value, data: result.data } : result)
+        this.gridLoading.set(false)
+      },
+      error: err => {
+        if (generation !== this.worksGeneration || this.currentAccountId !== accountId) return
+        this.gridError.set(getGameActionErrorMessage(err))
+        this.gridLoading.set(false)
+      }
+    })
   }
 }

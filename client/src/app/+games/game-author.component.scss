@@ -153,7 +153,12 @@
   font-weight: 700; }
 .author-main .game-grid { display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  transition: opacity var(--game-dur) var(--game-ease); }
+/* 排序局部刷新：旧网格保持可见，轻微降透明提示刷新中，避免整页骨架屏闪烁 */
+.author-main .game-grid.grid-refreshing { opacity: 0.55;
+  pointer-events: none; }
+.author-grid-error { margin: 0.4rem 0 0; }
 .author-empty { color: var(--game-muted);
   padding: 2rem 0; }
 .author-state { padding: 4rem 1rem;

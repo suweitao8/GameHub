@@ -315,6 +315,16 @@ assert(
     authorController.includes('followingCount: account.Actor.followingCount || 0'),
   'author API must expose the real following count for the creator statistics row'
 )
+const authorTs = read('client/src/app/+games/game-author.component.ts')
+assert(
+  authorTs.includes('readonly gridLoading = signal(false)') &&
+    authorTs.includes('private refreshWorks (accountId: string)') &&
+    /const isSameAuthor = this\.currentAccountId === accountId && this\.author\(\) !== null/.test(authorTs) &&
+    authorTs.includes('this.authorState.data.update(value => value ? { ...value, data: result.data } : result)') &&
+    authorHtml.includes('[class.grid-refreshing]="gridLoading()"') &&
+    authorScss.includes('.author-main .game-grid.grid-refreshing'),
+  'author sort switching must patch only the works grid in place so the page never falls back to the full skeleton'
+)
 assert(
   authorGamesServiceTs.includes('authorStatsVersion=2') && authorCreatorServiceTs.includes('authorStatsVersion=2'),
   'author data requests must version the response shape so browsers do not reuse the pre-statistics cache entry'

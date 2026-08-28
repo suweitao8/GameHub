@@ -64,9 +64,10 @@
           <button type="button" [class.active]="sort() === 'plays'" (click)="selectSort('plays')">最多游玩</button>
           <button type="button" [class.active]="sort() === 'favorites'" (click)="selectSort('favorites')">最多收藏</button>
         </div>
-        <div class="game-grid">
+        @if (gridError()) { <p class="author-feedback author-grid-error" role="alert">{{ gridError() }}，可重新点击排序重试。</p> }
+        <div class="game-grid" [class.grid-refreshing]="gridLoading()">
           @for (game of author()!.data; track game.uuid) { <my-game-card [game]="game" /> }
-          @empty { <p class="author-empty">作者还没有发布游戏。</p> }
+          @empty { @if (!gridLoading()) { <p class="author-empty">作者还没有发布游戏。</p> } }
         </div>
       </section>
     </div>
