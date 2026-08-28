@@ -97,8 +97,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private authSub: Subscription
   private routerEventsSub: Subscription
 
-  /** 鼠标离开后弹窗保底可见时长：期间移回鼠标即可继续操作 */
-  static readonly POPOVER_HIDE_GRACE_MS = 3000
+  /** 鼠标离开后弹窗残留上限（含淡出）：期间移回鼠标即可继续操作 */
+  static readonly POPOVER_HIDE_GRACE_MS = 700
 
   /** 淡出过渡时长，过渡结束后才卸载 DOM */
   static readonly POPOVER_FADE_MS = 200
@@ -409,6 +409,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
         if (pendingHide.unmount) clearTimeout(pendingHide.unmount)
         this.popoverHideTimers[hideTimerKey] = undefined
       }
+      // 同一时间最多显示一个弹窗：打开当前时立即收起其他弹窗，不做宽限与淡出
+      for (const other of Object.keys(this.popoverMounted())) {
+        if (other !== key && this.isPopoverMounted(other)) this.unmountPopoverNow(other)
+      }
       this.popoverMounted.update(m => ({ ...m, [key]: true }))
       this.popoverClosing.update(c => ({ ...c, [key]: false }))
       this.popoverOpen.update(o => ({ ...o, [key]: true }))
@@ -439,6 +443,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
       clearTimeout(timers.unmount)
       this.popoverHideTimers[hideTimerKey] = undefined
     }
+  }
+
+  /** 立即卸载弹窗：互斥切换时旧弹窗不做宽限与淡出 */
+  private unmountPopoverNow (key: string) {
+    this.cancelPopoverHide(key)
+    this.popoverOpen.update(o => ({ ...o, [key]: false }))
+    this.popoverMounted.update(m => ({ ...m, [key]: false }))
+    this.popoverClosing.update(c => ({ ...c, [key]: false }))
   }
   scheduleGameAvatarMenu () {
     if (!this.isGameExperience()) return
