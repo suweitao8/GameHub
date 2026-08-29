@@ -233,14 +233,14 @@ Expected: 只包含 Header 模板/SCSS、契约脚本、README/release notes、s
 
 复核重点：唯一头像是否真的由现有 popup 状态控制；transform 是否把头像中心准确放到卡片中心；放大头像是否遮挡退出按钮；pointer/focus 延迟关闭是否保留；移动端和 reduced-motion 是否完整；是否重新引入重复 `img`。复核发现的资料卡右边缘约束问题已修正，并重新运行了 Task 2-4 的定向验证。
 
-- [ ] **Step 3: 提交实现**
+- [x] **Step 3: 提交实现**
 
 ```powershell
 git add client/src/app/header/header.component.html client/src/app/header/header.component.scss scripts/verify-gamehub-client.mjs README.md docs/releases/release-notes.md docs/superpowers/specs/2026-08-30-game-avatar-popover-transition-design.md docs/superpowers/plans/2026-08-30-game-avatar-popover-transition-plan.md
 git commit -s -m 'feat(ui): 优化头像资料卡转场'
 ```
 
-- [ ] **Step 4: 合并、推送和清理**
+- [x] **Step 4: 合并、推送和清理**
 
 在 worktree 干净且验证通过后，将提交合并回 `develop`，推送 `origin/develop`，确认本地与远程 SHA 相同，再删除本次 worktree 并执行 `git worktree prune`。最后运行：
 
