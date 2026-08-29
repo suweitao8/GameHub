@@ -130,6 +130,18 @@
       }
 
       <div class="form-group">
+        <label i18n for="reg-display-name">昵称</label>
+        <input
+          type="text" id="reg-display-name" i18n-placeholder placeholder="展示给他人的名字，留空默认使用用户名"
+          [(ngModel)]="regDisplayName" name="regDisplayName" (ngModelChange)="regErrors['displayName'] = null" class="form-control"
+          [ngClass]="{ 'input-error': regErrors['displayName'] }" autocomplete="nickname"
+          >
+      </div>
+      @if (regErrors['displayName']) {
+        <div class="form-error" role="alert">{{ regErrors['displayName'] }}</div>
+      }
+
+      <div class="form-group">
         <label i18n for="reg-password">密码</label>
         <my-input-text
           class="game-auth-password"

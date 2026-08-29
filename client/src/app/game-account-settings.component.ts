@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/cor
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
 import { HttpStatusCode } from '@peertube/peertube-models'
-import { Notifier, ServerService, UserService } from '@app/core'
+import { AuthService, Notifier, ServerService, UserService } from '@app/core'
 import {
   USER_CONFIRM_PASSWORD_VALIDATOR,
   USER_EXISTING_PASSWORD_VALIDATOR,
@@ -24,6 +24,31 @@ import { GAME_FEATURES } from './+games/shared'
           <h1>账户设置</h1>
           <p>管理登录安全和账户相关选项。</p>
         </header>
+
+        <section class="game-settings-card">
+          <div class="game-settings-card-heading">
+            <div>
+              <h2>昵称</h2>
+              <p>昵称是展示给他人的名字，随时可以修改；用户名用于登录，不能修改。</p>
+            </div>
+            <span class="game-settings-badge">资料</span>
+          </div>
+
+          @if (nicknameError) {
+            <my-alert type="danger">{{ nicknameError }}</my-alert>
+          }
+
+          <form (ngSubmit)="saveNickname()" class="game-password-form game-nickname-form">
+            <input
+              type="text" id="game-nickname" class="form-control" i18n-placeholder
+              placeholder="展示给他人的名字，最多 120 个字符" maxlength="120"
+              [(ngModel)]="nickname" name="nickname" autocomplete="nickname"
+            >
+            <button class="game-settings-submit" type="submit" [disabled]="nicknameSaving || !nickname.trim()">
+              {{ nicknameSaving ? '正在保存…' : '保存昵称' }}
+            </button>
+          </form>
+        </section>
 
         <section class="game-settings-card">
           <div class="game-settings-card-heading">
@@ -76,10 +101,15 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
   protected formReactiveService = inject(FormReactiveService)
   private readonly serverService = inject(ServerService)
   private readonly userService = inject(UserService)
+  private readonly authService = inject(AuthService)
   private readonly notifier = inject(Notifier)
 
   error: string
   readonly creatorEnabled = GAME_FEATURES.creatorCenter
+
+  nickname = ''
+  nicknameSaving = false
+  nicknameError: string
 
   ngOnInit () {
     const { minLength, maxLength } = this.serverService.getHTMLConfig().fieldsConstraints.users.password
@@ -94,6 +124,36 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
     confirmPasswordControl.valueChanges
       .pipe(filter(value => value !== this.form.value['new-password']))
       .subscribe(() => confirmPasswordControl.setErrors({ matchPassword: true }))
+
+    const authUser = this.authService.getUser()
+    this.nickname = authUser?.account?.displayName ||
+      authUser?.account?.name ||
+      authUser?.username ||
+      ''
+  }
+
+  saveNickname () {
+    const displayName = this.nickname.trim()
+    if (!displayName) {
+      this.nicknameError = $localize`昵称不能为空。`
+      return
+    }
+
+    this.nicknameError = null
+    this.nicknameSaving = true
+
+    this.userService.updateMyProfile({ displayName }).subscribe({
+      next: () => {
+        this.nicknameSaving = false
+        this.notifier.success($localize`昵称已更新。`)
+        // 同步全局登录用户信息，头像菜单等展示位立即使用新昵称
+        this.authService.refreshUserInformation()
+      },
+      error: err => {
+        this.nicknameSaving = false
+        this.nicknameError = err.message
+      }
+    })
   }
 
   changePassword () {

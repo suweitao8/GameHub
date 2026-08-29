@@ -59,6 +59,18 @@
 .game-settings-submit:hover:not(:disabled) { background: var(--game-brand-hover); }
 .game-settings-submit:disabled { cursor: not-allowed;
   opacity: 0.5; }
+.game-nickname-form input { background: var(--game-surface-alt);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-primary);
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+.game-nickname-form input::placeholder { color: var(--game-text-hint); }
+.game-nickname-form input:focus { background: var(--game-surface);
+  border-color: var(--game-brand);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
+  outline: 0; }
 .game-settings-info h2 { margin-bottom: 1rem; }
 .game-settings-links { display: grid;
   gap: 0.5rem;

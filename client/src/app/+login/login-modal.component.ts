@@ -1,6 +1,6 @@
 import { NgClass } from '@angular/common'
 import { AfterViewInit, Component, ElementRef, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core'
-import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms'
+import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms'
 import { Router, RouterLink } from '@angular/router'
 import { AuthService, Notifier, RedirectService, ServerService, SessionStorageService, UserService } from '@app/core'
 import { HooksService } from '@app/core/plugins/hooks.service'
@@ -181,6 +181,8 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
 
     const regValidators: [string, string, ValidatorFn[], Record<string, string>][] = [
       [ 'username', this.regUsername.trim(), LOGIN_USERNAME_VALIDATOR.VALIDATORS, LOGIN_USERNAME_VALIDATOR.MESSAGES ],
+      // 昵称选填:留空时注册请求回退为用户名
+      [ 'displayName', this.regDisplayName.trim(), [ Validators.maxLength(120) ], { maxlength: $localize`昵称最多 120 个字符。` } ],
       [ 'email', this.regEmail.trim(), REQUIRED_EMAIL_VALIDATOR.VALIDATORS, REQUIRED_EMAIL_VALIDATOR.MESSAGES ],
       [ 'password', this.regPassword, passwordValidator.VALIDATORS, passwordValidator.MESSAGES ]
     ]
