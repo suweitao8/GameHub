@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core'
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { RouterLink } from '@angular/router'
 import { HttpStatusCode } from '@peertube/peertube-models'
@@ -103,6 +103,7 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
   private readonly userService = inject(UserService)
   private readonly authService = inject(AuthService)
   private readonly notifier = inject(Notifier)
+  private readonly changeDetectorRef = inject(ChangeDetectorRef)
 
   error: string
   readonly creatorEnabled = GAME_FEATURES.creatorCenter
@@ -126,7 +127,7 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
       .subscribe(() => confirmPasswordControl.setErrors({ matchPassword: true }))
 
     // 整页刷新时会话先恢复登录态、用户资料后到,等资料就绪再回显昵称,
-    // 避免回退成用户名
+    // 避免回退成用户名;OnPush 组件需手动标记检查
     this.authService.userInformationLoaded
       .pipe(
         filter(loaded => loaded),
@@ -138,6 +139,7 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
           authUser?.account?.name ||
           authUser?.username ||
           ''
+        this.changeDetectorRef.markForCheck()
       })
   }
 
