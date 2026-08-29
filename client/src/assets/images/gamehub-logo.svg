@@ -1,42 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 512 512"
      role="img"
-     aria-labelledby="title desc"
-     style="color:#00aeec;">
-  <title id="title">GameHub Logo</title>
-  <desc id="desc">GameHub monochrome cat logo.</desc>
+     aria-labelledby="title desc">
+  <title id="title">GameHub rainbow G logo</title>
+  <desc id="desc">A rounded letter G drawn with a rainbow gradient.</desc>
 
-  <g fill="none" stroke="currentColor" stroke-width="18"
-     stroke-linecap="round" stroke-linejoin="round">
-    <path d="M122 179
-             C94 137 91 87 117 57
-             C146 24 202 69 229 101
-             C246 96 266 96 283 101
-             C311 68 367 25 395 57
-             C421 88 418 138 390 180
-             C430 219 448 270 440 323
-             C427 414 351 462 256 462
-             C160 462 85 414 72 323
-             C64 270 82 219 122 179Z"/>
-    <ellipse cx="173" cy="224" rx="84" ry="92"/>
-    <ellipse cx="339" cy="224" rx="84" ry="92"/>
-    <circle cx="152" cy="196" r="47" fill="currentColor"/>
-    <circle cx="360" cy="196" r="47" fill="currentColor"/>
-    <path d="M225 284
-             C239 271 273 271 287 284
-             C293 291 290 301 282 308
-             L263 324
-             C259 327 253 327 249 324
-             L230 308
-             C222 301 219 291 225 284Z"
-          fill="currentColor"/>
-    <path d="M256 324 L256 344"/>
-    <path d="M218 344
-             C229 355 243 360 256 360
-             C269 360 283 355 294 344
-             C306 356 314 375 308 396
-             C301 420 280 436 256 436
-             C232 436 211 420 204 396
-             C198 375 206 356 218 344Z"/>
-  </g>
+  <defs>
+    <linearGradient id="gamehub-rainbow"
+                    x1="76" y1="256"
+                    x2="426" y2="256"
+                    gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f43f5d"/>
+      <stop offset="0.2" stop-color="#f97316"/>
+      <stop offset="0.4" stop-color="#facc15"/>
+      <stop offset="0.6" stop-color="#22c55e"/>
+      <stop offset="0.8" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256"
+        fill="none"
+        stroke="url(#gamehub-rainbow)"
+        stroke-width="66"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
 </svg>

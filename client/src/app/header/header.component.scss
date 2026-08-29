@@ -113,7 +113,7 @@
   @include disable-default-a-behaviour;
 }
 
-/* ---- 品牌标：渐变方块 + 墨色字标 ---- */
+/* ---- 品牌标：彩虹 G + 墨色字标 ---- */
 
 .game-brand {
   display: inline-flex;
@@ -127,28 +127,18 @@
   white-space: nowrap;
 }
 
-.game-brand::before {
-  content: 'G';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 27px;
-  height: 27px;
-  border-radius: var(--game-radius-sm);
-  background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 62%, var(--game-accent) 130%);
-  box-shadow: var(--game-shadow-brand);
-  color: var(--game-text-inverse);
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 900;
-  line-height: 1;
-  transition: transform var(--game-dur) var(--game-ease), box-shadow var(--game-dur) var(--game-ease);
+.game-brand-logo {
+  display: block;
+  flex: 0 0 30px;
+  height: 30px;
+  object-fit: contain;
+  transition: transform var(--game-dur) var(--game-ease);
+  width: 30px;
 }
 
-.game-brand:hover::before,
-.game-brand:focus-visible::before {
+.game-brand:hover .game-brand-logo,
+.game-brand:focus-visible .game-brand-logo {
   transform: scale(1.07) rotate(-5deg);
-  box-shadow: var(--game-shadow-brand);
 }
 
 .game-brand-wordmark {
@@ -1199,12 +1189,12 @@ my-actor-avatar {
     transition: none;
   }
 
-  .game-brand::before {
+  .game-brand-logo {
     transition: none;
   }
 
-  .game-brand:hover::before,
-  .game-brand:focus-visible::before {
+  .game-brand:hover .game-brand-logo,
+  .game-brand:focus-visible .game-brand-logo {
     transform: none;
   }
 

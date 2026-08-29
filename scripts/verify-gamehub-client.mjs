@@ -98,6 +98,46 @@ const gameCollectionControllerTs = read('server/core/controllers/api/games/game-
 const gameEventControllerTs = read('server/core/controllers/api/games/events.ts')
 const gameCollectionModelTs = read('packages/models/src/games/game-collection.model.ts')
 const gameEventModelTs = read('packages/models/src/games/game-event.model.ts')
+const gamehubLogoSvg = read('client/src/assets/images/gamehub-logo.svg')
+const gamehubFaviconSvg = read('client/src/assets/images/gamehub-favicon.svg')
+const fallbackLogoSvg = read('client/src/assets/images/logo.svg')
+const serverConfigManagerTs = read('server/core/lib/server-config-manager.ts')
+
+// 1a) GameHub branding must be one shared rainbow G mark across page and tab
+const sharedRainbowGPath = 'M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256'
+const sharedRainbowStops = [ '#f43f5d', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#6366f1' ]
+const logoAssets = [ gamehubLogoSvg, gamehubFaviconSvg, fallbackLogoSvg ]
+
+assert(
+  /<img[^>]+class="game-brand-logo"[^>]+src="\/client\/assets\/images\/gamehub-logo\.svg"[^>]+alt=""[^>]+aria-hidden="true"/.test(submitHeaderHtml),
+  'game Header must render the shared decorative gamehub-logo.svg mark'
+)
+assert(
+  /<img[^>]+class="icon-logo"[^>]+src="\/client\/assets\/images\/gamehub-logo\.svg"[^>]+alt=""[^>]+aria-hidden="true"/.test(read('client/src/app/menu/menu.component.html')),
+  'mobile menu must render the shared gamehub-logo.svg mark'
+)
+assert(
+  submitHeaderScss.includes('.game-brand-logo') && !submitHeaderScss.includes('.game-brand::before'),
+  'game Header must size the SVG mark instead of drawing a second CSS text G'
+)
+assert(
+  serverConfigManagerTs.includes("fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-favicon.svg'"),
+  'server favicon fallback must use the shared SVG favicon'
+)
+assert(
+  serverConfigManagerTs.includes("fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-logo.svg'"),
+  'server Header logo fallbacks must use the shared SVG logo'
+)
+assert(
+  logoAssets.every(asset => asset.includes('id="gamehub-rainbow"') && asset.includes(`d="${sharedRainbowGPath}"`) && asset.includes('stroke="url(#gamehub-rainbow)"')),
+  'gamehub-logo.svg, gamehub-favicon.svg, and logo.svg must contain the same rainbow G path'
+)
+for (const stop of sharedRainbowStops) {
+  assert(
+    logoAssets.every(asset => asset.includes(`stop-color="${stop}"`)),
+    `all shared Logo assets must contain rainbow stop ${stop}`
+  )
+}
 const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')
 assert(
   existsSync(bannerAssetPath),
