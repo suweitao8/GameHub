@@ -4,7 +4,7 @@
 
 **目标：** 将 GameHub 游戏态头像弹窗改造成可点击打开的个人资料卡，展示关注数、粉丝数和以游戏数量为语义的动态数，并提供个人中心与个人主页入口。
 
-**架构：** 继续使用 HeaderComponent 现有的非模态 hover popover 和一次性 creatorOverview() 请求，不新增后端接口。头像按钮负责切换浮层，模板直接消费登录用户 account 的关系字段和 gameCount signal；浮层内容采用普通链接和按钮，保持鼠标、键盘焦点和移动端可操作。
+**架构：** 继续使用 HeaderComponent 现有的非模态 hover popover 和按账号共享、一次性 creatorOverview() 请求，不新增后端接口。头像按钮负责切换浮层，模板直接消费登录用户 account 的关系字段和 gameCount signal；浮层内容采用普通链接和按钮，保持鼠标、键盘焦点和移动端可操作。
 
 **技术栈：** Angular 22 standalone component、signals、Angular Router、现有 GameHub CSS variables、Node structural verifier、ESLint、Stylelint、Angular production build、真实浏览器 smoke test。
 
@@ -36,6 +36,7 @@ assert(
     headerTs.includes('this.gameCount.set(overview.gameCount)') &&
     headerTs.includes('this.gameCount.set(null)') &&
     headerTs.includes('toggleGameAvatarMenu (event: MouseEvent)') &&
+    headerTs.includes('event.detail > 0 && this.gameAvatarHoverOpened') &&
     headerTs.includes('closeGameAvatarMenu (event: KeyboardEvent)'),
   'account popover must load and clear game count and provide click and Escape interaction handlers'
 )
@@ -132,8 +133,8 @@ node scripts/verify-gamehub-client.mjs
   #gameAvatarButton
   class="tertiary-button"
   type="button"
-  aria-label="个人信息"
-  aria-haspopup="true"
+  aria-label="打开个人菜单"
+  aria-haspopup="dialog"
   [attr.aria-controls]="'game-avatar-menu'"
   [attr.aria-expanded]="isOpenPopover('avatar')"
   (pointerdown)="onGameAvatarPointerDown($event)"
@@ -144,9 +145,10 @@ node scripts/verify-gamehub-client.mjs
   <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || 'GameHub 玩家'" (error)="onGameAvatarError($event)">
 </button>
 @if (isPopoverMounted('avatar')) {
-  <section
-    id="game-avatar-menu"
-    class="game-avatar-hover-card"
+<section
+  id="game-avatar-menu"
+  class="game-avatar-hover-card"
+  role="dialog"
     [class.game-popover-hidden]="isPopoverClosing('avatar')"
     aria-labelledby="game-avatar-title"
   >
@@ -397,7 +399,7 @@ pnpm run verify:gamehub-client
 
 使用登录测试账号验证（真实浏览器 smoke 已覆盖桌面弹窗、统计内容、个人中心路由和 Escape 焦点回收；窄屏检查先发现并修复了弹窗左溢出）：
 
-1. 点击头像打开卡片，不会立即导航。
+1. 点击头像打开卡片，不会立即导航；悬停已打开时首次点击不反向收起卡片。
 2. 卡片显示个人中心、关注、粉丝和动态。
 3. 动态值等于 GET /api/v1/games/me/overview 返回的 gameCount。
 4. 个人中心进入 /my-account，我的主页进入 /games/author/:id。
@@ -406,7 +408,7 @@ pnpm run verify:gamehub-client
 
 - [x] **步骤 3：验证键盘、窄屏和异常状态**
 
-从头像触发器检查 Tab、Enter、Space、Escape；检查游戏数请求加载和失败时的短横线回退；调整到窄屏确认没有水平溢出或操作项被裁切，修复后弹窗以 fixed + 视口安全边距定位。
+从头像触发器检查 Tab、Enter、Space、Escape；检查游戏数请求加载和失败时的短横线回退；调整到窄屏确认没有水平溢出或操作项被裁切，修复后弹窗以 fixed + 视口安全边距定位。账号切换时通过请求代次校验阻止旧 overview 回写，头像与创作中心共享同一 in-flight/cache 请求。
 
 - [x] **步骤 4：验证 reduced-motion 和最终差异**
 

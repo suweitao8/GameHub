@@ -11,7 +11,7 @@ import { findAppropriateImage } from '@peertube/peertube-core-utils'
 import { HTMLServerConfig, ServerConfig } from '@peertube/peertube-models'
 import { peertubeLocalStorage } from '@root-helpers/peertube-web-storage'
 import { isAndroid, isIOS, isIphone } from '@root-helpers/web-browser'
-import { Subscription } from 'rxjs'
+import { shareReplay, Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -130,7 +130,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private gameCoinBalanceRequested = false
   private gameAvatarPointerDown = false
+  private gameAvatarFocusOpened = false
+  private gameAvatarHoverOpened = false
   private suppressGameAvatarFocus = false
+  private gameAvatarRequestGeneration = 0
+  private creatorOverviewRequest: ReturnType<GamesService['creatorOverview']> | undefined
+  private creatorOverviewAccountKey: number | string | null = null
   private gameNavLoaded = new Set<GameHeaderPopup>()
   private gameNavRequestGenerations = new Map<GameHeaderPopup, number>()
 
@@ -462,12 +467,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // 访客点击「登录」直达登录弹框,悬停卡仅服务已登录头像菜单
     if (this.suppressGameAvatarFocus || this.gameAvatarPointerDown || !this.isGameExperience() || !this.loggedIn) return
 
+    if (!this.isOpenPopover('avatar')) this.gameAvatarHoverOpened = true
     this.setPopoverOpen('avatar', true)
     this.loadGameCoinBalance()
   }
 
+  onGameAvatarFocusIn () {
+    if (this.gameAvatarPointerDown || this.suppressGameAvatarFocus || !this.isGameExperience() || !this.loggedIn) return
+
+    this.gameAvatarFocusOpened = true
+    this.scheduleGameAvatarMenu()
+  }
+
   cancelGameAvatarHover (close = true) {
     if (close) {
+      this.gameAvatarHoverOpened = false
       // 撤「开启」态触发淡出;DOM 驻留 1 秒,期间移回鼠标会重新打开
       this.setPopoverOpen('avatar', false)
     }
@@ -513,6 +527,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     if (container?.contains(nextTarget)) return
 
+    this.gameAvatarFocusOpened = false
     this.cancelGameAvatarHover()
   }
 
@@ -630,11 +645,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return
     }
 
-    this.gamesService.creatorOverview().subscribe({
+    this.getCreatorOverview().subscribe({
       next: value => {
         if (!isCurrentRequest()) return
         this.gameNavOwned.set(value.games || [])
         this.gameCoinBalance.set(value.coinBalance)
+        this.gameCount.set(value.gameCount)
       },
       error: () => {
         if (!isCurrentRequest()) return
@@ -651,6 +667,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
   toggleGameAvatarMenu (event: MouseEvent) {
     event.preventDefault()
     if (!this.loggedIn || !this.isGameExperience()) return
+
+    // 焦点预览先于 Enter/Space 产生 native click,首次键盘激活应保持弹窗打开
+    if (event.detail === 0 && this.gameAvatarFocusOpened && this.isOpenPopover('avatar')) {
+      this.gameAvatarFocusOpened = false
+      return
+    }
+
+    // 鼠标移入头像时悬停卡已经打开,首次点击保持打开,避免点击动作反而收起预览
+    if (event.detail > 0 && this.gameAvatarHoverOpened && this.isOpenPopover('avatar')) {
+      this.gameAvatarHoverOpened = false
+      return
+    }
+
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
 
     if (this.isOpenPopover('avatar')) this.unmountPopoverNow('avatar')
     else this.scheduleGameAvatarMenu()
@@ -669,6 +700,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     event.preventDefault()
     event.stopPropagation()
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
     this.suppressGameAvatarFocus = true
     this.unmountPopoverNow('avatar')
     this.gameAvatarButton()?.nativeElement.focus()
@@ -701,9 +734,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private updateUserState () {
+    const previousAccountKey = this.getGameAccountKey()
     this.user = this.loggedIn
       ? this.authService.getUser()
       : undefined
+    const currentAccountKey = this.getGameAccountKey()
+
+    if (previousAccountKey !== currentAccountKey) {
+      this.gameAvatarRequestGeneration++
+      this.creatorOverviewRequest = undefined
+      this.creatorOverviewAccountKey = null
+      this.gameCoinBalance.set(null)
+      this.gameCount.set(null)
+      this.gameCoinBalanceRequested = false
+      this.gameAvatarFocusOpened = false
+      this.gameAvatarHoverOpened = false
+    }
 
     if (!this.loggedIn) {
       this.gameNavRequestGenerations.clear()
@@ -728,15 +774,41 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.gameCoinBalanceRequested || !this.loggedIn) return
 
     this.gameCoinBalanceRequested = true
-    this.gamesService.creatorOverview().subscribe({
+    const generation = this.gameAvatarRequestGeneration
+    const accountKey = this.getGameAccountKey()
+    const isCurrentRequest = () =>
+      this.loggedIn &&
+      this.gameAvatarRequestGeneration === generation &&
+      this.getGameAccountKey() === accountKey
+
+    this.getCreatorOverview().subscribe({
       next: overview => {
+        if (!isCurrentRequest()) return
+
         this.gameCoinBalance.set(overview.coinBalance)
         this.gameCount.set(overview.gameCount)
       },
       error: () => {
+        if (!isCurrentRequest()) return
+
         this.gameCoinBalance.set(0)
         this.gameCount.set(null)
       }
     })
+  }
+
+  private getGameAccountKey () {
+    return this.user?.account?.id ?? this.user?.username ?? null
+  }
+
+  private getCreatorOverview () {
+    const accountKey = this.getGameAccountKey()
+    if (this.creatorOverviewRequest && this.creatorOverviewAccountKey === accountKey) return this.creatorOverviewRequest
+
+    this.creatorOverviewAccountKey = accountKey
+    this.creatorOverviewRequest = this.gamesService.creatorOverview()
+      .pipe(shareReplay({ bufferSize: 1, refCount: false }))
+
+    return this.creatorOverviewRequest
   }
 }

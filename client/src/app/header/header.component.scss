@@ -1275,7 +1275,9 @@ my-actor-avatar {
   }
 
   .game-avatar-hover-card,
-  .game-header-popover {
+  .game-header-popover,
+  .game-avatar-action,
+  .game-avatar-logout {
     transition: none;
   }
 
