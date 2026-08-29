@@ -257,13 +257,11 @@
   align-items: center;
   justify-content: space-between;
 
-  img.icon-logo {
-    display: inline-block;
-    flex: 0 0 48px;
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    max-width: 48px;
+  img.menu-brand-wordmark {
+    display: block;
+    flex: 0 0 116px;
+    width: 116px;
+    height: 28px;
     object-fit: contain;
   }
 }

@@ -101,24 +101,29 @@ const gameEventModelTs = read('packages/models/src/games/game-event.model.ts')
 const gamehubLogoSvg = read('client/src/assets/images/gamehub-logo.svg')
 const gamehubFaviconSvg = read('client/src/assets/images/gamehub-favicon.svg')
 const fallbackLogoSvg = read('client/src/assets/images/logo.svg')
+const gamehubWordmarkSvg = read('client/src/assets/images/gamehub-wordmark.svg')
 const serverConfigManagerTs = read('server/core/lib/server-config-manager.ts')
+const indexHtml = read('client/src/index.html')
+const menuHtml = read('client/src/app/menu/menu.component.html')
 
-// 1a) GameHub branding must be one shared rainbow G mark across page and tab
-const sharedRainbowGPath = 'M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256'
-const sharedRainbowStops = [ '#f43f5d', '#f97316', '#facc15', '#22c55e', '#06b6d4', '#6366f1' ]
+// 1a) GameHub branding keeps the wordmark and favicon as two clear roles
+const sharedGPath = 'M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256'
+const gameBrandColor = '#5044e4'
 const logoAssets = [ gamehubLogoSvg, gamehubFaviconSvg, fallbackLogoSvg ]
 
 assert(
-  /<img[^>]+class="game-brand-logo"[^>]+src="\/client\/assets\/images\/gamehub-logo\.svg"[^>]+alt=""[^>]+aria-hidden="true"/.test(submitHeaderHtml),
-  'game Header must render the shared decorative gamehub-logo.svg mark'
+  /<img[^>]+class="game-brand-wordmark"[^>]+src="\/client\/assets\/images\/gamehub-wordmark\.svg"[^>]+alt="GameHub"/.test(submitHeaderHtml),
+  'game Header must render the accessible GameHub wordmark asset'
 )
 assert(
-  /<img[^>]+class="icon-logo"[^>]+src="\/client\/assets\/images\/gamehub-logo\.svg"[^>]+alt=""[^>]+aria-hidden="true"/.test(read('client/src/app/menu/menu.component.html')),
-  'mobile menu must render the shared gamehub-logo.svg mark'
+  /<img[^>]+class="menu-brand-wordmark"[^>]+src="\/client\/assets\/images\/gamehub-wordmark\.svg"[^>]+alt="GameHub"/.test(menuHtml),
+  'mobile menu must render the accessible GameHub wordmark asset'
 )
 assert(
-  submitHeaderScss.includes('.game-brand-logo') && !submitHeaderScss.includes('.game-brand::before'),
-  'game Header must size the SVG mark instead of drawing a second CSS text G'
+  submitHeaderScss.includes('.game-brand-wordmark') &&
+    !submitHeaderScss.includes('.game-brand-logo') &&
+    submitHeaderScss.includes('flex-basis: 104px'),
+  'game Header must size the horizontal wordmark and keep it visible at narrow widths'
 )
 assert(
   serverConfigManagerTs.includes("fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-favicon.svg'"),
@@ -126,16 +131,37 @@ assert(
 )
 assert(
   serverConfigManagerTs.includes("fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-logo.svg'"),
-  'server Header logo fallbacks must use the shared SVG logo'
+  'server square Header logo fallback must use the shared SVG G mark'
 )
 assert(
-  logoAssets.every(asset => asset.includes('id="gamehub-rainbow"') && asset.includes(`d="${sharedRainbowGPath}"`) && asset.includes('stroke="url(#gamehub-rainbow)"')),
-  'gamehub-logo.svg, gamehub-favicon.svg, and logo.svg must contain the same rainbow G path'
+  serverConfigManagerTs.includes("fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-wordmark.svg'") &&
+    serverConfigManagerTs.includes('width: 116') &&
+    serverConfigManagerTs.includes('height: 28'),
+  'server desktop Header logo fallback must use the horizontal wordmark dimensions'
 )
-for (const stop of sharedRainbowStops) {
+assert(
+  indexHtml.includes('/client/assets/images/gamehub-favicon.svg?v=gamehub-indigo-wordmark'),
+  'index.html must point the browser tab to the versioned indigo G favicon'
+)
+assert(
+  logoAssets.every(asset => !asset.includes('gamehub-rainbow') && asset.includes(`d="${sharedGPath}"`) && asset.includes(`stroke="${gameBrandColor}"`)),
+  'gamehub-logo.svg, gamehub-favicon.svg, and logo.svg must contain the same flat indigo G path'
+)
+assert(
+  gamehubWordmarkSvg.includes('<text') &&
+    gamehubWordmarkSvg.includes('GameHub') &&
+    gamehubWordmarkSvg.includes(`fill="${gameBrandColor}"`) &&
+    !gamehubWordmarkSvg.includes('gradient'),
+  'gamehub-wordmark.svg must contain a flat indigo GameHub wordmark'
+)
+assert(
+  !/:host-context\(\.game-experience\) \.game-brand-wordmark\s*\{\s*display:\s*none/.test(submitHeaderScss),
+  'game Header stylesheet must keep the full wordmark visible at narrow widths'
+)
+for (const asset of logoAssets) {
   assert(
-    logoAssets.every(asset => asset.includes(`stop-color="${stop}"`)),
-    `all shared Logo assets must contain rainbow stop ${stop}`
+    !asset.includes('stop-color=') && !asset.includes('linearGradient'),
+    'shared square Logo assets must not contain rainbow gradient stops'
   )
 }
 const bannerAssetPath = join(root, 'client/src/assets/images/gamehub-header-banner-10x1.png')

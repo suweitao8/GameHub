@@ -42,7 +42,7 @@
 
 /* ==========================================================================
    GameHub 顶栏 —— 靛蓝霓虹 · 轻画布
-   玻璃拟态白栏 + 渐变品牌标 + 胶囊导航；视觉值一律引用全局设计令牌
+   玻璃拟态白栏 + 靛蓝字标 + 胶囊导航；视觉值一律引用全局设计令牌
    ========================================================================== */
 
 :host-context(.game-experience) .root {
@@ -113,45 +113,37 @@
   @include disable-default-a-behaviour;
 }
 
-/* ---- 品牌标：彩虹 G + 墨色字标 ---- */
+/* ---- 品牌字标：GameHub · 电光靛蓝 ---- */
 
 .game-brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
   align-self: center;
   height: 40px;
   margin-right: 0.4rem;
-  color: var(--game-text-primary) !important;
+  color: var(--game-brand) !important;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.game-brand-logo {
+.game-brand-wordmark {
   display: block;
-  flex: 0 0 30px;
-  height: 30px;
+  flex: 0 0 116px;
+  height: 28px;
   object-fit: contain;
   transition: transform var(--game-dur) var(--game-ease);
-  width: 30px;
+  width: 116px;
 }
 
-.game-brand:hover .game-brand-logo,
-.game-brand:focus-visible .game-brand-logo {
-  transform: scale(1.07) rotate(-5deg);
+.game-brand:hover .game-brand-wordmark,
+.game-brand:focus-visible .game-brand-wordmark {
+  transform: translateY(-1px);
 }
 
-.game-brand-wordmark {
-  color: var(--game-text-primary);
-  display: inline-block;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-  font-size: 1.32rem;
-  font-style: normal;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  text-shadow: none;
-  transform: none;
+.game-brand:focus-visible {
+  border-radius: var(--game-radius-xs);
+  outline: 2px solid var(--game-header-focus-ring);
+  outline-offset: 4px;
 }
 
 .game-header-left {
@@ -929,9 +921,10 @@ my-actor-avatar {
     margin-right: 0.15rem;
   }
 
-  // 窄屏只保留图形标志，避免挤压搜索区
+  // 保留完整字标，只收窄尺寸以避免挤压搜索区
   :host-context(.game-experience) .game-brand-wordmark {
-    display: none;
+    flex-basis: 104px;
+    width: 104px;
   }
 
   :host-context(.game-experience) .game-header-left-nav {
@@ -1152,9 +1145,10 @@ my-actor-avatar {
     margin-right: 0.5rem;
   }
 
-  .game-brand-logo {
-    height: 30px;
-    width: 30px;
+  .game-brand-wordmark {
+    flex-basis: 98px;
+    height: 25px;
+    width: 98px;
   }
 
   .game-header-actions {
@@ -1204,12 +1198,12 @@ my-actor-avatar {
     transition: none;
   }
 
-  .game-brand-logo {
+  .game-brand-wordmark {
     transition: none;
   }
 
-  .game-brand:hover .game-brand-logo,
-  .game-brand:focus-visible .game-brand-logo {
+  .game-brand:hover .game-brand-wordmark,
+  .game-brand:focus-visible .game-brand-wordmark {
     transform: none;
   }
 

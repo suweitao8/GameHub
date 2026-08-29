@@ -614,9 +614,9 @@ class ServerConfigManager {
       logoType: 'header-wide',
 
       defaultLogo: {
-        fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-logo.svg',
-        width: 34,
-        height: 34
+        fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-wordmark.svg',
+        width: 116,
+        height: 28
       }
     })
   }
