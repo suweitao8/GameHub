@@ -2262,7 +2262,7 @@
         },
         "default_client_route": {
           "type": "string",
-          "default": "/games"
+          "default": "/"
         },
         "is_nsfw": {
           "type": "boolean",
