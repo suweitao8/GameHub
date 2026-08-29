@@ -588,7 +588,7 @@ class ServerConfigManager {
       logoType: 'favicon',
 
       defaultLogo: {
-        fileUrl: WEBSERVER.URL + '/client/assets/images/favicon.png',
+        fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-favicon.svg',
         width: 32,
         height: 32
       }
@@ -601,7 +601,7 @@ class ServerConfigManager {
       logoType: 'header-square',
 
       defaultLogo: {
-        fileUrl: WEBSERVER.URL + '/client/assets/images/logo.svg',
+        fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-logo.svg',
         width: 34,
         height: 34
       }
@@ -614,7 +614,7 @@ class ServerConfigManager {
       logoType: 'header-wide',
 
       defaultLogo: {
-        fileUrl: WEBSERVER.URL + '/client/assets/images/logo.svg',
+        fileUrl: WEBSERVER.URL + '/client/assets/images/gamehub-logo.svg',
         width: 34,
         height: 34
       }
