@@ -3,25 +3,11 @@
      role="img"
      aria-labelledby="title desc">
   <title id="title">GameHub logo fallback</title>
-  <desc id="desc">The GameHub rainbow G logo fallback.</desc>
-
-  <defs>
-    <linearGradient id="gamehub-rainbow"
-                    x1="76" y1="256"
-                    x2="426" y2="256"
-                    gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f43f5d"/>
-      <stop offset="0.2" stop-color="#f97316"/>
-      <stop offset="0.4" stop-color="#facc15"/>
-      <stop offset="0.6" stop-color="#22c55e"/>
-      <stop offset="0.8" stop-color="#06b6d4"/>
-      <stop offset="1" stop-color="#6366f1"/>
-    </linearGradient>
-  </defs>
+  <desc id="desc">The GameHub rounded G icon in electric indigo.</desc>
 
   <path d="M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256"
         fill="none"
-        stroke="url(#gamehub-rainbow)"
+        stroke="#5044e4"
         stroke-width="66"
         stroke-linecap="round"
         stroke-linejoin="round"/>

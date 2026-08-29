@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 276 72"
+     role="img"
+     aria-labelledby="title desc">
+  <title id="title">GameHub</title>
+  <desc id="desc">GameHub wordmark in electric indigo.</desc>
+
+  <text x="4" y="55"
+        fill="#5044e4"
+        font-family="Arial Rounded MT Bold, Trebuchet MS, Segoe UI, sans-serif"
+        font-size="52"
+        font-weight="700"
+        letter-spacing="-2">GameHub</text>
+</svg>

@@ -399,6 +399,11 @@ pnpm run start
 docker compose -f support/docker/development/docker-compose.yml down
 ```
 
+### 浏览器调试与验收
+
+- 网页运行、交互调试、截图和 UI 验收统一使用 Codex 内置浏览器。
+- 禁止使用 Chrome（包括 Chrome CDP/控制工具）或独立浏览器工具进行本项目网页调试与验收；内置浏览器不可用时报告阻塞，不得自动切换。
+
 ### 收尾与规则维护
 
 - 完成功能后先在 worktree 提交，再合并回 `develop`、推送 `origin/develop`，最后删除当前 worktree 并执行 `git worktree prune`；清理前必须再次确认分支已合并、工作区干净且没有未注册目录。
