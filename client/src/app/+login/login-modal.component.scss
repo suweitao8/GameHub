@@ -135,6 +135,16 @@
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
       outline: 0;
     }
+
+    /* 同上:压过浏览器深色模式下的自动填充强制配色 */
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus {
+      /* stylelint-disable-next-line property-no-vendor-prefix -- autofill 覆盖只认 -webkit-box-shadow 内阴影 */
+      -webkit-box-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
+      -webkit-text-fill-color: var(--game-text-primary);
+      caret-color: var(--game-text-primary);
+    }
   }
 
   .btn {
@@ -229,6 +239,19 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
     outline: 0;
   }
+}
+
+/* 浏览器自动填充(Chrome/Edge -webkit-autofill)在系统深色模式下会无视上面的
+   作者样式,把输入框强制染成深灰蓝底 + 浅色字,账号/密码文字因此看不清。
+   用 1000px 内阴影锁定底色并固定文字与光标颜色,让填充态和普通态一致 */
+:host input:-webkit-autofill,
+:host input:-webkit-autofill:hover,
+:host input:-webkit-autofill:focus,
+:host textarea:-webkit-autofill {
+  /* stylelint-disable-next-line property-no-vendor-prefix -- autofill 覆盖只认 -webkit-box-shadow 内阴影 */
+  -webkit-box-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
+  -webkit-text-fill-color: var(--game-text-primary);
+  caret-color: var(--game-text-primary);
 }
 
 :host input.input-error {
