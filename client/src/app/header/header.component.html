@@ -57,6 +57,7 @@
       <div
         class="logged-in-container" ngbDropdown #dropdown="ngbDropdown" placement="bottom-left auto"
         container="body"
+        [class.game-avatar-menu-open]="isOpenPopover('avatar')"
         (pointerenter)="scheduleGameAvatarMenu()" (pointerleave)="cancelGameAvatarHover()"
         (focusin)="scheduleGameAvatarMenu()" (focusout)="onGameAvatarFocusOut($event)"
         >
@@ -77,7 +78,6 @@
                 [class.game-popover-hidden]="isPopoverClosing('avatar')"
               >
                 <div class="game-avatar-profile">
-                  <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
                   <strong>{{ user?.account?.displayName || user?.username || 'GameHub 玩家' }}</strong>
                   <span>硬币 {{ gameCoinBalance() ?? 0 }}</span>
                 </div>

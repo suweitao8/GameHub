@@ -843,7 +843,10 @@ my-actor-avatar {
   image-rendering: auto;
   line-height: 0;
   object-fit: cover;
-  transition: box-shadow var(--game-dur) var(--game-ease);
+  transform-origin: center;
+  transition: transform var(--game-dur-slow) var(--game-ease),
+    box-shadow var(--game-dur-slow) var(--game-ease);
+  will-change: transform;
   width: 34px;
 }
 
@@ -872,8 +875,11 @@ my-actor-avatar {
   line-height: 0;
   min-height: 40px;
   min-width: 40px;
+  overflow: visible;
   padding: 0;
+  position: relative;
   transition: box-shadow var(--game-dur) var(--game-ease);
+  z-index: 61;
 }
 
 :host-context(.game-experience) .logged-in-container > .tertiary-button:hover {
@@ -885,6 +891,11 @@ my-actor-avatar {
   outline-offset: 3px;
 }
 
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
+  box-shadow: var(--game-shadow-popover);
+  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);
+}
+
 .game-avatar-hover-card {
   transition: opacity var(--game-dur) var(--game-ease);
   background: var(--game-surface);
@@ -893,11 +904,12 @@ my-actor-avatar {
   box-shadow: var(--game-shadow-popover);
   color: var(--game-text-secondary);
   display: block;
-  left: 50%;
+  left: auto;
   overflow: hidden;
   position: absolute;
+  right: 0;
   top: calc(100% + 0.5rem);
-  transform: translateX(-50%);
+  transform: none;
   width: 300px;
   z-index: 60;
 }
@@ -950,19 +962,7 @@ my-actor-avatar {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 1.25rem 1.1rem 1rem;
-}
-
-.game-avatar-hover-avatar {
-  aspect-ratio: 1;
-  background: var(--game-brand-soft);
-  border: 2px solid var(--game-brand-border);
-  border-radius: 50%;
-  box-shadow: var(--game-shadow);
-  height: 4.6rem;
-  image-rendering: auto;
-  object-fit: cover;
-  width: 4.6rem;
+  padding: 4.25rem 1.1rem 1rem;
 }
 
 .game-avatar-profile strong {
@@ -1030,6 +1030,17 @@ my-actor-avatar {
       display: none !important;
     }
 
+    .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
+      transform: none;
+    }
+
+    .game-avatar-hover-card {
+      left: auto;
+      max-width: calc(100vw - 1rem);
+      right: 0;
+      transform: none;
+      width: min(300px, calc(100vw - 1rem));
+    }
   }
 }
 
