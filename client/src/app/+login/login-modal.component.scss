@@ -141,7 +141,7 @@
     &:-webkit-autofill:hover,
     &:-webkit-autofill:focus {
       /* stylelint-disable-next-line property-no-vendor-prefix -- autofill 覆盖只认 -webkit-box-shadow 内阴影 */
-      -webkit-box-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
+      -webkit-box-shadow: var(--game-input-autofill-shadow);
       -webkit-text-fill-color: var(--game-text-primary);
       caret-color: var(--game-text-primary);
     }
@@ -249,7 +249,7 @@
 :host input:-webkit-autofill:focus,
 :host textarea:-webkit-autofill {
   /* stylelint-disable-next-line property-no-vendor-prefix -- autofill 覆盖只认 -webkit-box-shadow 内阴影 */
-  -webkit-box-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
+  -webkit-box-shadow: var(--game-input-autofill-shadow);
   -webkit-text-fill-color: var(--game-text-primary);
   caret-color: var(--game-text-primary);
 }

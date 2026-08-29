@@ -93,6 +93,7 @@ body {
   --game-space-grid: 1rem;
   --game-space-control: 0.75rem;
   --game-focus-ring: 0 0 0 3px var(--game-brand-glow);
+  --game-input-autofill-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
 
   /* ---- 信息状态 ---- */
   --game-info: #2563eb;

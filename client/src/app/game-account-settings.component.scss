@@ -69,7 +69,7 @@
 .game-nickname-form input::placeholder { color: var(--game-text-hint); }
 .game-nickname-form input:focus { background: var(--game-surface);
   border-color: var(--game-brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
+  box-shadow: var(--game-focus-ring);
   outline: 0; }
 .game-settings-info h2 { margin-bottom: 1rem; }
 .game-settings-links { display: grid;
