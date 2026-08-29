@@ -1109,6 +1109,22 @@ assert(
     !loginHtml.includes('PLAY · CREATE · SHARE'),
   'login modal labels must stay localized for the Chinese GameHub experience'
 )
+const loginTs = read('client/src/app/+login/login-modal.component.ts')
+const clientAuthServiceTs = read('client/src/app/core/auth/auth.service.ts')
+assert(
+  loginTs.includes('loadCaptcha ()') &&
+    loginTs.includes('captchaId: this.captchaId,') &&
+    loginHtml.includes('game-auth-captcha-image') &&
+    loginHtml.includes('game-auth-captcha-svg') &&
+    (loginHtml.match(/game-auth-captcha-image/g) || []).length >= 2 &&
+    clientAuthServiceTs.includes('captchaToken') &&
+    read('server/core/controllers/api/users/token.ts').includes('oauthPasswordGrantCaptchaValidator') &&
+    read('server/core/controllers/api/users/registrations.ts').includes('authCaptchaValidator') &&
+    read('server/core/lib/auth/captcha.ts').includes('getAndDeleteAuthCaptcha') &&
+    openapi.includes('/api/v1/users/captcha') &&
+    openapi.includes('getUserAuthCaptcha'),
+  'login and registration must require a single-use image captcha end to end (modal UI, token/register endpoints, OpenAPI)'
+)
 const gameEyebrowStyleStart = gameCommunityTokens.indexOf('.game-eyebrow {')
 const gameEyebrowStyleEnd = gameCommunityTokens.indexOf('}', gameEyebrowStyleStart)
 const gameEyebrowStyle = gameCommunityTokens.slice(gameEyebrowStyleStart, gameEyebrowStyleEnd)

@@ -152,8 +152,10 @@ Ensure you have correctly configured PeerTube (config/ directory), in particular
     password: string
     otpToken?: string
     token?: string
+    captchaId?: string
+    captchaToken?: string
   }) {
-    const { username, password, token, otpToken } = options
+    const { username, password, token, otpToken, captchaId, captchaToken } = options
 
     // Form url encoded
     const body = {
@@ -167,6 +169,8 @@ Ensure you have correctly configured PeerTube (config/ directory), in particular
     }
 
     if (token) Object.assign(body, { externalAuthToken: token })
+    if (captchaId) Object.assign(body, { captchaId })
+    if (captchaToken) Object.assign(body, { captchaToken })
 
     let headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
     if (otpToken) headers = headers.set('x-peertube-otp', otpToken)

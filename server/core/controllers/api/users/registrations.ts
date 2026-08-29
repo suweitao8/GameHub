@@ -26,6 +26,7 @@ import {
   acceptOrRejectRegistrationValidator,
   asyncMiddleware,
   asyncRetryTransactionMiddleware,
+  authCaptchaValidator,
   authenticate,
   buildRateLimiter,
   determineSignupMode,
@@ -57,6 +58,7 @@ registrationsRouter.post(
   registrationRateLimiter,
   asyncMiddleware(ensureUserRegistrationAllowedFactory('request-registration')),
   ensureUserRegistrationAllowedForIP,
+  authCaptchaValidator,
   asyncMiddleware(usersRequestRegistrationValidator),
   asyncRetryTransactionMiddleware(requestRegistration)
 )
@@ -102,6 +104,7 @@ registrationsRouter.post(
   asyncMiddleware(determineSignupMode),
   asyncMiddleware(ensureUserRegistrationAllowedFactory()),
   ensureUserRegistrationAllowedForIP,
+  authCaptchaValidator,
   usersRegistrationValidator,
   asyncRetryTransactionMiddleware(registerUser)
 )

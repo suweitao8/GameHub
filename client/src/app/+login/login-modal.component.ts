@@ -1,6 +1,7 @@
 import { NgClass } from '@angular/common'
 import { AfterViewInit, Component, ElementRef, LOCALE_ID, OnInit, inject, viewChild, ChangeDetectionStrategy } from '@angular/core'
 import { FormControl, FormsModule, ReactiveFormsModule, ValidatorFn } from '@angular/forms'
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
 import { Router, RouterLink } from '@angular/router'
 import { AuthService, Notifier, RedirectService, ServerService, SessionStorageService, UserService } from '@app/core'
 import { HooksService } from '@app/core/plugins/hooks.service'
@@ -19,6 +20,7 @@ import { environment } from '../../environments/environment'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { AutofocusDirective } from '../shared/shared-main/common/autofocus.directive'
 import { PluginSelectorDirective } from '../shared/shared-main/plugins/plugin-selector.directive'
+import { AuthCaptchaService } from './auth-captcha.service'
 import { SignupService } from '../+signup/shared/signup.service'
 
 /**
@@ -61,6 +63,8 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
   private serverService = inject(ServerService)
   private localeId = inject(LOCALE_ID)
   private signupService = inject(SignupService)
+  private authCaptchaService = inject(AuthCaptchaService)
+  private sanitizer = inject(DomSanitizer)
 
   private static SESSION_STORAGE_REDIRECT_URL_KEY = 'login-previous-url'
 
@@ -95,6 +99,13 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
   regError: string = null
   signupLoading = false
 
+  // ---- 图形验证码(登录/注册共用) ----
+  captchaSvg: SafeHtml = null
+  captchaId = ''
+  captchaAnswer = ''
+  captchaLoading = false
+  captchaError = false
+
   serverConfig: ServerConfig
 
   private openedForgotPasswordModal: NgbModalRef
@@ -125,6 +136,8 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
         MESSAGES: USER_OTP_TOKEN_VALIDATOR.MESSAGES
       }
     })
+
+    this.loadCaptcha()
 
     this.serverService.getConfig().subscribe(config => {
       this.serverConfig = config
@@ -161,6 +174,29 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
     this.regErrors = {}
     this.signupLoading = false
     this.otpStep = false
+    // 两种表单各自消费一次性验证码,切换视图即换取新验证码
+    this.loadCaptcha()
+  }
+
+  loadCaptcha () {
+    this.captchaLoading = true
+    this.captchaError = false
+    this.captchaAnswer = ''
+    this.captchaId = ''
+
+    this.authCaptchaService.getCaptcha()
+      .subscribe({
+        next: challenge => {
+          this.captchaId = challenge.captchaId
+          this.captchaSvg = this.sanitizer.bypassSecurityTrustHtml(challenge.svg)
+          this.captchaLoading = false
+        },
+
+        error: () => {
+          this.captchaLoading = false
+          this.captchaError = true
+        }
+      })
   }
 
   private firstValidatorError (value: string, validators: ValidatorFn[], messages: Record<string, string>) {
@@ -203,6 +239,11 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
     this.validateRegisterForm()
     if (Object.values(this.regErrors).some(Boolean)) return
 
+    if (!this.captchaId || !this.captchaAnswer.trim()) {
+      this.regError = $localize`请输入图形验证码。`
+      return
+    }
+
     this.regError = null
     this.signupLoading = true
 
@@ -213,6 +254,9 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
       displayName: this.regDisplayName.trim() || this.regUsername.trim(),
 
       registrationReason: this.requiresApproval ? this.regReason : undefined,
+
+      captchaId: this.captchaId,
+      captchaToken: this.captchaAnswer.trim(),
 
       channel: undefined as { name: string, displayName: string } | undefined
     }
@@ -231,30 +275,17 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
           return
         }
 
-        // 注册即登录(与旧逻辑一致),成功后关闭全部弹框
-        this.authService.login({ username: body.username, password: body.password })
-          .pipe(switchMap(() => this.authService.userInformationLoaded))
-          .subscribe({
-            next: () => {
-              this.notifier.success($localize`注册成功，欢迎加入 GameHub！`)
-              this.closeAfterDone()
-            },
-
-            error: err => {
-              this.signupLoading = false
-              // 账户已创建,仅自动登录失败:回到登录视图并保留原因提示
-              this.switchMode('login')
-              this.notifier.success($localize`注册成功，请使用新账户登录。`)
-              if (err) {
-                this.error = err.message || null
-                this.mode = 'register'
-              }
-            }
-          })
+        // 账户已创建。登录需一次性验证码,回到登录视图并预填凭据,
+        // 用户输入新验证码后点击登录即可完成首次登录
+        this.notifier.success($localize`注册成功，请输入验证码完成登录。`)
+        this.switchMode('login')
+        this.form.patchValue({ username: body.username, password: body.password })
       },
 
       error: err => {
         this.signupLoading = false
+        // 验证码一次性消费:注册失败后必须换取新验证码再重试
+        this.loadCaptcha()
         this.regError = err.body?.detail || err.message
       }
     })
@@ -282,10 +313,17 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
     this.emailNotVerifiedError = false
     this.passwordTooLongError = false
 
+    if (!this.captchaId || !this.captchaAnswer.trim()) {
+      this.error = $localize`请输入图形验证码。`
+      return
+    }
+
     const options = {
       username: this.form.value['username'],
       password: this.form.value['password'],
-      otpToken: this.form.value['otp-token']
+      otpToken: this.form.value['otp-token'],
+      captchaId: this.captchaId,
+      captchaToken: this.captchaAnswer.trim()
     }
 
     this.authService.login(options)
@@ -376,6 +414,10 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
   }
 
   private handleError (err: any) {
+    // 验证码一次性消费:登录失败(含验证码错误/密码错误)后必须换取新验证码
+    this.loadCaptcha()
+    this.captchaAnswer = ''
+
     if (this.authService.isOTPMissingError(err)) {
       this.otpStep = true
 
