@@ -29,7 +29,6 @@ export class UserService {
   static BASE_CLIENT_CONFIG_URL = environment.apiUrl + '/api/v1/client-config/'
 
   private userCache: { [id: number]: Observable<UserServerModel> } = {}
-  private signupInThisSession = false
 
   // ---------------------------------------------------------------------------
 
@@ -54,16 +53,6 @@ export class UserService {
 
     return this.authHttp.get<UserServerModel>(UserService.BASE_USERS_URL + userId, { params })
       .pipe(catchError(err => this.restExtractor.handleError(err)))
-  }
-
-  // ---------------------------------------------------------------------------
-
-  setSignupInThisSession (value: boolean) {
-    this.signupInThisSession = value
-  }
-
-  hasSignupInThisSession () {
-    return this.signupInThisSession
   }
 
   // ---------------------------------------------------------------------------

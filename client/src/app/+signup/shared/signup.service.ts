@@ -1,4 +1,4 @@
-import { catchError, tap } from 'rxjs/operators'
+import { catchError } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { RestExtractor, UserService } from '@app/core'
@@ -8,14 +8,10 @@ import { UserRegister, UserRegistrationRequest, UserRegistration as UserRegistra
 export class SignupService {
   private authHttp = inject(HttpClient)
   private restExtractor = inject(RestExtractor)
-  private userService = inject(UserService)
 
   signup (userCreate: UserRegister) {
     return this.authHttp.post<UserRegistrationServerModel>(UserService.BASE_USERS_URL + 'register', userCreate)
-               .pipe(
-                 tap(() => this.userService.setSignupInThisSession(true)),
-                 catchError(err => this.restExtractor.handleError(err))
-               )
+               .pipe(catchError(err => this.restExtractor.handleError(err)))
   }
 
   requestSignup (userCreate: UserRegistrationRequest) {

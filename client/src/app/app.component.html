@@ -57,10 +57,6 @@
   </ng-template>
 </p-toast>
 
-@defer (when isUserLoggedIn()) {
-  <my-account-setup-warning-modal #accountSetupWarningModal (created)="onModalCreated()"></my-account-setup-warning-modal>
-}
-
 @defer (when isUserAdmin()) {
   <my-instance-config-warning-modal #instanceConfigWarningModal (created)="onModalCreated()"></my-instance-config-warning-modal>
 }

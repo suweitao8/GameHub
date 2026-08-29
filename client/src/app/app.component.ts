@@ -27,7 +27,6 @@ import {
 } from '@app/core'
 import { HooksService } from '@app/core/plugins/hooks.service'
 import { PluginService } from '@app/core/plugins/plugin.service'
-import { AccountSetupWarningModalComponent } from '@app/modal/account-setup-warning-modal.component'
 import { CustomModalComponent } from '@app/modal/custom-modal.component'
 import { InstanceConfigWarningModalComponent } from '@app/modal/instance-config-warning-modal.component'
 import { NgbConfig, NgbModal } from '@ng-bootstrap/ng-bootstrap'
@@ -65,7 +64,6 @@ import { InstanceService } from './shared/shared-main/instance/instance.service'
     ConfirmComponent,
     ToastModule,
     SharedModule,
-    AccountSetupWarningModalComponent,
     InstanceConfigWarningModalComponent,
     CustomModalComponent
   ]
@@ -97,7 +95,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private static LS_BROADCAST_MESSAGE = 'app-broadcast-message-dismissed'
 
-  readonly accountSetupWarningModal = viewChild<AccountSetupWarningModalComponent>('accountSetupWarningModal')
   readonly instanceConfigWarningModal = viewChild<InstanceConfigWarningModalComponent>('instanceConfigWarningModal')
   readonly customModal = viewChild<CustomModalComponent>('customModal')
 
@@ -339,8 +336,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (user.role.id === UserRole.ADMINISTRATOR) {
       this.openAdminModalsIfNeeded(user)
-    } else {
-      this.openAccountModalsIfNeeded(user)
     }
   }
 
@@ -358,15 +353,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         instanceConfigWarningModalValue.show(about)
       }
     })
-  }
-
-  private openAccountModalsIfNeeded (user: User) {
-    const accountSetupWarningModal = this.accountSetupWarningModal()
-    if (!accountSetupWarningModal) return
-
-    if (accountSetupWarningModal.shouldAutoOpen(user)) {
-      accountSetupWarningModal.show(user)
-    }
   }
 
   // ---------------------------------------------------------------------------
