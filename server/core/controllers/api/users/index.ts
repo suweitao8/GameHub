@@ -39,6 +39,7 @@ import {
   usersResetPasswordValidator
 } from '../../../middlewares/validators/index.js'
 import { UserModel } from '../../../models/user/user.js'
+import { generateUserAuthCaptcha } from './captcha.js'
 import { emailVerificationRouter } from './email-verification.js'
 import { meRouter } from './me.js'
 import { myAbusesRouter } from './my-abuses.js'
@@ -60,9 +61,16 @@ const askResetPasswordRateLimiter = buildRateLimiter({
   max: CONFIG.RATES_LIMIT.ASK_SEND_EMAIL.MAX
 })
 
+const authCaptchaRateLimiter = buildRateLimiter({
+  windowMs: 60 * 1000,
+  max: 30
+})
+
 const usersRouter = express.Router()
 
 usersRouter.use(apiRateLimiter)
+
+usersRouter.get('/captcha', authCaptchaRateLimiter, asyncMiddleware(generateUserAuthCaptcha))
 
 usersRouter.use('/', emailVerificationRouter)
 usersRouter.use('/', userExportsRouter)

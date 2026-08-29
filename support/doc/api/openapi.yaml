@@ -2829,6 +2829,23 @@ paths:
         '204':
           description: successful operation
 
+  /api/v1/users/captcha:
+    get:
+      summary: Get an image captcha for login and registration
+      operationId: getUserAuthCaptcha
+      description: Returns a distorted SVG image whose characters must be sent back with `captchaId` and `captchaToken` on login (password grant) and registration requests. Each captcha is single use and expires after 5 minutes.
+      tags:
+        - Session
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCaptcha'
+        '429':
+          description: too many requests
+
   /api/v1/users/register:
     post:
       summary: Register a user
@@ -14849,6 +14866,12 @@ components:
           description: editable name of the user, displayed in its representations
           minLength: 1
           maxLength: 120
+        captchaId:
+          type: string
+          description: Identifier of the image captcha returned by [the captcha endpoint](#operation/getUserAuthCaptcha)
+        captchaToken:
+          type: string
+          description: Case-insensitive characters the user read from the captcha image. Each captcha can only be used once.
         channel:
           type: object
           description: channel base information used to create the first channel of the user
@@ -14958,6 +14981,16 @@ components:
           maxLength: 32
           minLength: 32
           example: AjWiOapPltI6EnsWQwlFarRtLh4u8tDt
+    AuthCaptcha:
+      type: object
+      properties:
+        captchaId:
+          type: string
+          description: Identifier to send back in the `captchaId` field of the login or registration request
+        svg:
+          type: string
+          description: SVG markup of the distorted captcha image
+
     OAuthToken-password:
       allOf:
         - $ref: '#/components/schemas/OAuthClient'
@@ -14971,6 +15004,12 @@ components:
               $ref: '#/components/schemas/User/properties/username'
             password:
               $ref: '#/components/schemas/password'
+            captchaId:
+              type: string
+              description: Identifier of the image captcha returned by [the captcha endpoint](#operation/getUserAuthCaptcha). Required for password grants.
+            captchaToken:
+              type: string
+              description: Case-insensitive characters the user read from the captcha image. Each captcha can only be used once.
             externalAuthToken:
               type: string
               description: If you want to authenticate using an external authentication token you got from an auth plugin (like `peertube-plugin-auth-openid-connect` for example) instead of a password or a refresh token, provide it here.

@@ -89,6 +89,31 @@
         </div>
       }
 
+      <div class="form-group game-auth-captcha-group">
+        <label i18n for="auth-captcha-answer">验证码</label>
+        <div class="game-auth-captcha-row">
+          <button
+            type="button" class="game-auth-captcha-image button-unstyle" (click)="loadCaptcha()"
+            i18n-title title="看不清？点击刷新验证码" i18n-aria-label aria-label="图形验证码，点击刷新"
+            [disabled]="captchaLoading"
+          >
+            @if (captchaLoading || captchaError) {
+              <span class="game-auth-captcha-placeholder">
+                {{ captchaError ? '加载失败，点击重试' : '加载中…' }}
+              </span>
+            } @else {
+              <span class="game-auth-captcha-svg" [innerHTML]="captchaSvg"></span>
+            }
+          </button>
+          <input
+            type="text" id="auth-captcha-answer" i18n-placeholder placeholder="输入图中字符" required
+            [(ngModel)]="captchaAnswer" name="captchaAnswer" maxlength="8" autocomplete="off"
+            [ngModelOptions]="{ standalone: true }"
+            class="form-control game-auth-captcha-input"
+            >
+        </div>
+      </div>
+
       <div class="game-auth-actions">
         @if (signupAllowed) {
           <button type="button" i18n class="peertube-button secondary-button game-auth-signup" (click)="goSignup()">
@@ -181,6 +206,30 @@
           <textarea id="reg-reason" rows="3" class="form-control" name="regReason" [(ngModel)]="regReason"></textarea>
         </div>
       }
+
+      <div class="form-group game-auth-captcha-group">
+        <label i18n for="reg-captcha-answer">验证码</label>
+        <div class="game-auth-captcha-row">
+          <button
+            type="button" class="game-auth-captcha-image button-unstyle" (click)="loadCaptcha()"
+            i18n-title title="看不清？点击刷新验证码" i18n-aria-label aria-label="图形验证码，点击刷新"
+            [disabled]="captchaLoading"
+          >
+            @if (captchaLoading || captchaError) {
+              <span class="game-auth-captcha-placeholder">
+                {{ captchaError ? '加载失败，点击重试' : '加载中…' }}
+              </span>
+            } @else {
+              <span class="game-auth-captcha-svg" [innerHTML]="captchaSvg"></span>
+            }
+          </button>
+          <input
+            type="text" id="reg-captcha-answer" i18n-placeholder placeholder="输入图中字符" required
+            [(ngModel)]="captchaAnswer" name="regCaptchaAnswer" maxlength="8" autocomplete="off"
+            class="form-control game-auth-captcha-input"
+            >
+        </div>
+      </div>
 
       @if (signupLoading) {
         <p class="game-auth-register-loading" role="status" i18n>正在注册账户，请稍候…</p>

@@ -12,6 +12,7 @@ import {
   asyncMiddleware,
   authenticate,
   buildRateLimiter,
+  oauthPasswordGrantCaptchaValidator,
   openapiOperationDoc,
   paginationValidator,
   setDefaultPagination,
@@ -32,6 +33,7 @@ const loginRateLimiter = buildRateLimiter({
 tokensRouter.post(
   '/token',
   loginRateLimiter,
+  oauthPasswordGrantCaptchaValidator,
   openapiOperationDoc({ operationId: 'getOAuthToken' }),
   asyncMiddleware(handleToken)
 )

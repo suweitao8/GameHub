@@ -334,6 +334,71 @@
   margin: 0.9rem 0 0;
 }
 
+/* ---- 图形验证码：可点击刷新的验证图 + 答案输入 ---- */
+
+.game-auth-captcha-group {
+  margin-top: 1rem;
+}
+
+.game-auth-captcha-row {
+  align-items: stretch;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.game-auth-captcha-image {
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-sm);
+  cursor: pointer;
+  flex: 0 0 auto;
+  line-height: 0;
+  overflow: hidden;
+  padding: 0;
+  transition: border-color var(--game-dur-fast) var(--game-ease);
+
+  &:hover:not(:disabled) {
+    border-color: var(--game-brand);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.game-auth-captcha-svg {
+  display: block;
+  height: 44px;
+  width: 132px;
+
+  ::ng-deep svg {
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.game-auth-captcha-placeholder {
+  align-items: center;
+  color: var(--game-muted);
+  display: flex;
+  font-size: 0.78rem;
+  height: 44px;
+  justify-content: center;
+  line-height: 1.2;
+  padding: 0 0.4rem;
+  text-align: center;
+  white-space: normal;
+  width: 132px;
+}
+
+.game-auth-captcha-input {
+  flex: 1 1 auto;
+  letter-spacing: 0.08em;
+  min-width: 0;
+  text-transform: lowercase;
+}
+
 /* ---------------------------------------------------------------------------
    错误告警:危险色令牌(原 my-alert 走 PeerTube 主题变量,与新风格冲突)
    --------------------------------------------------------------------------- */

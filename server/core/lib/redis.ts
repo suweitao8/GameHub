@@ -216,6 +216,20 @@ class Redis {
     return this.getValue(this.generateRegistrationVerifyEmailKey(registrationId))
   }
 
+  /* ************ Auth captcha (login/register anti-bot) ************ */
+
+  async setAuthCaptcha (captchaId: string, code: string, lifetimeMilliseconds: number) {
+    return this.setValue('auth-captcha-' + captchaId, code, lifetimeMilliseconds)
+  }
+
+  // 一次性消费：取值即删除，防止同一验证码重复使用
+  async getAndDeleteAuthCaptcha (captchaId: string) {
+    const key = this.prefix + 'auth-captcha-' + captchaId
+    const results = await this.client.multi().get(key).del(key).exec()
+
+    return results[0][1] as string | null
+  }
+
   /* ************ Contact form per IP ************ */
 
   async setContactFormIp (ip: string) {
