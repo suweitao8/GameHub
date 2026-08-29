@@ -28,6 +28,7 @@ const commentImageUpload = createReqFiles([ 'image' ], {
   'image/gif': '.gif'
 })
 const MAX_COMMENT_IMAGE_BYTES = 5 * 1024 * 1024
+const COMMENT_IMAGE_TOO_LARGE_MESSAGE = 'Comment image cannot exceed 5 MB'
 
 communityCommentsRouter.get('/:uuid/comments/featured', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listFeaturedComments))
 communityCommentsRouter.get('/:uuid/comments', gameUUIDValidator, optionalAuthenticate, asyncMiddleware(listComments))
@@ -62,7 +63,7 @@ async function storeCommentImage (game: MGame, req: express.Request) {
   if (!file) return null
   if (file.size > MAX_COMMENT_IMAGE_BYTES) {
     await unlink(file.path).catch(() => undefined)
-    throw new Error('评论图片不能超过 5MB')
+    throw new Error(COMMENT_IMAGE_TOO_LARGE_MESSAGE)
   }
 
   const extension = extname(file.filename).toLowerCase()
@@ -150,14 +151,17 @@ async function addComment (req: express.Request, res: express.Response) {
   const user = getUser(res)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   if (typeof req.body.text !== 'string' || req.body.text.trim().length === 0 || req.body.text.length > 5000) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'text must contain 1-5000 characters' })
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('text must contain 1-5000 characters') })
   }
 
   let imagePath: string | null
   try {
     imagePath = await storeCommentImage(game, req)
   } catch (error) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: error instanceof Error ? error.message : '评论图片上传失败' })
+    const errorMessage = error instanceof Error && error.message === COMMENT_IMAGE_TOO_LARGE_MESSAGE
+      ? req.t(COMMENT_IMAGE_TOO_LARGE_MESSAGE)
+      : req.t('Comment image upload failed')
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: errorMessage })
   }
 
   const comment = await GameCommentModel.create({
@@ -198,7 +202,7 @@ async function replyToComment (req: express.Request, res: express.Response) {
   const commentId = Number(req.params.commentId)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   if (!text || text.length > 5000 || !Number.isInteger(commentId)) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'text and commentId are required' })
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('text and commentId are required') })
   }
   const parent = await getCommentForGame(game, commentId)
   if (!parent) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
@@ -207,7 +211,10 @@ async function replyToComment (req: express.Request, res: express.Response) {
   try {
     imagePath = await storeCommentImage(game, req)
   } catch (error) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: error instanceof Error ? error.message : '评论图片上传失败' })
+    const errorMessage = error instanceof Error && error.message === COMMENT_IMAGE_TOO_LARGE_MESSAGE
+      ? req.t(COMMENT_IMAGE_TOO_LARGE_MESSAGE)
+      : req.t('Comment image upload failed')
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: errorMessage })
   }
 
   const comment = await GameCommentModel.create({
@@ -246,7 +253,7 @@ async function likeComment (req: express.Request, res: express.Response) {
     const user = getUser(res)
     const comment = await getCommentForGame(game, Number(req.params.commentId))
     if (!game || !comment) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-    if (typeof req.body.liked !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'liked must be boolean' })
+    if (typeof req.body.liked !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('liked must be boolean') })
 
     const existing = await GameCommentReactionModel.findOne({ where: { commentId: comment.id, accountId: user.Account.id } })
     if (req.body.liked && !existing) {

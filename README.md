@@ -24,6 +24,8 @@ GameHub 是一个面向玩家的 HTML5 网页游戏平台：
 
 重设计 GameHub 品牌 Logo：页头和移动菜单使用电光靛蓝的 GameHub 横向字标，浏览器标签页与方形 Logo 使用统一的 G 图标，移除彩虹渐变，详见[完整更新记录](docs/releases/release-notes.md)。
 
+全面中文化游戏中心、社区、账户流程、登录注册、错误提示和通用控件，认证过期等英文提示统一改为中文，并确保轻量构建直接输出中文界面，详见[完整更新记录](docs/releases/release-notes.md)。
+
 ### 2026-08-29
 
 - 统一游戏中心、社区、详情、投稿、账户和登录页面的视觉样式与交互状态，详见[完整更新记录](docs/releases/release-notes.md)。

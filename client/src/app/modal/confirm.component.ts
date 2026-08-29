@@ -63,13 +63,13 @@ export class ConfirmComponent implements OnInit {
           this.inputLabel = payload.inputLabel
           this.expectedInputValue = payload.expectedInputValue
         } else if (type === 'confirm-password') {
-          this.inputLabel = $localize`Confirm your password`
+          this.inputLabel = $localize`确认您的密码`
           this.isPasswordInput = true
           this.errorMessage = errorMessage
         }
 
-        this.confirmButtonText = confirmButtonText || $localize`Confirm`
-        this.cancelButtonText = cancelButtonText || $localize`Cancel`
+        this.confirmButtonText = confirmButtonText || $localize`确认`
+        this.cancelButtonText = cancelButtonText || $localize`取消`
 
         this.html.toSimpleSafeHtmlWithLinks(message)
           .then(html => {

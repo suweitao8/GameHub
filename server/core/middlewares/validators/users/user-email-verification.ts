@@ -11,7 +11,7 @@ import { areValidationErrors, checkUserIdExist } from '../shared/index.js'
 import { checkRegistrationEmailExistPermissive, checkRegistrationIdExist } from './shared/user-registrations.js'
 
 export const usersAskSendUserVerifyEmailValidator = [
-  body('email').isEmail().not().isEmpty().withMessage('Should have a valid email'),
+  body('email').isEmail().not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid email')),
 
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
@@ -47,7 +47,7 @@ export const usersAskSendUserVerifyEmailValidator = [
     if (user.pluginAuth) {
       return res.fail({
         status: HttpStatusCode.CONFLICT_409,
-        message: 'Cannot ask verification email of a user that uses a plugin authentication.'
+        message: req.t('Cannot ask verification email of a user that uses a plugin authentication.')
       })
     }
 
@@ -56,7 +56,7 @@ export const usersAskSendUserVerifyEmailValidator = [
 ]
 
 export const usersAskSendRegistrationVerifyEmailValidator = [
-  body('email').isEmail().not().isEmpty().withMessage('Should have a valid email'),
+  body('email').isEmail().not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid email')),
 
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
@@ -65,7 +65,7 @@ export const usersAskSendRegistrationVerifyEmailValidator = [
       email: req.body.email
     }, 'filter:api.email-verification.ask-send-verify-email.body')
 
-    const registrationExists = await checkRegistrationEmailExistPermissive(email, res, false)
+    const registrationExists = await checkRegistrationEmailExistPermissive(email, req, res, false)
 
     if (!registrationExists) {
       logger.debug(`Registration with email ${email} does not exist (asking verify email).`)
@@ -80,10 +80,10 @@ export const usersAskSendRegistrationVerifyEmailValidator = [
 
 export const usersVerifyEmailValidator = [
   param('id')
-    .isInt().not().isEmpty().withMessage('Should have a valid id'),
+    .isInt().not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid id')),
 
   body('verificationString')
-    .not().isEmpty().withMessage('Should have a valid verification string'),
+    .not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid verification string')),
   body('isPendingEmail')
     .optional()
     .customSanitizer(toBooleanOrNull),
@@ -96,7 +96,7 @@ export const usersVerifyEmailValidator = [
     const redisVerificationString = await Redis.Instance.getUserVerifyEmailLink(user.id)
 
     if (redisVerificationString !== req.body.verificationString) {
-      return res.fail({ status: HttpStatusCode.FORBIDDEN_403, message: 'Invalid verification string.' })
+      return res.fail({ status: HttpStatusCode.FORBIDDEN_403, message: req.t('Invalid verification string.') })
     }
 
     return next()
@@ -107,20 +107,20 @@ export const usersVerifyEmailValidator = [
 
 export const registrationVerifyEmailValidator = [
   param('registrationId')
-    .isInt().not().isEmpty().withMessage('Should have a valid registrationId'),
+    .isInt().not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid registrationId')),
 
   body('verificationString')
-    .not().isEmpty().withMessage('Should have a valid verification string'),
+    .not().isEmpty().withMessage((_, { req }) => req.t('Should have a valid verification string')),
 
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
-    if (!await checkRegistrationIdExist(req.params.registrationId, res)) return
+    if (!await checkRegistrationIdExist(req.params.registrationId, req, res)) return
 
     const registration = res.locals.userRegistration
     const redisVerificationString = await Redis.Instance.getRegistrationVerifyEmailLink(registration.id)
 
     if (redisVerificationString !== req.body.verificationString) {
-      return res.fail({ status: HttpStatusCode.FORBIDDEN_403, message: 'Invalid verification string.' })
+      return res.fail({ status: HttpStatusCode.FORBIDDEN_403, message: req.t('Invalid verification string.') })
     }
 
     return next()

@@ -1,4 +1,4 @@
-# Light en-US client build for Windows.
+# Light zh-Hans client build for Windows.
 # Matches server layout:
 #   client/dist/browser/en-US/index.html
 #   client/dist/browser/assets/**
@@ -32,7 +32,7 @@ try {
   Pop-Location
 }
 
-Write-Host 'Building Angular client (en-US, light)...'
+Write-Host 'Building Angular client (zh-Hans, light compatibility path)...'
 Remove-PathIfExists (Join-Path $repoRoot 'client\dist\browser')
 New-Item -ItemType Directory -Force -Path (Join-Path $repoRoot 'client\dist') | Out-Null
 
@@ -41,9 +41,9 @@ try {
   $env:NODE_OPTIONS = '--max_old_space_size=8192'
   $ng = '.\node_modules\.bin\ng.cmd'
   if (-not (Test-Path $ng)) { $ng = Join-Path $repoRoot 'node_modules\.bin\ng.cmd' }
-  # --localize=false inherits angular.json baseHref "/" which breaks production
-  # static serving under /client/<locale>/. Force PeerTube client base href.
-  & $ng build --localize=false --base-href '/client/en-US/' --output-path 'dist/browser/en-US' --configuration production --source-map=false
+  # The light build serves the Chinese bundle from the existing en-US path so
+  # server defaults and deployment checks remain compatible with this layout.
+  & $ng build --output-path 'dist/browser/en-US' --configuration production,zh-Hans-light --source-map=false
   if ($LASTEXITCODE -ne 0) { throw "ng build failed ($LASTEXITCODE)" }
 } finally {
   Pop-Location
@@ -51,6 +51,7 @@ try {
 
 $browserRoot = Join-Path $repoRoot 'client\dist\browser'
 $localeDir = Join-Path $browserRoot 'en-US'
+$localized = Join-Path $localeDir 'zh-Hans-CN'
 $nested = Join-Path $localeDir 'browser'
 
 if (Test-Path $nested) {
@@ -60,6 +61,15 @@ if (Test-Path $nested) {
     Move-Item $_.FullName $dest
   }
   Remove-PathIfExists $nested
+}
+
+if (Test-Path $localized) {
+  Get-ChildItem $localized | ForEach-Object {
+    $dest = Join-Path $localeDir $_.Name
+    Remove-PathIfExists $dest
+    Move-Item $_.FullName $dest
+  }
+  Remove-PathIfExists $localized
 }
 
 $localeAssets = Join-Path $localeDir 'assets'
@@ -83,6 +93,6 @@ if (-not (Test-Path $banner)) {
   Write-Warning "Banner asset not found at $banner (optional if not shipped)"
 }
 
-Write-Host "Light client build OK:"
+Write-Host "Light zh-Hans client build OK:"
 Write-Host "  $index"
 Write-Host "  $rootAssets"

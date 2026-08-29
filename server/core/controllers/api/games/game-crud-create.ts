@@ -88,16 +88,16 @@ async function createGame (req: express.Request, res: express.Response) {
   return traceGameOperation('createGame', async () => {
     const user = getUser(res)
     const file = req.files?.['gamefile']?.[0]
-    if (!user || !file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'gamefile is required' })
+    if (!user || !file) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('gamefile is required') })
 
     const [ maintainedGames, recentUploads ] = await Promise.all([
       GameModel.count({ where: { ownerAccountId: user.Account.id, status: { [Op.ne]: 'unlisted' } } }),
       GameModel.count({ where: { ownerAccountId: user.Account.id, createdAt: { [Op.gte]: new Date(Date.now() - 60 * 60 * 1000) } } })
     ])
     if (maintainedGames >= MAX_GAMES_PER_ACCOUNT) {
-      return res.status(HttpStatusCode.CONFLICT_409).json({ error: `Each account can maintain at most ${MAX_GAMES_PER_ACCOUNT} games` })
+      return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Each account can maintain at most {count} games', { count: MAX_GAMES_PER_ACCOUNT }) })
     }
-    if (recentUploads >= CONFIG.GAMES.UPLOADS_PER_HOUR) return res.status(HttpStatusCode.TOO_MANY_REQUESTS_429).json({ error: 'Upload rate limit reached' })
+    if (recentUploads >= CONFIG.GAMES.UPLOADS_PER_HOUR) return res.status(HttpStatusCode.TOO_MANY_REQUESTS_429).json({ error: req.t('Upload rate limit reached') })
 
     let stored: Awaited<ReturnType<typeof storeGameRuntimePackage>> | undefined
     let storedCover: Awaited<ReturnType<typeof storeGameCover>> | undefined
@@ -143,7 +143,7 @@ async function createGame (req: express.Request, res: express.Response) {
       if (storageUsed + stored.fileSizeBytes > CONFIG.GAMES.MAX_STORAGE_PER_ACCOUNT_BYTES) {
         const cleanupSucceeded = await cleanupStoredGameAssets({ root: CONFIG.STORAGE.GAMES_DIR, runtime: stored, cover: storedCover, screenshots: storedScreenshots })
         if (!cleanupSucceeded) logger.warn('Failed to clean up game assets after a storage quota rejection.')
-        return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Account game storage quota reached' })
+        return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Account game storage quota reached') })
       }
 
       const status = isGameModerator(user) || CONFIG.GAMES.REQUIRE_MODERATION !== true ? 'published' : 'pending'

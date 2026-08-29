@@ -12,7 +12,7 @@
 
   <button
     type="button" class="game-auth-modal-close" (click)="dismiss()"
-    i18n-title title="Close this dialog" i18n-aria-label aria-label="关闭登录弹框"
+    i18n-title title="关闭此对话框" i18n-aria-label aria-label="关闭登录弹框"
   >
     <my-global-icon iconName="cross" aria-hidden="true"></my-global-icon>
   </button>
@@ -62,7 +62,7 @@
         <div class="form-group">
           <div class="game-auth-label-row">
             <label i18n for="password">密码</label>
-            <button type="button" i18n class="button-unstyle game-auth-forgot" (click)="openForgotPasswordModal()" i18n-title title="Click here to reset your password">
+            <button type="button" i18n class="button-unstyle game-auth-forgot" (click)="openForgotPasswordModal()" i18n-title title="点击此处重置密码">
               忘记密码？
             </button>
           </div>
@@ -273,7 +273,7 @@
   <div class="modal-header">
     <h4 i18n class="modal-title">找回密码</h4>
 
-    <button type="button" class="border-0 p-0" title="Close this modal" i18n-title (click)="hideForgotPasswordModal()">
+      <button type="button" class="border-0 p-0" title="关闭此弹窗" i18n-title (click)="hideForgotPasswordModal()">
       <my-global-icon iconName="cross"></my-global-icon>
     </button>
 </div>

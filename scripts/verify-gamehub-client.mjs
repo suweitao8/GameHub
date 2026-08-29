@@ -1624,11 +1624,12 @@ assert(
   'featured carousel footer must not regress to the removed brown placeholder fallback'
 )
 
-// 4) Light-build scripts must force PeerTube base href (not "/")
+// 4) Light-build scripts must select the Chinese locale while keeping the
+// compatibility output path expected by the current server deployment.
 const lightPs1 = read('scripts/build/client-light.ps1')
 assert(
-  lightPs1.includes("--base-href '/client/en-US/'") || lightPs1.includes('--base-href "/client/en-US/"') || lightPs1.includes("--base-href=/client/en-US/"),
-  'client-light.ps1 must pass --base-href=/client/en-US/'
+  lightPs1.includes('--configuration production,zh-Hans-light') && lightPs1.includes('dist/browser/en-US'),
+  'client-light.ps1 must build the zh-Hans-light configuration to dist/browser/en-US'
 )
 const clientIndex = read('client/src/index.html')
 assert(
@@ -1637,9 +1638,19 @@ assert(
 )
 const clientSh = read('scripts/build/client.sh')
 assert(
-  /--base-href\s+["']\/client\/\$\{?defaultLanguage\}?\/["']|--base-href\s+["']\/client\/en-US\/["']/.test(clientSh) ||
-    clientSh.includes('/client/$defaultLanguage/'),
-  'client.sh light path must pass --base-href=/client/<locale>/'
+  clientSh.includes('--configuration production,zh-Hans-light') && clientSh.includes('dist/browser/$defaultLanguage'),
+  'client.sh light path must build the zh-Hans-light configuration to the compatibility locale directory'
+)
+const angularConfig = JSON.parse(read('client/angular.json'))
+const angularProject = Object.values(angularConfig.projects ?? {}).find(project => project?.architect?.build)
+const angularLocales = angularProject?.i18n?.locales ?? {}
+assert(
+  angularLocales['zh-Hans-CN']?.baseHref === expectedBaseHref,
+  'Angular zh-Hans-CN locale must use the /client/en-US/ compatibility base href'
+)
+assert(
+  angularProject?.architect?.build?.configurations?.['zh-Hans-light']?.localize?.[0] === 'zh-Hans-CN',
+  'Angular zh-Hans-light must localize the light build as zh-Hans-CN'
 )
 
 // 5) Built index: base href + script resolution under /client/<locale>/
@@ -1821,7 +1832,7 @@ console.log('verify-gamehub-client OK')
 console.log(' - GameHub source asset contracts')
 console.log(' - server dist/browser contracts')
 console.log(' - high-priority feature sources/routes')
-console.log(' - light build forces /client/en-US/ base href')
+console.log(' - light build emits the Chinese locale through /client/en-US/')
 if (existsSync(join(root, 'client/dist/browser'))) {
   console.log(' - client dist layout + SPA script disk paths')
   for (const p of resolvedScriptPaths) console.log(`   script ${p}`)

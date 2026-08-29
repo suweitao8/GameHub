@@ -29,7 +29,7 @@ async function moderateGame (req: express.Request, res: express.Response) {
     if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
     const status = getModerationStatus(req.body.action, game.status)
-    if (!status) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Invalid game moderation transition' })
+    if (!status) return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Invalid game moderation transition') })
 
     const oldGame = formatGame(game)
     game.status = status
@@ -66,7 +66,7 @@ async function setFeatured (req: express.Request, res: express.Response) {
     if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
 
     if (typeof req.body.featured !== 'boolean') {
-      return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'featured must be boolean' })
+      return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('featured must be boolean') })
     }
 
     game.featured = req.body.featured
@@ -87,7 +87,7 @@ async function reportGame (req: express.Request, res: express.Response) {
 
     const user = getUser(res)
     const reason = String(req.body.reason || '').trim()
-    if (!reason) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'reason is required' })
+    if (!reason) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('reason is required') })
 
     const predefinedReasons = Array.isArray(req.body.predefinedReasons)
       ? req.body.predefinedReasons.filter((r: unknown) => typeof r === 'string').slice(0, 10)

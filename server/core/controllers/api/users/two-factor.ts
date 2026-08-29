@@ -67,14 +67,14 @@ async function confirmRequestTwoFactor (req: express.Request, res: express.Respo
   const encryptedSecret = await Redis.Instance.getTwoFactorRequestToken(user.id, requestToken)
   if (!encryptedSecret) {
     return res.fail({
-      message: 'Invalid request token',
+      message: req.t('Invalid request token'),
       status: HttpStatusCode.FORBIDDEN_403
     })
   }
 
   if (await isOTPValid({ encryptedSecret, token: otpToken }) !== true) {
     return res.fail({
-      message: 'Invalid OTP token',
+      message: req.t('Invalid OTP token'),
       status: HttpStatusCode.FORBIDDEN_403
     })
   }

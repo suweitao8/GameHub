@@ -62,7 +62,7 @@ export class UserInterfaceSettingsComponent implements OnInit, OnDestroy {
     this.initialUserLanguage = this.user().language
 
     this.availableThemes = [
-      { id: 'instance-default', label: $localize`${this.instanceName} theme`, description: this.getDefaultInstanceThemeLabel() },
+      { id: 'instance-default', label: $localize`${this.instanceName} 主题`, description: this.getDefaultInstanceThemeLabel() },
 
       this.themeService.getDefaultThemeItem(),
 
@@ -139,7 +139,7 @@ export class UserInterfaceSettingsComponent implements OnInit, OnDestroy {
             this.authService.refreshUserInformation()
             this.updating = false
 
-            if (this.notifyOnUpdate()) this.notifier.success($localize`Interface settings updated.`)
+            if (this.notifyOnUpdate()) this.notifier.success($localize`界面设置已更新。`)
           },
 
           error: err => this.notifier.handleError(err)
@@ -161,12 +161,12 @@ export class UserInterfaceSettingsComponent implements OnInit, OnDestroy {
       return
     }
 
-    if (this.notifyOnUpdate()) this.notifier.success($localize`Interface settings updated.`)
+    if (this.notifyOnUpdate()) this.notifier.success($localize`界面设置已更新。`)
     this.updating = false
   }
 
   getSubmitValue () {
-    return $localize`Save interface settings`
+    return $localize`保存界面设置`
   }
 
   private getDefaultInstanceThemeLabel () {

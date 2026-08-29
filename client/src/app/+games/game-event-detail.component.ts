@@ -259,9 +259,9 @@ export class GameEventDetailComponent implements OnInit {
     if (!(error instanceof HttpErrorResponse)) return fallback
 
     const message = error.error?.error
-    if (message === 'Event is full') return '报名人数已满'
-    if (message === 'Already joined') return '你已报名该活动'
-    if (message === 'Event is not open for registration') return '该活动当前不可报名'
+    if (message === '该活动报名人数已满') return '报名人数已满'
+    if (message === '你已报名该活动') return '你已报名该活动'
+    if (message === '该活动当前不开放报名') return '该活动当前不可报名'
     if (error.status === 404) return '活动或报名记录不存在'
     return fallback
   }

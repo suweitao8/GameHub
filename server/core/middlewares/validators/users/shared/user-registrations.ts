@@ -5,18 +5,19 @@ import { forceNumber, pick } from '@peertube/peertube-core-utils'
 import { HttpStatusCode } from '@peertube/peertube-models'
 import { getByEmailPermissive } from '@server/lib/user.js'
 
-export function checkRegistrationIdExist (idArg: number | string, res: express.Response) {
+export function checkRegistrationIdExist (idArg: number | string, req: express.Request, res: express.Response) {
   const id = forceNumber(idArg)
-  return checkRegistrationExist(() => UserRegistrationModel.load(id), res)
+  return checkRegistrationExist(() => UserRegistrationModel.load(id), req, res)
 }
 
-export function checkRegistrationEmailExistPermissive (email: string, res: express.Response, abortResponse = true) {
+export function checkRegistrationEmailExistPermissive (email: string, req: express.Request, res: express.Response, abortResponse = true) {
   return checkRegistrationExist(
     async () => {
       const registrations = await UserRegistrationModel.listByEmailCaseInsensitive(email)
 
       return getByEmailPermissive(registrations, email)
     },
+    req,
     res,
     abortResponse
   )
@@ -26,9 +27,10 @@ export async function checkRegistrationHandlesDoNotAlreadyExist (options: {
   username: string
   channelHandle: string
   email: string
+  req: express.Request
   res: express.Response
 }) {
-  const { res } = options
+  const { req, res } = options
 
   const registrations = await UserRegistrationModel.listByEmailCaseInsensitiveOrHandle(
     pick(options, [ 'username', 'email', 'channelHandle' ])
@@ -37,7 +39,7 @@ export async function checkRegistrationHandlesDoNotAlreadyExist (options: {
   if (registrations.length !== 0) {
     res.fail({
       status: HttpStatusCode.CONFLICT_409,
-      message: 'Registration with this username, channel name or email already exists.'
+      message: req.t('Registration with this username, channel name or email already exists.')
     })
     return false
   }
@@ -45,14 +47,19 @@ export async function checkRegistrationHandlesDoNotAlreadyExist (options: {
   return true
 }
 
-export async function checkRegistrationExist (finder: () => Promise<MRegistration>, res: express.Response, abortResponse = true) {
+export async function checkRegistrationExist (
+  finder: () => Promise<MRegistration>,
+  req: express.Request,
+  res: express.Response,
+  abortResponse = true
+) {
   const registration = await finder()
 
   if (!registration) {
     if (abortResponse === true) {
       res.fail({
         status: HttpStatusCode.NOT_FOUND_404,
-        message: 'User not found'
+        message: req.t('Registration not found')
       })
     }
 

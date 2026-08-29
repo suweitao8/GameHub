@@ -1,7 +1,7 @@
 import { CommonModule, getLocaleDirection, NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, inject, LOCALE_ID, OnDestroy, OnInit } from '@angular/core'
 import { Params, RouterLink, RouterLinkActive } from '@angular/router'
-import { AuthService, AuthStatus, AuthUser, HooksService, MenuService, ServerService } from '@app/core'
+import { AuthService, AuthStatus, HooksService, MenuService, ServerService } from '@app/core'
 import { GlobalIconComponent, GlobalIconName } from '@app/shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '@app/shared/shared-main/buttons/button.component'
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
@@ -52,9 +52,8 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   menuSections: MenuSection[] = []
   loggedIn: boolean
-  moreInfoLabel = $localize`More info`
+  moreInfoLabel = $localize`更多信息`
 
-  private user: AuthUser
   private authSub: Subscription
 
   get shortDescription () {
@@ -200,10 +199,6 @@ export class MenuComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   private onUserStateChange () {
-    this.user = this.loggedIn
-      ? this.authService.getUser()
-      : undefined
-
     this.buildMenuSections()
   }
 

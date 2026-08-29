@@ -35,7 +35,7 @@ function areValidationErrors (
     logger.warn('Incorrect request parameters', { path: req.originalUrl, err: errors.mapped() })
 
     res.fail({
-      message: 'Incorrect request parameters: ' + Object.keys(errors.mapped()).join(', '),
+      message: req.t('Incorrect request parameters: {parameters}', { parameters: Object.keys(errors.mapped()).join(', ') }),
       instance: req.originalUrl,
       data: {
         'invalid-params': errors.mapped()
@@ -51,13 +51,13 @@ function areValidationErrors (
 function isValidVideoIdParam (paramName: string) {
   return param(paramName)
     .customSanitizer(toCompleteUUID)
-    .custom(isIdOrUUIDValid).withMessage('Should have a valid video id (id, short UUID or UUID)')
+    .custom(isIdOrUUIDValid).withMessage((_, { req }) => req.t('Should have a valid video id (id, short UUID or UUID)'))
 }
 
 function isValidPlaylistIdParam (paramName: string) {
   return param(paramName)
     .customSanitizer(toCompleteUUID)
-    .custom(isIdOrUUIDValid).withMessage('Should have a valid playlist id (id, short UUID or UUID)')
+    .custom(isIdOrUUIDValid).withMessage((_, { req }) => req.t('Should have a valid playlist id (id, short UUID or UUID)'))
 }
 
 // ---------------------------------------------------------------------------

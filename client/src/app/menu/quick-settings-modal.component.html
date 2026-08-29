@@ -1,15 +1,15 @@
 <ng-template #modal let-hide="close">
   <div class="modal-header">
-    <h4 i18n class="modal-title">My settings</h4>
-    <button class="border-0 p-0" title="Close this modal" i18n-title (click)="hide()">
+    <h4 i18n class="modal-title">我的设置</h4>
+    <button class="border-0 p-0" title="关闭此弹窗" i18n-title (click)="hide()">
       <my-global-icon iconName="cross"></my-global-icon>
     </button>
   </div>
 
   <div class="modal-body">
-    <my-alert i18n type="primary">These settings apply only to your session on this instance.</my-alert>
+    <my-alert i18n type="primary">这些设置仅适用于您在当前站点的会话。</my-alert>
 
-    <h5 i18n class="section-label mt-4 mb-3">INTERFACE</h5>
+    <h5 i18n class="section-label mt-4 mb-3">界面</h5>
 
     @if (!isUserLoggedIn()) {
       <my-user-interface-settings

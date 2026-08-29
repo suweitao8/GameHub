@@ -459,9 +459,10 @@ describe('Test games API', function () {
         url: server.url,
         path: `/api/v1/games/events/${slug}/join`,
         token: secondUserAccessToken,
+        headers: { 'x-peertube-language': 'zh-Hans-CN' },
         fields: {},
         expectedStatus: HttpStatusCode.CONFLICT_409
-      }).then(res => expect((res.body as GameEventErrorResponse).error).to.equal('Event is full'))
+      }).then(res => expect((res.body as GameEventErrorResponse).error).to.equal('该活动报名人数已满'))
 
       await makeDeleteRequest({
         url: server.url,

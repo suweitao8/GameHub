@@ -35,12 +35,12 @@ const followValidator = [
   body('hosts')
     .customSanitizer(toArray)
     .custom(v => hasArrayLength(v, { max: 100 }))
-    .custom(isEachUniqueHostValid).withMessage('Should have an array of unique hosts'),
+    .custom(isEachUniqueHostValid).withMessage((_, { req }) => req.t('Should have an array of unique hosts')),
 
   body('handles')
     .customSanitizer(toArray)
     .custom(v => hasArrayLength(v, { max: 100 }))
-    .custom(isEachUniqueHandleValid).withMessage('Should have an array of handles'),
+    .custom(isEachUniqueHandleValid).withMessage((_, { req }) => req.t('Should have an array of handles')),
 
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     // Force https if the administrator wants to follow remote actors
@@ -48,7 +48,7 @@ const followValidator = [
       return res
         .status(HttpStatusCode.INTERNAL_SERVER_ERROR_500)
         .json({
-          error: 'Cannot follow on a non HTTPS web server.'
+          error: req.t('Cannot follow on a non HTTPS web server.')
         })
     }
 
@@ -59,7 +59,7 @@ const followValidator = [
       return res
         .status(HttpStatusCode.BAD_REQUEST_400)
         .json({
-          error: 'You must provide at least one handle or one host.'
+          error: req.t('You must provide at least one handle or one host.')
         })
     }
 
@@ -86,7 +86,7 @@ const removeFollowingValidator = [
     if (!follow) {
       return res.fail({
         status: HttpStatusCode.NOT_FOUND_404,
-        message: `Follow ${req.params.hostOrHandle} not found.`
+        message: req.t('Follow {hostOrHandle} not found.', { hostOrHandle: req.params.hostOrHandle })
       })
     }
 
@@ -116,7 +116,7 @@ const getFollowerValidator = [
     if (!follow) {
       return res.fail({
         status: HttpStatusCode.NOT_FOUND_404,
-        message: `Follower ${req.params.handle} not found.`
+        message: req.t('Follower {handle} not found.', { handle: req.params.handle })
       })
     }
 
@@ -129,7 +129,7 @@ const acceptFollowerValidator = [
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const follow = res.locals.follow
     if (follow.state !== 'pending' && follow.state !== 'rejected') {
-      return res.fail({ message: 'Follow is not in pending/rejected state.' })
+      return res.fail({ message: req.t('Follow is not in pending/rejected state.') })
     }
 
     return next()
@@ -140,7 +140,7 @@ const rejectFollowerValidator = [
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const follow = res.locals.follow
     if (follow.state !== 'pending' && follow.state !== 'accepted') {
-      return res.fail({ message: 'Follow is not in pending/accepted state.' })
+      return res.fail({ message: req.t('Follow is not in pending/accepted state.') })
     }
 
     return next()

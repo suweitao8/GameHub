@@ -1,16 +1,16 @@
 <my-signup-step-title mascotImageName="success">
-  <strong i18n>Email verified!</strong>
+  <strong i18n>邮箱验证成功！</strong>
 </my-signup-step-title>
 
 <my-alert type="primary">
   @if (requiresApproval()) {
-    <p i18n>Your email has been verified and your account request has been sent!</p>
+    <p i18n>您的邮箱已验证，账户申请已提交！</p>
 
     <p i18n>
-      A moderator will check your registration request soon and you'll receive an email when it is accepted or rejected.
+      管理员会尽快审核您的注册申请，审核通过或拒绝后您会收到邮件通知。
     </p>
   } @else {
-    <p i18n>Your email has been verified and your account has been created!</p>
+    <p i18n>您的邮箱已验证，账户已创建！</p>
 
     <p i18n>
       如需了解 GameHub 的使用方式，可以查看<a class="link-primary" href="/about">社区说明</a>。

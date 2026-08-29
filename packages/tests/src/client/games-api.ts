@@ -42,7 +42,7 @@ describe('Games client API contract', function () {
 
   it('turns rejected GameHub actions into an actionable Chinese message', function () {
     expect(getGameActionErrorMessage({ status: 401 })).to.equal('请先登录后再进行这项操作。')
-    expect(getGameActionErrorMessage({ status: 403, error: { error: 'Authors cannot rate their own game' } }))
+    expect(getGameActionErrorMessage({ status: 403, error: { error: '作者不能给自己的游戏评分' } }))
       .to.equal('作者不能对自己的游戏进行这项操作。')
     expect(getGameActionErrorMessage({ status: 409, error: { error: '硬币余额不足', code: 'GAME_COIN_BALANCE' } }))
       .to.equal('硬币余额不足。')

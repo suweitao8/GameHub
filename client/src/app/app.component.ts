@@ -362,32 +362,32 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       new Hotkey([ 'Shift+/', 's' ], () => {
         document.getElementById('game-community-search')?.focus()
         return false
-      }, $localize`Focus the game search bar`),
+      }, $localize`聚焦游戏搜索框`),
 
       new Hotkey('b', () => {
         this.menu.toggleMenu()
         return false
-      }, $localize`Toggle the left menu`),
+      }, $localize`切换左侧菜单`),
 
       new Hotkey('g o', () => {
         this.router.navigate([ '/' ])
         return false
-      }, $localize`Go to the GameHub home page`),
+      }, $localize`返回 GameHub 首页`),
 
       new Hotkey('g v', () => {
         this.router.navigate([ '/' ], { queryParams: { sort: 'popular' } })
         return false
-      }, $localize`Go to popular games`),
+      }, $localize`查看热门游戏`),
 
       new Hotkey('g p', () => {
         this.router.navigate([ '/games/upload' ])
         return false
-      }, $localize`Open the game upload page`),
+      }, $localize`打开游戏投稿页面`),
 
       new Hotkey('g l', () => {
         this.redirectService.redirectToLogin()
         return false
-      }, $localize`Go to the login page`)
+      }, $localize`打开登录页面`)
     ])
   }
 

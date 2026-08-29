@@ -1,9 +1,9 @@
 @if (mobileMsg) {
   <div class="mobile-msg">
-    <div class="msg ellipsis me-auto" i18n>Open in the application?</div>
-    <a class="peertube-button-link secondary-button me-3" [href]="androidAppUrl || iosAppUrl" (click)="onOpenClientClick()">Open</a>
+    <div class="msg ellipsis me-auto" i18n>在应用中打开？</div>
+    <a class="peertube-button-link secondary-button me-3" [href]="androidAppUrl || iosAppUrl" (click)="onOpenClientClick()">打开</a>
 
-    <button class="border-0 p-0" title="Close this message" i18n-title (click)="hideMobileMsg()">
+    <button class="border-0 p-0" title="关闭此消息" i18n-title (click)="hideMobileMsg()">
       <my-global-icon iconName="cross"></my-global-icon>
     </button>
   </div>
@@ -20,7 +20,7 @@
       </nav>
     </div>
   } @else {
-    <a class="peertube-title" [routerLink]="getDefaultRoute()" [queryParams]="getDefaultRouteQuery()" title="Go to homepage" i18n-title>
+    <a class="peertube-title" [routerLink]="getDefaultRoute()" [queryParams]="getDefaultRouteQuery()" title="返回首页" i18n-title>
       <img [src]="getLogoUrl()" alt="" [title]="instanceName" class="logo" />
 
       @if (isInstanceNameDisplayed()) {
@@ -38,7 +38,7 @@
     @if (!loggedIn && !isGameExperience()) {
       @if (!isGameExperience()) {
         <my-button
-          i18n-title title="Open settings modal"
+          i18n-title title="打开设置弹窗"
           theme="tertiary" rounded="true" class="margin-button settings-button" icon="cog" (click)="openQuickSettings()"
         ></my-button>
       }
@@ -140,7 +140,7 @@
         <div ngbDropdownMenu>
           @if (user.account) {
             <a ngbDropdownItem class="dropdown-item" [routerLink]="[ '/games/author', user.account.id ]">
-              <my-global-icon iconName="user" aria-hidden="true"></my-global-icon> <ng-container i18n>Public profile</ng-container>
+              <my-global-icon iconName="user" aria-hidden="true"></my-global-icon> <ng-container i18n>公开主页</ng-container>
             </a>
           }
 
@@ -179,13 +179,13 @@
           @if (!isInMobileView) {
             <button ngbDropdownItem class="dropdown-item" (click)="openHotkeysCheatSheet()">
               <my-global-icon iconName="keyboard" aria-hidden="true"></my-global-icon>
-              <ng-container i18n>Keyboard shortcuts</ng-container>
+              <ng-container i18n>键盘快捷键</ng-container>
             </button>
           }
 
           <button ngbDropdownItem (click)="logout($event)" class="dropdown-item logout">
             <my-global-icon iconName="sign-out" aria-hidden="true"></my-global-icon>
-            <ng-container i18n>Log out</ng-container>
+            <ng-container i18n>退出登录</ng-container>
           </button>
         </div>
         }
@@ -307,7 +307,7 @@
       </div>
     }
 
-    <my-button title="Open menu" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
+    <my-button title="打开菜单" i18n-title theme="tertiary" rounded="true" class="menu-button margin-button" icon="menu" (click)="toggleMenu()"></my-button>
 
     @if (isGameExperience()) {
       <a

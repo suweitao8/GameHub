@@ -1,7 +1,7 @@
 <ng-template #modal let-hide="close">
   <div class="modal-header">
-    <h4 i18n class="modal-title">Configuration warning!</h4>
-    <button class="border-0 p-0" title="Close this modal" i18n-title (click)="hide()">
+    <h4 i18n class="modal-title">配置警告！</h4>
+    <button class="border-0 p-0" title="关闭此弹窗" i18n-title (click)="hide()">
       <my-global-icon iconName="cross"></my-global-icon>
     </button>
   </div>
@@ -9,55 +9,55 @@
   <div class="modal-body">
     <img class="mascot" src="/client/assets/images/mascot/oh.svg" alt="mascot" />
 
-    <p i18n>You enabled user registration on your instance but did not configure the following fields:</p>
+    <p i18n>您已启用站点注册，但尚未配置以下字段：</p>
 
     <ul>
       @if (about.instance.name.toLowerCase() === 'peertube') {
-        <li i18n>Instance name</li>
+        <li i18n>站点名称</li>
       }
       @if (isDefaultShortDescription(about.instance.shortDescription)) {
-        <li i18n>Instance short description</li>
+        <li i18n>站点简介</li>
       }
 
       @if (!about.instance.administrator) {
-        <li i18n>Who you are</li>
+        <li i18n>站点管理员信息</li>
       }
       @if (!about.instance.maintenanceLifetime) {
-        <li i18n>How long you plan to maintain your instance</li>
+        <li i18n>计划维护站点的时长</li>
       }
       @if (!about.instance.businessModel) {
-        <li i18n>How you plan to pay for keeping your instance running</li>
+        <li i18n>维持站点运行的资金来源</li>
       }
 
       @if (!about.instance.moderationInformation) {
-        <li i18n>How you will moderate your instance</li>
+        <li i18n>站点内容审核方式</li>
       }
       @if (!about.instance.terms) {
-        <li i18n>Instance terms</li>
+        <li i18n>站点条款</li>
       }
     </ul>
 
     <p i18n>
-      Please consider configuring these fields to help people to choose <strong>the appropriate instance</strong>.
-      Without them, your instance may not be referenced on the <a target="_blank" rel="noopener noreferrer" href="https://joinpeertube.org">JoinPeerTube website</a>.
+      请配置这些字段，帮助用户选择<strong>合适的站点</strong>。
+      如果未配置，您的站点可能不会被收录在<a target="_blank" rel="noopener noreferrer" href="https://joinpeertube.org">JoinPeerTube 网站</a>上。
     </p>
   </div>
 
   <div class="modal-footer inputs">
     <my-peertube-checkbox
       inputName="stopDisplayModal" [(ngModel)]="stopDisplayModal"
-      i18n-labelText labelText="Don't show me this warning anymore"
+      i18n-labelText labelText="不再显示此警告"
       >
     </my-peertube-checkbox>
 
     <input
-      type="button" role="button" i18n-value value="Close" class="peertube-button secondary-button"
+      type="button" role="button" i18n-value value="关闭" class="peertube-button secondary-button"
       (click)="hide()" (key.enter)="hide()"
       >
 
     <a i18n class="peertube-button-link primary-button" ngbAutofocus
       href="/admin/settings/config/edit-custom" target="_blank" rel="noopener noreferrer">
-       Configure
+       配置
     </a>
   </div>
 

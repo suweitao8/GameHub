@@ -48,7 +48,7 @@ export class VerifyNewAccountAskSendEmailComponent extends FormReactive implemen
       this.signupService.askSendVerifyEmail(email)
     ]).subscribe({
       next: () => {
-        this.notifier.success($localize`An email with verification link will be sent to ${email}.`)
+        this.notifier.success($localize`验证邮件将发送至 ${email}。`)
         this.redirectService.redirectToHomepage()
       },
 

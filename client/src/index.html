@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,26 +28,26 @@
   <body id="custom-css">
 
     <noscript class="alert alert-light">
-      <h2 class="mb-3">JavaScript required</h2>
+      <h2 class="mb-3">需要启用 JavaScript</h2>
 
-      <p>It seems JavaScript is either blocked or disabled in your web browser. We totally get that. However, this page will not work without it.</p>
+      <p>您的浏览器似乎阻止或禁用了 JavaScript。我们理解您的选择，但此页面必须启用 JavaScript 才能正常工作。</p>
       <hr>
 
-      <h2 class="mb-3">Your options</h2>
+      <h2 class="mb-3">您可以尝试</h2>
 
       <ul>
-        <li>Allow JavaScript in your browser</li>
-        <li>Review the source code of the site and ask for modifications from the site owner</li>
+        <li>在浏览器中允许 JavaScript</li>
+        <li>查看网站源代码，并向网站所有者提出修改建议</li>
       </ul>
     </noscript>
 
     <div id="incompatible-browser" class="alert alert-light" role="alert" style="display: none">
-      <h2 class="mb-3">Incompatible browser</h2>
+      <h2 class="mb-3">浏览器不兼容</h2>
 
-      <p>We are sorry but it seems that GameHub is not compatible with your web browser.</p>
+      <p>很抱歉，GameHub 与您当前的浏览器不兼容。</p>
 
       <hr>
-      <p>Please try with the latest version of your browser.</p>
+      <p>请尝试使用最新版本的浏览器。</p>
     </div>
 
     <script type="text/javascript">
@@ -70,7 +70,7 @@
       try {
         BigInt(9007199254740991)
       } catch (err) {
-        console.error('BigInt is not supported on this web browser')
+        console.error('此浏览器不支持 BigInt')
 
         displayIncompatibleBrowser()
       }

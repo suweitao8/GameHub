@@ -49,9 +49,9 @@ export class SelectOptionsComponent implements ControlValueAccessor {
 
   readonly group = input(false, { transform: booleanAttribute })
 
-  readonly filterPlaceholder = input($localize`Search`)
-  readonly emptyFilterMessage = input($localize`No results found`)
-  readonly emptyMessage = input($localize`No items available`)
+  readonly filterPlaceholder = input($localize`搜索`)
+  readonly emptyFilterMessage = input($localize`未找到结果`)
+  readonly emptyMessage = input($localize`暂无可用项目`)
 
   readonly appendTo = input<'body'>()
 

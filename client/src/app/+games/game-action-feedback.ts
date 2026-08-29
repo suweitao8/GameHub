@@ -17,10 +17,10 @@ export function getGameActionErrorMessage (error: unknown) {
   const message = payload?.error || payload?.message || (typeof response?.error === 'string' ? response.error : response?.message)
 
   if (code === 'GAME_COIN_BALANCE' || message === '硬币余额不足') return '硬币余额不足。'
-  if (message === 'Authors cannot rate their own game' || message === 'Authors cannot coin their own game') {
+  if (message === '作者不能给自己的游戏评分' || message === '作者不能给自己的游戏投币') {
     return '作者不能对自己的游戏进行这项操作。'
   }
-  if (message === 'Cannot follow yourself') return '不能关注自己。'
+  if (message === '不能关注自己') return '不能关注自己。'
   if (typeof message === 'string' && message.trim()) return message.endsWith('。') ? message : `${message}。`
   if (response?.status === 403) return '当前账号没有权限进行这项操作。'
   if (response?.status === 404) return '找不到相关内容。'
