@@ -1248,6 +1248,46 @@ assert(
     headerTs.includes('onGameAvatarFocusOut (event: FocusEvent)'),
   'header avatar menu must expose the same delayed popup through keyboard focus'
 )
+assert(
+  headerHtml.includes('id="game-avatar-menu"') &&
+    headerHtml.includes('[attr.aria-controls]="\'game-avatar-menu\'"') &&
+    headerHtml.includes('(pointerdown)="onGameAvatarPointerDown($event)"') &&
+    headerHtml.includes('(pointerup)="onGameAvatarPointerUp($event)"') &&
+    headerHtml.includes('(pointercancel)="onGameAvatarPointerUp($event)"') &&
+    headerHtml.includes('routerLink="/my-account"') &&
+    headerHtml.includes('routerLink]="[ \'/games/author\', user.account.id ]"') &&
+    headerHtml.includes('user?.account?.followingCount') &&
+    headerHtml.includes('user?.account?.followersCount') &&
+    headerHtml.includes('gameCount()'),
+  'account popover must expose personal center, public profile, following, follower, and game-count content'
+)
+assert(
+  headerTs.includes('readonly gameCount = signal<number | null>(null)') &&
+    headerTs.includes('this.gameCount.set(overview.gameCount)') &&
+    headerTs.includes('this.gameCount.set(null)') &&
+    headerTs.includes('toggleGameAvatarMenu (event: MouseEvent)') &&
+    headerTs.includes('onGameAvatarPointerDown (event: PointerEvent)') &&
+    headerTs.includes('onGameAvatarPointerUp (event: PointerEvent)') &&
+    headerTs.includes('closeGameAvatarMenu (event: KeyboardEvent)') &&
+    headerTs.includes("@HostListener('window:keydown', [ '$event' ])") &&
+    headerTs.includes('onGameWindowKeydown (event: KeyboardEvent)'),
+  'account popover must load and clear game count and provide click and Escape interaction handlers'
+)
+const avatarScheduleStart = headerTs.indexOf('scheduleGameAvatarMenu ()')
+const avatarScheduleEnd = headerTs.indexOf('\n  cancelGameAvatarHover', avatarScheduleStart)
+assert(
+  avatarScheduleStart >= 0 &&
+    avatarScheduleEnd > avatarScheduleStart &&
+    headerTs.slice(avatarScheduleStart, avatarScheduleEnd).includes('this.suppressGameAvatarFocus'),
+  'Escape must not immediately reopen the account popover when focus returns to the avatar trigger'
+)
+assert(
+    headerScss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));') &&
+    headerScss.includes('max-width: calc(100vw - 1rem);') &&
+    headerScss.includes('.game-avatar-action:focus-visible') &&
+    headerScss.includes('@media (prefers-reduced-motion: reduce)'),
+  'account popover stats must have a three-column, viewport-safe, focus-visible, reduced-motion style contract'
+)
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
     headerHtml.includes(`(pointerenter)="scheduleGameNavHover('${popup}')"`) &&

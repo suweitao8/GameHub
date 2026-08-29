@@ -893,12 +893,13 @@ my-actor-avatar {
   box-shadow: var(--game-shadow-popover);
   color: var(--game-text-secondary);
   display: block;
-  left: 50%;
+  right: 0;
   overflow: hidden;
+  max-width: calc(100vw - 1rem);
   position: absolute;
   top: calc(100% + 0.5rem);
-  transform: translateX(-50%);
-  width: 300px;
+  transform: none;
+  width: min(18.5rem, calc(100vw - 1rem));
   z-index: 60;
 }
 
@@ -976,11 +977,91 @@ my-actor-avatar {
 }
 
 .game-avatar-profile span {
-  background: var(--game-surface-alt);
-  border-radius: var(--game-radius-pill);
   color: var(--game-text-secondary);
   font-size: 0.76rem;
+}
+
+.game-avatar-handle {
+  color: var(--game-text-hint) !important;
+  font-size: 0.76rem;
+}
+
+.game-avatar-coin {
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-secondary) !important;
+  font-size: 0.76rem;
   padding: 0.18rem 0.7rem;
+}
+
+.game-avatar-stats {
+  border-bottom: 1px solid var(--game-border);
+  border-top: 1px solid var(--game-border);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0.8rem 0.55rem;
+}
+
+.game-avatar-stat {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.game-avatar-stat strong {
+  color: var(--game-text-primary);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.game-avatar-stat span {
+  color: var(--game-text-hint);
+  font-size: 0.72rem;
+}
+
+.game-avatar-stat-loading {
+  color: var(--game-text-hint) !important;
+}
+
+.game-avatar-actions {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.65rem 0.65rem 0.35rem;
+}
+
+.game-avatar-action {
+  align-items: center;
+  border-radius: var(--game-radius-sm);
+  color: var(--game-text-secondary);
+  display: flex;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding: 0.55rem 0.7rem;
+  text-decoration: none;
+  transition: background-color var(--game-dur-fast) var(--game-ease), color var(--game-dur-fast) var(--game-ease);
+}
+
+.game-avatar-action:hover,
+.game-avatar-action:focus-visible,
+.game-avatar-action-primary {
+  background: var(--game-brand-soft);
+  color: var(--game-brand-deep);
+  outline: 0;
+}
+
+.game-avatar-action-arrow {
+  height: 0.9rem;
+  margin-left: auto;
+  width: 0.9rem;
+}
+
+.game-avatar-action:focus-visible,
+.game-avatar-logout:focus-visible {
+  outline: 2px solid var(--game-header-focus-ring);
+  outline-offset: 2px;
 }
 
 /* 悬停卡底部操作区:登出入口 */
@@ -1018,6 +1099,16 @@ my-actor-avatar {
   my-global-icon {
     height: 15px;
     width: 15px;
+  }
+}
+
+@media screen and (max-width: $mobile-view) {
+  .game-avatar-hover-card {
+    max-width: calc(100vw - 1rem);
+    position: fixed;
+    right: 0.5rem;
+    top: calc(var(--header-height) + 0.5rem);
+    width: min(18.5rem, calc(100vw - 1rem));
   }
 }
 

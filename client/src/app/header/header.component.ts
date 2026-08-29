@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { QuickSettingsModalComponent } from '@app/menu/quick-settings-modal.component'
 import { ActorAvatarComponent } from '@app/shared/shared-actor-image/actor-avatar.component'
 import { PeertubeModalService } from '@app/shared/shared-main/peertube-modal/peertube-modal.service'
 import { SignupLabelComponent } from '@app/shared/shared-main/users/signup-label.component'
-import { NgbDropdown, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
 import { findAppropriateImage } from '@peertube/peertube-core-utils'
 import { HTMLServerConfig, ServerConfig } from '@peertube/peertube-models'
 import { peertubeLocalStorage } from '@root-helpers/peertube-web-storage'
@@ -62,8 +62,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private static LS_HIDE_MOBILE_MSG = 'hide-mobile-msg'
 
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
-  readonly dropdown = viewChild<NgbDropdown>('dropdown')
+  readonly gameAvatarButton = viewChild<ElementRef<HTMLButtonElement>>('gameAvatarButton')
   readonly gameCoinBalance = signal<number | null>(null)
+  readonly gameCount = signal<number | null>(null)
   readonly gameNavFavorites = signal<Game[]>([])
   readonly gameNavRecent = signal<Game[]>([])
   readonly gameNavOwned = signal<Game[]>([])
@@ -128,6 +129,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   } | undefined> = {}
 
   private gameCoinBalanceRequested = false
+  private gameAvatarPointerDown = false
+  private suppressGameAvatarFocus = false
   private gameNavLoaded = new Set<GameHeaderPopup>()
   private gameNavRequestGenerations = new Map<GameHeaderPopup, number>()
 
@@ -376,6 +379,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.updateGameHeaderScroll()
   }
 
+  @HostListener('window:keydown', [ '$event' ])
+  onGameWindowKeydown (event: KeyboardEvent) {
+    this.closeGameAvatarMenu(event)
+  }
+
   private updateGameHeaderScroll () {
     const shouldShrink = this.isGameExperience() && window.innerWidth > 760 && window.scrollY > 150
     if (this.gameHeaderScrolled === shouldShrink) return
@@ -452,7 +460,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   scheduleGameAvatarMenu () {
     // 访客点击「登录」直达登录弹框,悬停卡仅服务已登录头像菜单
-    if (!this.isGameExperience() || !this.loggedIn) return
+    if (this.suppressGameAvatarFocus || this.gameAvatarPointerDown || !this.isGameExperience() || !this.loggedIn) return
 
     this.setPopoverOpen('avatar', true)
     this.loadGameCoinBalance()
@@ -640,16 +648,31 @@ export class HeaderComponent implements OnInit, OnDestroy {
     })
   }
 
-  openGameProfile (event: Event) {
+  toggleGameAvatarMenu (event: MouseEvent) {
     event.preventDefault()
-    this.cancelGameAvatarHover()
-    const accountId = this.user?.account?.id
-    if (accountId) {
-      void this.router.navigate([ '/games/author', accountId ])
-      return
-    }
+    if (!this.loggedIn || !this.isGameExperience()) return
 
-    this.openLoginModal()
+    if (this.isOpenPopover('avatar')) this.unmountPopoverNow('avatar')
+    else this.scheduleGameAvatarMenu()
+  }
+
+  onGameAvatarPointerDown (event: PointerEvent) {
+    if (event.button === 0) this.gameAvatarPointerDown = true
+  }
+
+  onGameAvatarPointerUp (event: PointerEvent) {
+    if (event.button === 0 || event.type === 'pointercancel') this.gameAvatarPointerDown = false
+  }
+
+  closeGameAvatarMenu (event: KeyboardEvent) {
+    if (event.key !== 'Escape' || !this.isOpenPopover('avatar')) return
+
+    event.preventDefault()
+    event.stopPropagation()
+    this.suppressGameAvatarFocus = true
+    this.unmountPopoverNow('avatar')
+    this.gameAvatarButton()?.nativeElement.focus()
+    setTimeout(() => this.suppressGameAvatarFocus = false)
   }
 
   openGameUpload (event: MouseEvent) {
@@ -692,6 +715,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
       this.gameNavCoverFallbacks.set({})
       this.gameCoinBalance.set(null)
+      this.gameCount.set(null)
       this.gameCoinBalanceRequested = false
     }
   }
@@ -705,8 +729,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.gameCoinBalanceRequested = true
     this.gamesService.creatorOverview().subscribe({
-      next: overview => this.gameCoinBalance.set(overview.coinBalance),
-      error: () => this.gameCoinBalance.set(0)
+      next: overview => {
+        this.gameCoinBalance.set(overview.coinBalance)
+        this.gameCount.set(overview.gameCount)
+      },
+      error: () => {
+        this.gameCoinBalance.set(0)
+        this.gameCount.set(null)
+      }
     })
   }
 }

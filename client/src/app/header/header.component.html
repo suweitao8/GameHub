@@ -65,22 +65,60 @@
             <button type="button" class="game-login-pill" aria-label="登录" (click)="openLoginModal()">登录</button>
           } @else {
             <button
-              class="tertiary-button" type="button" aria-label="打开个人主页"
-              [attr.aria-haspopup]="'dialog'" [attr.aria-expanded]="isOpenPopover('avatar')"
-              (click)="openGameProfile($event)"
+              #gameAvatarButton
+              class="tertiary-button" type="button" aria-label="个人信息"
+              aria-haspopup="true" [attr.aria-controls]="'game-avatar-menu'"
+              [attr.aria-expanded]="isOpenPopover('avatar')"
+              (pointerdown)="onGameAvatarPointerDown($event)"
+              (pointerup)="onGameAvatarPointerUp($event)"
+              (pointercancel)="onGameAvatarPointerUp($event)"
+              (click)="toggleGameAvatarMenu($event)"
             >
               <img class="game-user-avatar" [src]="getGameAvatarUrl()" [alt]="user?.account?.displayName || user?.username || 'GameHub 玩家'" (error)="onGameAvatarError($event)">
             </button>
             @if (isPopoverMounted('avatar')) {
-              <div
-                class="game-avatar-hover-card" role="dialog" aria-label="个人信息"
+              <section
+                id="game-avatar-menu"
+                class="game-avatar-hover-card"
                 [class.game-popover-hidden]="isPopoverClosing('avatar')"
+                aria-labelledby="game-avatar-title"
               >
                 <div class="game-avatar-profile">
                   <img class="game-avatar-hover-avatar" [src]="getGameAvatarUrl()" alt="" (error)="onGameAvatarError($event)">
-                  <strong>{{ user?.account?.displayName || user?.username || 'GameHub 玩家' }}</strong>
-                  <span>硬币 {{ gameCoinBalance() ?? 0 }}</span>
+                  <strong id="game-avatar-title">{{ user?.account?.displayName || user?.username || 'GameHub 玩家' }}</strong>
+                  @if (user?.account?.name) { <span class="game-avatar-handle">&#64;{{ user.account.name }}</span> }
+                  <span class="game-avatar-coin">硬币 {{ gameCoinBalance() ?? 0 }}</span>
                 </div>
+
+                <div class="game-avatar-stats" aria-label="个人数据">
+                  <div class="game-avatar-stat">
+                    <strong>{{ user?.account?.followingCount ?? 0 }}</strong>
+                    <span>关注</span>
+                  </div>
+                  <div class="game-avatar-stat">
+                    <strong>{{ user?.account?.followersCount ?? 0 }}</strong>
+                    <span>粉丝</span>
+                  </div>
+                  <div class="game-avatar-stat">
+                    <strong [class.game-avatar-stat-loading]="gameCount() === null">{{ gameCount() ?? '-' }}</strong>
+                    <span>动态</span>
+                  </div>
+                </div>
+
+                <nav class="game-avatar-actions" aria-label="个人菜单">
+                  <a class="game-avatar-action game-avatar-action-primary" routerLink="/my-account" (click)="cancelGameAvatarHover()">
+                    <my-global-icon iconName="user" aria-hidden="true"></my-global-icon>
+                    <span>个人中心</span>
+                    <my-global-icon class="game-avatar-action-arrow" iconName="chevron-right" aria-hidden="true"></my-global-icon>
+                  </a>
+                  @if (user?.account?.id) {
+                    <a class="game-avatar-action" [routerLink]="[ '/games/author', user.account.id ]" (click)="cancelGameAvatarHover()">
+                      <my-global-icon iconName="user" aria-hidden="true"></my-global-icon>
+                      <span>我的主页</span>
+                      <my-global-icon class="game-avatar-action-arrow" iconName="chevron-right" aria-hidden="true"></my-global-icon>
+                    </a>
+                  }
+                </nav>
 
                 <div class="game-avatar-hover-actions">
                   <button type="button" class="game-avatar-logout" (click)="logout($event)">
@@ -88,7 +126,7 @@
                     退出登录
                   </button>
                 </div>
-              </div>
+              </section>
             }
           }
         } @else {
