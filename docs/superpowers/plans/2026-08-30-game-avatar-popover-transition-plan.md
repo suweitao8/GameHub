@@ -4,7 +4,9 @@
 
 **Goal:** 让 GameHub 已登录顶栏的唯一头像在桌面端悬停/键盘聚焦时放大并移动到个人资料卡上沿中心，移除资料卡内的重复头像。
 
-**Architecture:** 保留现有 Angular Header 的 popup signal、延迟关闭和点击路由，只在模板给头像容器增加由 `isOpenPopover('avatar')` 驱动的打开态 class。唯一 `.game-user-avatar` 继续作为按钮子节点，通过 CSS `transform` 跨过 Header 与资料卡间隙；资料卡右边缘与头像容器右边缘对齐，打开态头像同步向资料卡中心修正，资料卡只提供背景、名称、硬币和退出操作，并用顶部留白承接转场后的头像。静态契约先锁定单头像、打开态几何、边缘约束、移动端退化和 reduced-motion，再用真实浏览器验证实际矩形位置与可操作性。
+**Architecture:** 保留现有 Angular Header 的 popup signal、延迟关闭和点击路由，只在模板给头像容器增加由 `isOpenPopover('avatar')` 驱动的打开态 class。唯一 `.game-user-avatar` 继续作为按钮子节点，通过按钮外壳的 CSS `translate3d` 跨过 Header 与资料卡间隙，再由图片子节点 `scale` 放大；资料卡右边缘与头像容器右边缘对齐，资料卡只提供背景、名称、硬币和退出操作，并用顶部留白承接转场后的头像。打开态清除触发按钮 hover 阴影，避免原导航栏位置残留圆框。静态契约先锁定单头像、打开态几何、边缘约束、移动端退化和 reduced-motion，再用真实浏览器验证实际矩形位置与可操作性。
+
+> **2026-08-30 补正：** 初版只移动了图片，导致触发按钮的 hover 圆框仍留在导航栏原位。本次补正把位移移到按钮外壳，图片只保留缩放，并明确打开态 `box-shadow: none`；这样头像和触发层的最终位置一致，原位不再留下空圆框。
 
 **Tech Stack:** Angular template binding, component-scoped SCSS, Node.js source-contract verifier, Stylelint, GameHub self-test, real Chrome browser automation。
 
@@ -36,11 +38,15 @@ assert(
   'GameHub avatar popover must use one avatar element and expose its open state on the wrapper'
 )
 assert(
-  submitHeaderScss.includes('.game-avatar-menu-open > .tertiary-button .game-user-avatar') &&
-    submitHeaderScss.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);') &&
+  submitHeaderScss.includes('.game-avatar-menu-open > .tertiary-button') &&
+    submitHeaderScss.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);') &&
+    submitHeaderScss.includes('box-shadow: none !important;') &&
+    submitHeaderScss.includes('.game-avatar-menu-open > .tertiary-button .game-user-avatar') &&
+    submitHeaderScss.includes('transform: scale(2.12);') &&
     submitHeaderScss.includes('transform-origin: center;') &&
     submitHeaderScss.includes('will-change: transform;') &&
-    submitHeaderScss.includes('transition: transform var(--game-dur-slow) var(--game-ease),') &&
+    submitHeaderScss.includes('transition: box-shadow var(--game-dur) var(--game-ease),') &&
+    submitHeaderScss.includes('transform var(--game-dur-slow) var(--game-ease);') &&
     submitHeaderScss.includes('padding: 4.25rem 1.1rem 1rem;'),
   'GameHub avatar popover must move the single avatar to the centered card edge with a tokenized transform and reserved profile space'
 )
@@ -90,7 +96,7 @@ transition: transform var(--game-dur-slow) var(--game-ease),
 will-change: transform;
 ```
 
-- [x] **Step 3: 把头像移动到资料卡上沿中心并置于卡片上层**
+- [x] **Step 3: 把头像触发层移动到资料卡上沿中心并置于卡片上层**
 
 让 GameHub 头像按钮可以跨出自身盒子绘制：
 
@@ -102,12 +108,17 @@ will-change: transform;
 }
 ```
 
-新增打开态：
+新增打开态：按钮外壳负责位移并清除原位 hover 圆框，图片子节点只负责缩放：
 
 ```scss
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button {
+  box-shadow: none !important;
+  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);
+}
+
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
   box-shadow: var(--game-shadow-popover);
-  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);
+  transform: scale(2.12);
 }
 ```
 
@@ -119,6 +130,10 @@ will-change: transform;
 
 ```scss
 @media screen and (max-width: $mobile-view) {
+  :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button {
+    transform: none;
+  }
+
   :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
     transform: none;
   }
@@ -206,7 +221,7 @@ const cardRect = card?.getBoundingClientRect()
 })
 ```
 
-Expected: `avatarCount=1`, `duplicateCount=0`, avatar dimensions approximately `72x72`, horizontal center delta `<=2px`, avatar center is at the card top within `<=2px`, and no viewport overflow。捕获打开态截图检查头像是否确实压在卡片上沿，而非卡片内又出现一张头像。
+Expected: `avatarCount=1`, `duplicateCount=0`, avatar dimensions approximately `72x72`, horizontal center delta `<=2px`, avatar vertical range covers the card top edge, the trigger button has no open-state box shadow and is translated with the avatar, and no viewport overflow。捕获打开态截图检查头像是否确实压在卡片上沿，而非卡片内又出现一张头像或在导航栏原位残留圆框。
 
 - [x] **Step 3: 检查进入卡片、关闭回位和键盘路径**
 

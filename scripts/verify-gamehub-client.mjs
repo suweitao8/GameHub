@@ -1295,19 +1295,32 @@ assert(
     headerHtml.includes(`[class.game-avatar-menu-open]="isOpenPopover('avatar')"`),
   'GameHub avatar popover must use one avatar element and expose its open state on the wrapper'
 )
+const gameAvatarOpenButtonSelector = ':host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button'
+const gameAvatarOpenButtonStart = headerScss.indexOf(gameAvatarOpenButtonSelector)
+const gameAvatarOpenButtonEnd = gameAvatarOpenButtonStart >= 0 ? headerScss.indexOf('}', gameAvatarOpenButtonStart) : -1
+const gameAvatarOpenButtonBlock = gameAvatarOpenButtonEnd >= 0
+  ? headerScss.slice(gameAvatarOpenButtonStart, gameAvatarOpenButtonEnd)
+  : ''
+const gameAvatarOpenImageBlock = readCssBlock(
+  headerScss,
+  ':host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar'
+)
 assert(
-  headerScss.includes('.game-avatar-menu-open > .tertiary-button .game-user-avatar') &&
-    headerScss.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);') &&
+  gameAvatarOpenButtonBlock.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);') &&
+    gameAvatarOpenButtonBlock.includes('box-shadow: none !important;') &&
+    gameAvatarOpenImageBlock.includes('transform: scale(2.12);') &&
     headerScss.includes('transform-origin: center;') &&
     headerScss.includes('will-change: transform;') &&
-    headerScss.includes('transition: transform var(--game-dur-slow) var(--game-ease),') &&
+    headerScss.includes('transition: box-shadow var(--game-dur) var(--game-ease),') &&
+    headerScss.includes('transform var(--game-dur-slow) var(--game-ease);') &&
     headerScss.includes('padding: 4.25rem 1.1rem 1rem;'),
-  'GameHub avatar popover must move the single avatar to the centered card edge with a tokenized transform and reserved profile space'
+  'GameHub avatar popover must move the trigger shell and scale the single avatar at the centered card edge without leaving the original hover ring'
 )
 assert(
     headerScss.includes('overflow: visible;') &&
     headerScss.includes('z-index: 61;') &&
     headerScss.includes('@media screen and (max-width: $mobile-view)') &&
+    headerScss.includes('    .logged-in-container.game-avatar-menu-open > .tertiary-button {\n      transform: none;\n    }') &&
     headerScss.includes('transform: none;') &&
     headerScss.includes('max-width: calc(100vw - 1rem);') &&
     headerScss.includes('right: 0;') &&
