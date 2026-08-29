@@ -8,7 +8,7 @@ export default [
     component: LoginComponent,
     data: {
       meta: {
-        title: $localize`Login`
+        title: $localize`登录`
       }
     },
     providers: [ ServerConfigResolver ],

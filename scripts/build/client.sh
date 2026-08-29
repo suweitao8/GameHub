@@ -72,6 +72,26 @@ flatten_angular_browser_dir () {
   fi
 }
 
+hoist_angular_locale_dir () {
+  local locale_dir="$1"
+  local localized_dir="$locale_dir/zh-Hans-CN"
+
+  if [ -d "$localized_dir" ]; then
+    # Move the localized application files up when Angular nests the locale
+    # below the explicitly selected output directory.
+    shopt -s dotglob nullglob
+    for entry in "$localized_dir"/*; do
+      base="$(basename "$entry")"
+      if [ -e "$locale_dir/$base" ]; then
+        rm -rf "$locale_dir/$base"
+      fi
+      mv "$entry" "$locale_dir/$base"
+    done
+    shopt -u dotglob nullglob
+    rmdir "$localized_dir" 2>/dev/null || rm -rf "$localized_dir"
+  fi
+}
+
 rm -rf ./client/dist
 
 npm run build:embed
@@ -126,14 +146,14 @@ else
         export ANALYZE_BUNDLE=true
     fi
 
-    # --localize=false would inherit baseHref "/" from angular.json; force /client/<locale>/
-    # so SPA scripts resolve under express.static('/client' -> dist/browser).
-    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build --localize=false \
-                                                              --base-href "/client/$defaultLanguage/" \
+    # The compatibility path is served from /client/en-US/ for existing deployments,
+    # but it must contain the site's Chinese UI rather than the English source locale.
+    NODE_OPTIONS=--max_old_space_size=8192 node_modules/.bin/ng build \
                                                               --output-path "dist/browser/$defaultLanguage" \
-                                                              --configuration production --stats-json $additionalParams
+                                                              --configuration production,zh-Hans-light --stats-json $additionalParams
 
     flatten_angular_browser_dir "dist/browser/$defaultLanguage"
+    hoist_angular_locale_dir "dist/browser/$defaultLanguage"
 
     if [ -d "./dist/browser/$defaultLanguage/assets" ]; then
       mv "./dist/browser/$defaultLanguage/assets" "./dist/browser/assets"

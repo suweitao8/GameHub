@@ -44,7 +44,7 @@ const usersRequestRegistrationValidator = [
       })
     }
 
-    const options = { username: body.username, email: body.email, channelHandle: body.channel?.name, res }
+    const options = { username: body.username, email: body.email, channelHandle: body.channel?.name, req, res }
     if (!await checkRegistrationHandlesDoNotAlreadyExist(options)) return
 
     return next()
@@ -130,11 +130,11 @@ const acceptOrRejectRegistrationValidator = [
   body('preventEmailDelivery')
     .optional()
     .customSanitizer(toBooleanOrNull)
-    .custom(isBooleanValid).withMessage('Should have preventEmailDelivery boolean'),
+    .custom(isBooleanValid).withMessage((_, { req }) => req.t('Should have preventEmailDelivery boolean')),
 
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
-    if (!await checkRegistrationIdExist(req.params.registrationId, res)) return
+    if (!await checkRegistrationIdExist(req.params.registrationId, req, res)) return
 
     if (res.locals.userRegistration.state !== UserRegistrationState.PENDING) {
       return res.fail({
@@ -155,7 +155,7 @@ const getRegistrationValidator = [
 
   async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (areValidationErrors(req, res)) return
-    if (!await checkRegistrationIdExist(req.params.registrationId, res)) return
+    if (!await checkRegistrationIdExist(req.params.registrationId, req, res)) return
 
     return next()
   }

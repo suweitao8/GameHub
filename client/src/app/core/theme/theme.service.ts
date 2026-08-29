@@ -49,9 +49,9 @@ export class ThemeService {
 
   getDefaultThemeItem () {
     return {
-      label: $localize`Light (Beige) or Dark (Brown)`,
+      label: $localize`浅色（米色）或深色（棕色）`,
       id: 'default',
-      description: $localize`PeerTube selects the appropriate theme depending on web browser preferences`
+      description: $localize`PeerTube 会根据浏览器偏好选择合适的主题`
     }
   }
 
@@ -59,11 +59,11 @@ export class ThemeService {
     return [
       ...this.serverConfig.theme.builtIn.map(t => {
         if (t.name === 'peertube-core-dark-brown') {
-          return { id: t.name, label: $localize`Dark (Brown)` }
+          return { id: t.name, label: $localize`深色（棕色）` }
         }
 
         if (t.name === 'peertube-core-light-beige') {
-          return { id: t.name, label: $localize`Light (Beige)` }
+          return { id: t.name, label: $localize`浅色（米色）` }
         }
 
         return { id: t.name, label: capitalizeFirstLetter(t.name) }

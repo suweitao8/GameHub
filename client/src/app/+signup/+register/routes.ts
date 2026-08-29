@@ -10,7 +10,7 @@ export default [
     canActivate: [ UnloggedGuard ],
     data: {
       meta: {
-        title: $localize`Register`
+        title: $localize`注册`
       }
     },
     providers: [ ServerConfigResolver, SignupService ],

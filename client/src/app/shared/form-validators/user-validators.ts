@@ -11,10 +11,10 @@ export const USER_USERNAME_VALIDATOR: BuildFormValidator = {
     Validators.pattern(new RegExp(`^${USER_USERNAME_REGEX_CHARACTERS}*$`))
   ],
   MESSAGES: {
-    required: $localize`Username is required.`,
-    minlength: $localize`Username must be at least 1 character long.`,
-    maxlength: $localize`Username cannot be more than 50 characters long.`,
-    pattern: $localize`Username should be lowercase alphanumeric; dots and underscores are allowed.`
+    required: $localize`请输入用户名。`,
+    minlength: $localize`用户名至少需要 1 个字符。`,
+    maxlength: $localize`用户名不能超过 50 个字符。`,
+    pattern: $localize`用户名只能使用小写字母、数字、点和下划线。`
   }
 }
 
@@ -23,7 +23,7 @@ export const USER_EXISTING_PASSWORD_VALIDATOR: BuildFormValidator = {
     Validators.required
   ],
   MESSAGES: {
-    required: $localize`Password is required.`
+    required: $localize`请输入密码。`
   }
 }
 
@@ -32,7 +32,7 @@ export const USER_OTP_TOKEN_VALIDATOR: BuildFormValidator = {
     Validators.required
   ],
   MESSAGES: {
-    required: $localize`OTP token is required.`
+    required: $localize`请输入一次性验证码。`
   }
 }
 
@@ -46,7 +46,7 @@ export function getUserNewPasswordValidator (minLength: number, maxLength: numbe
       ...base.VALIDATORS
     ] as ValidatorFn[],
     MESSAGES: {
-      required: $localize`Password is required.`,
+      required: $localize`请输入密码。`,
 
       ...base.MESSAGES
     }
@@ -60,8 +60,8 @@ function getUserNewPasswordOptionalValidator (minLength: number, maxLength: numb
       Validators.maxLength(maxLength)
     ] as ValidatorFn[],
     MESSAGES: {
-      minlength: $localize`Password must be at least ${minLength} characters long.`,
-      maxlength: $localize`Password cannot be more than ${maxLength} characters long.`
+      minlength: $localize`密码至少需要 ${minLength} 个字符。`,
+      maxlength: $localize`密码不能超过 ${maxLength} 个字符。`
     }
   }
 }
@@ -69,7 +69,7 @@ function getUserNewPasswordOptionalValidator (minLength: number, maxLength: numb
 export const USER_CONFIRM_PASSWORD_VALIDATOR: BuildFormValidator = {
   VALIDATORS: [],
   MESSAGES: {
-    matchPassword: $localize`The new password and the confirmed password do not correspond.`
+    matchPassword: $localize`两次输入的密码不一致。`
   }
 }
 
@@ -82,9 +82,9 @@ function buildDisplayNameValidator (required: boolean) {
       Validators.maxLength(120)
     ],
     MESSAGES: {
-      required: $localize`Display name is required.`,
-      minlength: $localize`Display name must be at least 1 character long.`,
-      maxlength: $localize`Display name cannot be more than 50 characters long.`
+      required: $localize`请输入显示名称。`,
+      minlength: $localize`显示名称至少需要 1 个字符。`,
+      maxlength: $localize`显示名称不能超过 50 个字符。`
     }
   }
 

@@ -33,13 +33,13 @@ export class HotkeysService {
       new Hotkey(
         [ '?', 'Shift+?' ],
         () => this.cheatSheetToggle.next(undefined),
-        $localize`Show / hide this help menu`
+        $localize`显示或隐藏帮助菜单`
       ),
 
       new Hotkey(
         'escape',
         () => this.cheatSheetToggle.next(false),
-        $localize`Hide this help menu`
+        $localize`隐藏帮助菜单`
       )
     ])
   }

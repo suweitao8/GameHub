@@ -24,14 +24,14 @@ export class CanDeactivateGuard {
     debugLogger('Checking if component can deactivate', result)
     if (result.canDeactivate) return true
 
-    const text = result.text || $localize`All unsaved data will be lost, are you sure you want to leave this page?`
+    const text = result.text || $localize`所有未保存的数据都会丢失，确定要离开此页面吗？`
 
     return this.confirmService.confirm(
       text,
-      $localize`Warning`,
+      $localize`警告`,
       {
-        confirmButtonText: $localize`Stay on page`,
-        cancelButtonText: $localize`Leave page`
+        confirmButtonText: $localize`留在此页面`,
+        cancelButtonText: $localize`离开页面`
       }
     ).then(result => !result) // Inverse the result, "stay on page" is the primary/default button so we don't leave the page by accident
   }

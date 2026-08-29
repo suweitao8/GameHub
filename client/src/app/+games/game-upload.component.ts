@@ -292,9 +292,9 @@ export class GameUploadComponent implements OnDestroy {
         ? candidate.error
         : candidate.message || ''
     return {
-      'Each account can maintain at most 10 games': '每个账号最多维护 10 个游戏，请先下架旧作品。',
-      'Upload rate limit reached': '上传操作过于频繁，请稍后再试。',
-      'Account game storage quota reached': '游戏存储空间已用完，请先删除或下架旧作品。'
+      '每个账户最多可维护 10 个游戏': '每个账号最多维护 10 个游戏，请先下架旧作品。',
+      '上传操作过于频繁，请稍后再试': '上传操作过于频繁，请稍后再试。',
+      '账户游戏存储空间已用尽': '游戏存储空间已用完，请先删除或下架旧作品。'
     }[message] || message
   }
 }

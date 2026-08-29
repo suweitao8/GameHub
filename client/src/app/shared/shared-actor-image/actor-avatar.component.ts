@@ -54,9 +54,9 @@ export class ActorAvatarComponent implements OnInit, OnChanges {
 
   getTitle () {
     if (this.title()) return this.title()
-    if (this.isAccount()) return $localize`${this.actor().name} (account page)`
-    if (this.isChannel()) return $localize`${this.actor().name} (channel page)`
-    if (this.isInstance()) return $localize`${this.actor().name} (instance page)`
+    if (this.isAccount()) return $localize`${this.actor().name}（账户页面）`
+    if (this.isChannel()) return $localize`${this.actor().name}（频道页面）`
+    if (this.isInstance()) return $localize`${this.actor().name}（站点页面）`
 
     return ''
   }

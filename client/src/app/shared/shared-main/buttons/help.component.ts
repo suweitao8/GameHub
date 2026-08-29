@@ -17,7 +17,7 @@ export class HelpComponent implements OnInit, OnChanges {
   readonly iconName = input<GlobalIconName>('help')
   readonly supportRelMe = input(false, { transform: booleanAttribute })
 
-  readonly title = input($localize`Get help`)
+  readonly title = input($localize`获取帮助`)
 
   readonly tooltipPlacement = input('right auto')
   readonly autoClose = input('outside')
@@ -57,14 +57,12 @@ export class HelpComponent implements OnInit, OnChanges {
 
   private formatMarkdownSupport (rules: string[]) {
     let str =
-      // eslint-disable-next-line max-len
-      $localize`<a href="https://en.wikipedia.org/wiki/Markdown#Example" target="_blank" rel="noopener noreferrer">Markdown</a> compatible that supports:` +
+      $localize`支持以下 Markdown 格式：` +
       this.createMarkdownList(rules)
 
     if (this.supportRelMe()) {
       str +=
-        // eslint-disable-next-line max-len
-        $localize`<a href="https://docs.joinmastodon.org/user/profile/#verification" target="_blank" rel="noopener noreferrer">Mastodon verification link</a> is also supported.`
+      $localize`也支持 Mastodon 验证链接。`
     }
 
     return str
@@ -72,11 +70,11 @@ export class HelpComponent implements OnInit, OnChanges {
 
   private createMarkdownList (rules: string[]) {
     const rulesToText: { [id: string]: string } = {
-      emphasis: $localize`Emphasis`,
-      link: $localize`Links`,
-      newline: $localize`New lines`,
-      list: $localize`Lists`,
-      image: $localize`Images`
+      emphasis: $localize`强调`,
+      link: $localize`链接`,
+      newline: $localize`换行`,
+      list: $localize`列表`,
+      image: $localize`图片`
     }
 
     const bullets = rules.map(r => rulesToText[r])

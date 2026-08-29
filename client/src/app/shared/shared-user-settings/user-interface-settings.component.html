@@ -1,16 +1,16 @@
 <form (ngSubmit)="updateInterfaceSettings()" [formGroup]="form">
   <div class="form-group">
-    <label i18n for="language">Language</label>
+    <label i18n for="language">语言</label>
     <div class="form-group-description">
-      <div i18n>Preferred language for the web interface and for emails</div>
+      <div i18n>网页界面和邮件的首选语言</div>
 
       <div i18n>
-        You can help us to translate the platform by consulting <a
+        您可以参考<a
           class="link-primary"
           target="_blank"
           rel="noreferrer noopener"
           href="https://github.com/Chocobozzz/PeerTube/blob/develop/support/doc/translation.md#how-to"
-        >this guide</a>
+        >此指南</a>帮助我们翻译平台。
       </div>
     </div>
 
@@ -18,7 +18,7 @@
   </div>
 
   <div class="form-group">
-    <label i18n for="theme">Theme</label>
+    <label i18n for="theme">主题</label>
 
     <my-select-options inputId="theme" formControlName="theme" [items]="availableThemes"></my-select-options>
   </div>

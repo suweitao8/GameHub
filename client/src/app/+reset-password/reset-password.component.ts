@@ -37,7 +37,7 @@ export class ResetPasswordComponent extends FormReactive implements OnInit {
     this.verificationString = this.route.snapshot.queryParams['verificationString']
 
     if (!this.userId || !this.verificationString) {
-      this.notifier.error($localize`Unable to find user id or verification string.`)
+      this.notifier.error($localize`找不到用户 ID 或验证字符串。`)
       this.router.navigate([ '/' ])
     }
   }
@@ -46,7 +46,7 @@ export class ResetPasswordComponent extends FormReactive implements OnInit {
     this.userService.resetPassword(this.userId, this.verificationString, this.form.value.password)
       .subscribe({
         next: () => {
-          this.notifier.success($localize`Your password has been successfully reset!`)
+          this.notifier.success($localize`您的密码已成功重置！`)
 
           this.router.navigate([ '/login' ])
         },

@@ -1,13 +1,13 @@
 <div class="margin-content">
-  <h1 i18n class="title-page">Request email for account verification</h1>
+  <h1 i18n class="title-page">申请发送账户验证邮件</h1>
 
   @if (requiresEmailVerification) {
     <form (ngSubmit)="askSendVerifyEmail()" [formGroup]="form">
       <div class="form-group">
-        <label i18n for="verify-email-email">Email</label>
+        <label i18n for="verify-email-email">邮箱</label>
 
         <input
-          type="email" id="verify-email-email" i18n-placeholder placeholder="Email address" required
+          type="email" id="verify-email-email" i18n-placeholder placeholder="请输入邮箱地址" required
           formControlName="verify-email-email" class="form-control" [ngClass]="{ 'input-error': formErrors['verify-email-email'] }"
           >
 
@@ -16,7 +16,7 @@
         }
       </div>
 
-      <input class="peertube-button primary-button" type="submit" i18n-value value="Send verification email" [disabled]="!form.valid">
+      <input class="peertube-button primary-button" type="submit" i18n-value value="发送验证邮件" [disabled]="!form.valid">
     </form>
   } @else {
     <div i18n>GameHub 当前不要求邮箱验证，可以直接返回登录。</div>

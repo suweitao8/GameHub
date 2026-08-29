@@ -38,7 +38,7 @@ export class InputTextComponent implements ControlValueAccessor, AfterViewInit {
   readonly formError = input<string | FormReactiveErrors | FormReactiveErrors[]>(undefined)
   readonly autofocus = input(false)
   readonly ariaLabel = input<string>(undefined)
-  readonly copiedNotification = input<string>($localize`Copied!`)
+  readonly copiedNotification = input<string>($localize`已复制！`)
 
   get inputType () {
     return this.show()
@@ -48,8 +48,8 @@ export class InputTextComponent implements ControlValueAccessor, AfterViewInit {
 
   get toggleTitle () {
     return this.show()
-      ? $localize`Hide`
-      : $localize`Show`
+      ? $localize`隐藏`
+      : $localize`显示`
   }
 
   ngAfterViewInit () {

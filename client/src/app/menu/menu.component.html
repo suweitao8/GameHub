@@ -2,7 +2,7 @@
   <div class="more-info-btn-container">
     <a
       class="more-info-btn peertube-button-link peertube-button-icon mt-2 d-block ellipsis" [ngClass]="{ 'icon-only': collapsed, 'label-xl': moreInfoLabel.length > 10 }"
-      routerLink="/about" i18n-title title="More info" routerLinkActive="active"
+      routerLink="/about" i18n-title title="更多信息" routerLinkActive="active"
       >
       <my-global-icon iconName="help"></my-global-icon>
 
@@ -27,11 +27,11 @@
 
         <div class="toggle-menu-container">
           @if (collapsed) {
-            <button type="button" class="button-unstyle toggle-menu" i18n-title title="Display the lateral menu" (click)="toggleMenu()">
+            <button type="button" class="button-unstyle toggle-menu" i18n-title title="显示侧边菜单" (click)="toggleMenu()">
               <my-global-icon [class]="{ 'transform-rotate-180': !isRTL() }" iconName="chevron-left"></my-global-icon>
             </button>
           } @else {
-            <button type="button" class="button-unstyle toggle-menu" i18n-title title= "Hide the lateral menu" (click)="toggleMenu()">
+            <button type="button" class="button-unstyle toggle-menu" i18n-title title="隐藏侧边菜单" (click)="toggleMenu()">
               <my-global-icon [class]="{ 'transform-rotate-180': isRTL() }" iconName="chevron-left"></my-global-icon>
             </button>
           }
@@ -105,10 +105,10 @@
   @if (!collapsed) {
     <div class="powered-by" class="mt-3 mx-4">
       <div class="fs-8" i18n>
-        Powered by <span class="fw-bold">GameHub</span>
+        由 <span class="fw-bold">GameHub</span> 提供支持
       </div>
 
-      <a class="d-block fs-8 fw-bold" routerLink="/games" i18n>Explore GameHub</a>
+      <a class="d-block fs-8 fw-bold" routerLink="/games" i18n>探索 GameHub</a>
     </div>
   }
 </div>

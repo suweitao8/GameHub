@@ -40,7 +40,7 @@ async function addDiscussionMessage (req: express.Request, res: express.Response
   const text = typeof req.body.text === 'string' ? req.body.text.trim() : ''
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
   if (!text || text.length > 2000) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'text must contain 1-2000 characters' })
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('text must contain 1-2000 characters') })
   }
 
   const message = await GameChatMessageModel.create({

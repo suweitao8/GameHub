@@ -432,27 +432,27 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
     }
 
     if (err.body?.code === ServerErrorCode.INVALID_GRANT) {
-      this.error = $localize`Incorrect username or password.`
+      this.error = $localize`用户名或密码错误。`
       return
     }
 
     if (err.body?.code === ServerErrorCode.ACCOUNT_BLOCKED) {
-      this.error = $localize`Your account is blocked.`
+      this.error = $localize`您的账户已被封禁。`
       return
     }
 
     if (err.body?.code === ServerErrorCode.ACCOUNT_WAITING_FOR_APPROVAL) {
-      this.error = $localize`This account is awaiting approval by moderators.`
+      this.error = $localize`该账户正在等待管理员审核。`
       return
     }
 
     if (err.body?.code === ServerErrorCode.ACCOUNT_APPROVAL_REJECTED) {
-      this.error = $localize`Registration approval has been rejected for this account.`
+      this.error = $localize`该账户的注册申请已被拒绝。`
       return
     }
 
     if (err.body?.code === ServerErrorCode.TOO_LONG_PASSWORD) {
-      this.error = $localize`Your current password is too long. Please reset it.`
+      this.error = $localize`当前密码过长，请重置密码。`
       this.passwordTooLongError = true
       return
     }
@@ -461,7 +461,11 @@ export class LoginModalComponent extends FormReactive implements OnInit, AfterVi
       this.emailNotVerifiedError = true
     }
 
-    this.error = err.message
+    this.error = this.isChineseMessage(err.message) ? err.message : $localize`登录失败，请检查账号和密码后重试。`
+  }
+
+  private isChineseMessage (message: unknown): message is string {
+    return typeof message === 'string' && /[\u4e00-\u9fff]/.test(message)
   }
 
   private shouldReloadTabOnLogin () {

@@ -81,36 +81,36 @@ async function handleOAuthToken (req: express.Request, options: { refreshTokenAu
   const { refreshTokenAuthName, bypassLogin } = options
 
   if (oauthRequest.method !== 'POST') {
-    throw new InvalidRequestError('Invalid request: method must be POST')
+    throw new InvalidRequestError(req.t('Invalid request: method must be POST'))
   }
 
   if (!oauthRequest.is([ 'application/x-www-form-urlencoded' ])) {
-    throw new InvalidRequestError('Invalid request: content must be application/x-www-form-urlencoded')
+    throw new InvalidRequestError(req.t('Invalid request: content must be application/x-www-form-urlencoded'))
   }
 
   const clientId = oauthRequest.body.client_id
   const clientSecret = oauthRequest.body.client_secret
 
   if (!clientId || !clientSecret) {
-    throw new InvalidClientError('Invalid client: cannot retrieve client credentials')
+    throw new InvalidClientError(req.t('Invalid client: cannot retrieve client credentials'))
   }
 
   const client = await getClient(clientId, clientSecret)
   if (!client) {
-    throw new InvalidClientError('Invalid client: client is invalid')
+    throw new InvalidClientError(req.t('Invalid client: client is invalid'))
   }
 
   const grantType = oauthRequest.body.grant_type
   if (!grantType) {
-    throw new InvalidRequestError('Missing parameter: `grant_type`')
+    throw new InvalidRequestError(req.t('Missing parameter: `grant_type`'))
   }
 
   if (![ 'password', 'refresh_token' ].includes(grantType)) {
-    throw new UnsupportedGrantTypeError('Unsupported grant type: `grant_type` is invalid')
+    throw new UnsupportedGrantTypeError(req.t('Unsupported grant type: `grant_type` is invalid'))
   }
 
   if (!client.grants.includes(grantType)) {
-    throw new UnauthorizedClientError('Unauthorized client: `grant_type` is invalid')
+    throw new UnauthorizedClientError(req.t('Unauthorized client: `grant_type` is invalid'))
   }
 
   const ip = req.ip

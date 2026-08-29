@@ -40,7 +40,7 @@ export class MetaService {
     this.setRSSFeeds([
       getInstanceRSSFeed({
         url: getOriginUrl(),
-        title: `${this.config.instance.name} - Videos feed`
+        title: `${this.config.instance.name} - 游戏订阅`
       })
     ])
   }

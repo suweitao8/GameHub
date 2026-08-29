@@ -16,7 +16,7 @@ export class HotkeysCheatSheetComponent implements OnInit, OnDestroy {
   private hotkeysService = inject(HotkeysService)
   private localStorage = inject(LocalStorageService)
 
-  readonly title = input($localize`Keyboard Shortcuts`)
+  readonly title = input($localize`键盘快捷键`)
 
   readonly hotkeysModalStateChange = output<boolean>()
 

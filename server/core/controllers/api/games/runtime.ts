@@ -39,7 +39,7 @@ runtimeRouter.get('/:uuid/runtime', asyncMiddleware(async (req, res) => {
         uuid: req.params.uuid,
         runtimePath: game.runtimePath
       })
-      return res.status(500).json({ error: 'Game runtime integrity verification failed' })
+      return res.status(500).json({ error: req.t('Game runtime integrity verification failed') })
     }
 
     const content = await readStoredGameHtml(CONFIG.STORAGE.GAMES_DIR, game.runtimePath)

@@ -58,23 +58,23 @@ export class AuthService {
       new Hotkey('m s', e => {
         this.router.navigate([ '/games/following' ])
         return false
-      }, $localize`Go to games from creators I follow`),
+      }, $localize`查看我关注的创作者的游戏`),
       new Hotkey('m v', e => {
         this.router.navigate([ '/games/library' ])
         return false
-      }, $localize`Go to my game library`),
+      }, $localize`打开我的游戏库`),
       new Hotkey('m i', e => {
         this.router.navigate([ '/games/watch-later' ])
         return false
-      }, $localize`Go to my watch later list`),
+      }, $localize`打开稍后再玩列表`),
       new Hotkey('m c', e => {
         this.router.navigate([ '/games/creator' ])
         return false
-      }, $localize`Go to my creator space`),
+      }, $localize`打开我的创作中心`),
       new Hotkey('m p', e => {
         this.router.navigate([ '/games/collections' ])
         return false
-      }, $localize`Go to my collections`)
+      }, $localize`打开我的收藏`)
     ]
   }
 
@@ -103,12 +103,12 @@ export class AuthService {
           let errorMessage = err.message
 
           if (err.status === HttpStatusCode.FORBIDDEN_403) {
-            errorMessage = $localize`Cannot retrieve OAuth Client credentials: ${err.message}.
-Ensure you have correctly configured PeerTube (config/ directory), in particular the "webserver" section.`
+            errorMessage = $localize`无法获取 OAuth 客户端凭据。
+请确认 PeerTube 配置正确（config/ 目录），尤其是“webserver”部分。`
           }
 
           // We put a bigger timeout: this is an important message
-          this.notifier.error(errorMessage, $localize`Error`, 7000)
+          this.notifier.error(errorMessage, $localize`错误`, 7000)
         }
       })
   }
@@ -212,7 +212,7 @@ Ensure you have correctly configured PeerTube (config/ directory), in particular
 
   refreshAccessToken () {
     if (this.refreshingTokenObservable) return this.refreshingTokenObservable
-    if (!this.getAccessToken()) return throwError(() => new PeerTubeReconnectError($localize`You need to reconnect`, true))
+    if (!this.getAccessToken()) return throwError(() => new PeerTubeReconnectError($localize`您需要重新连接`, true))
 
     logger.info('Refreshing token...')
 
@@ -237,10 +237,10 @@ Ensure you have correctly configured PeerTube (config/ directory), in particular
           logger.clientError(err.message, err)
           this.logout()
 
-          this.notifier.info($localize`Your authentication has expired, you need to reconnect.`, undefined, undefined, true)
+          this.notifier.info($localize`您的身份验证已过期，您需要重新连接。`, undefined, undefined, true)
           this.refreshingTokenObservable = null
 
-          throw new PeerTubeReconnectError($localize`You need to reconnect`, true)
+          throw new PeerTubeReconnectError($localize`您需要重新连接`, true)
         }),
         share()
       )

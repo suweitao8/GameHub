@@ -88,12 +88,12 @@ export class RestExtractor {
   }
 
   private buildErrorMessage (err: any) {
-    if (err.status !== undefined) return this.buildServerErrorMessage(err)
-    if (err.error instanceof Error) return err.error.detail || err.error.title
-    if (typeof err.error === 'string') return err.error
-    if (typeof err === 'string') return err
+    if (err.status !== undefined) return this.ensureChineseMessage(this.buildServerErrorMessage(err))
+    if (err.error instanceof Error) return this.ensureChineseMessage(err.error.detail || err.error.title)
+    if (typeof err.error === 'string') return this.ensureChineseMessage(err.error)
+    if (typeof err === 'string') return this.ensureChineseMessage(err)
 
-    return err.message || err.detail || $localize`Unknown error`
+    return this.ensureChineseMessage(err.message || err.detail || $localize`未知错误`)
   }
 
   private buildServerErrorMessage (err: any) {
@@ -107,7 +107,7 @@ export class RestExtractor {
     }
 
     if (err.status === HttpStatusCode.PAYLOAD_TOO_LARGE_413) {
-      return $localize`Media is too large for the server. Please contact you administrator if you want to increase the limit size.`
+      return $localize`媒体文件过大，无法上传到服务器。如需提高大小限制，请联系管理员。`
     }
 
     if (err.status === HttpStatusCode.TOO_MANY_REQUESTS_429) {
@@ -115,20 +115,35 @@ export class RestExtractor {
 
       if (secondsLeft) {
         const minutesLeft = Math.floor(parseInt(secondsLeft, 10) / 60)
-        return $localize`Too many attempts, please try again after ${minutesLeft} minutes.`
+        return $localize`操作次数过多，请在 ${minutesLeft} 分钟后重试。`
       }
 
-      return $localize`Too many attempts, please try again later.`
+      return $localize`操作次数过多，请稍后重试。`
     }
 
     if (err.status === HttpStatusCode.INTERNAL_SERVER_ERROR_500) {
-      return $localize`Server error. Please retry later.`
+      return $localize`服务器错误，请稍后重试。`
     }
 
     if (err.status === HttpStatusCode.BAD_GATEWAY_502) {
-      return $localize`Server is unavailable. Please retry later.`
+      return $localize`服务器暂时不可用，请稍后重试。`
     }
 
-    return err.error?.error || err.error?.detail || err.error?.title || $localize`Unknown server error`
+    return err.error?.error || err.error?.detail || err.error?.title || $localize`未知服务器错误`
+  }
+
+  private ensureChineseMessage (message: unknown) {
+    if (typeof message !== 'string' || !message.trim()) return $localize`未知错误`
+    if (/[\u4e00-\u9fff]/.test(message)) return message
+
+    const knownMessages: Record<string, string> = {
+      'Bad Gateway': $localize`服务器暂时不可用，请稍后重试。`,
+      'Forbidden': $localize`当前账号没有权限进行这项操作。`,
+      'Network Error': $localize`网络连接失败，请稍后重试。`,
+      'Not Found': $localize`找不到相关内容。`,
+      'Unauthorized': $localize`请先登录后再进行这项操作。`
+    }
+
+    return knownMessages[message.trim()] || $localize`请求失败，请稍后重试。`
   }
 }

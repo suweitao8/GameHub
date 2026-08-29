@@ -245,17 +245,17 @@ async function joinEvent (req: express.Request, res: express.Response) {
         if (!event) return { status: HttpStatusCode.NOT_FOUND_404 } satisfies EventMutationResult
 
         if (event.status === 'ended' || event.status === 'cancelled') {
-          return { status: HttpStatusCode.CONFLICT_409, error: 'Event is not open for registration' } satisfies EventMutationResult
+          return { status: HttpStatusCode.CONFLICT_409, error: req.t('Event is not open for registration') } satisfies EventMutationResult
         }
 
         const existing = await GameEventParticipantModel.findOne({
           where: { eventId: event.id, accountId: user.Account.id },
           transaction
         })
-        if (existing) return { status: HttpStatusCode.CONFLICT_409, error: 'Already joined' } satisfies EventMutationResult
+        if (existing) return { status: HttpStatusCode.CONFLICT_409, error: req.t('Already joined') } satisfies EventMutationResult
 
         if (event.maxParticipants > 0 && event.participantCount >= event.maxParticipants) {
-          return { status: HttpStatusCode.CONFLICT_409, error: 'Event is full' } satisfies EventMutationResult
+          return { status: HttpStatusCode.CONFLICT_409, error: req.t('Event is full') } satisfies EventMutationResult
         }
 
         await GameEventParticipantModel.create({

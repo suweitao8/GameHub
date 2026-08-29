@@ -7,10 +7,10 @@ export const VIDEO_CHANNEL_NAME_VALIDATOR: BuildFormValidator = {
   VALIDATORS: USER_USERNAME_VALIDATOR.VALIDATORS,
 
   MESSAGES: {
-    required: $localize`Name is required.`,
-    minlength: $localize`Name must be at least 1 character long.`,
-    maxlength: $localize`Name cannot be more than 50 characters long.`,
-    pattern: $localize`Name should be lowercase alphanumeric; dots and underscores are allowed.`
+    required: $localize`请输入名称。`,
+    minlength: $localize`名称至少需要 1 个字符。`,
+    maxlength: $localize`名称不能超过 50 个字符。`,
+    pattern: $localize`名称只能使用小写字母、数字、点和下划线。`
   }
 }
 
@@ -21,8 +21,8 @@ export const VIDEO_CHANNEL_DISPLAY_NAME_VALIDATOR: BuildFormValidator = {
     Validators.maxLength(50)
   ],
   MESSAGES: {
-    required: $localize`Display name is required.`,
-    minlength: $localize`Display name must be at least 1 character long.`,
-    maxlength: $localize`Display name cannot be more than 50 characters long.`
+    required: $localize`请输入显示名称。`,
+    minlength: $localize`显示名称至少需要 1 个字符。`,
+    maxlength: $localize`显示名称不能超过 50 个字符。`
   }
 }

@@ -26,7 +26,7 @@ export function authenticate (req: express.Request, res: express.Response, next:
 
       return res.fail({
         status: err.status,
-        message: 'Token is invalid',
+        message: req.t('Token is invalid'),
         type: err.name
       })
     })

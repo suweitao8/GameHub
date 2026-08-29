@@ -13,7 +13,7 @@ export default [
         component: VerifyAccountEmailComponent,
         data: {
           meta: {
-            title: $localize`Verify account via email`
+            title: $localize`通过邮箱验证账户`
           }
         }
       },
@@ -22,7 +22,7 @@ export default [
         component: VerifyNewAccountAskSendEmailComponent,
         data: {
           meta: {
-            title: $localize`Ask to send an email to verify your account`
+            title: $localize`申请发送账户验证邮件`
           }
         }
       }

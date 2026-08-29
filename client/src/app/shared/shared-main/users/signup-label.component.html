@@ -1,13 +1,13 @@
 @if (withInstanceName()) {
   @if (requiresApproval()) {
-    <ng-container i18n>Request an account on {{ instanceName }}</ng-container>
+    <ng-container i18n>申请注册 {{ instanceName }} 账户</ng-container>
   } @else {
-    <ng-container i18n>Create an account on {{ instanceName }}</ng-container>
+    <ng-container i18n>创建 {{ instanceName }} 账户</ng-container>
   }
 } @else {
   @if (requiresApproval()) {
-    <ng-container i18n>Request an account</ng-container>
+    <ng-container i18n>申请注册账户</ng-container>
   } @else {
-    <ng-container i18n>Create an account</ng-container>
+    <ng-container i18n>创建账户</ng-container>
   }
 }

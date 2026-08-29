@@ -49,12 +49,12 @@ export class VerifyAccountEmailComponent implements OnInit {
     this.isPendingEmail = queryParams['isPendingEmail'] === 'true'
 
     if (!this.verificationString) {
-      this.notifier.error($localize`Unable to find verification string in URL query.`)
+      this.notifier.error($localize`在网址参数中找不到验证字符串。`)
       return
     }
 
     if (!this.userId && !this.registrationId) {
-      this.notifier.error($localize`Unable to find user id or registration id in URL query.`)
+      this.notifier.error($localize`在网址参数中找不到用户 ID 或注册 ID。`)
       return
     }
 

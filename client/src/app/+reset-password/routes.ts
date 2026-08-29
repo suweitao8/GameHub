@@ -7,7 +7,7 @@ export default [
     component: ResetPasswordComponent,
     data: {
       meta: {
-        title: $localize`Reset password`
+        title: $localize`重置密码`
       }
     }
   }

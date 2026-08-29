@@ -11,21 +11,21 @@ export class Notifier {
   readonly TIMEOUT = 5000
 
   info (text: string, title?: string, timeout?: number, sticky?: boolean) {
-    if (!title) title = $localize`Info`
+    if (!title) title = $localize`提示`
 
     logger.info(`${title}: ${text}`)
     return this.notify({ severity: 'info', text, title, timeout, sticky })
   }
 
   error (text: string, title?: string, timeout?: number, sticky?: boolean) {
-    if (!title) title = $localize`Error`
+    if (!title) title = $localize`错误`
 
     logger.error(`${title}: ${text}`)
     return this.notify({ severity: 'error', text, title, timeout, sticky })
   }
 
   success (text: string, title?: string, timeout?: number, sticky?: boolean) {
-    if (!title) title = $localize`Success`
+    if (!title) title = $localize`成功`
 
     logger.info(`${title}: ${text}`)
     return this.notify({ severity: 'success', text, title, timeout, sticky })
@@ -45,7 +45,7 @@ export class Notifier {
       logger.error(err.message, err)
     }
 
-    return this.notify({ severity: 'error', text, title: $localize`Error` })
+    return this.notify({ severity: 'error', text, title: $localize`错误` })
   }
 
   private buildErrorText (err: Error) {
@@ -53,7 +53,7 @@ export class Notifier {
       (err instanceof PeerTubeHTTPError && err.status === HttpStatusCode.BAD_GATEWAY_502) ||
       err.message?.toLowerCase() === 'bad gateway'
     ) {
-      return $localize`Server is unavailable. Please retry later.`
+      return $localize`服务器暂时不可用，请稍后重试。`
     }
 
     return err.message

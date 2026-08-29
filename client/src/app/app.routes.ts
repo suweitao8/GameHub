@@ -43,7 +43,7 @@ const routes: Routes = [
   {
     matcher: gameAboutMatcher,
     component: GameAboutComponent,
-    data: { meta: { title: $localize`About GameHub` } }
+    data: { meta: { title: $localize`关于 GameHub` } }
   },
 
   {

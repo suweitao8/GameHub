@@ -14,7 +14,7 @@ import { LinkComponent } from '../common/link.component'
 export class LoginLinkComponent {
   private server = inject(ServerService)
 
-  readonly label = input($localize`Login`)
+  readonly label = input($localize`登录`)
   readonly icon = input(false, { transform: booleanAttribute })
 
   readonly className = input<string>(undefined)

@@ -30,9 +30,9 @@ async function rateGame (req: express.Request, res: express.Response) {
   const user = getUser(res)
   const rating = req.body.rating
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot rate their own game' })
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: req.t('Authors cannot rate their own game') })
   if (!isSupportedGameRating(rating)) {
-    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'rating must be like or none' })
+    return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('rating must be like or none') })
   }
 
   await sequelizeTypescript.transaction(async transaction => {
@@ -80,8 +80,8 @@ async function coinGame (req: express.Request, res: express.Response) {
   const user = getUser(res)
   const amount = Number(req.body.amount)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: 'Authors cannot coin their own game' })
-  if (amount !== 1 && amount !== 2) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'amount must be 1 or 2' })
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.FORBIDDEN_403).json({ error: req.t('Authors cannot coin their own game') })
+  if (amount !== 1 && amount !== 2) return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('amount must be 1 or 2') })
 
   const result = await sequelizeTypescript.transaction(async transaction => {
     const day = new Date().toISOString().slice(0, 10)
@@ -141,7 +141,7 @@ async function favoriteGame (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (typeof req.body.favorite !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'favorite must be boolean' })
+  if (typeof req.body.favorite !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('favorite must be boolean') })
 
   const existing = await GameFavoriteModel.findOne({ where: { gameId: game.id, accountId: user.Account.id } })
   if (req.body.favorite && !existing) await GameFavoriteModel.create({ gameId: game.id, accountId: user.Account.id })
@@ -175,12 +175,12 @@ async function followAuthor (req: express.Request, res: express.Response) {
   const game = await getPublishedGame(req)
   const user = getUser(res)
   if (!game) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Cannot follow yourself' })
-  if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'following must be boolean' })
+  if (game.ownerAccountId === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Cannot follow yourself') })
+  if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('following must be boolean') })
 
   const author = await getGameAuthor(game)
   const target = author?.Actor
-  if (!target) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Game author account is unavailable' })
+  if (!target) return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Game author account is unavailable') })
 
   const existing = await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, target.id)
   if (req.body.following && !existing) {
@@ -218,8 +218,8 @@ async function followAccount (req: express.Request, res: express.Response) {
   const accountId = Number(req.params.accountId)
   const account = Number.isInteger(accountId) && accountId > 0 ? await AccountModel.load(accountId) : undefined
   if (!account?.Actor) return res.sendStatus(HttpStatusCode.NOT_FOUND_404)
-  if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: 'following must be boolean' })
-  if (account.id === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: 'Cannot follow yourself' })
+  if (typeof req.body.following !== 'boolean') return res.status(HttpStatusCode.BAD_REQUEST_400).json({ error: req.t('following must be boolean') })
+  if (account.id === user.Account.id) return res.status(HttpStatusCode.CONFLICT_409).json({ error: req.t('Cannot follow yourself') })
 
   const existing = await ActorFollowModel.loadByActorAndTarget(user.Account.Actor.id, account.Actor.id)
   if (req.body.following && !existing) {

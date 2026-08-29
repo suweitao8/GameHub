@@ -126,7 +126,7 @@ function _getSecret (): string {
   // Use the peertube secrets key as the signing secret
   const secret = CONFIG.SECRETS.PEERTUBE
   if (!secret || secret.length < 32) {
-    throw new Error('Game CDN signing requires a valid secrets.peertube configuration')
+    throw new Error('游戏 CDN 签名需要有效的 secrets.peertube 配置')
   }
 
   return secret

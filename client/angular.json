@@ -93,6 +93,10 @@
             "translation": "src/locale/angular.zh-Hans-CN.xlf",
             "baseHref": "/client/zh-Hans-CN/"
           },
+          "zh-Hans-CN": {
+            "translation": "src/locale/angular.zh-Hans-CN.xlf",
+            "baseHref": "/client/en-US/"
+          },
           "zh-Hant": {
             "translation": "src/locale/angular.zh-Hant-TW.xlf",
             "baseHref": "/client/zh-Hant-TW/"
@@ -284,6 +288,11 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.hmr.ts"
                 }
+              ]
+            },
+            "zh-Hans-light": {
+              "localize": [
+                "zh-Hans-CN"
               ]
             },
             "hmr": {
