@@ -868,7 +868,9 @@ my-actor-avatar {
   overflow: visible;
   padding: 0;
   position: relative;
-  transition: box-shadow var(--game-dur) var(--game-ease);
+  transform-origin: center;
+  transition: box-shadow var(--game-dur) var(--game-ease),
+    transform var(--game-dur-slow) var(--game-ease);
   z-index: 61;
 }
 
@@ -881,9 +883,17 @@ my-actor-avatar {
   outline-offset: 3px;
 }
 
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button,
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button:hover,
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button:focus,
+:host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button:active {
+  box-shadow: none !important;
+  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);
+}
+
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
   box-shadow: var(--game-shadow-popover);
-  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);
+  transform: scale(2.12);
 }
 
 .game-avatar-hover-card {
@@ -1018,6 +1028,10 @@ my-actor-avatar {
     .buttons-container .login-label,
     .buttons-container my-notification-dropdown {
       display: none !important;
+    }
+
+    .logged-in-container.game-avatar-menu-open > .tertiary-button {
+      transform: none;
     }
 
     .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
@@ -1180,7 +1194,8 @@ my-actor-avatar {
   .game-nav-game,
   .game-submit-button,
   .game-prompt-button,
-  .game-user-avatar {
+  .game-user-avatar,
+  :host-context(.game-experience) .logged-in-container > .tertiary-button {
     transition: none;
   }
 
