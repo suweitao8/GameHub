@@ -1248,6 +1248,32 @@ assert(
     headerTs.includes('onGameAvatarFocusOut (event: FocusEvent)'),
   'header avatar menu must expose the same delayed popup through keyboard focus'
 )
+const gameAvatarOccurrences = headerHtml.match(/class="game-user-avatar"/g) || []
+assert(
+  gameAvatarOccurrences.length === 1 &&
+    !headerHtml.includes('game-avatar-hover-avatar') &&
+    headerHtml.includes(`[class.game-avatar-menu-open]="isOpenPopover('avatar')"`),
+  'GameHub avatar popover must use one avatar element and expose its open state on the wrapper'
+)
+assert(
+  headerScss.includes('.game-avatar-menu-open > .tertiary-button .game-user-avatar') &&
+    headerScss.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0) scale(2.12);') &&
+    headerScss.includes('transform-origin: center;') &&
+    headerScss.includes('will-change: transform;') &&
+    headerScss.includes('transition: transform var(--game-dur-slow) var(--game-ease),') &&
+    headerScss.includes('padding: 4.25rem 1.1rem 1rem;'),
+  'GameHub avatar popover must move the single avatar to the centered card edge with a tokenized transform and reserved profile space'
+)
+assert(
+    headerScss.includes('overflow: visible;') &&
+    headerScss.includes('z-index: 61;') &&
+    headerScss.includes('@media screen and (max-width: $mobile-view)') &&
+    headerScss.includes('transform: none;') &&
+    headerScss.includes('max-width: calc(100vw - 1rem);') &&
+    headerScss.includes('right: 0;') &&
+    headerScss.includes('width: min(300px, calc(100vw - 1rem));'),
+  'GameHub avatar transition must keep the transformed image above the card, disable cross-header motion on mobile, and keep the card inside narrow viewports'
+)
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
     headerHtml.includes(`(pointerenter)="scheduleGameNavHover('${popup}')"`) &&
