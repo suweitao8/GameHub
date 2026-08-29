@@ -21,7 +21,8 @@ import type { GameLevelInfo } from './games.service'
           <div class="level-progress">
             <div class="progress-bar" [style.width.%]="levelInfo().levelInfo.progress * 100"></div>
             <span class="progress-text">
-              {{ levelInfo().exp - levelInfo().levelInfo.currentLevelExp }} / {{ levelInfo().levelInfo.nextLevelExp - levelInfo().levelInfo.currentLevelExp }}
+              {{ levelInfo().exp - levelInfo().levelInfo.currentLevelExp }} /
+              {{ levelInfo().levelInfo.nextLevelExp - levelInfo().levelInfo.currentLevelExp }}
             </span>
           </div>
         }
@@ -41,13 +42,13 @@ export class GameLevelBadgeComponent {
   levelColor = computed(() => {
     const level = this.levelInfo()?.levelInfo.level ?? 0
     const colors = [
-      '#9ca3af', // LV0 gray
-      '#22c55e', // LV1 green
-      '#3b82f6', // LV2 blue
-      '#8b5cf6', // LV3 purple
-      '#f59e0b', // LV4 amber
-      '#ef4444', // LV5 red
-      '#dc2626'  // LV6 crimson
+      'var(--game-text-hint)', // LV0 gray
+      'var(--game-success)', // LV1 green
+      'var(--game-info)', // LV2 blue
+      'var(--game-brand-vivid)', // LV3 purple
+      'var(--game-warning)', // LV4 amber
+      'var(--game-danger)', // LV5 red
+      'var(--game-danger-deep)' // LV6 crimson
     ]
     return colors[Math.min(level, 6)]
   })

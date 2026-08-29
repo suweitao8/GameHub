@@ -45,7 +45,7 @@
   resize: vertical; }
 .article-editor-form input:focus,
 .article-editor-form textarea:focus { border-color: var(--game-brand);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--game-brand) 18%, transparent);
+  box-shadow: var(--game-focus-ring);
   outline: none; }
 .article-editor-row { display: grid;
   gap: 1rem;
@@ -68,10 +68,10 @@
   color: var(--game-text); }
 .article-editor-form footer button { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: #fff; }
+  color: var(--game-text-inverse); }
 .article-editor-form footer button:disabled { cursor: not-allowed;
   opacity: 0.6; }
-.article-editor-feedback { color: #b42318;
+.article-editor-feedback { color: var(--game-danger-deep);
   font-size: 0.85rem;
   margin: 0; }
 .article-editor-state { color: var(--game-muted);

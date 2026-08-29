@@ -32,7 +32,7 @@ h1 { margin: 0 0 28px;
   gap: 8px; }
 .manage-actions button { padding: 9px 14px;
   border: 1px solid var(--game-brand);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   background: transparent;
   color: var(--game-brand);
   cursor: pointer; }
@@ -59,7 +59,7 @@ h1 { margin: 0 0 28px;
   padding: 0 0.75rem;
   width: 100%; }
 .manage-search input:focus { border-color: var(--game-brand);
-  box-shadow: 0 0 0 2px var(--game-brand-glow); }
+  box-shadow: var(--game-focus-ring); }
 .manage-status-tabs { display: flex;
   gap: 0.25rem; }
 .manage-status-tabs button { background: transparent;

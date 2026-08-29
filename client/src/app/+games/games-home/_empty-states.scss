@@ -38,7 +38,7 @@
 .empty-cta {
   background: var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-block;
   font-size: 0.85rem;
   font-weight: 700;
@@ -84,7 +84,7 @@
 .game-empty-feed a {
   background: var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-block;
   font-size: 0.82rem;
   font-weight: 600;
@@ -101,7 +101,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-sm);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 700;
   padding: 0.65rem 1rem;
   text-decoration: none;

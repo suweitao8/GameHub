@@ -80,11 +80,11 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--game-text-inverse);
   font-size: 0.9rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -114,15 +114,15 @@
 }
 
 .feed-kind-badge.publish { background: var(--game-brand-soft);
-  color: #3b82f6; }
-.feed-kind-badge.like { background: #fee2e2;
-  color: #ef4444; }
-.feed-kind-badge.coin { background: #fef3c7;
-  color: #f59e0b; }
+  color: var(--game-info); }
+.feed-kind-badge.like { background: var(--game-danger-soft);
+  color: var(--game-danger); }
+.feed-kind-badge.coin { background: var(--game-warning-soft);
+  color: var(--game-warning); }
 .feed-kind-badge.favorite { background: var(--game-brand-soft);
-  color: #3b82f6; }
-.feed-kind-badge.comment { background: #d1fae5;
-  color: #22c55e; }
+  color: var(--game-info); }
+.feed-kind-badge.comment { background: var(--game-success-soft);
+  color: var(--game-success); }
 
 .feed-empty {
   text-align: center;
@@ -139,7 +139,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0.45rem 0.9rem;

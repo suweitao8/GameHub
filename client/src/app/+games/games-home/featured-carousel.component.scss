@@ -37,7 +37,7 @@
 .section-side-action:focus-visible {
   background: var(--game-brand-soft);
   border-color: var(--game-brand-border);
-  box-shadow: 0 1px 4px var(--game-brand-glow);
+  box-shadow: var(--game-shadow-brand);
   color: var(--game-brand);
   outline: none;
 }
@@ -138,7 +138,7 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, #514c96 100%);
+  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, var(--game-cover-fallback) 100%);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -159,7 +159,7 @@
 }
 
 .featured-cover.is-placeholder::before {
-  background: rgb(255 255 255 / 16%);
+  background: color-mix(in srgb, var(--game-text-inverse) 16%, transparent);
   height: 180%;
   right: -18%;
   top: -60%;
@@ -168,7 +168,7 @@
 }
 
 .featured-cover.is-placeholder::after {
-  border: 1px solid rgb(255 255 255 / 18%);
+  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 18%, transparent);
   height: 130%;
   left: -34%;
   top: 30%;
@@ -208,7 +208,7 @@
 
 .featured-cover-fallback {
   align-items: center;
-  color: #fff;
+  color: var(--game-text-inverse);
   display: flex;
   gap: 1rem;
   height: 100%;
@@ -220,8 +220,8 @@
 
 .featured-cover-letter {
   align-items: center;
-  background: rgb(20 30 48 / 22%);
-  border: 1px solid rgb(255 255 255 / 28%);
+  background: color-mix(in srgb, var(--game-text-primary) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 28%, transparent);
   border-radius: var(--game-radius-md);
   display: inline-flex;
   flex: 0 0 4.2rem;
@@ -229,7 +229,7 @@
   font-weight: 800;
   height: 4.2rem;
   justify-content: center;
-  text-shadow: 0 2px 12px rgb(0 92 126 / 28%);
+  text-shadow: 0 2px 12px color-mix(in srgb, var(--game-brand) 28%, transparent);
 }
 
 .featured-cover-copy {
@@ -247,14 +247,14 @@
 }
 
 .featured-cover-copy small {
-  color: rgb(255 255 255 / 84%);
+  color: color-mix(in srgb, var(--game-text-inverse) 84%, transparent);
   font-size: 0.85rem;
 }
 
 /* Average-color footer: title row + switch controls stacked below the cover. */
 .featured-footer {
-  background-color: #262f37;
-  color: #fff;
+  background-color: var(--game-cover-fallback-deep);
+  color: var(--game-text-inverse);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
@@ -302,7 +302,7 @@
 }
 
 .featured-dots button {
-  background: rgb(255 255 255 / 55%);
+  background: color-mix(in srgb, var(--game-text-inverse) 55%, transparent);
   border: 0;
   border-radius: 50%;
   height: 0.45rem;
@@ -313,12 +313,12 @@
 }
 
 .featured-dots button:hover {
-  background: rgb(255 255 255 / 80%);
+  background: color-mix(in srgb, var(--game-text-inverse) 80%, transparent);
 }
 
 .featured-dots button.active {
   background: var(--game-surface);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   width: 1rem;
 }
 
@@ -328,10 +328,10 @@
 }
 
 .featured-controls > div:last-child button {
-  background: rgb(20 24 30 / 45%);
+  background: color-mix(in srgb, var(--game-text-primary) 45%, transparent);
   border: 0;
   border-radius: 50%;
-  color: #fff;
+  color: var(--game-text-inverse);
   font-size: 1.3rem;
   height: 1.8rem;
   line-height: 1;

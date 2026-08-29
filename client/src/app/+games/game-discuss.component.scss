@@ -76,9 +76,9 @@
 }
 .wechat-message.own .wechat-message-name { text-align: right; }
 .wechat-bubble {
-  background: #eeeef0;
+  background: var(--game-surface-alt);
   border: 1px solid var(--game-border);
-  border-radius: 0.25rem 0.65rem 0.65rem;
+  border-radius: var(--game-radius-bubble-incoming);
   color: var(--game-text-primary);
   font-size: 0.82rem;
   line-height: 1.45;
@@ -87,9 +87,9 @@
   white-space: pre-wrap;
 }
 .wechat-message.own .wechat-bubble {
-  background: #9df29f;
-  border-color: #9df29f;
-  border-radius: 0.65rem 0.25rem 0.65rem 0.65rem;
+  background: var(--game-success-vivid);
+  border-color: var(--game-success-vivid);
+  border-radius: var(--game-radius-bubble-outgoing);
   color: var(--game-text-primary);
 }
 .wechat-time-separator {
@@ -139,7 +139,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   flex: 0 0 auto;
   font-size: 0.8rem;
   font-weight: 600;

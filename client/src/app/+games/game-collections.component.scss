@@ -43,8 +43,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
+  color: var(--game-text-inverse);
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -83,12 +83,12 @@
 .collection-skeleton-cover {
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #e2e8f0;
+  background: var(--game-surface-active);
 }
 
 .collection-skeleton-text {
   height: 0.9rem;
-  background: #e2e8f0;
+  background: var(--game-surface-active);
   border-radius: var(--game-radius-xs);
   margin: 0.6rem 0.75rem 0;
   width: 70%;
@@ -112,7 +112,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-weight: 600;
   padding: 0.55rem 1.25rem;

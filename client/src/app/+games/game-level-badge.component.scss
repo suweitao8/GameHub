@@ -17,7 +17,7 @@
   0%,
   100% { transform: scale(1); }
   50% {
-    box-shadow: 0 0 12px rgb(255 193 7 / 50%);
+    box-shadow: var(--game-shadow-brand);
     transform: scale(1.05);
   }
 }
@@ -29,7 +29,7 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  color: #fff;
+  color: var(--game-text-inverse);
   font-size: 0.8rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -59,7 +59,7 @@
 .daily-available {
   font-size: 0.65rem;
   color: var(--game-success);
-  background: rgb(34 197 94 / 10%);
+  background: color-mix(in srgb, var(--game-success) 10%, transparent);
   padding: 0.1rem 0.35rem;
   border-radius: var(--game-radius-xs);
   width: fit-content;
@@ -70,15 +70,15 @@
   width: 4rem;
   height: 0.35rem;
   background: var(--game-border);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   overflow: hidden;
   flex-shrink: 0;
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--game-brand) 0%, #34d399 100%);
-  border-radius: 999px;
+  background: linear-gradient(90deg, var(--game-brand) 0%, var(--game-success-vivid) 100%);
+  border-radius: var(--game-radius-pill);
   transition: width 0.5s ease;
 }
 

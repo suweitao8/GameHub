@@ -32,12 +32,12 @@
   border: 0;
   cursor: pointer;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   color: var(--game-muted);
   background: var(--game-card-bg);
 }
 
-.notification-categories .active { color: #fff;
+.notification-categories .active { color: var(--game-text-inverse);
   background: var(--game-brand); }
 .notification-categories .mark-all { margin-left: auto;
   color: var(--game-brand-deep); }
@@ -128,8 +128,8 @@
 }
 
 .notification-delete-btn:hover:not(:disabled) {
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--game-danger-soft);
+  color: var(--game-danger);
 }
 
 .notification-delete-btn:disabled {

@@ -32,7 +32,9 @@
 /* Original block: layout — content width */
 @media (max-width: 1050px) {
   .game-play-page .game-community-content,
-  .game-play-page .game-play-layout { width: 94%; }
+  .game-play-page .game-play-layout {
+    width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
+  }
 }
 
 /* Original block: layout / runtime-frame / game-info / chat-composer */
@@ -64,7 +66,7 @@
   .game-play-page .game-play-layout {
     display: flex;
     flex-direction: column;
-    width: 94%;
+    width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
   }
   .play-side {
     height: auto;
@@ -114,7 +116,9 @@
 /* Original block: detail-page layout contract — content width + stage-row + title-bar + stage + play-side */
 @media (max-width: 980px) {
   .game-play-page .game-community-content,
-  .game-play-page .game-play-layout { width: calc(100% - 32px); }
+  .game-play-page .game-play-layout {
+    width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
+  }
 
   .game-play-page .game-stage-row,
   .game-play-page .game-title-bar { grid-template-columns: 1fr; }
@@ -139,7 +143,9 @@
   }
 
   .game-play-page .game-community-content,
-  .game-play-page .game-play-layout { width: calc(100% - 24px); }
+  .game-play-page .game-play-layout {
+    width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
+  }
 
   .game-play-page .game-title-bar { padding-bottom: 12px; }
 

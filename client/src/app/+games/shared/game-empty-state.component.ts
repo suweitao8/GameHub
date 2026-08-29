@@ -31,7 +31,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       text-align: center;
     }
     .game-empty-icon {
-      color: #d0d0d0;
+      color: var(--game-border-strong);
       display: inline-flex;
       height: 3rem;
       width: 3rem;

@@ -46,7 +46,7 @@
 .game-not-found-primary {
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
 }
 
 .game-not-found-secondary {
@@ -58,7 +58,7 @@
 .game-not-found-primary:hover {
   background: var(--game-brand-deep);
   border-color: var(--game-brand-deep);
-  color: #fff;
+  color: var(--game-text-inverse);
 }
 
 .game-not-found-secondary:hover {

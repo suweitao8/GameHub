@@ -23,6 +23,11 @@
   pointer-events: none;
   position: absolute;
   z-index: 1; }
+.frame-skeleton {
+  border-radius: var(--game-radius-control);
+  height: 100%;
+  width: 100%;
+}
 
 .frame-loading-bar {
   background: rgb(255 255 255 / 15%);

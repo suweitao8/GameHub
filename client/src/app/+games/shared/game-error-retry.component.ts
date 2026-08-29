@@ -44,12 +44,12 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
     .game-error-retry-btn {
       background: var(--game-brand);
       border: 0;
-      border-radius: 4px;
-      color: #fff;
+      border-radius: var(--game-radius-control);
+      color: var(--game-text-inverse);
       cursor: pointer;
       font-size: 0.85rem;
       padding: 0.5rem 1.5rem;
-      transition: background 160ms ease;
+      transition: background-color var(--game-dur) var(--game-ease);
     }
     .game-error-retry-btn:hover {
       background: var(--game-brand-deep);
@@ -59,5 +59,5 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
 export class GameErrorRetryComponent {
   readonly message = input('加载失败，请稍后重试')
   readonly icon = input<GlobalIconName>('alert')
-  readonly retry = output<void>()
+  readonly retry = output()
 }

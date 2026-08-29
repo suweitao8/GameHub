@@ -42,7 +42,7 @@
 
 .time-range-selector button.active {
   background: var(--game-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
 }
 
 .export-btn {
@@ -105,7 +105,7 @@
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
   background: var(--game-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
 }
 

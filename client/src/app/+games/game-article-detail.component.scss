@@ -22,7 +22,7 @@
   text-decoration: none; }
 .article-back:hover { color: var(--game-brand); }
 .article-category { background: var(--game-brand-soft);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   color: var(--game-brand-deep);
   display: inline-block;
   font-size: 0.78rem;
@@ -72,9 +72,9 @@
   text-decoration: none; }
 .article-edit-button { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: #fff; }
+  color: var(--game-text-inverse); }
 .article-delete-button { background: var(--game-surface);
-  color: #b42318; }
+  color: var(--game-danger-deep); }
 .article-cancel-delete { background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-xs);

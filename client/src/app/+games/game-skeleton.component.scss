@@ -21,7 +21,7 @@
   height: 0.75rem;
   width: 2.2rem;
   background: var(--game-surface-alt);
-  border-radius: 0.2rem;
+  border-radius: var(--game-radius-xs);
 }
 
 .game-skeleton-body {
@@ -31,14 +31,14 @@
 .game-skeleton-title {
   height: 1rem;
   background: var(--game-surface-alt);
-  border-radius: 0.25rem;
+  border-radius: var(--game-radius-xs);
   width: 75%;
 }
 
 .game-skeleton-author {
   height: 0.8rem;
   background: var(--game-surface-alt);
-  border-radius: 0.25rem;
+  border-radius: var(--game-radius-xs);
   margin-top: 0.35rem;
   width: 45%;
 }

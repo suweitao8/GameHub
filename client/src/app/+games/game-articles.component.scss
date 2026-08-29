@@ -18,7 +18,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
@@ -72,8 +72,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
+  color: var(--game-text-inverse);
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -157,7 +157,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-weight: 600;
   padding: 0.55rem 1.2rem;

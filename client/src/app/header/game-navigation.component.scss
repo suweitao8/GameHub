@@ -33,7 +33,7 @@
 .game-navigation-search:focus-within {
   background: var(--game-surface);
   border-color: var(--game-brand-border);
-  box-shadow: 0 0 0 3px var(--game-brand-glow);
+  box-shadow: var(--game-focus-ring);
 }
 
 .game-navigation-search input {

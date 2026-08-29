@@ -35,7 +35,7 @@
 }
 
 .game-card-main:focus-visible {
-  outline: 2px solid var(--game-brand-glow);
+  outline: 2px solid var(--game-brand);
   outline-offset: -2px;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .game-cover.placeholder {
-  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 60%, #514c96 130%);
+  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 60%, var(--game-cover-fallback) 130%);
   display: flex;
   isolation: isolate;
   justify-content: center;
@@ -80,7 +80,7 @@
 }
 
 .game-cover.placeholder::before {
-  background: rgb(255 255 255 / 10%);
+  background: color-mix(in srgb, var(--game-text-inverse) 10%, transparent);
   height: 180%;
   right: -22%;
   top: -65%;
@@ -89,7 +89,7 @@
 }
 
 .game-cover.placeholder::after {
-  border: 1px solid rgb(255 255 255 / 16%);
+  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 16%, transparent);
   height: 130%;
   left: -38%;
   top: 35%;
@@ -98,10 +98,10 @@
 
 .cover-letter {
   align-items: center;
-  background: rgb(23 26 51 / 30%);
-  border: 1px solid rgb(255 255 255 / 26%);
+  background: color-mix(in srgb, var(--game-text-primary) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 26%, transparent);
   border-radius: var(--game-radius-sm);
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-flex;
   flex: 0 0 3.2rem;
   font-size: 2.1rem;
@@ -112,7 +112,7 @@
 
 .cover-placeholder-content {
   align-items: center;
-  color: #fff;
+  color: var(--game-text-inverse);
   display: flex;
   gap: 0.7rem;
   padding: 0.75rem;
@@ -140,7 +140,7 @@
 }
 
 .cover-placeholder-copy small {
-  color: rgb(255 255 255 / 82%);
+  color: color-mix(in srgb, var(--game-text-inverse) 82%, transparent);
   font-size: 0.68rem;
 }
 
@@ -221,9 +221,9 @@
 /* 封面左下角数据条：靛墨渐变承托白字 */
 .game-card-meta {
   align-items: center;
-  background: linear-gradient(180deg, transparent 0%, rgb(19 21 44 / 74%) 100%);
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--game-text-primary) 74%, transparent) 100%);
   bottom: 0;
-  color: #fff;
+  color: var(--game-text-inverse);
   display: flex;
   gap: 0.8rem;
   left: 0;
@@ -266,7 +266,7 @@
 }
 
 .game-card-stat span {
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-block;
   font-size: 0.7rem;
   line-height: 1;

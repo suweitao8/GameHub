@@ -713,7 +713,10 @@ assert(
     /\.discuss-composer button:disabled\s*\{/.test(discussTs),
   'discussion send button must be disabled and gray for empty text or an in-flight request'
 )
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'own discussion messages must use the picked light green background with ink text')
+assert(
+  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success-vivid\);[\s\S]*color: var\(--game-text-primary\);/.test(discussTs),
+  'own discussion messages must use the shared success surface with ink text'
+)
 assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
 assert(
   commentsStoreTs.includes('private requestGeneration = 0') &&
@@ -877,9 +880,19 @@ assert(
   gameEmptyStateTs.includes('GlobalIconComponent') && gameEmptyStateTs.includes('<my-global-icon') && !gameEmptyStateTs.includes("icon = '🎮'"),
   'game empty state must use a shared library icon instead of an emoji glyph'
 )
-assert(/\.wechat-bubble\s*\{[\s\S]*background: #eeeef0;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'other discussion messages must use the picked light gray background with ink text')
-assert(/\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: #9df29f;[\s\S]*color: var\(--game-text-primary\);/.test(discussTs), 'own discussion messages must use the picked light green background with ink text')
-assert(gamePlayScss.includes('width: 90%;') && !gamePlayScss.includes('max-width: 1280px;'), 'detail page must follow the homepage 5 percent side spacing without a narrower desktop cap')
+assert(
+  /\.wechat-bubble\s*\{[\s\S]*background: var\(--game-surface-alt\);[\s\S]*color: var\(--game-text-primary\);/.test(discussTs),
+  'other discussion messages must use the shared secondary surface with ink text'
+)
+assert(
+  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success-vivid\);[\s\S]*color: var\(--game-text-primary\);/.test(discussTs),
+  'own discussion messages must use the shared success surface with ink text'
+)
+assert(
+  gamePlayScss.includes('width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));') &&
+    !gamePlayScss.includes('max-width: 1280px;'),
+  'detail page must use the shared page spacing and content-width tokens'
+)
 assert(/\.game-play-page \.game-title-developer\s*\{[\s\S]*justify-self: end;[\s\S]*width: 100%;/.test(gamePlayScss), 'developer card must share the discussion sidebar right boundary')
 assert(gameCommunityModelTs.includes('favorites: number') && gameCommunityModelTs.includes('shares: number'), 'game community model must expose favorite and share counts')
 assert(gameCommunityOverviewTs.includes('favorites: Number(stats?.favorites') && gameCommunityOverviewTs.includes('shares: Number(stats?.shares'), 'community overview must return favorite and share counts')
@@ -1008,7 +1021,7 @@ assert(
 assert(
   /\.upload-page\s*\{[\s\S]*?background:\s*var\(--game-form-surface-muted\)/.test(uploadScss) &&
     /\.upload-page\s*\{[\s\S]*?--game-form-radius:\s*var\(--game-radius-md\);/.test(uploadScss) &&
-    /\.upload-page\s*> \.game-community-content\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*760px;[\s\S]*?width:\s*90%;/.test(uploadScss) &&
+    /\.upload-page\s*> \.game-community-content\s*\{[\s\S]*?margin-inline:\s*auto;[\s\S]*?max-width:\s*760px;[\s\S]*?width:\s*min\(calc\(100% - \(var\(--game-space-page\) \* 2\)\), 760px\);/.test(uploadScss) &&
     /\.form-section\s*\{[\s\S]*?border-radius:\s*var\(--game-form-radius\);[\s\S]*?box-shadow:\s*var\(--game-form-shadow\)/.test(uploadScss) &&
     /\.form-section-heading::before\s*\{[\s\S]*?background:\s*var\(--game-brand\)/.test(uploadScss),
   'game upload must use a gray surface with elevated white form-section cards, a shared radius token, and a brand accent bar to match the detail-page visual contract'
@@ -1290,7 +1303,7 @@ assert(
   'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(
-  headerScss.includes('background-color: rgb(255 255 255 / 88%);') &&
+  headerScss.includes('background-color: color-mix(in srgb, var(--game-text-inverse) 88%, transparent);') &&
     headerScss.includes('background-image: none;') &&
     !headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
     !headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
@@ -1400,8 +1413,8 @@ assert(
   'featured carousel footer must bind the calculated five-segment average-color gradient'
 )
 assert(
-  featuredScss.includes('background-color: #262f37'),
-  'featured carousel footer must keep the current deep blue-gray placeholder fallback'
+  featuredScss.includes('background-color: var(--game-cover-fallback-deep);'),
+  'featured carousel footer must use the shared deep blue-gray placeholder fallback'
 )
 assert(
   !featuredScss.includes('background-color: #8f6a51'),

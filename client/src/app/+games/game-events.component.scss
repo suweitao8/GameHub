@@ -35,7 +35,7 @@
 .events-filters button.active {
   background: var(--game-brand);
   border-color: var(--game-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
 }
 
 .events-grid {
@@ -95,18 +95,18 @@
 }
 
 .event-type.activity { background: var(--game-brand-soft);
-  color: #0369a1; }
-.event-type.competition { background: #fef3c7;
-  color: #92400e; }
+  color: var(--game-info); }
+.event-type.competition { background: var(--game-warning-soft);
+  color: var(--game-warning-deep); }
 
-.event-status.upcoming { background: #dcfce7;
-  color: #166534; }
+.event-status.upcoming { background: var(--game-success-soft);
+  color: var(--game-success-deep); }
 .event-status.ongoing { background: var(--game-brand-soft);
-  color: #1e40af; }
+  color: var(--game-info-deep); }
 .event-status.ended { background: var(--game-surface-alt);
   color: var(--game-text-secondary); }
-.event-status.cancelled { background: #fee2e2;
-  color: #991b1b; }
+.event-status.cancelled { background: var(--game-danger-soft);
+  color: var(--game-danger-deep); }
 
 .event-info h3 { font-size: 1rem;
   margin: 0.5rem 0 0.25rem; }
@@ -154,7 +154,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-weight: 600;
   padding: 0.55rem 1.2rem;

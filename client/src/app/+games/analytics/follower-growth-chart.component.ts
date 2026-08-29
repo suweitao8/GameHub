@@ -43,7 +43,7 @@ interface FollowerTrendPoint {
   `,
   styles: [ `
     .analytics-card {
-      background: #fff;
+      background: var(--game-surface);
       border: 1px solid var(--game-border);
       border-radius: var(--game-radius);
       padding: 1rem;

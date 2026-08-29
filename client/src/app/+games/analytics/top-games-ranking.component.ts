@@ -41,7 +41,7 @@ interface GameRankingItem {
   `,
   styles: [ `
     .analytics-card {
-      background: #fff;
+      background: var(--game-surface);
       border: 1px solid var(--game-border);
       border-radius: var(--game-radius);
       padding: 1rem;
@@ -68,7 +68,7 @@ interface GameRankingItem {
       gap: 0.5rem;
       padding: 0.45rem 0.5rem;
       border-radius: var(--game-radius);
-      background: rgb(0 0 0 / 2%);
+      background: color-mix(in srgb, var(--game-text-primary) 2%, transparent);
     }
 
     .ranking-number {
@@ -85,7 +85,7 @@ interface GameRankingItem {
       flex-shrink: 0;
     }
 
-    .ranking-number.top3 { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+    .ranking-number.top3 { background: linear-gradient(135deg, var(--game-warning), var(--game-danger)); color: var(--game-text-inverse); }
     .ranking-title {
       color: var(--game-text);
       flex-shrink: 0;
@@ -100,13 +100,13 @@ interface GameRankingItem {
       flex: 1;
       height: 0.4rem;
       background: var(--game-border);
-      border-radius: 999px;
+      border-radius: var(--game-radius-pill);
       overflow: hidden;
     }
 
     .ranking-bar {
-      background: linear-gradient(90deg, var(--game-brand), #34d399);
-      border-radius: 999px;
+      background: linear-gradient(90deg, var(--game-brand), var(--game-success-vivid));
+      border-radius: var(--game-radius-pill);
       height: 100%;
       transition: width 0.5s ease;
     }
