@@ -1,17 +1,17 @@
 import { CommonModule } from '@angular/common'
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core'
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router'
 import { AuthService, AuthStatus, AuthUser, HotkeysService, MenuService, RedirectService, ScreenService, ServerService } from '@app/core'
 import { QuickSettingsModalComponent } from '@app/menu/quick-settings-modal.component'
 import { ActorAvatarComponent } from '@app/shared/shared-actor-image/actor-avatar.component'
 import { PeertubeModalService } from '@app/shared/shared-main/peertube-modal/peertube-modal.service'
 import { SignupLabelComponent } from '@app/shared/shared-main/users/signup-label.component'
-import { NgbDropdown, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'
 import { findAppropriateImage } from '@peertube/peertube-core-utils'
 import { HTMLServerConfig, ServerConfig } from '@peertube/peertube-models'
 import { peertubeLocalStorage } from '@root-helpers/peertube-web-storage'
 import { isAndroid, isIOS, isIphone } from '@root-helpers/web-browser'
-import { Subscription } from 'rxjs'
+import { shareReplay, Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
@@ -62,8 +62,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private static LS_HIDE_MOBILE_MSG = 'hide-mobile-msg'
 
   readonly quickSettingsModal = viewChild<QuickSettingsModalComponent>('quickSettingsModal')
-  readonly dropdown = viewChild<NgbDropdown>('dropdown')
+  readonly gameAvatarButton = viewChild<ElementRef<HTMLButtonElement>>('gameAvatarButton')
   readonly gameCoinBalance = signal<number | null>(null)
+  readonly gameCount = signal<number | null>(null)
   readonly gameNavFavorites = signal<Game[]>([])
   readonly gameNavRecent = signal<Game[]>([])
   readonly gameNavOwned = signal<Game[]>([])
@@ -128,6 +129,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   } | undefined> = {}
 
   private gameCoinBalanceRequested = false
+  private gameAvatarPointerDown = false
+  private gameAvatarFocusOpened = false
+  private gameAvatarHoverOpened = false
+  private suppressGameAvatarFocus = false
+  private gameAvatarRequestGeneration = 0
+  private creatorOverviewRequest: ReturnType<GamesService['creatorOverview']> | undefined
+  private creatorOverviewAccountKey: number | string | null = null
   private gameNavLoaded = new Set<GameHeaderPopup>()
   private gameNavRequestGenerations = new Map<GameHeaderPopup, number>()
 
@@ -376,6 +384,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.updateGameHeaderScroll()
   }
 
+  @HostListener('window:keydown', [ '$event' ])
+  onGameWindowKeydown (event: KeyboardEvent) {
+    this.closeGameAvatarMenu(event)
+  }
+
   private updateGameHeaderScroll () {
     const shouldShrink = this.isGameExperience() && window.innerWidth > 760 && window.scrollY > 150
     if (this.gameHeaderScrolled === shouldShrink) return
@@ -452,14 +465,23 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   scheduleGameAvatarMenu () {
     // 访客点击「登录」直达登录弹框,悬停卡仅服务已登录头像菜单
-    if (!this.isGameExperience() || !this.loggedIn) return
+    if (this.suppressGameAvatarFocus || this.gameAvatarPointerDown || !this.isGameExperience() || !this.loggedIn) return
 
+    if (!this.isOpenPopover('avatar')) this.gameAvatarHoverOpened = true
     this.setPopoverOpen('avatar', true)
     this.loadGameCoinBalance()
   }
 
+  onGameAvatarFocusIn () {
+    if (this.gameAvatarPointerDown || this.suppressGameAvatarFocus || !this.isGameExperience() || !this.loggedIn) return
+
+    this.gameAvatarFocusOpened = true
+    this.scheduleGameAvatarMenu()
+  }
+
   cancelGameAvatarHover (close = true) {
     if (close) {
+      this.gameAvatarHoverOpened = false
       // 撤「开启」态触发淡出;DOM 驻留 1 秒,期间移回鼠标会重新打开
       this.setPopoverOpen('avatar', false)
     }
@@ -505,6 +527,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     if (container?.contains(nextTarget)) return
 
+    this.gameAvatarFocusOpened = false
     this.cancelGameAvatarHover()
   }
 
@@ -562,8 +585,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.gameNavLoaded.add(popup)
     this.setGameNavLoading(popup, true)
     const generation = (this.gameNavRequestGenerations.get(popup) || 0) + 1
+    const accountKey = this.getGameAccountKey()
+    const accountGeneration = this.gameAvatarRequestGeneration
     this.gameNavRequestGenerations.set(popup, generation)
-    const isCurrentRequest = () => this.loggedIn && this.gameNavRequestGenerations.get(popup) === generation
+    const isCurrentRequest = () =>
+      this.loggedIn &&
+      this.gameNavRequestGenerations.get(popup) === generation &&
+      this.gameAvatarRequestGeneration === accountGeneration &&
+      this.getGameAccountKey() === accountKey
 
     if (popup === 'notifications') {
       this.gamesService.notifications().subscribe({
@@ -622,11 +651,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return
     }
 
-    this.gamesService.creatorOverview().subscribe({
+    this.getCreatorOverview().subscribe({
       next: value => {
         if (!isCurrentRequest()) return
         this.gameNavOwned.set(value.games || [])
         this.gameCoinBalance.set(value.coinBalance)
+        this.gameCount.set(value.gameCount)
       },
       error: () => {
         if (!isCurrentRequest()) return
@@ -640,16 +670,48 @@ export class HeaderComponent implements OnInit, OnDestroy {
     })
   }
 
-  openGameProfile (event: Event) {
+  toggleGameAvatarMenu (event: MouseEvent) {
     event.preventDefault()
-    this.cancelGameAvatarHover()
-    const accountId = this.user?.account?.id
-    if (accountId) {
-      void this.router.navigate([ '/games/author', accountId ])
+    if (!this.loggedIn || !this.isGameExperience()) return
+
+    // 焦点预览先于 Enter/Space 产生 native click,首次键盘激活应保持弹窗打开
+    if (event.detail === 0 && this.gameAvatarFocusOpened && this.isOpenPopover('avatar')) {
+      this.gameAvatarFocusOpened = false
       return
     }
 
-    this.openLoginModal()
+    // 鼠标移入头像时悬停卡已经打开,首次点击保持打开,避免点击动作反而收起预览
+    if (event.detail > 0 && this.gameAvatarHoverOpened && this.isOpenPopover('avatar')) {
+      this.gameAvatarHoverOpened = false
+      return
+    }
+
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
+
+    if (this.isOpenPopover('avatar')) this.unmountPopoverNow('avatar')
+    else this.scheduleGameAvatarMenu()
+  }
+
+  onGameAvatarPointerDown (event: PointerEvent) {
+    if (event.button === 0) this.gameAvatarPointerDown = true
+  }
+
+  onGameAvatarPointerUp (event: PointerEvent) {
+    if (event.button === 0 || event.type === 'pointercancel') this.gameAvatarPointerDown = false
+  }
+
+  closeGameAvatarMenu (event: KeyboardEvent) {
+    if (event.key !== 'Escape' || !this.isOpenPopover('avatar')) return
+
+    event.preventDefault()
+    event.stopPropagation()
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
+    this.suppressGameAvatarFocus = true
+    this.unmountPopoverNow('avatar')
+    this.gameAvatarButton()?.nativeElement.focus()
+    setTimeout(() => this.suppressGameAvatarFocus = false)
   }
 
   openGameUpload (event: MouseEvent) {
@@ -678,22 +740,38 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private updateUserState () {
+    const previousAccountKey = this.getGameAccountKey()
     this.user = this.loggedIn
       ? this.authService.getUser()
       : undefined
+    const currentAccountKey = this.getGameAccountKey()
+
+    if (previousAccountKey !== currentAccountKey) {
+      this.gameAvatarRequestGeneration++
+      this.creatorOverviewRequest = undefined
+      this.creatorOverviewAccountKey = null
+      this.clearGameAccountState()
+    }
 
     if (!this.loggedIn) {
-      this.gameNavRequestGenerations.clear()
-      this.gameNavLoaded.clear()
-      this.gameNavFavorites.set([])
-      this.gameNavRecent.set([])
-      this.gameNavOwned.set([])
-      this.gameNavNotifications.set([])
-      this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
-      this.gameNavCoverFallbacks.set({})
-      this.gameCoinBalance.set(null)
-      this.gameCoinBalanceRequested = false
+      this.clearGameAccountState()
     }
+  }
+
+  private clearGameAccountState () {
+    this.gameNavRequestGenerations.clear()
+    this.gameNavLoaded.clear()
+    this.gameNavFavorites.set([])
+    this.gameNavRecent.set([])
+    this.gameNavOwned.set([])
+    this.gameNavNotifications.set([])
+    this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
+    this.gameNavCoverFallbacks.set({})
+    this.gameCoinBalance.set(null)
+    this.gameCount.set(null)
+    this.gameCoinBalanceRequested = false
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
   }
 
   private setGameNavLoading (popup: GameHeaderPopup, loading: boolean) {
@@ -704,9 +782,41 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (this.gameCoinBalanceRequested || !this.loggedIn) return
 
     this.gameCoinBalanceRequested = true
-    this.gamesService.creatorOverview().subscribe({
-      next: overview => this.gameCoinBalance.set(overview.coinBalance),
-      error: () => this.gameCoinBalance.set(0)
+    const generation = this.gameAvatarRequestGeneration
+    const accountKey = this.getGameAccountKey()
+    const isCurrentRequest = () =>
+      this.loggedIn &&
+      this.gameAvatarRequestGeneration === generation &&
+      this.getGameAccountKey() === accountKey
+
+    this.getCreatorOverview().subscribe({
+      next: overview => {
+        if (!isCurrentRequest()) return
+
+        this.gameCoinBalance.set(overview.coinBalance)
+        this.gameCount.set(overview.gameCount)
+      },
+      error: () => {
+        if (!isCurrentRequest()) return
+
+        this.gameCoinBalance.set(0)
+        this.gameCount.set(null)
+      }
     })
+  }
+
+  private getGameAccountKey () {
+    return this.user?.account?.id ?? this.user?.username ?? null
+  }
+
+  private getCreatorOverview () {
+    const accountKey = this.getGameAccountKey()
+    if (this.creatorOverviewRequest && this.creatorOverviewAccountKey === accountKey) return this.creatorOverviewRequest
+
+    this.creatorOverviewAccountKey = accountKey
+    this.creatorOverviewRequest = this.gamesService.creatorOverview()
+      .pipe(shareReplay({ bufferSize: 1, refCount: false }))
+
+    return this.creatorOverviewRequest
   }
 }

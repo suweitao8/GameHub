@@ -1282,9 +1282,10 @@ assert(
   'header avatar hover must use one pointer-event path without duplicate mouse handlers'
 )
 assert(
-  headerHtml.includes('(focusin)="scheduleGameAvatarMenu()"') &&
+  headerHtml.includes('(focusin)="onGameAvatarFocusIn()"') &&
     headerHtml.includes('(focusout)="onGameAvatarFocusOut($event)"') &&
     headerHtml.includes(`[attr.aria-expanded]="isOpenPopover('avatar')"`) &&
+    headerTs.includes('onGameAvatarFocusIn ()') &&
     headerTs.includes('onGameAvatarFocusOut (event: FocusEvent)'),
   'header avatar menu must expose the same delayed popup through keyboard focus'
 )
@@ -1334,6 +1335,79 @@ assert(
     gameAvatarPopoverBlock.includes('transform: translateX(-50%);') &&
     headerScss.includes('width: min(300px, calc(100vw - 1rem));'),
   'GameHub avatar transition must keep the transformed image above the card, disable cross-header motion on mobile, keep the card inside narrow viewports, and center the desktop card on its avatar trigger'
+)
+assert(
+  headerHtml.includes('id="game-avatar-menu"') &&
+    headerHtml.includes('[attr.aria-controls]="\'game-avatar-menu\'"') &&
+    headerHtml.includes('aria-haspopup="dialog"') &&
+    headerHtml.includes('role="dialog"') &&
+    headerHtml.includes('(pointerdown)="onGameAvatarPointerDown($event)"') &&
+    headerHtml.includes('(pointerup)="onGameAvatarPointerUp($event)"') &&
+    headerHtml.includes('(pointercancel)="onGameAvatarPointerUp($event)"') &&
+    headerHtml.includes('routerLink="/my-account"') &&
+    headerHtml.includes('routerLink]="[ \'/games/author\', user.account.id ]"') &&
+    headerHtml.includes('user?.account?.followingCount') &&
+    headerHtml.includes('user?.account?.followersCount') &&
+    headerHtml.includes('gameCount()'),
+  'account popover must expose personal center, public profile, following, follower, and game-count content'
+)
+assert(
+  headerTs.includes('readonly gameCount = signal<number | null>(null)') &&
+    headerTs.includes('this.gameCount.set(overview.gameCount)') &&
+    headerTs.includes('this.gameCount.set(null)') &&
+    headerTs.includes('toggleGameAvatarMenu (event: MouseEvent)') &&
+    headerTs.includes('onGameAvatarPointerDown (event: PointerEvent)') &&
+    headerTs.includes('onGameAvatarPointerUp (event: PointerEvent)') &&
+    headerTs.includes('event.detail > 0 && this.gameAvatarHoverOpened') &&
+    headerTs.includes('closeGameAvatarMenu (event: KeyboardEvent)') &&
+    headerTs.includes('event.detail === 0 && this.gameAvatarFocusOpened') &&
+    headerTs.includes("@HostListener('window:keydown', [ '$event' ])") &&
+    headerTs.includes('onGameWindowKeydown (event: KeyboardEvent)'),
+  'account popover must load and clear game count and provide click and Escape interaction handlers'
+)
+const avatarScheduleStart = headerTs.indexOf('scheduleGameAvatarMenu ()')
+const avatarScheduleEnd = headerTs.indexOf('\n  cancelGameAvatarHover', avatarScheduleStart)
+assert(
+  avatarScheduleStart >= 0 &&
+    avatarScheduleEnd > avatarScheduleStart &&
+    headerTs.slice(avatarScheduleStart, avatarScheduleEnd).includes('this.suppressGameAvatarFocus'),
+  'Escape must not immediately reopen the account popover when focus returns to the avatar trigger'
+)
+assert(
+    headerScss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));') &&
+    headerScss.includes('max-width: calc(100vw - 1rem);') &&
+    headerScss.includes('.game-avatar-action:focus-visible') &&
+    headerScss.includes('@media (prefers-reduced-motion: reduce)') &&
+    /\.game-avatar-action,\s*\n\s*\.game-avatar-logout \{[\s\S]*?transition: none;/.test(headerScss),
+  'account popover stats must have a three-column, viewport-safe, focus-visible, reduced-motion style contract'
+)
+assert(
+  headerTs.includes('this.gameAvatarRequestGeneration++') &&
+    headerTs.includes('this.gameAvatarRequestGeneration === generation') &&
+    headerTs.includes('this.getGameAccountKey() === accountKey') &&
+    headerTs.includes('getCreatorOverview ()') &&
+    headerTs.includes('shareReplay({ bufferSize: 1, refCount: false })'),
+  'account overview responses must be scoped to the current account and shared across creator/avatar popovers'
+)
+const gameNavLoaderStart = headerTs.indexOf('private loadGameNavData (popup: GameHeaderPopup)')
+const gameNavLoaderEnd = headerTs.indexOf('\n  toggleGameAvatarMenu', gameNavLoaderStart)
+assert(
+  gameNavLoaderStart >= 0 &&
+    gameNavLoaderEnd > gameNavLoaderStart &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('const accountKey = this.getGameAccountKey()') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('const accountGeneration = this.gameAvatarRequestGeneration') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('this.gameAvatarRequestGeneration === accountGeneration') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('this.getGameAccountKey() === accountKey'),
+  'game navigation responses must be discarded after an account switch even when popup generations restart'
+)
+assert(
+  headerHtml.includes('i18n-aria-label') &&
+    headerHtml.includes('<span i18n>关注</span>') &&
+    headerHtml.includes('<span i18n>粉丝</span>') &&
+    headerHtml.includes('<span i18n>动态</span>') &&
+    headerHtml.includes('<span i18n>个人中心</span>') &&
+    headerHtml.includes('<span i18n>我的主页</span>'),
+  'account popover labels and accessible names must be extractable by client i18n'
 )
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(
