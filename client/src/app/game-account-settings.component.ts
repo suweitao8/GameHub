@@ -12,7 +12,7 @@ import { FormReactive } from '@app/shared/shared-forms/form-reactive'
 import { FormReactiveService } from '@app/shared/shared-forms/form-reactive.service'
 import { AlertComponent } from '@app/shared/shared-main/common/alert.component'
 import { InputTextComponent } from './shared/shared-forms/input-text.component'
-import { filter } from 'rxjs/operators'
+import { filter, take } from 'rxjs/operators'
 import { GAME_FEATURES } from './+games/shared'
 
 @Component({
@@ -125,11 +125,20 @@ export class GameAccountSettingsComponent extends FormReactive implements OnInit
       .pipe(filter(value => value !== this.form.value['new-password']))
       .subscribe(() => confirmPasswordControl.setErrors({ matchPassword: true }))
 
-    const authUser = this.authService.getUser()
-    this.nickname = authUser?.account?.displayName ||
-      authUser?.account?.name ||
-      authUser?.username ||
-      ''
+    // 整页刷新时会话先恢复登录态、用户资料后到,等资料就绪再回显昵称,
+    // 避免回退成用户名
+    this.authService.userInformationLoaded
+      .pipe(
+        filter(loaded => loaded),
+        take(1)
+      )
+      .subscribe(() => {
+        const authUser = this.authService.getUser()
+        this.nickname = authUser?.account?.displayName ||
+          authUser?.account?.name ||
+          authUser?.username ||
+          ''
+      })
   }
 
   saveNickname () {
