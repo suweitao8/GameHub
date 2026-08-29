@@ -31,13 +31,20 @@
 
 ### 转场几何
 
-GameHub 桌面 Header 的高度由 `--header-height` 提供，资料卡距 Header 下沿为 `0.5rem`。资料卡右边缘与头像容器右边缘对齐，默认头像按钮为 40px、资料卡为 300px，因此打开态同时使用固定的水平居中修正和纵向位移：
+GameHub 桌面 Header 的高度由 `--header-height` 提供，资料卡距 Header 下沿为 `0.5rem`。资料卡以头像按钮的中心为水平锚点，保持在动态入口旁边的原始区域；默认头像按钮为 40px、资料卡为 300px，按钮打开态只需要做纵向位移：
 
 ```css
-translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0)
+.game-avatar-hover-card {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.game-avatar-menu-open > .tertiary-button {
+  transform: translate3d(0, calc(var(--header-height) / 2 + 0.5rem), 0);
+}
 ```
 
-该位移应用在头像按钮外壳上，会把触发器和头像一起带到资料卡水平中心及上沿附近，同时让资料卡右边缘保持在头像容器右边缘，避免顶栏靠近视口右侧时卡片被截断。按钮内的头像单独通过 `scale(2.12)` 从 34px 放大到约 72px，与资料卡 300px 宽度及现有资料信息比例匹配。`transform-origin: center` 保证缩放前后中心点稳定，`will-change: transform` 只提示浏览器为该短时转场准备合成层，不改变布局尺寸。
+资料卡通过 `left: 50%` 与 `translateX(-50%)` 保持在头像触发器中心，不再使用 `right: 0` 把整张卡片向左推。按钮外壳只沿 Y 轴移动，会把触发器和头像一起带到资料卡上沿附近；按钮内的头像单独通过 `scale(2.12)` 从 34px 放大到约 72px，与资料卡 300px 宽度及现有资料信息比例匹配。`transform-origin: center` 保证缩放前后中心点稳定，`will-change: transform` 只提示浏览器为该短时转场准备合成层，不改变布局尺寸。
 
 打开态由按钮的 `translate3d` 与图片的 `scale` 协同完成，持续时间使用现有 `--game-dur-slow`，让头像先快速放大、再顺滑落到资料卡上沿；关闭时两层属性反向过渡，按钮和头像一起回到顶栏原位。资料卡仍按现有 `opacity` 和延迟卸载逻辑处理，头像回位不会等待资料卡卸载。
 
@@ -59,7 +66,7 @@ translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0
 ## 实现范围
 
 - `client/src/app/header/header.component.html`：给已登录 GameHub 头像容器绑定打开态 class，移除资料卡内重复头像。
-- `client/src/app/header/header.component.scss`：实现单头像的放大/位移、卡片右边缘约束、层级、资料信息留白、移动端和 reduced-motion 规则。
+- `client/src/app/header/header.component.scss`：实现单头像的放大/位移、资料卡中心锚点、层级、资料信息留白、移动端和 reduced-motion 规则。
 - `scripts/verify-gamehub-client.mjs`：增加回归契约，验证唯一头像、状态 class、最终 transform、资料卡留白和无重复图片。
 - `docs/superpowers/plans/2026-08-30-game-avatar-popover-transition-plan.md`：记录 TDD、构建、浏览器验收和交付步骤。
 

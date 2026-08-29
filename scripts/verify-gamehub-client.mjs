@@ -1305,8 +1305,14 @@ const gameAvatarOpenImageBlock = readCssBlock(
   headerScss,
   ':host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar'
 )
+const gameAvatarPopoverSelector = '.game-avatar-hover-card {\n  transition: opacity var(--game-dur) var(--game-ease);\n  background:'
+const gameAvatarPopoverStart = headerScss.indexOf(gameAvatarPopoverSelector)
+const gameAvatarPopoverEnd = gameAvatarPopoverStart >= 0 ? headerScss.indexOf('}', gameAvatarPopoverStart) : -1
+const gameAvatarPopoverBlock = gameAvatarPopoverEnd >= 0
+  ? headerScss.slice(gameAvatarPopoverStart, gameAvatarPopoverEnd)
+  : ''
 assert(
-  gameAvatarOpenButtonBlock.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);') &&
+  gameAvatarOpenButtonBlock.includes('transform: translate3d(0, calc(var(--header-height) / 2 + 0.5rem), 0);') &&
     gameAvatarOpenButtonBlock.includes('box-shadow: none !important;') &&
     gameAvatarOpenImageBlock.includes('transform: scale(2.12);') &&
     headerScss.includes('transform-origin: center;') &&
@@ -1323,9 +1329,11 @@ assert(
     headerScss.includes('    .logged-in-container.game-avatar-menu-open > .tertiary-button {\n      transform: none;\n    }') &&
     headerScss.includes('transform: none;') &&
     headerScss.includes('max-width: calc(100vw - 1rem);') &&
-    headerScss.includes('right: 0;') &&
+    gameAvatarPopoverBlock.includes('left: 50%;') &&
+    gameAvatarPopoverBlock.includes('right: auto;') &&
+    gameAvatarPopoverBlock.includes('transform: translateX(-50%);') &&
     headerScss.includes('width: min(300px, calc(100vw - 1rem));'),
-  'GameHub avatar transition must keep the transformed image above the card, disable cross-header motion on mobile, and keep the card inside narrow viewports'
+  'GameHub avatar transition must keep the transformed image above the card, disable cross-header motion on mobile, keep the card inside narrow viewports, and center the desktop card on its avatar trigger'
 )
 for (const popup of [ 'notifications', 'favorites', 'history', 'creator' ]) {
   assert(

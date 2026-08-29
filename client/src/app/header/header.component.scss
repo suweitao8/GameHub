@@ -888,7 +888,7 @@ my-actor-avatar {
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button:focus,
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button:active {
   box-shadow: none !important;
-  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);
+  transform: translate3d(0, calc(var(--header-height) / 2 + 0.5rem), 0);
 }
 
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
@@ -904,12 +904,12 @@ my-actor-avatar {
   box-shadow: var(--game-shadow-popover);
   color: var(--game-text-secondary);
   display: block;
-  left: auto;
+  left: 50%;
   overflow: hidden;
   position: absolute;
-  right: 0;
+  right: auto;
   top: calc(100% + 0.5rem);
-  transform: none;
+  transform: translateX(-50%);
   width: 300px;
   z-index: 60;
 }

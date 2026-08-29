@@ -4,9 +4,11 @@
 
 **Goal:** 让 GameHub 已登录顶栏的唯一头像在桌面端悬停/键盘聚焦时放大并移动到个人资料卡上沿中心，移除资料卡内的重复头像。
 
-**Architecture:** 保留现有 Angular Header 的 popup signal、延迟关闭和点击路由，只在模板给头像容器增加由 `isOpenPopover('avatar')` 驱动的打开态 class。唯一 `.game-user-avatar` 继续作为按钮子节点，通过按钮外壳的 CSS `translate3d` 跨过 Header 与资料卡间隙，再由图片子节点 `scale` 放大；资料卡右边缘与头像容器右边缘对齐，资料卡只提供背景、名称、硬币和退出操作，并用顶部留白承接转场后的头像。打开态清除触发按钮 hover 阴影，避免原导航栏位置残留圆框。静态契约先锁定单头像、打开态几何、边缘约束、移动端退化和 reduced-motion，再用真实浏览器验证实际矩形位置与可操作性。
+**Architecture:** 保留现有 Angular Header 的 popup signal、延迟关闭和点击路由，只在模板给头像容器增加由 `isOpenPopover('avatar')` 驱动的打开态 class。唯一 `.game-user-avatar` 继续作为按钮子节点，通过按钮外壳的 CSS `translate3d` 跨过 Header 与资料卡间隙，再由图片子节点 `scale` 放大；资料卡以头像触发器为中心，保持在动态入口旁边的原始区域，资料卡只提供背景、名称、硬币和退出操作，并用顶部留白承接转场后的头像。打开态清除触发按钮 hover 阴影，避免原导航栏位置残留圆框。静态契约先锁定单头像、打开态几何、中心锚点、移动端退化和 reduced-motion，再用真实浏览器验证实际矩形位置与可操作性。
 
 > **2026-08-30 补正：** 初版只移动了图片，导致触发按钮的 hover 圆框仍留在导航栏原位。本次补正把位移移到按钮外壳，图片只保留缩放，并明确打开态 `box-shadow: none`；这样头像和触发层的最终位置一致，原位不再留下空圆框。
+
+> **2026-08-30 第二次补正：** 右对齐资料卡会让它相对头像向左偏移半个卡片宽度。本次恢复 `left: 50%` 与 `translateX(-50%)` 的中心锚点，同时移除按钮的 `-130px` 横向位移，确保资料卡、头像和动态入口保持原有相对位置。
 
 **Tech Stack:** Angular template binding, component-scoped SCSS, Node.js source-contract verifier, Stylelint, GameHub self-test, real Chrome browser automation。
 
@@ -15,7 +17,7 @@
 ## 文件职责
 
 - `client/src/app/header/header.component.html`：头像按钮和个人资料卡结构；只保留一张头像并让容器暴露打开态 class。
-- `client/src/app/header/header.component.scss`：头像 transform 转场、资料卡右边缘约束、层级、资料卡顶部留白、移动端关闭空间转场、reduced-motion 规则。
+- `client/src/app/header/header.component.scss`：头像 transform 转场、资料卡中心锚点与窄屏边缘保护、层级、资料卡顶部留白、移动端关闭空间转场、reduced-motion 规则。
 - `scripts/verify-gamehub-client.mjs`：源码级回归契约，防止重新添加第二张头像或删除同一头像的转场几何。
 - `docs/superpowers/specs/2026-08-30-game-avatar-popover-transition-design.md`：设计约束和验收标准。
 - `docs/releases/release-notes.md`、`README.md`：实现完成后记录用户可见交互变化。
@@ -39,7 +41,7 @@ assert(
 )
 assert(
   submitHeaderScss.includes('.game-avatar-menu-open > .tertiary-button') &&
-    submitHeaderScss.includes('transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);') &&
+    submitHeaderScss.includes('transform: translate3d(0, calc(var(--header-height) / 2 + 0.5rem), 0);') &&
     submitHeaderScss.includes('box-shadow: none !important;') &&
     submitHeaderScss.includes('.game-avatar-menu-open > .tertiary-button .game-user-avatar') &&
     submitHeaderScss.includes('transform: scale(2.12);') &&
@@ -98,7 +100,7 @@ will-change: transform;
 
 - [x] **Step 3: 把头像触发层移动到资料卡上沿中心并置于卡片上层**
 
-让 GameHub 头像按钮可以跨出自身盒子绘制：
+让 GameHub 头像按钮可以跨出自身盒子绘制，并在打开态沿 Y 轴移动整个触发层：
 
 ```scss
 :host-context(.game-experience) .logged-in-container > .tertiary-button {
@@ -113,7 +115,7 @@ will-change: transform;
 ```scss
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button {
   box-shadow: none !important;
-  transform: translate3d(calc((40px - 300px) / 2), calc(var(--header-height) / 2 + 0.5rem), 0);
+  transform: translate3d(0, calc(var(--header-height) / 2 + 0.5rem), 0);
 }
 
 :host-context(.game-experience) .logged-in-container.game-avatar-menu-open > .tertiary-button .game-user-avatar {
@@ -122,7 +124,7 @@ will-change: transform;
 }
 ```
 
-资料卡自身继续使用 `z-index: 60`，改为右边缘对齐并使用 `max-width: calc(100vw - 1rem)` 与 `width: min(300px, calc(100vw - 1rem))`，窄屏时不会横向溢出；`.game-avatar-profile` 改为 `padding: 4.25rem 1.1rem 1rem`，给转场头像和名称之间留下稳定空间。
+资料卡自身继续使用 `z-index: 60`，使用 `left: 50%` 和 `transform: translateX(-50%)` 锚定到头像中心；移动端保留 `right: 0` 的视口边缘保护，并使用 `max-width: calc(100vw - 1rem)` 与 `width: min(300px, calc(100vw - 1rem))`，窄屏时不会横向溢出；`.game-avatar-profile` 改为 `padding: 4.25rem 1.1rem 1rem`，给转场头像和名称之间留下稳定空间。
 
 - [x] **Step 4: 明确移动端和 reduced-motion 行为**
 
@@ -221,7 +223,7 @@ const cardRect = card?.getBoundingClientRect()
 })
 ```
 
-Expected: `avatarCount=1`, `duplicateCount=0`, avatar dimensions approximately `72x72`, horizontal center delta `<=2px`, avatar vertical range covers the card top edge, the trigger button has no open-state box shadow and is translated with the avatar, and no viewport overflow。捕获打开态截图检查头像是否确实压在卡片上沿，而非卡片内又出现一张头像或在导航栏原位残留圆框。
+Expected: `avatarCount=1`, `duplicateCount=0`, avatar dimensions approximately `72x72`, horizontal center delta `<=2px`, avatar vertical range covers the card top edge, the trigger button has no open-state box shadow and only moves vertically, and no viewport overflow。捕获打开态截图检查头像与资料卡是否仍位于动态入口旁边，而非整张卡片向左偏移或在导航栏原位残留圆框。
 
 - [x] **Step 3: 检查进入卡片、关闭回位和键盘路径**
 
@@ -246,7 +248,7 @@ Expected: 只包含 Header 模板/SCSS、契约脚本、README/release notes、s
 
 - [x] **Step 2: 请求代码复核**
 
-复核重点：唯一头像是否真的由现有 popup 状态控制；transform 是否把头像中心准确放到卡片中心；放大头像是否遮挡退出按钮；pointer/focus 延迟关闭是否保留；移动端和 reduced-motion 是否完整；是否重新引入重复 `img`。复核发现的资料卡右边缘约束问题已修正，并重新运行了 Task 2-4 的定向验证。
+复核重点：唯一头像是否真的由现有 popup 状态控制；资料卡是否仍以头像触发器为中心并保持在动态入口旁；transform 是否把头像中心准确放到卡片中心；放大头像是否遮挡退出按钮；pointer/focus 延迟关闭是否保留；移动端和 reduced-motion 是否完整；是否重新引入重复 `img`。本次第二次补正移除了错误的右对齐和横向位移，并重新运行定向验证。
 
 - [x] **Step 3: 提交实现**
 
