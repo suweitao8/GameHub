@@ -585,8 +585,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.gameNavLoaded.add(popup)
     this.setGameNavLoading(popup, true)
     const generation = (this.gameNavRequestGenerations.get(popup) || 0) + 1
+    const accountKey = this.getGameAccountKey()
+    const accountGeneration = this.gameAvatarRequestGeneration
     this.gameNavRequestGenerations.set(popup, generation)
-    const isCurrentRequest = () => this.loggedIn && this.gameNavRequestGenerations.get(popup) === generation
+    const isCurrentRequest = () =>
+      this.loggedIn &&
+      this.gameNavRequestGenerations.get(popup) === generation &&
+      this.gameAvatarRequestGeneration === accountGeneration &&
+      this.getGameAccountKey() === accountKey
 
     if (popup === 'notifications') {
       this.gamesService.notifications().subscribe({
@@ -744,26 +750,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.gameAvatarRequestGeneration++
       this.creatorOverviewRequest = undefined
       this.creatorOverviewAccountKey = null
-      this.gameCoinBalance.set(null)
-      this.gameCount.set(null)
-      this.gameCoinBalanceRequested = false
-      this.gameAvatarFocusOpened = false
-      this.gameAvatarHoverOpened = false
+      this.clearGameAccountState()
     }
 
     if (!this.loggedIn) {
-      this.gameNavRequestGenerations.clear()
-      this.gameNavLoaded.clear()
-      this.gameNavFavorites.set([])
-      this.gameNavRecent.set([])
-      this.gameNavOwned.set([])
-      this.gameNavNotifications.set([])
-      this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
-      this.gameNavCoverFallbacks.set({})
-      this.gameCoinBalance.set(null)
-      this.gameCount.set(null)
-      this.gameCoinBalanceRequested = false
+      this.clearGameAccountState()
     }
+  }
+
+  private clearGameAccountState () {
+    this.gameNavRequestGenerations.clear()
+    this.gameNavLoaded.clear()
+    this.gameNavFavorites.set([])
+    this.gameNavRecent.set([])
+    this.gameNavOwned.set([])
+    this.gameNavNotifications.set([])
+    this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
+    this.gameNavCoverFallbacks.set({})
+    this.gameCoinBalance.set(null)
+    this.gameCount.set(null)
+    this.gameCoinBalanceRequested = false
+    this.gameAvatarFocusOpened = false
+    this.gameAvatarHoverOpened = false
   }
 
   private setGameNavLoading (popup: GameHeaderPopup, loading: boolean) {

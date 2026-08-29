@@ -1302,6 +1302,17 @@ assert(
     headerTs.includes('shareReplay({ bufferSize: 1, refCount: false })'),
   'account overview responses must be scoped to the current account and shared across creator/avatar popovers'
 )
+const gameNavLoaderStart = headerTs.indexOf('private loadGameNavData (popup: GameHeaderPopup)')
+const gameNavLoaderEnd = headerTs.indexOf('\n  toggleGameAvatarMenu', gameNavLoaderStart)
+assert(
+  gameNavLoaderStart >= 0 &&
+    gameNavLoaderEnd > gameNavLoaderStart &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('const accountKey = this.getGameAccountKey()') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('const accountGeneration = this.gameAvatarRequestGeneration') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('this.gameAvatarRequestGeneration === accountGeneration') &&
+    headerTs.slice(gameNavLoaderStart, gameNavLoaderEnd).includes('this.getGameAccountKey() === accountKey'),
+  'game navigation responses must be discarded after an account switch even when popup generations restart'
+)
 assert(
   headerHtml.includes('i18n-aria-label') &&
     headerHtml.includes('<span i18n>关注</span>') &&
