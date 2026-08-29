@@ -27,7 +27,7 @@ interface BreakdownItem {
       <div class="breakdown-chart">
         @for (item of breakdownItems(); track item.label) {
           <div class="breakdown-item">
-            <div class="breakdown-icon" [style.background-color]="item.color + '20'">
+            <div class="breakdown-icon" [style.background-color]="'color-mix(in srgb, ' + item.color + ' 12%, transparent)'">
               <div [style.color]="item.color"><my-global-icon [iconName]="item.iconName" /></div>
             </div>
             <div class="breakdown-info">
@@ -46,7 +46,7 @@ interface BreakdownItem {
   `,
   styles: [ `
     .analytics-card {
-      background: #fff;
+      background: var(--game-surface);
       border: 1px solid var(--game-border);
       border-radius: var(--game-radius);
       padding: 1rem;
@@ -68,7 +68,7 @@ interface BreakdownItem {
     .breakdown-icon {
       width: 2rem;
       height: 2rem;
-      border-radius: 6px;
+      border-radius: var(--game-radius-control);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -97,11 +97,11 @@ interface BreakdownItem {
     .breakdown-bar-bg {
       height: 0.5rem;
       background: var(--game-border);
-      border-radius: 999px;
+      border-radius: var(--game-radius-pill);
       overflow: hidden;
     }
 
-    .breakdown-bar { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+    .breakdown-bar { height: 100%; border-radius: var(--game-radius-pill); transition: width var(--game-dur-slow) var(--game-ease); }
   ` ]
 })
 export class InteractionBreakdownComponent {
@@ -112,10 +112,22 @@ export class InteractionBreakdownComponent {
     const max = Math.max(breakdown.likes, breakdown.coins, breakdown.favorites, breakdown.comments, 1)
     const icons: Record<string, GlobalIconName> = { 点赞: 'like', 投币: 'coin', 收藏: 'star', 评论: 'message-circle' }
     return [
-      { label: '点赞', value: breakdown.likes, percent: (breakdown.likes / max) * 100, color: '#ef4444', iconName: icons['点赞'] },
-      { label: '投币', value: breakdown.coins, percent: (breakdown.coins / max) * 100, color: '#f59e0b', iconName: icons['投币'] },
-      { label: '收藏', value: breakdown.favorites, percent: (breakdown.favorites / max) * 100, color: '#3b82f6', iconName: icons['收藏'] },
-      { label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100, color: '#22c55e', iconName: icons['评论'] }
+      {
+        label: '点赞', value: breakdown.likes, percent: (breakdown.likes / max) * 100,
+        color: 'var(--game-danger)', iconName: icons['点赞']
+      },
+      {
+        label: '投币', value: breakdown.coins, percent: (breakdown.coins / max) * 100,
+        color: 'var(--game-warning)', iconName: icons['投币']
+      },
+      {
+        label: '收藏', value: breakdown.favorites, percent: (breakdown.favorites / max) * 100,
+        color: 'var(--game-info)', iconName: icons['收藏']
+      },
+      {
+        label: '评论', value: breakdown.comments, percent: (breakdown.comments / max) * 100,
+        color: 'var(--game-success)', iconName: icons['评论']
+      }
     ]
   })
 

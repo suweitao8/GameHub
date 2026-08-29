@@ -25,7 +25,7 @@
   background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius);
-  box-shadow: 0 1px 4px rgb(23 26 51 / 4%);
+  box-shadow: var(--game-shadow-xs);
   margin-bottom: 1rem;
   max-width: 760px;
   padding: 1.5rem;
@@ -41,7 +41,7 @@
 .game-settings-card p { color: var(--game-muted);
   margin: 0.4rem 0 0; }
 .game-settings-badge { background: var(--game-brand-soft);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   color: var(--game-brand-deep);
   font-size: 0.75rem;
   font-weight: 700;
@@ -52,7 +52,7 @@
 .game-settings-submit { background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 700;
   justify-self: start;
   padding: 0.65rem 1.2rem; }

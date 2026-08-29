@@ -41,8 +41,8 @@
   width: 5rem;
   height: 5rem;
   border-radius: var(--game-radius-xs);
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
+  color: var(--game-text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,8 +93,8 @@
 }
 
 .watch-later-remove:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--game-danger);
+  color: var(--game-danger);
 }
 
 .watch-later-remove my-global-icon {

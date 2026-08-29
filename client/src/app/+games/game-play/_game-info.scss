@@ -2,7 +2,7 @@
 // chat/discuss styles, section headings.
 
 .game-title-score my-global-icon {
-  color: #ffb400;
+  color: var(--game-warning);
 }
 .game-title-bar h1 { font-size: clamp(1.25rem, 1.8vw, 1.6rem);
   letter-spacing: -0.03em;
@@ -47,7 +47,7 @@
   padding: 0.58rem 0.8rem; }
 .game-actions button:last-child { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 700; }
 .game-details { padding: 1.2rem 0 0.8rem; }
 .game-play-page .game-details { grid-column: 1;
@@ -100,7 +100,7 @@
   background: var(--game-surface);
   border: 0;
   border-radius: var(--game-radius-sm);
-  box-shadow: 0 1px 4px rgb(23 26 51 / 4%);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   flex-direction: column;
   /* Stay in left column only — never span full width */

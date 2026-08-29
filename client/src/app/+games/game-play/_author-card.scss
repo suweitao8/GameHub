@@ -66,8 +66,8 @@
   background: var(--game-brand);
   border: 1px solid transparent;
   border-radius: var(--game-radius-pill);
-  box-shadow: 0 1px 4px var(--game-brand-glow);
-  color: #fff;
+  box-shadow: var(--game-shadow-brand);
+  color: var(--game-text-inverse);
   cursor: pointer;
   display: inline-flex;
   font-size: 0.78rem;
@@ -85,7 +85,7 @@
 .developer-follow-button:hover:not(:disabled),
 .developer-follow-button:focus-visible:not(:disabled) {
   background: var(--game-brand-hover);
-  box-shadow: 0 3px 10px var(--game-brand-glow);
+  box-shadow: var(--game-shadow-brand);
   transform: translateY(-1px);
 }
 
@@ -98,7 +98,7 @@
 
 .developer-follow-button.active:hover:not(:disabled),
 .developer-follow-button.active:focus-visible:not(:disabled) {
-  background: #e2defc;
+  background: var(--game-brand-soft);
   transform: none;
 }
 
@@ -110,6 +110,13 @@
 .developer-owner-label {
   grid-column: 2;
   grid-row: 2;
+}
+
+.developer-skeleton {
+  background: var(--game-surface-alt);
+  border-radius: var(--game-radius-control);
+  height: 2.5rem;
+  width: 60%;
 }
 
 /* GameHub detail-page layout contract overrides for developer card */
@@ -156,7 +163,7 @@
 }
 
 .game-play-page .developer-follow-button {
-  color: #fff;
+  color: var(--game-text-inverse);
   font-size: 0.78rem;
   grid-column: 3;
   grid-row: auto;

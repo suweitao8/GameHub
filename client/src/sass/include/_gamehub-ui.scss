@@ -1,0 +1,478 @@
+/* ===========================================================================
+   GameHub shared UI layer
+   ---------------------------------------------------------------------------
+   The active GameHub SPA uses these compatibility aliases and primitives.
+   PeerTube/plugin pages keep their original theme variables outside this
+   scope.
+   ======================================================================== */
+
+.game-experience {
+  /* Bridge legacy PeerTube/Bootstrap variables used by shared controls. */
+  --bg: var(--game-page-bg);
+  --bg-secondary: var(--game-surface-alt);
+  --bg-secondary-200: var(--game-surface);
+  --bg-secondary-250: var(--game-surface);
+  --bg-secondary-300: var(--game-surface-active);
+  --bg-secondary-350: var(--game-surface);
+  --bg-secondary-400: var(--game-surface-alt);
+  --bg-secondary-450: var(--game-border);
+  --bg-secondary-500: var(--game-border-strong);
+  --bg-secondary-550: var(--game-border-strong);
+  --bg-secondary-600: var(--game-text-hint);
+
+  --fg: var(--game-text-primary);
+  --fg-50: var(--game-text-hint);
+  --fg-100: var(--game-text-hint);
+  --fg-150: var(--game-text-secondary);
+  --fg-200: var(--game-text-secondary);
+  --fg-250: var(--game-text-secondary);
+  --fg-300: var(--game-text-secondary);
+  --fg-350: var(--game-text-secondary);
+  --fg-400: var(--game-muted);
+  --fg-450: var(--game-muted);
+  --fg-500: var(--game-muted);
+
+  --primary: var(--game-brand);
+  --primary-50: var(--game-brand-soft);
+  --primary-100: var(--game-brand-soft);
+  --primary-150: var(--game-brand-soft);
+  --primary-200: var(--game-brand-soft);
+  --primary-250: var(--game-brand-border);
+  --primary-300: var(--game-brand-border);
+  --primary-350: var(--game-brand);
+  --primary-400: var(--game-brand-hover);
+  --primary-450: var(--game-brand);
+  --primary-500: var(--game-brand);
+  --primary-550: var(--game-brand-deep);
+  --primary-600: var(--game-brand-deep);
+  --primary-650: var(--game-brand-deep);
+  --primary-700: var(--game-brand-deep);
+  --on-primary: var(--game-text-inverse);
+  --on-primary-50: var(--game-text-inverse);
+  --on-primary-100: var(--game-text-inverse);
+  --on-primary-150: var(--game-text-inverse);
+  --on-primary-200: var(--game-text-inverse);
+  --on-primary-250: var(--game-text-inverse);
+  --on-primary-300: var(--game-text-inverse);
+  --on-primary-350: var(--game-text-inverse);
+  --on-primary-400: var(--game-text-inverse);
+  --on-primary-450: var(--game-text-inverse);
+  --on-primary-500: var(--game-text-inverse);
+  --on-primary-550: var(--game-text-inverse);
+  --on-primary-600: var(--game-text-inverse);
+  --on-primary-650: var(--game-text-inverse);
+  --on-primary-700: var(--game-text-inverse);
+
+  --input-fg: var(--game-text-primary);
+  --input-bg: var(--game-surface-alt);
+  --input-border-color: var(--game-border);
+  --input-border-radius: var(--game-radius-control);
+  --input-x-padding: var(--game-control-padding-x);
+  --input-y-padding: 0.625rem;
+  --secondary-icon-color: var(--game-text-hint);
+  --header-fg: var(--game-text-primary);
+  --header-bg: var(--game-surface);
+  --menu-fg: var(--game-text-secondary);
+  --menu-bg: var(--game-surface-alt);
+}
+
+/* --------------------------------------------------------------------------
+   活动页面共享控件：把仍使用 PeerTube/Bootstrap 类名的旧页面接入同一套
+   高度、圆角、焦点和状态语义。选择器限定在 .game-experience 内，插件页
+   继续使用原主题。
+   -------------------------------------------------------------------------- */
+
+.game-experience {
+  .peertube-button,
+  .peertube-button-link,
+  .button-file,
+  .peertube-create-button,
+  .reset-button,
+  .btn {
+    align-items: center;
+    border-radius: var(--game-radius-control);
+    font-family: inherit;
+    justify-content: center;
+    min-height: var(--game-control-height);
+    transition: background-color var(--game-dur) var(--game-ease),
+      border-color var(--game-dur) var(--game-ease),
+      box-shadow var(--game-dur) var(--game-ease),
+      color var(--game-dur) var(--game-ease),
+      opacity var(--game-dur) var(--game-ease);
+  }
+
+  .peertube-button-small,
+  .peertube-button-small-link,
+  .small-button,
+  .btn-sm {
+    min-height: var(--game-control-height-sm);
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+  textarea,
+  select,
+  .form-control,
+  .form-select {
+    background: var(--game-surface-alt);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-control);
+    color: var(--game-text-primary);
+    min-height: var(--game-control-height);
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']):focus,
+  textarea:focus,
+  select:focus,
+  .form-control:focus,
+  .form-select:focus {
+    background: var(--game-surface);
+    border-color: var(--game-brand);
+    box-shadow: var(--game-focus-ring);
+    outline: 0;
+  }
+
+  .primary-button,
+  .btn-primary {
+    background: var(--game-brand);
+    border-color: var(--game-brand);
+    color: var(--game-text-inverse);
+    font-weight: 700;
+  }
+
+  .primary-button:hover:not(:disabled),
+  .primary-button:active:not(:disabled),
+  .primary-button:focus-visible,
+  .btn-primary:hover:not(:disabled),
+  .btn-primary:active:not(:disabled),
+  .btn-primary:focus-visible {
+    background: var(--game-brand-hover);
+    border-color: var(--game-brand-hover);
+    color: var(--game-text-inverse);
+  }
+
+  .secondary-button,
+  .btn-secondary {
+    background: var(--game-surface);
+    border-color: var(--game-border-strong);
+    color: var(--game-text-secondary);
+    font-weight: 700;
+  }
+
+  .secondary-button:hover:not(:disabled),
+  .secondary-button:active:not(:disabled),
+  .secondary-button:focus-visible,
+  .btn-secondary:hover:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-secondary:focus-visible {
+    background: var(--game-brand-soft);
+    border-color: var(--game-brand);
+    color: var(--game-brand);
+  }
+
+  .tertiary-button {
+    background: transparent;
+    border-color: transparent;
+    color: var(--game-text-secondary);
+  }
+
+  .tertiary-button:hover:not(:disabled),
+  .tertiary-button:active:not(:disabled),
+  .tertiary-button:focus-visible {
+    background: var(--game-surface-alt);
+    border-color: var(--game-border);
+    color: var(--game-text-primary);
+  }
+
+  .danger-button,
+  .btn-danger {
+    background: var(--game-danger);
+    border-color: var(--game-danger);
+    color: var(--game-text-inverse);
+    font-weight: 700;
+  }
+
+  .danger-button:hover:not(:disabled),
+  .danger-button:active:not(:disabled),
+  .danger-button:focus-visible,
+  .btn-danger:hover:not(:disabled),
+  .btn-danger:active:not(:disabled),
+  .btn-danger:focus-visible {
+    background: var(--game-danger-deep);
+    border-color: var(--game-danger-deep);
+    color: var(--game-text-inverse);
+  }
+
+  .peertube-button:disabled,
+  .peertube-button-link:disabled,
+  .btn:disabled,
+  .peertube-button[aria-disabled='true'],
+  .peertube-button-link[aria-disabled='true'],
+  .btn[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .dropdown-menu {
+    background: var(--game-surface);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-md);
+    box-shadow: var(--game-shadow-popover);
+    color: var(--game-text-primary);
+    padding: 0.45rem;
+  }
+
+  .dropdown-menu .dropdown-item {
+    border-radius: var(--game-radius-xs);
+    color: var(--game-text-secondary);
+    min-height: var(--game-control-height-sm);
+    padding: 0.55rem 0.75rem;
+    transition: background-color var(--game-dur-fast) var(--game-ease),
+      color var(--game-dur-fast) var(--game-ease);
+  }
+
+  .dropdown-menu .dropdown-item:hover,
+  .dropdown-menu .dropdown-item:focus-visible {
+    background: var(--game-surface-alt);
+    color: var(--game-brand);
+    outline: 0;
+  }
+
+  .dropdown-menu .dropdown-item.active,
+  .dropdown-menu .dropdown-item:active {
+    background: var(--game-brand-soft);
+    color: var(--game-brand-deep) !important;
+  }
+
+  .dropdown-divider {
+    border-top-color: var(--game-border);
+    margin: 0.35rem 0;
+  }
+}
+
+/* Ngb/PrimeNG 将部分浮层挂到 body，按当前 SPA 根节点继承同一套表面。 */
+body:has(.peertube-container.game-experience) {
+  background: var(--game-page-bg);
+
+  .modal-backdrop.show {
+    background: var(--game-overlay);
+    opacity: 1;
+  }
+
+  .modal-content {
+    background: var(--game-surface);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-md);
+    box-shadow: var(--game-shadow-popover);
+    color: var(--game-text-primary);
+  }
+
+  .modal-header,
+  .modal-footer {
+    border-color: var(--game-border);
+  }
+
+  .dropdown-menu {
+    background: var(--game-surface);
+    border: 1px solid var(--game-border);
+    border-radius: var(--game-radius-md);
+    box-shadow: var(--game-shadow-popover);
+    color: var(--game-text-primary);
+  }
+
+  p-toast .p-toast-message {
+    background: var(--game-surface) !important;
+    border: 1px solid var(--game-border) !important;
+    border-left-width: 4px !important;
+    border-radius: var(--game-radius-md);
+    box-shadow: var(--game-shadow-popover);
+    color: var(--game-text-primary) !important;
+  }
+
+  p-toast .p-toast-message-success {
+    --toast-accent-soft: var(--game-success-soft);
+
+    border-left-color: var(--game-success) !important;
+
+    my-global-icon {
+      color: var(--game-success) !important;
+    }
+  }
+
+  p-toast .p-toast-message-error {
+    --toast-accent-soft: var(--game-danger-soft);
+
+    border-left-color: var(--game-danger) !important;
+
+    my-global-icon {
+      color: var(--game-danger) !important;
+    }
+  }
+
+  p-toast .p-toast-message-warn {
+    --toast-accent-soft: var(--game-warning-soft);
+
+    border-left-color: var(--game-warning) !important;
+
+    my-global-icon {
+      color: var(--game-warning) !important;
+    }
+  }
+
+  p-toast .p-toast-message-info {
+    --toast-accent-soft: var(--game-info-soft);
+
+    border-left-color: var(--game-info) !important;
+
+    my-global-icon {
+      color: var(--game-info) !important;
+    }
+  }
+}
+
+.game-ui-surface {
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-sm);
+  box-shadow: var(--game-shadow);
+}
+
+.game-ui-control {
+  align-items: center;
+  border-radius: var(--game-radius-control);
+  display: inline-flex;
+  font: inherit;
+  justify-content: center;
+  min-height: var(--game-control-height);
+  padding: 0 var(--game-control-padding-x);
+  transition: background-color var(--game-dur) var(--game-ease),
+    border-color var(--game-dur) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease),
+    color var(--game-dur) var(--game-ease),
+    opacity var(--game-dur) var(--game-ease);
+}
+
+.game-ui-control:focus-visible {
+  box-shadow: var(--game-focus-ring);
+  outline: 0;
+}
+
+.game-ui-control:disabled,
+.game-ui-control[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.game-ui-button-primary {
+  @extend .game-ui-control;
+
+  background: var(--game-brand);
+  border: 1px solid var(--game-brand);
+  color: var(--game-text-inverse);
+  font-weight: 700;
+}
+
+.game-ui-button-primary:hover:not(:disabled),
+.game-ui-button-primary:active:not(:disabled) {
+  background: var(--game-brand-hover);
+  border-color: var(--game-brand-hover);
+  color: var(--game-text-inverse);
+}
+
+.game-ui-button-secondary {
+  @extend .game-ui-control;
+
+  background: var(--game-surface);
+  border: 1px solid var(--game-border-strong);
+  color: var(--game-text-secondary);
+  font-weight: 700;
+}
+
+.game-ui-button-secondary:hover:not(:disabled),
+.game-ui-button-secondary:active:not(:disabled) {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand);
+  color: var(--game-brand);
+}
+
+.game-ui-button-danger {
+  @extend .game-ui-control;
+
+  background: var(--game-danger);
+  border: 1px solid var(--game-danger);
+  color: var(--game-text-inverse);
+  font-weight: 700;
+}
+
+.game-ui-button-danger:hover:not(:disabled),
+.game-ui-button-danger:active:not(:disabled) {
+  background: var(--game-danger-deep);
+  border-color: var(--game-danger-deep);
+  color: var(--game-text-inverse);
+}
+
+.game-ui-status {
+  align-items: flex-start;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-control);
+  display: flex;
+  gap: var(--game-space-control);
+  padding: 0.75rem 1rem;
+}
+
+.game-ui-status.is-info {
+  background: var(--game-info-soft);
+  border-color: var(--game-info-border);
+  color: var(--game-info);
+}
+
+.game-ui-status.is-success {
+  background: var(--game-success-soft);
+  border-color: color-mix(in srgb, var(--game-success) 30%, var(--game-surface));
+  color: var(--game-success);
+}
+
+.game-ui-status.is-warning {
+  background: var(--game-warning-soft);
+  border-color: color-mix(in srgb, var(--game-warning) 30%, var(--game-surface));
+  color: var(--game-warning);
+}
+
+.game-ui-status.is-danger {
+  background: var(--game-danger-soft);
+  border-color: color-mix(in srgb, var(--game-danger) 30%, var(--game-surface));
+  color: var(--game-danger);
+}
+
+.game-experience .game-ui-field,
+.game-experience input.form-control,
+.game-experience textarea.form-control,
+.game-experience select.form-control {
+  background: var(--game-surface-alt);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-control);
+  color: var(--game-text-primary);
+  min-height: var(--game-control-height);
+  transition: background-color var(--game-dur) var(--game-ease),
+    border-color var(--game-dur) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease);
+}
+
+.game-experience .game-ui-field:focus,
+.game-experience input.form-control:focus,
+.game-experience textarea.form-control:focus,
+.game-experience select.form-control:focus {
+  background: var(--game-surface);
+  border-color: var(--game-brand);
+  box-shadow: var(--game-focus-ring);
+  outline: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-ui-control,
+  .game-experience .game-ui-field,
+  .game-experience input.form-control,
+  .game-experience textarea.form-control,
+  .game-experience select.form-control {
+    transition: none;
+  }
+}

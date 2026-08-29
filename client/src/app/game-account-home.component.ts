@@ -31,7 +31,6 @@ import { GAME_FEATURES } from './+games/shared'
               } @else {
                 <span
                   class="game-account-profile-unavailable shimmer"
-                  style="display:inline-block;height:1.2rem;width:6rem;border-radius:4px;background:#eceff3"
                 ></span>
               }
               <a routerLink="/my-account/settings">账户设置</a>

@@ -17,7 +17,7 @@
 .step-content-title-separator {
   height: 6px;
   width: 60px;
-  border-radius: 4px;
+  border-radius: var(--game-radius-control);
   background-color: pvar(--primary);
   margin: 5px auto 0;
 }

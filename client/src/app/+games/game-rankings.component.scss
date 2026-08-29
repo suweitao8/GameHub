@@ -86,8 +86,8 @@
 }
 
 .rank-number.top3 {
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-warning), var(--game-danger));
+  color: var(--game-text-inverse);
 }
 
 .ranking-cover {
@@ -111,7 +111,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--game-cover-fallback-deep), var(--game-cover-fallback));
-  color: #fff;
+  color: var(--game-text-inverse);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -173,7 +173,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;

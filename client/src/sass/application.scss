@@ -13,6 +13,7 @@
 @use "./primeng";
 // GameHub 设计系统令牌：全局加载一次，供所有 game-experience 组件消费
 @use "../app/+games/game-community.tokens";
+@use "./include/gamehub-ui";
 
 @mixin main-col-expanded {
   --menu-width: #{$menu-collapsed-width};

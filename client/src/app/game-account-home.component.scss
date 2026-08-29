@@ -12,7 +12,7 @@
 .game-account-header p:not(.game-eyebrow) { color: var(--game-muted);
   margin: 0.5rem 0 0; }
 .game-account-avatar { background: var(--game-brand-soft);
-  border: 4px solid #fff;
+  border: 4px solid var(--game-text-inverse);
   border-radius: 50%;
   box-shadow: var(--game-shadow);
   height: 5rem;
@@ -37,8 +37,11 @@
 .game-account-empty a { color: var(--game-brand-deep);
   font-weight: 700;
   text-decoration: none; }
-.game-account-profile-unavailable { color: var(--game-muted);
-  font-size: 0.85rem; }
+.game-account-profile-unavailable { background: var(--game-surface-active);
+  border-radius: var(--game-radius-xs);
+  display: inline-block;
+  height: 1.2rem;
+  width: 6rem; }
 .game-account-profile-actions { display: flex;
   flex-wrap: wrap;
   gap: 1rem; }

@@ -39,6 +39,7 @@ body {
   /* ---- 主品牌：电光靛蓝 ---- */
   --game-brand: #5044e4;
   --game-brand-vivid: #7c3aed;
+  --game-brand-light: #83d9f5;
   --game-brand-hover: #4034cf;
   --game-brand-deep: #352bb0;
   --game-brand-soft: #edebfd;
@@ -55,10 +56,14 @@ body {
 
   /* ---- 语义色 ---- */
   --game-success: #109a76;
+  --game-success-vivid: #34d399;
+  --game-success-deep: #166534;
   --game-success-soft: #e2f7ef;
   --game-warning: #dd8500;
+  --game-warning-deep: #92400e;
   --game-warning-soft: #fdf1dd;
   --game-danger: #d92d20;
+  --game-danger-deep: #991b1b;
   --game-danger-soft: #feeceb;
 
   /* ---- 封面兜底（靛夜渐变，取代旧棕色）---- */
@@ -71,8 +76,29 @@ body {
   --game-radius-md: 14px;
   --game-radius-lg: 20px;
   --game-radius-pill: 999px;
+  --game-radius-bubble-incoming: 0.25rem 0.65rem 0.65rem;
+  --game-radius-bubble-outgoing: 0.65rem 0.25rem 0.65rem 0.65rem;
+  --game-radius-input-end: 0 var(--game-radius-control) var(--game-radius-control) 0;
   /* 兼容别名：全站基础圆角从旧 6px 升级为 10px */
   --game-radius: var(--game-radius-sm);
+
+  /* ---- 控件与布局 ---- */
+  --game-control-height: 44px;
+  --game-control-height-sm: 38px;
+  --game-control-height-lg: 48px;
+  --game-control-padding-x: 1rem;
+  --game-radius-control: 8px;
+  --game-space-page: clamp(1rem, 2.4vw, 2rem);
+  --game-space-section: clamp(1.5rem, 3vw, 2.5rem);
+  --game-space-grid: 1rem;
+  --game-space-control: 0.75rem;
+  --game-focus-ring: 0 0 0 3px var(--game-brand-glow);
+
+  /* ---- 信息状态 ---- */
+  --game-info: #2563eb;
+  --game-info-deep: #1e40af;
+  --game-info-soft: #eff6ff;
+  --game-info-border: #bfdbfe;
 
   /* ---- 阴影阶梯（靛墨基调）---- */
   --game-shadow-xs: 0 1px 2px rgb(23 26 51 / 5%), 0 1px 6px rgb(23 26 51 / 4%);
@@ -80,6 +106,7 @@ body {
   --game-shadow-lg: 0 2px 8px rgb(23 26 51 / 7%), 0 16px 36px rgb(23 26 51 / 13%);
   --game-shadow-popover: 0 4px 12px rgb(23 26 51 / 7%), 0 20px 44px rgb(23 26 51 / 16%);
   --game-shadow-brand: 0 6px 18px rgb(80 68 228 / 28%);
+  --game-shadow-accent: 0 6px 18px rgb(225 29 72 / 28%);
 
   /* ---- 动效 ---- */
   --game-ease: cubic-bezier(0.22, 0.72, 0.28, 1);
@@ -116,7 +143,7 @@ body {
 .game-community-page input:focus-visible,
 .game-community-page textarea:focus-visible,
 .game-community-page select:focus-visible {
-  outline: 2px solid var(--game-brand-glow);
+  outline: 2px solid var(--game-brand);
   outline-offset: 2px;
 }
 
@@ -126,8 +153,8 @@ body {
 
 .game-community-content {
   margin: 0 auto;
-  max-width: none;
-  width: 90%;
+  max-width: var(--game-content-width);
+  width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
 }
 
 .game-eyebrow {
@@ -209,6 +236,6 @@ body {
 
 @media (max-width: 640px) {
   .game-community-content {
-    width: 90%;
+    width: calc(100% - (var(--game-space-page) * 2));
   }
 }

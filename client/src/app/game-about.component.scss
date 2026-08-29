@@ -2,7 +2,7 @@
 
 .game-about-page { padding-bottom: 4rem; }
 .game-about-hero { align-items: center;
-  background: linear-gradient(135deg, var(--game-brand-soft), #fff 54%, var(--game-accent-soft));
+  background: linear-gradient(135deg, var(--game-brand-soft), var(--game-text-inverse) 54%, var(--game-accent-soft));
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-lg);
   display: grid;
@@ -31,15 +31,15 @@
   padding: 0.75rem 1.2rem;
   text-decoration: none; }
 .game-about-primary { background: var(--game-brand);
-  color: #fff; }
+  color: var(--game-text-inverse); }
 .game-about-secondary { background: var(--game-surface);
   border: 1px solid var(--game-border);
   color: var(--game-text); }
 .game-about-orbit { aspect-ratio: 1;
-  background: radial-gradient(circle, rgb(255 255 255 / 90%) 0 22%, transparent 23%), conic-gradient(from 30deg, var(--game-brand), #83d9f5, var(--game-accent), var(--game-brand));
-  border: 14px solid rgb(255 255 255 / 65%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--game-text-inverse) 90%, transparent) 0 22%, transparent 23%), conic-gradient(from 30deg, var(--game-brand), var(--game-brand-light), var(--game-accent), var(--game-brand));
+  border: 14px solid color-mix(in srgb, var(--game-text-inverse) 65%, transparent);
   border-radius: 50%;
-  box-shadow: 0 18px 42px rgb(0 80 120 / 15%);
+  box-shadow: var(--game-shadow-lg);
   display: grid;
   margin: auto;
   padding: 1.1rem;
@@ -47,12 +47,12 @@
   position: relative;
   transform: rotate(-12deg);
   width: min(100%, 220px); }
-.game-about-orbit::after { border: 1px dashed rgb(255 255 255 / 70%);
+.game-about-orbit::after { border: 1px dashed color-mix(in srgb, var(--game-text-inverse) 70%, transparent);
   border-radius: 50%;
   content: '';
   inset: 18%;
   position: absolute; }
-.game-about-orbit span { color: #fff;
+.game-about-orbit span { color: var(--game-text-inverse);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.16em;

@@ -39,18 +39,18 @@
 }
 
 .event-type-badge.activity { background: var(--game-brand-soft);
-  color: #0369a1; }
-.event-type-badge.competition { background: #fef3c7;
-  color: #92400e; }
+  color: var(--game-info); }
+.event-type-badge.competition { background: var(--game-warning-soft);
+  color: var(--game-warning-deep); }
 
-.event-status-badge.upcoming { background: #dcfce7;
-  color: #166534; }
+.event-status-badge.upcoming { background: var(--game-success-soft);
+  color: var(--game-success-deep); }
 .event-status-badge.ongoing { background: var(--game-brand-soft);
-  color: #1e40af; }
+  color: var(--game-info-deep); }
 .event-status-badge.ended { background: var(--game-surface-alt);
   color: var(--game-text-secondary); }
-.event-status-badge.cancelled { background: #fee2e2;
-  color: #991b1b; }
+.event-status-badge.cancelled { background: var(--game-danger-soft);
+  color: var(--game-danger-deep); }
 
 .event-detail-info h1 { font-size: 1.5rem;
   margin: 0 0 0.5rem; }
@@ -90,7 +90,7 @@
 
 .event-action-btn.primary { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: #fff; }
+  color: var(--game-text-inverse); }
 .event-action-btn.primary:hover { background: var(--game-brand-deep); }
 .event-action-btn.primary:disabled { opacity: 0.6;
   cursor: not-allowed; }
@@ -152,7 +152,7 @@
 .participant-info strong { font-size: 0.88rem; }
 .participant-state {
   background: var(--game-brand-soft);
-  color: #0369a1;
+  color: var(--game-info);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.1rem 0.4rem;

@@ -76,7 +76,7 @@ interface KpiSummary {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      background: #fff;
+      background: var(--game-surface);
       border: 1px solid var(--game-border);
       border-radius: var(--game-radius);
       padding: 1rem;
@@ -85,25 +85,25 @@ interface KpiSummary {
     .kpi-icon {
       width: 2.5rem;
       height: 2.5rem;
-      border-radius: 8px;
+      border-radius: var(--game-radius-control);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
 
-    .kpi-icon.plays { background: #dbeafe; color: #3b82f6; }
-    .kpi-icon.likes { background: #fee2e2; color: #ef4444; }
-    .kpi-icon.followers { background: #dcfce7; color: #22c55e; }
-    .kpi-icon.coins { background: #fef3c7; color: #f59e0b; }
+    .kpi-icon.plays { background: var(--game-info-soft); color: var(--game-info); }
+    .kpi-icon.likes { background: var(--game-danger-soft); color: var(--game-danger); }
+    .kpi-icon.followers { background: var(--game-success-soft); color: var(--game-success); }
+    .kpi-icon.coins { background: var(--game-warning-soft); color: var(--game-warning); }
     .kpi-icon my-global-icon { height: 1.1rem; width: 1.1rem; }
 
     .kpi-data { display: flex; flex-direction: column; min-width: 0; }
     .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--game-text); }
     .kpi-label { font-size: 0.78rem; color: var(--game-muted); }
     .kpi-trend { font-size: 0.75rem; font-weight: 600; }
-    .kpi-trend.up { color: #22c55e; }
-    .kpi-trend.down { color: #ef4444; }
+    .kpi-trend.up { color: var(--game-success); }
+    .kpi-trend.down { color: var(--game-danger); }
   ` ]
 })
 export class AnalyticsKpiGridComponent {

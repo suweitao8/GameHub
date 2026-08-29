@@ -55,10 +55,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
 
     .section-side-action {
       align-items: center;
-      background: #f6f7f8;
-      border: 1px solid #e3e5e7;
-      border-radius: 6px;
-      color: #646464;
+      background: var(--game-surface-alt);
+      border: 1px solid var(--game-border);
+      border-radius: var(--game-radius-control);
+      color: var(--game-text-secondary);
       cursor: pointer;
       display: flex;
       flex-direction: column;
@@ -75,10 +75,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
 
     .section-side-action:hover,
     .section-side-action:focus-visible {
-      background: var(--game-brand-soft, #edebfd);
-      border-color: var(--game-brand-border, #cfc9f8);
-      box-shadow: 0 1px 4px rgb(80 68 228 / 16%);
-      color: var(--game-brand, #5044e4);
+      background: var(--game-brand-soft);
+      border-color: var(--game-brand-border);
+      box-shadow: var(--game-shadow-brand);
+      color: var(--game-brand);
       outline: none;
     }
 
@@ -92,7 +92,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     .section-side-action:focus-visible {
-      outline: 2px solid rgb(80 68 228 / 35%);
+      outline: 2px solid var(--game-brand);
       outline-offset: 2px;
     }
 

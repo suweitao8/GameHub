@@ -7,7 +7,7 @@
 .game-play-page .game-play-layout {
   display: block;
   max-width: none;
-  width: 90%;
+  width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
 }
 .play-main {
   display: flex;
@@ -60,7 +60,7 @@
 .game-play-state button { background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 700;
   padding: 0.65rem 1rem; }
 .game-play-state a { color: var(--game-brand); }
@@ -73,7 +73,7 @@
   --game-detail-surface: var(--game-surface);
   --game-detail-surface-muted: var(--game-surface-alt);
   --game-detail-shadow: var(--game-shadow-xs);
-  --game-detail-avatar-shadow: 0 4px 12px rgb(23 26 51 / 14%);
+  --game-detail-avatar-shadow: var(--game-shadow-xs);
   --game-detail-radius: var(--game-radius-md);
   --game-text: var(--game-text-primary);
   --game-text-button: var(--game-text-secondary);
@@ -91,7 +91,7 @@
 .game-play-page .game-community-content,
 .game-play-page .game-play-layout {
   max-width: none;
-  width: 90%;
+  width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
 }
 
 /* 标题栏为扁平排版：不做成圆角卡片，仅保留数据行 */
@@ -149,7 +149,7 @@
   border-radius: 50%;
   bottom: 1.5rem;
   box-shadow: var(--game-shadow-brand);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   display: flex;
   height: 2.75rem;
@@ -240,7 +240,7 @@
 .game-skeleton-control-bar {
   background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
   background-size: 200% 100%;
-  border-radius: 0.35rem;
+  border-radius: var(--game-radius-xs);
   height: 2.5rem;
   width: 100%;
   animation: skeleton-shimmer 1.4s ease infinite;

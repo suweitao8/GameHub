@@ -63,7 +63,7 @@
 }
 
 .reservations-error button:hover { background: var(--game-brand);
-  color: #fff; }
+  color: var(--game-text-inverse); }
 
 .reservations-list { display: flex;
   flex-direction: column;
@@ -103,8 +103,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
+  color: var(--game-text-inverse);
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -139,8 +139,8 @@
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
   border-radius: var(--game-radius-xs);
-  background: #dcfce7;
-  color: #166534;
+  background: var(--game-success-soft);
+  color: var(--game-success-deep);
   font-weight: 600;
 }
 
@@ -148,8 +148,8 @@
   font-size: 0.7rem;
   padding: 0.1rem 0.4rem;
   border-radius: var(--game-radius-xs);
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--game-warning-soft);
+  color: var(--game-warning-deep);
   font-weight: 600;
 }
 
@@ -179,9 +179,9 @@
 }
 
 .cancel-btn:hover:not(:disabled) {
-  background: #fee2e2;
-  color: #ef4444;
-  border-color: #ef4444;
+  background: var(--game-danger-soft);
+  color: var(--game-danger);
+  border-color: var(--game-danger);
 }
 
 .cancel-btn:disabled { opacity: 0.6;
@@ -203,8 +203,8 @@
   display: inline-block;
   padding: 0.5rem 1rem;
   border-radius: var(--game-radius);
-  background: linear-gradient(135deg, var(--game-brand), #34d399);
-  color: #fff;
+  background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
+  color: var(--game-text-inverse);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;

@@ -29,13 +29,13 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: var(--game-radius);
-  background: #e2e8f0;
+  background: var(--game-surface-active);
   margin-bottom: 0.75rem;
 }
 .collection-skeleton-text { height: 1rem;
   width: 60%;
   border-radius: var(--game-radius-xs);
-  background: #e2e8f0;
+  background: var(--game-surface-active);
   margin-bottom: 0.5rem; }
 .collection-skeleton-text.short { width: 30%; }
 .collection-skeleton-grid { display: grid;
@@ -82,7 +82,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-text-inverse);
   cursor: pointer;
   font-weight: 600;
   padding: 0.55rem 1.25rem;

@@ -21,7 +21,7 @@
 .upload-page > .game-community-content {
   margin-inline: auto;
   max-width: 760px;
-  width: 90%;
+  width: min(calc(100% - (var(--game-space-page) * 2)), 760px);
 }
 
 /* ---------------------------------------------------------------------------
@@ -73,7 +73,7 @@
 
 .form-section-heading::before {
   background: var(--game-brand);
-  border-radius: 2px;
+  border-radius: var(--game-radius-xs);
   content: '';
   flex: 0 0 4px;
   height: 1.1rem;
@@ -183,7 +183,7 @@
   align-items: center;
   background: var(--game-brand);
   border-radius: 50%;
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-flex;
   font-size: 1.35rem;
   font-weight: 800;
@@ -231,10 +231,10 @@
 
 .cover-remove {
   align-items: center;
-  background: rgba(12, 20, 30, 0.6);
+  background: color-mix(in srgb, var(--game-text-primary) 60%, transparent);
   border: 0;
   border-radius: 50%;
-  color: #fff;
+  color: var(--game-text-inverse);
   display: inline-flex;
   font-size: 0.85rem;
   height: 1.85rem;
@@ -246,7 +246,7 @@
 }
 
 .cover-remove:hover:not(:disabled) {
-  background: rgba(242, 93, 142, 0.85);
+  background: color-mix(in srgb, var(--game-accent) 85%, transparent);
 }
 
 .cover-remove:disabled {
@@ -449,7 +449,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-form-radius-sm);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 700;
   min-height: 44px;
   padding: 0.7rem 1.8rem;

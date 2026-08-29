@@ -1,7 +1,7 @@
 /* Report dialog */
 .report-dialog-overlay {
   align-items: center;
-  background: rgb(0 0 0 / 50%);
+  background: var(--game-overlay);
   display: flex;
   inset: 0;
   justify-content: center;
@@ -78,7 +78,7 @@
 .report-reasons-grid button.selected {
   background: var(--game-danger);
   border-color: var(--game-danger);
-  color: #fff;
+  color: var(--game-text-inverse);
 }
 
 .report-text-label {
@@ -120,7 +120,7 @@
 .report-actions button.primary {
   background: var(--game-danger);
   border-color: var(--game-danger);
-  color: #fff;
+  color: var(--game-text-inverse);
   font-weight: 600;
 }
 
