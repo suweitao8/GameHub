@@ -55,7 +55,7 @@
   border: 1px solid color-mix(in srgb, var(--game-text-inverse) 35%, transparent);
   border-radius: var(--game-radius-pill);
   display: inline-flex;
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   letter-spacing: 0.04em;
   margin-bottom: 0.35rem;
   padding: 0.22rem 0.6rem; }
@@ -71,7 +71,7 @@
   color: color-mix(in srgb, var(--game-text-inverse) 82%, transparent);
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.76rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.8rem;
   margin-top: 0.65rem; }
 .author-profile-meta span + span::before { content: '•';
@@ -122,7 +122,7 @@
   color: var(--game-brand);
   display: flex;
   flex: 0 0 auto;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   min-height: 56px;
   padding: 1rem 0.25rem 0.85rem; }
@@ -136,7 +136,7 @@
 .author-filter-row::-webkit-scrollbar { display: none; }
 .author-game-count { color: var(--game-muted);
   flex: 0 0 auto;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin-right: 0.2rem;
   white-space: nowrap; }
 .author-filter-row button { background: var(--game-surface);
@@ -144,7 +144,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-text-button);
   flex: 0 0 auto;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.38rem 0.65rem;
   white-space: nowrap; }
 .author-filter-row button.active { background: var(--game-brand-soft);
@@ -174,7 +174,7 @@
     flex-direction: column;
     justify-content: flex-end;
     padding-bottom: 1rem; } .author-identity { align-items: center; } .author-large-avatar { height: 4.5rem;
-    width: 4.5rem; } .author-profile-kicker { font-size: 0.64rem; } .author-profile h1 { font-size: 1.5rem; } .author-profile > p { max-width: 62vw; } .author-profile-meta { font-size: 0.68rem;
+    width: 4.5rem; } .author-profile-kicker { font-size: var(--game-font-size-xs); } .author-profile h1 { font-size: 1.5rem; } .author-profile > p { max-width: 62vw; } .author-profile-meta { font-size: var(--game-font-size-xs);
     gap: 0.55rem; } .author-profile-meta span + span::before { margin-right: 0.55rem; } .follow-button { margin-left: 5.5rem;
     min-height: 34px;
     padding: 0.45rem 0.8rem; } .author-navigation-row { margin-top: 0.6rem; } .author-main { padding-top: 1rem; } .author-main .game-grid { gap: 0.65rem; } }
@@ -231,7 +231,7 @@
 }
 
 .author-stat-label {
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
 }
 
@@ -239,7 +239,7 @@
   .author-stat {
     padding: 0.5rem 0.7rem;
   }
-  .author-stat-value { font-size: 0.95rem; }
-  .author-stat-label { font-size: 0.7rem; }
+  .author-stat-value { font-size: var(--game-font-size-lg); }
+  .author-stat-label { font-size: var(--game-font-size-xs); }
 }
 

@@ -45,7 +45,7 @@
   outline: 0;
   background: transparent;
   color: var(--game-text-primary);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   padding: 0.45rem 2.35rem 0.45rem 0.35rem;
 
   &::placeholder {
@@ -149,7 +149,7 @@
 }
 
 .game-search-panel-heading strong {
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   font-weight: 800;
 }
 
@@ -158,7 +158,7 @@
   border: 0;
   color: var(--game-text-hint);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
   height: auto;
   padding: 0;
   position: static;
@@ -185,7 +185,7 @@
   border-radius: var(--game-radius-pill);
   color: var(--game-text-secondary);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
   height: auto;
   padding: 0.36rem 0.75rem;
   position: static;
@@ -225,7 +225,7 @@
   color: var(--game-text-secondary);
   cursor: pointer;
   display: flex;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.5rem;
   height: auto;
   justify-content: flex-start;
@@ -285,7 +285,7 @@
   color: var(--game-text-secondary);
   cursor: pointer;
   display: flex;
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.5rem;
   height: auto;
   overflow: hidden;

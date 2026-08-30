@@ -8,7 +8,7 @@
 .game-back-link {
   color: var(--game-muted);
   display: inline-block;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   margin-bottom: 1.5rem;
   text-decoration: none;
 }
@@ -45,7 +45,7 @@
 .game-settings-badge { background: var(--game-brand-soft);
   border-radius: var(--game-radius-pill);
   color: var(--game-brand-deep);
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 700;
   padding: 0.35rem 0.7rem; }
 .game-password-form { display: grid;

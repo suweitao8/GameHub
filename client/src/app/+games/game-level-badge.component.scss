@@ -30,7 +30,7 @@
   height: 2rem;
   border-radius: 50%;
   color: var(--game-text-inverse);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 700;
   flex-shrink: 0;
 }
@@ -43,7 +43,7 @@
 }
 
 .level-title {
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   color: var(--game-text);
   white-space: nowrap;
@@ -52,12 +52,12 @@
 }
 
 .level-exp {
-  font-size: 0.7rem;
+  font-size: var(--game-font-size-xs);
   color: var(--game-muted);
 }
 
 .daily-available {
-  font-size: 0.65rem;
+  font-size: var(--game-font-size-xs);
   color: var(--game-success);
   background: color-mix(in srgb, var(--game-success) 10%, transparent);
   padding: 0.1rem 0.35rem;
@@ -87,7 +87,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 0.55rem;
+  font-size: var(--game-font-size-xs);
   color: var(--game-muted);
   white-space: nowrap;
 }

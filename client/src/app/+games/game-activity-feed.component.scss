@@ -17,7 +17,7 @@
   border: 0;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   color: var(--game-muted);
   transition: all 0.2s;
 }
@@ -37,7 +37,7 @@
   border-radius: var(--game-radius);
   color: var(--game-brand-deep);
   display: flex;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.5rem;
   justify-content: center;
   padding: 0.5rem;
@@ -85,27 +85,27 @@
   align-items: center;
   justify-content: center;
   color: var(--game-brand-contrast);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .feed-content { flex: 1;
   min-width: 0; }
-.feed-message { font-size: 0.9rem;
+.feed-message { font-size: var(--game-font-size-md);
   color: var(--game-text);
   margin: 0 0 0.25rem; }
-.feed-game { font-size: 0.8rem;
+.feed-game { font-size: var(--game-font-size-sm);
   color: var(--game-brand);
   text-decoration: none; }
 .feed-game:hover { text-decoration: underline; }
-.feed-time { font-size: 0.7rem;
+.feed-time { font-size: var(--game-font-size-xs);
   color: var(--game-muted);
   display: block;
   margin-top: 0.25rem; }
 
 .feed-kind-badge {
-  font-size: 0.65rem;
+  font-size: var(--game-font-size-xs);
   padding: 0.15rem 0.4rem;
   border-radius: var(--game-radius-xs);
   background: var(--game-border);
@@ -133,7 +133,7 @@
 .feed-empty span { font-size: 1.1rem;
   display: block;
   margin-bottom: 0.5rem; }
-.feed-empty p { font-size: 0.8rem;
+.feed-empty p { font-size: var(--game-font-size-sm);
   margin: 0 0 1rem; }
 .feed-empty button {
   background: var(--game-brand);
@@ -141,7 +141,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   padding: 0.45rem 0.9rem;
 }
 
@@ -154,7 +154,7 @@
   border-radius: var(--game-radius);
   cursor: pointer;
   color: var(--game-text);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   transition: all 0.2s;
   display: flex;
   align-items: center;

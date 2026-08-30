@@ -54,7 +54,7 @@ h1 { margin: 0 0 28px;
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-sm);
   color: var(--game-text);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   height: 2.4rem;
   padding: 0 0.75rem;
   width: 100%; }
@@ -67,7 +67,7 @@ h1 { margin: 0 0 28px;
   border-bottom: 2px solid transparent;
   color: var(--game-muted);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.4rem 0.6rem; }
 .manage-status-tabs button.active { border-bottom-color: var(--game-brand);
   color: var(--game-brand);

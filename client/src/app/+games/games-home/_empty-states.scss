@@ -31,7 +31,7 @@
 
 .empty-desc {
   color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   margin: 0;
 }
 
@@ -40,7 +40,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   padding: 0.5rem 1rem;
   text-decoration: none;
@@ -72,13 +72,13 @@
 
 .empty-feed-title {
   color: var(--game-text);
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 600;
 }
 
 .empty-feed-desc {
   color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin: 0;
 }
 
@@ -87,7 +87,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
   display: inline-block;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   padding: 0.4rem 0.9rem;
   text-decoration: none;

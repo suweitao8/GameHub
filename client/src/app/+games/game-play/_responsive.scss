@@ -93,10 +93,10 @@
   .game-title-bar h1 { font-size: 1.35rem; }
   .game-title-meta {
     flex-wrap: wrap;
-    font-size: 0.72rem;
+    font-size: var(--game-font-size-xs);
     gap: 0.25rem 0.6rem;
   }
-  .game-title-meta > span { font-size: 0.72rem; }
+  .game-title-meta > span { font-size: var(--game-font-size-xs); }
   .game-developer-card {
     padding: 0.6rem;
   }

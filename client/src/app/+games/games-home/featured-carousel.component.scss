@@ -74,7 +74,7 @@
 }
 
 .section-side-action-label {
-  font-size: 0.68rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.4;
@@ -248,7 +248,7 @@
 
 .featured-cover-copy small {
   color: color-mix(in srgb, var(--game-text-inverse) 84%, transparent);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
 }
 
 /* Average-color footer: title row + switch controls stacked below the cover. */
@@ -377,7 +377,7 @@
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.65rem; }
   .featured-cover { min-height: 0; }
-  .featured-caption h3 { font-size: 1.05rem; }
+  .featured-caption h3 { font-size: var(--game-font-size-lg); }
 }
 
 @media (max-width: 720px) {
@@ -405,7 +405,7 @@
   .featured-controls {
     padding: 0.15rem 0.55rem 0.4rem;
   }
-  .featured-caption h3 { font-size: 0.9rem; }
+  .featured-caption h3 { font-size: var(--game-font-size-md); }
 }
 
 @media (max-width: 450px) {

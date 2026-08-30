@@ -35,7 +35,7 @@
   color: var(--game-text-secondary);
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   justify-content: center;
   min-height: 2.3rem;
@@ -51,7 +51,7 @@
 }
 
 .home-discovery-links a.home-category-tab {
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.4rem 0.45rem;
 }
 

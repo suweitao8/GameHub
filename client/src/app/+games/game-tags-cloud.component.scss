@@ -16,7 +16,7 @@
 
 .tags-cloud-header p {
   color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin: 0;
 }
 
@@ -53,14 +53,14 @@
   background: var(--game-border);
   border-radius: var(--game-radius-pill);
   color: var(--game-muted);
-  font-size: 0.62rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 600;
   padding: 0.1rem 0.35rem;
 }
 
 .tags-cloud-empty {
   color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   text-align: center;
   padding: 1.5rem;
 }

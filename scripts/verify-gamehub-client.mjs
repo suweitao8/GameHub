@@ -638,13 +638,13 @@ assert(
   gameSectionTs.includes('min-height: 5rem;') &&
     gameSectionTs.includes('width: 2.25rem;') &&
     gameSectionTs.includes('height: 0.95rem;') &&
-    gameSectionTs.includes('font-size: 0.68rem;') &&
+    gameSectionTs.includes('font-size: var(--game-font-size-xs);') &&
     gameSectionTs.includes('letter-spacing: 0.02em;') &&
     !gameSectionTs.includes('min-height: 7.25rem;') &&
     featuredScss.includes('min-height: 5rem;') &&
     featuredScss.includes('width: 2.25rem;') &&
     featuredScss.includes('height: 0.95rem;') &&
-    featuredScss.includes('font-size: 0.68rem;') &&
+    featuredScss.includes('font-size: var(--game-font-size-xs);') &&
     featuredScss.includes('letter-spacing: 0.02em;') &&
     !featuredScss.includes('min-height: 7.25rem;'),
   'shuffle actions must use the compact vertical button sizing in shared and featured home sections'
@@ -746,6 +746,24 @@ assert(
     gameCommunityTokens.includes('.game-community-page :where(a) {'),
   'GameHub generic controls must stay low-specificity so component-level typography and semantic colors cannot be overridden'
 )
+{
+  const bodyTextScale = [
+    '--game-font-size-xs: 0.72rem;',
+    '--game-font-size-sm: 0.78rem;',
+    '--game-font-size-md: 0.85rem;',
+    '--game-font-size-lg: 0.95rem;'
+  ]
+  const gameStylesDir = 'client/src/app/+games'
+  const gameStyleSources = readdirSync(gameStylesDir, { recursive: true })
+    .filter(f => /\.(scss|ts)$/.test(String(f)))
+    .map(f => read(`${gameStylesDir}/${String(f).replaceAll('\\', '/')}`))
+  assert(
+    bodyTextScale.every(t => gameCommunityTokens.includes(t)) &&
+      [read('client/src/app/header/header.component.scss'), ...gameStyleSources, read('client/src/app/+login/login-modal.component.scss'), read('client/src/app/game-account-settings.component.scss')]
+        .every(src => !/font-size:\s*0\.\d+rem/.test(src)),
+    'GameHub body text must use the four-step font-size tokens (--game-font-size-xs/sm/md/lg); raw sub-1rem font-size literals are forbidden'
+  )
+}
 assert(
   /\.library-page h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(libraryScss) &&
     /\.library-page h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(watchLaterScss) &&

@@ -114,7 +114,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     .section-side-action-label {
-      font-size: 0.68rem;
+      font-size: var(--game-font-size-xs);
       font-weight: 600;
       letter-spacing: 0.02em;
       line-height: 1.4;

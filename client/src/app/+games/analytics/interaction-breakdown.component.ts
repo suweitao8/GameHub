@@ -59,7 +59,7 @@ interface BreakdownItem {
       margin-bottom: 0.75rem;
     }
 
-    .card-header h3 { font-size: 0.95rem; margin: 0; color: var(--game-text); }
+    .card-header h3 { font-size: var(--game-font-size-lg); margin: 0; color: var(--game-text); }
 
     .breakdown-chart { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -73,7 +73,7 @@ interface BreakdownItem {
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      font-size: 0.9rem;
+      font-size: var(--game-font-size-md);
     }
 
     .breakdown-icon > div {
@@ -91,8 +91,8 @@ interface BreakdownItem {
 
     .breakdown-info { flex: 1; min-width: 0; }
     .breakdown-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
-    .breakdown-label { font-size: 0.8rem; color: var(--game-text); }
-    .breakdown-value { font-size: 0.8rem; font-weight: 700; color: var(--game-text); }
+    .breakdown-label { font-size: var(--game-font-size-sm); color: var(--game-text); }
+    .breakdown-value { font-size: var(--game-font-size-sm); font-weight: 700; color: var(--game-text); }
 
     .breakdown-bar-bg {
       height: 0.5rem;

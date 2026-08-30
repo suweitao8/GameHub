@@ -31,7 +31,7 @@
 .interaction-row button:focus-visible,
 .interaction-row button.active { background: transparent;
   color: var(--game-brand); }
-.interaction-row button:first-child { font-size: 1rem; }
+.interaction-row button:first-child { font-size: var(--game-font-size-lg); }
 .game-action-button { align-items: center;
   flex-direction: row;
   gap: 0.35rem !important;
@@ -59,7 +59,7 @@
 .game-action-button strong {
   color: inherit;
   align-items: center;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   display: inline-flex;
   height: 1rem;
@@ -70,7 +70,7 @@
 .game-action-button small {
   color: var(--game-muted);
   display: none;
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   line-height: 1;
 }
 .game-action-button.active > span,
@@ -106,10 +106,10 @@
   justify-content: space-between;
   margin-bottom: 0.45rem;
 }
-.game-description-panel h2 { font-size: 1rem;
+.game-description-panel h2 { font-size: var(--game-font-size-lg);
   margin: 0; }
 .game-description-panel p { color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   line-height: 1.7;
   margin: 0;
   white-space: pre-wrap; }
@@ -133,7 +133,7 @@
   border-bottom: 2px solid transparent;
   color: var(--game-muted);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   line-height: 1.4;
   margin-bottom: -1px;
   padding: 0.15rem 0 0.55rem;
@@ -164,12 +164,12 @@
 }
 .game-description-table dt {
   color: var(--game-muted);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   line-height: 1.7;
 }
 .game-description-table dd {
   color: var(--game-text);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   line-height: 1.7;
   margin: 0;
   white-space: pre-wrap;
@@ -188,7 +188,7 @@
   border-radius: var(--game-radius-pill);
   color: var(--game-brand);
   display: inline-block;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   padding: 0.25rem 0.7rem;
   text-decoration: none;
@@ -208,8 +208,8 @@
     height: 1.125rem;
     width: 1.125rem;
   }
-  .game-action-button strong { font-size: 0.7rem; }
-  .game-action-button small { font-size: 0.65rem; }
+  .game-action-button strong { font-size: var(--game-font-size-xs); }
+  .game-action-button small { font-size: var(--game-font-size-xs); }
 }
 
 /* Detail-page polish: make the action row a calm, touch-friendly control group. */

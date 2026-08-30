@@ -64,7 +64,7 @@
 }
 
 .watch-later-info strong {
-  font-size: 0.95rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -72,12 +72,12 @@
 }
 
 .watch-later-info span {
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
 }
 
 .watch-later-info time {
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
 }
 
@@ -91,7 +91,7 @@
   border-radius: var(--game-radius-xs);
   padding: 0.35rem 0.75rem;
   color: var(--game-muted);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   cursor: pointer;
   transition: all 0.2s;
 }

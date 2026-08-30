@@ -14,7 +14,7 @@
 .analytics-header h2 { font-size: 1.5rem;
   margin: 0 0 0.25rem; }
 .analytics-subtitle { color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   margin: 0; }
 
 .analytics-actions { display: flex;
@@ -34,7 +34,7 @@
   padding: 0.4rem 0.75rem;
   border: 0;
   background: transparent;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
   cursor: pointer;
   transition: all 0.2s;
@@ -54,7 +54,7 @@
   border-radius: var(--game-radius-xs);
   background: var(--game-surface);
   color: var(--game-text);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   cursor: pointer;
   transition: all 0.2s;
 }

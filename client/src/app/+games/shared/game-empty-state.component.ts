@@ -38,13 +38,13 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
     }
     .game-empty-title {
       color: var(--game-muted);
-      font-size: 1rem;
+      font-size: var(--game-font-size-lg);
       font-weight: 600;
       margin: 0;
     }
     .game-empty-desc {
       color: var(--game-text-hint);
-      font-size: 0.85rem;
+      font-size: var(--game-font-size-md);
       margin: 0;
     }
   ` ]

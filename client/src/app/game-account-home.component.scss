@@ -32,9 +32,9 @@
 .game-account-profile div { display: grid;
   gap: 0.2rem; }
 .game-account-profile strong { color: var(--game-text);
-  font-size: 1.05rem; }
+  font-size: var(--game-font-size-lg); }
 .game-account-profile span { color: var(--game-muted);
-  font-size: 0.82rem; }
+  font-size: var(--game-font-size-sm); }
 .game-account-profile a,
 .game-account-empty a { color: var(--game-brand-deep);
   font-weight: 700;
@@ -65,7 +65,7 @@
 .game-account-links strong { color: var(--game-text); }
 .game-account-links span,
 .game-account-note { color: var(--game-muted);
-  font-size: 0.85rem; }
+  font-size: var(--game-font-size-md); }
 .game-account-note { margin: 1.25rem 0 0; }
 .game-account-empty { background: var(--game-surface);
   border: 1px solid var(--game-border);

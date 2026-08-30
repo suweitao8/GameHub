@@ -56,7 +56,7 @@
   bottom: 0;
   color: #fff;
   display: flex;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   justify-content: space-between;
   left: 0;
   opacity: 0;
@@ -85,7 +85,7 @@
 .game-player-controls button { background: transparent;
   border: 0;
   color: #fff;
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   line-height: 1;
   min-width: 1.3rem;
   padding: 0.25rem; }
@@ -109,7 +109,7 @@
   width: 4rem; }
 .game-player-controls-left span {
   color: #c9ccd2;
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
 }
 
 /* GameHub detail-page layout contract overrides for stage + controls */
@@ -195,12 +195,12 @@
 .frame-error-copy strong {
   color: var(--game-text);
   display: block;
-  font-size: 0.95rem;
+  font-size: var(--game-font-size-lg);
 }
 
 .frame-error-copy p {
   color: var(--game-muted);
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   line-height: 1.5;
   margin: 4px 0 0;
 }
@@ -211,7 +211,7 @@
   border-radius: var(--game-radius-sm);
   color: var(--game-brand-contrast);
   flex: 0 0 auto;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 700;
   min-height: 44px;
   padding: 8px 14px;

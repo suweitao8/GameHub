@@ -17,7 +17,7 @@
 .article-detail-header { padding: 1.5rem 1.5rem 0; }
 .article-back { color: var(--game-muted);
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   margin-bottom: 1rem;
   text-decoration: none; }
 .article-back:hover { color: var(--game-brand); }
@@ -25,7 +25,7 @@
   border-radius: var(--game-radius-pill);
   color: var(--game-brand-deep);
   display: inline-block;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 700;
   padding: 0.2rem 0.55rem; }
 .article-detail-header h1 { color: var(--game-text);
@@ -33,7 +33,7 @@
   line-height: 1.25;
   margin: 0.75rem 0 0.5rem; }
 .article-summary { color: var(--game-muted);
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   line-height: 1.65;
   margin: 0; }
 
@@ -41,7 +41,7 @@
   color: var(--game-muted);
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.5rem 0.85rem;
   margin-top: 1rem; }
 .article-meta a { color: var(--game-text);
@@ -53,7 +53,7 @@
   width: 0.85rem; }
 
 .article-content { color: var(--game-text);
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   line-height: 1.85;
   padding: 1.75rem 1.5rem;
   white-space: pre-wrap; }
@@ -66,7 +66,7 @@
 .article-delete-button { border: 1px solid var(--game-border);
   border-radius: var(--game-radius-xs);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   padding: 0.5rem 0.85rem;
   text-decoration: none; }

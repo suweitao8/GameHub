@@ -38,7 +38,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
     }
     .game-error-text {
       color: var(--game-text-hint);
-      font-size: 0.9rem;
+      font-size: var(--game-font-size-md);
       margin: 0;
     }
     .game-error-retry-btn {
@@ -47,7 +47,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       border-radius: var(--game-radius-control);
       color: var(--game-brand-contrast);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: var(--game-font-size-md);
       padding: 0.5rem 1.5rem;
       transition: background-color var(--game-dur) var(--game-ease);
     }

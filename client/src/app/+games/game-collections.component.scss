@@ -6,7 +6,7 @@
 .collections-header h2 { font-size: 1.5rem;
   margin-bottom: 0.5rem; }
 .collections-header p { color: var(--game-muted);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   margin: 0; }
 
 .collections-grid {
@@ -50,16 +50,16 @@
 }
 
 .collection-info { padding: 0.75rem; }
-.collection-info h3 { font-size: 1rem;
+.collection-info h3 { font-size: var(--game-font-size-lg);
   margin: 0 0 0.25rem; }
-.collection-info p { font-size: 0.8rem;
+.collection-info p { font-size: var(--game-font-size-sm);
   color: var(--game-muted);
   margin: 0 0 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden; }
-.collection-count { font-size: 0.75rem;
+.collection-count { font-size: var(--game-font-size-sm);
   color: var(--game-muted); }
 
 .collections-empty { text-align: center;

@@ -31,7 +31,7 @@
 .event-type-badge,
 .event-status-badge {
   display: inline-block;
-  font-size: 0.7rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 700;
   padding: 0.15rem 0.5rem;
   border-radius: var(--game-radius-xs);
@@ -55,14 +55,14 @@
 .event-detail-info h1 { font-size: 1.5rem;
   margin: 0 0 0.5rem; }
 .event-desc { color: var(--game-muted);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   margin: 0 0 1rem; }
 
 .event-meta-bar {
   display: flex;
   gap: 1rem;
   color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   margin-bottom: 1rem;
 }
 
@@ -81,7 +81,7 @@
   border-radius: var(--game-radius-xs);
   cursor: pointer;
   display: inline-flex;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   gap: 0.35rem;
   padding: 0.6rem 1.25rem;
@@ -117,7 +117,7 @@
 .event-rules,
 .event-prizes {
   color: var(--game-text);
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   line-height: 1.7;
   white-space: pre-wrap;
 }
@@ -150,11 +150,11 @@
 .participant-info { display: flex;
   align-items: center;
   gap: 0.5rem; }
-.participant-info strong { font-size: 0.88rem; }
+.participant-info strong { font-size: var(--game-font-size-md); }
 .participant-state {
   background: var(--game-brand-soft);
   color: var(--game-info);
-  font-size: 0.7rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 700;
   padding: 0.1rem 0.4rem;
   border-radius: var(--game-radius-xs);
@@ -162,7 +162,7 @@
 }
 
 .participants-empty { color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   text-align: center;
   padding: 2rem;
   margin: 0; }

@@ -13,7 +13,7 @@
   margin-bottom: 0.45rem;
 }
 .play-side .related-section h2 {
-  font-size: 0.95rem;
+  font-size: var(--game-font-size-lg);
   margin: 0;
 }
 .related-game-list {
@@ -58,7 +58,7 @@
 .related-game-copy strong {
   color: var(--game-text);
   display: -webkit-box;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-height: 1.35;
@@ -66,7 +66,7 @@
 }
 .related-game-copy span {
   color: var(--game-text-hint);
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
 }
 .related-game-meta {
   align-items: center;
@@ -132,7 +132,7 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   line-height: 1.35;
   overflow: hidden; }
@@ -140,7 +140,7 @@
   color: var(--game-muted);
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.75rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.3rem; }
 .related-game-meta .dot { color: var(--game-border-strong); }
 .related-game-stat {
@@ -197,5 +197,5 @@
 
 .section-heading h2 { margin: 0; }
 .section-heading .game-eyebrow { color: var(--game-muted);
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   letter-spacing: 0.04em; }

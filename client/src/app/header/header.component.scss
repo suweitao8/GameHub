@@ -163,7 +163,7 @@
 .game-header-left-nav a {
   border-radius: var(--game-radius-pill);
   color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   padding: 0.42rem 0.85rem;
   text-decoration: none;
@@ -226,7 +226,7 @@
   cursor: pointer;
   display: inline-flex;
   flex-direction: column;
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 600;
   gap: 0.14rem;
   height: auto;
@@ -255,7 +255,7 @@
   box-shadow: var(--game-shadow-accent);
   color: var(--game-text-inverse);
   display: inline-flex;
-  font-size: 0.6rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 800;
   justify-content: center;
   line-height: 1;
@@ -398,7 +398,7 @@
 
 .game-header-popover > header strong {
   color: var(--game-text-primary);
-  font-size: 0.95rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 800;
   letter-spacing: 0.01em;
 }
@@ -410,7 +410,7 @@
 
 .game-header-popover > header a,
 .game-header-popover > footer a {
-  font-size: 0.76rem;
+  font-size: var(--game-font-size-sm);
 }
 
 .game-header-popover > header a:hover,
@@ -431,7 +431,7 @@
 .game-popover-divider span {
   background: var(--game-surface);
   color: var(--game-text-hint);
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   padding: 0 0.6rem;
   position: relative;
   top: -0.55rem;
@@ -480,7 +480,7 @@
 
 .game-nav-author {
   color: var(--game-text-hint);
-  font-size: 0.73rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -490,7 +490,7 @@
 .game-nav-game {
   color: var(--game-text-primary);
   display: -webkit-box;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   line-height: 1.3;
   overflow: hidden;
@@ -504,7 +504,7 @@
 
 .game-nav-time {
   color: var(--game-text-hint);
-  font-size: 0.69rem;
+  font-size: var(--game-font-size-xs);
   line-height: 1.2;
 }
 
@@ -522,14 +522,14 @@
   background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 120%);
   color: var(--game-brand-contrast);
   display: flex;
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 800;
   justify-content: center;
 }
 
 .game-popover-empty {
   color: var(--game-text-hint);
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   margin: 0;
   padding: 1.1rem 1rem;
   text-align: center;
@@ -587,7 +587,7 @@
   border-radius: var(--game-radius-sm);
   color: var(--game-text-secondary);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.58rem 0.75rem;
   text-align: left;
   transition: background-color var(--game-dur-fast) var(--game-ease),
@@ -652,7 +652,7 @@ my-game-navigation {
   box-shadow: var(--game-shadow-accent);
   color: var(--game-brand-contrast) !important;
   display: inline-flex;
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   letter-spacing: 0.04em;
   height: 34px;
@@ -783,7 +783,7 @@ my-actor-avatar {
   border-radius: var(--game-radius-pill);
   color: var(--game-brand-contrast);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   line-height: 1;
   min-height: 34px;
@@ -961,8 +961,8 @@ my-actor-avatar {
 
 .game-avatar-profile strong {
   color: var(--game-text-primary);
-  font-size: 1rem;
-  font-weight: 800;
+  font-size: var(--game-font-size-lg);
+  font-weight: 700;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -971,19 +971,19 @@ my-actor-avatar {
 
 .game-avatar-profile span {
   color: var(--game-text-secondary);
-  font-size: 0.76rem;
+  font-size: var(--game-font-size-sm);
 }
 
 .game-avatar-handle {
   color: var(--game-text-hint) !important;
-  font-size: 0.76rem;
+  font-size: var(--game-font-size-sm);
 }
 
 .game-avatar-coin {
   background: var(--game-surface-alt);
   border-radius: var(--game-radius-pill);
   color: var(--game-text-secondary) !important;
-  font-size: 0.76rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.18rem 0.7rem;
 }
 
@@ -1005,14 +1005,14 @@ my-actor-avatar {
 
 .game-avatar-stat strong {
   color: var(--game-text-primary);
-  font-size: 1rem;
-  font-weight: 800;
+  font-size: var(--game-font-size-lg);
+  font-weight: 700;
   line-height: 1.1;
 }
 
 .game-avatar-stat span {
   color: var(--game-text-hint);
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
 }
 
 .game-avatar-stat-loading {
@@ -1030,8 +1030,9 @@ my-actor-avatar {
   border-radius: var(--game-radius-sm);
   color: var(--game-text-secondary);
   display: flex;
+  font-size: var(--game-font-size-md);
   gap: 0.6rem;
-  min-height: 44px;
+  min-height: 42px;
   padding: 0.55rem 0.7rem;
   text-decoration: none;
   transition: background-color var(--game-dur-fast) var(--game-ease), color var(--game-dur-fast) var(--game-ease);
@@ -1071,7 +1072,7 @@ my-actor-avatar {
   color: var(--game-text-secondary);
   cursor: pointer;
   display: flex;
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   gap: 0.45rem;
   justify-content: center;

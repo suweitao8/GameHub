@@ -12,13 +12,13 @@
   height: 2.5rem;
   width: 2.5rem; }
 .empty-comments p { margin: 0;
-  font-size: 0.9rem; }
+  font-size: var(--game-font-size-md); }
 .empty-comments button { background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-pill);
   color: var(--game-brand-contrast);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   padding: 0.5rem 1.25rem;
   transition: opacity 160ms ease; }
@@ -40,7 +40,7 @@
 }
 .bili-comment-count {
   color: var(--game-text-hint);
-  font-size: 0.95rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 500;
   margin-left: 0.35rem;
 }
@@ -54,7 +54,7 @@
   border: 0;
   color: var(--game-text-hint);
   cursor: pointer;
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   padding: 0;
 }
 .bili-comment-sort button.active {
@@ -101,7 +101,7 @@
   border: 0;
   border-radius: var(--game-radius-sm);
   color: var(--game-text);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   min-height: 2.75rem;
   padding: 0.65rem 0.9rem;
   width: 100%;
@@ -196,7 +196,7 @@
   border-radius: var(--game-radius-xs);
   cursor: pointer;
   display: flex;
-  font-size: 1.05rem;
+  font-size: var(--game-font-size-lg);
   height: 1.85rem;
   justify-content: center;
   line-height: 1;
@@ -226,7 +226,7 @@
 .bili-composer-image span {
   color: var(--game-muted);
   flex: 1;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -262,14 +262,14 @@
   background: transparent;
   border: 0;
   color: var(--game-brand);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
 }
 .bili-send-btn {
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   min-width: 4.5rem;
   padding: 0.4rem 0.9rem;
@@ -307,13 +307,13 @@
 }
 .bili-comment-user strong {
   color: var(--game-muted);
-  font-size: 0.86rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
 }
 .bili-badge {
   border-radius: var(--game-radius-xs);
   color: var(--game-text-inverse);
-  font-size: 0.62rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 700;
   line-height: 1;
   padding: 0.14rem 0.28rem;
@@ -323,7 +323,7 @@
 }
 .bili-comment-text {
   color: var(--game-text);
-  font-size: 0.92rem;
+  font-size: var(--game-font-size-md);
   line-height: 1.65;
   margin: 0 0 0.4rem;
   overflow-wrap: anywhere;
@@ -334,7 +334,7 @@
   color: var(--game-text-hint);
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.85rem;
 }
 .bili-comment-meta time {
@@ -382,7 +382,7 @@
   border: 0;
   color: var(--game-brand);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin-top: 0.45rem;
   padding: 0;
 }
@@ -459,7 +459,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-text);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   padding: 0.45rem 1.25rem;
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;

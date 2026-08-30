@@ -12,7 +12,7 @@
   color: var(--game-muted);
   display: flex;
   flex-wrap: wrap;
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.35rem 1rem; }
 .game-title-meta > span { align-items: center;
   display: inline-flex;
@@ -73,7 +73,7 @@
   max-width: 700px; }
 .game-stats { display: flex;
   flex-wrap: wrap;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.3rem 0.9rem;
   margin-top: 0.75rem; }
 .game-community-panel,
@@ -123,7 +123,7 @@
 
 /* Game tags */
 .game-tags-panel { margin-bottom: 1.5rem; }
-.game-tags-panel h2 { font-size: 1rem;
+.game-tags-panel h2 { font-size: var(--game-font-size-lg);
   margin-bottom: 0.5rem; }
 
 /* GameHub detail-page layout contract overrides for title copy/meta */

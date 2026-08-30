@@ -56,8 +56,8 @@ interface GameRankingItem {
       margin-bottom: 0.75rem;
     }
 
-    .card-header h3 { font-size: 0.95rem; margin: 0; color: var(--game-text); }
-    .view-more { font-size: 0.8rem; color: var(--game-brand); text-decoration: none; }
+    .card-header h3 { font-size: var(--game-font-size-lg); margin: 0; color: var(--game-text); }
+    .view-more { font-size: var(--game-font-size-sm); color: var(--game-brand); text-decoration: none; }
     .view-more:hover { text-decoration: underline; }
 
     .ranking-list { display: flex; flex-direction: column; gap: 0.35rem; }
@@ -78,7 +78,7 @@ interface GameRankingItem {
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: var(--game-font-size-sm);
       font-weight: 700;
       background: var(--game-border);
       color: var(--game-muted);
@@ -89,7 +89,7 @@ interface GameRankingItem {
     .ranking-title {
       color: var(--game-text);
       flex-shrink: 0;
-      font-size: 0.82rem;
+      font-size: var(--game-font-size-sm);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -115,7 +115,7 @@ interface GameRankingItem {
       color: var(--game-muted);
       display: flex;
       flex-shrink: 0;
-      font-size: 0.7rem;
+      font-size: var(--game-font-size-xs);
       gap: 0.65rem;
       justify-content: flex-end;
       width: 9rem;

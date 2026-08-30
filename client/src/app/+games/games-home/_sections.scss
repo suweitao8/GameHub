@@ -46,7 +46,7 @@
   color: var(--game-brand-deep);
   display: inline-flex;
   flex: 0 0 2.6rem;
-  font-size: 0.92rem;
+  font-size: var(--game-font-size-md);
   font-weight: 800;
   height: 2.6rem;
   justify-content: center;
@@ -65,13 +65,13 @@
 
 .community-hub-card h3 {
   color: var(--game-text-primary);
-  font-size: 1rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 700;
 }
 
 .community-hub-card p {
   color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin-top: 0.4rem;
 }
 
@@ -90,7 +90,7 @@
   cursor: pointer;
   display: inline-flex;
   flex-direction: row;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   gap: 0.3rem;
   justify-content: center;
@@ -131,7 +131,7 @@
 }
 
 .shuffle-button span {
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   line-height: 1.2;
 }
 
@@ -146,7 +146,7 @@
   align-items: center;
   color: var(--game-text-secondary);
   display: inline-flex;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   gap: 0.15rem;
   text-decoration: none;
   transition: color var(--game-dur-fast) var(--game-ease),
@@ -222,7 +222,7 @@
   color: var(--game-brand-deep);
   display: inline-flex;
   flex: 0 0 auto;
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   height: 2.2rem;
   justify-content: center;
@@ -230,7 +230,7 @@
 }
 
 .collection-pill-title {
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -295,12 +295,12 @@
 
 .category-directory-card span {
   color: var(--game-muted);
-  font-size: 0.86rem;
+  font-size: var(--game-font-size-md);
 }
 
 .category-directory-card em {
   color: var(--game-brand-deep);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   font-style: normal;
   font-weight: 700;
 }
@@ -318,7 +318,7 @@
   border-radius: var(--game-radius-pill);
   color: var(--game-text-primary);
   cursor: pointer;
-  font-size: 0.88rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600;
   padding: 0.6rem 2.2rem;
   transition: background-color var(--game-dur-fast) var(--game-ease),

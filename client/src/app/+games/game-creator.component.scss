@@ -34,7 +34,7 @@
 .metric-grid span,
 .metric-grid small { color: var(--game-muted);
   display: block;
-  font-size: 0.82rem; }
+  font-size: var(--game-font-size-sm); }
 .metric-grid strong { display: block;
   font-size: 1.6rem;
   margin: 0.55rem 0 0.2rem; }
@@ -49,7 +49,7 @@
   text-decoration: none; }
 .creator-shortcuts span { color: var(--game-muted);
   display: block;
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   margin-top: 0.35rem; }
 .creator-state { background: var(--game-surface);
   border: 1px solid var(--game-border);
@@ -63,7 +63,7 @@
   padding: 1.2rem; }
 .creator-activity .game-section-heading { margin-bottom: 0.7rem; }
 .creator-activity .game-section-heading a { color: var(--game-brand);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   text-decoration: none; }
 .activity-item { border-top: 1px solid var(--game-border);
   display: grid;
@@ -71,11 +71,11 @@
   padding: 0.8rem 0;
   text-decoration: none; }
 .activity-item strong { color: var(--game-text);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   font-weight: 600; }
 .activity-item span,
 .creator-empty { color: var(--game-muted);
-  font-size: 0.82rem; }
+  font-size: var(--game-font-size-sm); }
 
 /* Creator trend mini chart */
 .creator-trend-card {
@@ -95,7 +95,7 @@
 
 .trend-count {
   color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
 }
 
 .trend-skeleton {
@@ -106,7 +106,7 @@
 
 .trend-fallback {
   color: var(--game-muted);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   padding: 1rem 0;
   text-align: center;
 }
@@ -185,7 +185,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   padding: 0.45rem 0.85rem;
   transition: background-color 160ms ease, border-color 160ms ease;
@@ -215,7 +215,7 @@
 
 .daily-login-msg {
   color: var(--game-success);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
 }
 

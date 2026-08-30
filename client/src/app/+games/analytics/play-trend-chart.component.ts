@@ -51,8 +51,8 @@ interface PlayTrendPoint {
       margin-bottom: 0.75rem;
     }
 
-    .card-header h3 { font-size: 0.95rem; margin: 0; color: var(--game-text); }
-    .card-subtitle { font-size: 0.78rem; color: var(--game-muted); }
+    .card-header h3 { font-size: var(--game-font-size-lg); margin: 0; color: var(--game-text); }
+    .card-subtitle { font-size: var(--game-font-size-sm); color: var(--game-muted); }
 
     .trend-chart-container { padding: 0.5rem 0; }
 
@@ -89,7 +89,7 @@ interface PlayTrendPoint {
       border-top: 1px solid var(--game-border);
     }
 
-    .trend-x-axis span { font-size: 0.65rem; color: var(--game-muted); }
+    .trend-x-axis span { font-size: var(--game-font-size-xs); color: var(--game-muted); }
   ` ]
 })
 export class PlayTrendChartComponent {

@@ -100,8 +100,8 @@ interface KpiSummary {
 
     .kpi-data { display: flex; flex-direction: column; min-width: 0; }
     .kpi-value { font-size: 1.25rem; font-weight: 700; color: var(--game-text); }
-    .kpi-label { font-size: 0.78rem; color: var(--game-muted); }
-    .kpi-trend { font-size: 0.75rem; font-weight: 600; }
+    .kpi-label { font-size: var(--game-font-size-sm); color: var(--game-muted); }
+    .kpi-trend { font-size: var(--game-font-size-sm); font-weight: 600; }
     .kpi-trend.up { color: var(--game-success); }
     .kpi-trend.down { color: var(--game-danger); }
   ` ]

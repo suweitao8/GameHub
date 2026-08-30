@@ -25,7 +25,7 @@
   padding: 0.85rem 1rem;
 }
 
-.report-dialog-header h3 { font-size: 1rem;
+.report-dialog-header h3 { font-size: var(--game-font-size-lg);
   margin: 0; }
 
 .report-close-btn {
@@ -50,7 +50,7 @@
 
 .report-predefined p {
   color: var(--game-muted);
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   margin: 0 0 0.5rem;
 }
 
@@ -66,7 +66,7 @@
   border-radius: var(--game-radius-xs);
   color: var(--game-text);
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.35rem 0.65rem;
   transition: all 160ms ease;
 }
@@ -85,21 +85,21 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-size: 0.8rem;
+  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
 }
 
 .report-text-label textarea {
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-xs);
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   padding: 0.5rem 0.65rem;
   resize: vertical;
 }
 
 .report-feedback {
   color: var(--game-success);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin: 0;
 }
 
@@ -113,7 +113,7 @@
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-xs);
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   padding: 0.45rem 0.85rem;
 }
 
@@ -131,6 +131,6 @@
 
 @media (max-width: 600px) {
   .report-dialog { max-width: calc(100% - 1rem); }
-  .report-reasons-grid button { font-size: 0.72rem;
+  .report-reasons-grid button { font-size: var(--game-font-size-xs);
     padding: 0.3rem 0.5rem; }
 }

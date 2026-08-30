@@ -28,19 +28,19 @@
   font-size: 1.1rem;
   color: var(--game-text);
   margin-bottom: 0.5rem; }
-.library-empty p { font-size: 0.85rem;
+.library-empty p { font-size: var(--game-font-size-md);
   margin: 0 0 1rem; }
 .library-empty a { background: var(--game-brand);
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-contrast);
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: var(--game-font-size-md);
   font-weight: 700;
   padding: 0.5rem 1rem;
   text-decoration: none; }
 
 .library-count { color: var(--game-muted);
-  font-size: 0.82rem;
+  font-size: var(--game-font-size-sm);
   margin: 0 0 1rem; }
 
 .library-error { color: var(--game-danger); }

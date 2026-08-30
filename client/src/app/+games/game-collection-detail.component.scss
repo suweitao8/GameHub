@@ -15,9 +15,9 @@
 .collection-info h1 { font-size: 1.5rem;
   margin-bottom: 0.5rem; }
 .collection-info p { color: var(--game-muted);
-  font-size: 0.9rem;
+  font-size: var(--game-font-size-md);
   margin: 0 0 0.5rem; }
-.collection-info span { font-size: 0.8rem;
+.collection-info span { font-size: var(--game-font-size-sm);
   color: var(--game-muted); }
 
 .collection-games .game-grid { display: grid;

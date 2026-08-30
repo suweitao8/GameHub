@@ -56,7 +56,7 @@ interface FollowerTrendPoint {
       margin-bottom: 0.75rem;
     }
 
-    .card-header h3 { font-size: 0.95rem; margin: 0; color: var(--game-text); }
+    .card-header h3 { font-size: var(--game-font-size-lg); margin: 0; color: var(--game-text); }
 
     .follower-chart-container { padding: 0.5rem 0; }
     .follower-chart-container svg { width: 100%; height: 120px; }
@@ -71,7 +71,7 @@ interface FollowerTrendPoint {
 
     .follower-stat { display: flex; flex-direction: column; }
     .follower-number { font-size: 1.1rem; font-weight: 700; color: var(--game-text); }
-    .follower-label { font-size: 0.78rem; color: var(--game-muted); }
+    .follower-label { font-size: var(--game-font-size-sm); color: var(--game-muted); }
   ` ]
 })
 export class FollowerGrowthChartComponent {
