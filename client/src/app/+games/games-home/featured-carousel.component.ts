@@ -12,6 +12,7 @@ import { Game } from '../games.service'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
 import { FEATURED_PLACEHOLDER_AVG_RGB } from '../games-home.constants'
+import { coverInitial, coverToneClass } from '../cover-tone'
 
 /**
  * Big featured carousel + side card grid on the games home page.
@@ -80,6 +81,16 @@ export class FeaturedCarouselComponent implements OnDestroy {
   featuredCoverPath (game: Game) {
     if (!game.coverPath || this.brokenFeaturedCovers()[game.uuid]) return null
     return game.coverPath
+  }
+
+  /** 与卡片一致的确定性封面色调（占位渐变 + footer 同色系） */
+  coverToneClass (game: Game) {
+    return coverToneClass(game.uuid || game.title)
+  }
+
+  /** 占位大图中央的水印字（标题首字符） */
+  coverInitial (game: Game) {
+    return coverInitial(game.title)
   }
 
   onFeaturedCoverError (uuid: string) {

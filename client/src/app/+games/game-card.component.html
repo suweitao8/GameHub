@@ -1,5 +1,5 @@
 @if (isVisible()) {
-  <article class="game-card">
+  <article class="game-card {{ coverToneClass() }}">
     <a class="game-card-main" [routerLink]="['/games', game().uuid]" [attr.aria-label]="'打开游戏：' + game().title">
       <div class="game-cover" [class.placeholder]="!game().coverPath || coverUnavailable()">
         @if (game().coverPath && !coverUnavailable()) {
@@ -14,10 +14,8 @@
             (error)="onCoverError()"
           >
         } @else {
-          <div class="cover-placeholder-content">
-            <span class="cover-letter" aria-hidden="true">G</span>
-            <div class="cover-placeholder-copy"><strong>{{ game().title }}</strong><small>{{ categoryLabel() }} · 单文件小游戏</small></div>
-          </div>
+          <span class="game-cover-badge" aria-hidden="true">{{ categoryLabel() }}</span>
+          <span class="cover-watermark" aria-hidden="true">{{ coverInitial() }}</span>
         }
         <div class="game-card-meta" aria-label="游戏数据">
           <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game().playCount) }}</span></span>

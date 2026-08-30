@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, HostListener, inject, input, OnDestroy, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, effect, HostListener, input, OnDestroy, signal } from '@angular/core'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 
 /**
@@ -20,11 +20,18 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
                (mouseleave)="paused.set(false)">
         <div class="screenshot-gallery">
           <div class="screenshot-main">
-            <img [src]="screenshots()[activeIndex()]" alt="游戏截图" loading="lazy" (click)="openLightbox()" style="cursor:zoom-in">
+            <img
+              [src]="screenshots()[activeIndex()]" alt="游戏截图" loading="lazy"
+              role="button" tabindex="0" style="cursor:zoom-in"
+              (click)="openLightbox()" (keyup.enter)="openLightbox()"
+            >
           </div>
           <div class="screenshot-thumbs">
             @for (url of screenshots(); track $index) {
-              <button type="button" [class.active]="activeIndex() === $index" (click)="activeIndex.set($index)" [attr.aria-label]="'截图 ' + ($index + 1)">
+              <button
+                type="button" [class.active]="activeIndex() === $index"
+                (click)="activeIndex.set($index)" [attr.aria-label]="'截图 ' + ($index + 1)"
+              >
                 <img [src]="url" alt="" loading="lazy">
               </button>
             }
@@ -34,14 +41,20 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
     }
 
     @if (lightboxOpen()) {
-      <div class="screenshot-lightbox" (click)="closeLightbox()" role="dialog" aria-label="截图查看">
+      <div class="screenshot-lightbox" role="dialog" aria-label="截图查看" tabindex="0"
+           (click)="closeLightbox()" (keyup.escape)="closeLightbox()">
         <button type="button" class="lightbox-close" (click)="closeLightbox()">&times;</button>
         @if (screenshots().length > 1) {
-          <button type="button" class="lightbox-nav lightbox-prev" (click)="lightboxPrev(); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button>
+          <button type="button" class="lightbox-nav lightbox-prev" (click)="lightboxPrev(); $event.stopPropagation()">
+            <my-global-icon iconName="chevron-left" />
+          </button>
         }
-        <img [src]="screenshots()[activeIndex()]" alt="游戏截图" (click)="$event.stopPropagation()">
+        <img [src]="screenshots()[activeIndex()]" alt="游戏截图" tabindex="0"
+             (click)="$event.stopPropagation()" (keyup)="$event.stopPropagation()">
         @if (screenshots().length > 1) {
-          <button type="button" class="lightbox-nav lightbox-next" (click)="lightboxNext(); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button>
+          <button type="button" class="lightbox-nav lightbox-next" (click)="lightboxNext(); $event.stopPropagation()">
+            <my-global-icon class="icon-flip-horizontal" iconName="chevron-left" />
+          </button>
         }
         <span class="lightbox-counter">{{ activeIndex() + 1 }} / {{ screenshots().length }}</span>
       </div>
@@ -62,18 +75,20 @@ export class GameScreenshotsComponent implements OnDestroy {
   readonly screenshotsInput = input.required<string[] | undefined | null>()
   readonly pausedInput = input(false)
 
-  // 当截图变化时重置索引并重启轮播（替代原 setter 副作用）
-  private readonly screenshotsEffect = effect(() => {
-    const value = this.screenshotsInput()
-    this.screenshots.set(value ? [ ...value ] : [])
-    this.activeIndex.set(0)
-    this.startCarousel()
-  })
+  constructor () {
+    // 当截图变化时重置索引并重启轮播（替代原 setter 副作用）
+    effect(() => {
+      const value = this.screenshotsInput()
+      this.screenshots.set(value ? [ ...value ] : [])
+      this.activeIndex.set(0)
+      this.startCarousel()
+    })
 
-  // 同步外部暂停信号到内部 paused
-  private readonly pausedEffect = effect(() => {
-    this.paused.set(this.pausedInput())
-  })
+    // 同步外部暂停信号到内部 paused
+    effect(() => {
+      this.paused.set(this.pausedInput())
+    })
+  }
 
   ngOnDestroy () {
     this.stopCarousel()

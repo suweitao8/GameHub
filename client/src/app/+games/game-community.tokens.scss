@@ -238,3 +238,47 @@ body {
     width: calc(100% - (var(--game-space-page) * 2));
   }
 }
+
+/* ---- 封面多彩色板：B 站式封面墙的确定性取色（10 组双色调渐变）----
+   没有自定义封面的游戏由 cover-tone.ts 按 uuid/title 哈希取一组，
+   色值只允许出现在本文件（视觉契约）。 */
+.cover-tone-0 {
+  --cover-tone-a: #22a7e0;
+  --cover-tone-b: #1168a8;
+}
+.cover-tone-1 {
+  --cover-tone-a: #12b3a2;
+  --cover-tone-b: #0b7d72;
+}
+.cover-tone-2 {
+  --cover-tone-a: #5cb944;
+  --cover-tone-b: #317d31;
+}
+.cover-tone-3 {
+  --cover-tone-a: #f2b914;
+  --cover-tone-b: #d88a12;
+}
+.cover-tone-4 {
+  --cover-tone-a: #f4863a;
+  --cover-tone-b: #d55418;
+}
+.cover-tone-5 {
+  --cover-tone-a: #ef5f6f;
+  --cover-tone-b: #c53040;
+}
+.cover-tone-6 {
+  --cover-tone-a: #f06aa7;
+  --cover-tone-b: #c04a80;
+}
+.cover-tone-7 {
+  --cover-tone-a: #9a6cf0;
+  --cover-tone-b: #6b46c8;
+}
+.cover-tone-8 {
+  --cover-tone-a: #6a7bf7;
+  --cover-tone-b: #4449d1;
+}
+.cover-tone-9 {
+  --cover-tone-a: #5f8fa8;
+  --cover-tone-b: #3a6178;
+}

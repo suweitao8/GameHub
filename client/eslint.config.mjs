@@ -204,7 +204,11 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: {
-          allowDefaultProject: [ 'src/standalone/build-tools/vite-utils.ts' ]
+          allowDefaultProject: [
+            'src/standalone/build-tools/vite-utils.ts',
+            // 上游遗留 helper：不在 client tsconfig 的项目引用内，交给默认项目解析
+            'src/root-helpers/translations-manager.ts'
+          ]
         }
       }
     }

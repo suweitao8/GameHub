@@ -518,7 +518,7 @@ assert(
   'game card search highlights must render sanitized mark HTML instead of exposing markup text'
 )
 assert(
-  gameCardHtml.includes('<article class="game-card">') &&
+  gameCardHtml.includes('<article class="game-card {{ coverToneClass() }}">') &&
     gameCardHtml.includes('<a class="game-card-main"') &&
     gameCardHtml.includes('<div class="game-card-author">') &&
     !/<a class="game-card"[\s\S]*<a class="author-name-link"/.test(gameCardHtml),
@@ -532,12 +532,36 @@ assert(
   'game cards must lift on hover with a cover zoom and respect reduced motion'
 )
 assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must keep the unified 1.05 hover zoom')
+const coverToneTs = read('client/src/app/+games/cover-tone.ts')
+const coverToneTokens = read('client/src/app/+games/game-community.tokens.scss')
+assert(
+  coverToneTokens.includes('.cover-tone-0') &&
+    coverToneTokens.includes('.cover-tone-9') &&
+    /\.cover-tone-0 \{[^}]*--cover-tone-a: #[0-9a-f]{6};[^}]*--cover-tone-b: #[0-9a-f]{6};[^}]*\}/.test(coverToneTokens) &&
+    coverToneTs.includes('export function coverToneClass') &&
+    coverToneTs.includes('export function coverInitial') &&
+    gameCardHtml.includes('class="game-card {{ coverToneClass() }}"') &&
+    gameCardHtml.includes('class="game-cover-badge"') &&
+    gameCardHtml.includes('class="cover-watermark"') &&
+    gameCardScss.includes('var(--cover-tone-a, var(--game-cover-fallback))') &&
+    gameCardScss.includes('-webkit-line-clamp: 2;') &&
+    gameCardScss.includes('.game-card:hover h3') &&
+    gameCardScss.includes('color: var(--game-brand-hover);') &&
+    !gameCardHtml.includes('cover-placeholder-copy') &&
+    !gameCardScss.includes('.cover-letter'),
+  'game cards must render the deterministic multicolor cover wall (tone classes from tokens, watermark initial, category badge) with two-line titles'
+)
+assert(
+  featuredHtml.includes('coverToneClass(featuredGame)') &&
+    featuredHtml.includes('coverInitial(featuredGame)') &&
+    featuredScss.includes('var(--cover-tone-a, var(--game-cover-fallback))'),
+  'featured carousel placeholders must share the card cover tone palette'
+)
 assert(
   notificationHtml.includes('class="notification-item"') &&
     notificationHtml.includes('(click)="markRead(notification)"') &&
-    !/<article class="notification-item"[^>]*role="button"/.test(notificationHtml) &&
-    !/<article class="notification-item"[^>]*tabindex="0"/.test(notificationHtml),
-  'notification rows must not expose a composite button role around their link and delete button'
+    /<article class="notification-item"[^>]*tabindex="0"[^>]*role="button"[^>]*\(keyup\.enter\)="markRead\(notification\)"/.test(notificationHtml),
+  'notification rows must stay keyboard accessible (tabindex + button role + enter key) while keeping their inner links and delete button'
 )
 const gamePlayHtml = read('client/src/app/+games/game-play.component.html')
 const gamePlayTs = read('client/src/app/+games/game-play.component.ts')
@@ -1716,12 +1740,15 @@ assert(
   'related game API must return the joined comment count instead of likes'
 )
 assert(
-  featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
-  'featured carousel must bind the average-color fade to the cover'
+  featuredHtml.includes('@if (featuredCoverPath(featuredGame))') &&
+    featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
+  'featured carousel must bind the average-color fade to the cover only when a real cover exists'
 )
 assert(
-  featuredHtml.includes('[style.background]="featuredAvgColor(featuredGame)"'),
-  'featured carousel footer must bind the calculated five-segment average-color gradient'
+  featuredHtml.includes('[class.tone-bg]="!featuredCoverPath(featuredGame)"') &&
+    featuredHtml.includes("[style.background]=\"featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null\"") &&
+    featuredScss.includes('.featured-footer.tone-bg'),
+  'featured carousel footer must bind the calculated average color for real covers and the tone gradient for placeholders'
 )
 assert(
   featuredScss.includes('background-color: var(--game-cover-fallback-deep);'),
