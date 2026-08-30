@@ -3,7 +3,8 @@
 .library-page { min-height: calc(100vh - 76px);
   padding: 2rem 0 4rem; }
 .library-page header { margin: 2rem 0 1.5rem; }
-.library-page h1 { font-size: 2.4rem;
+.library-page h1 { font-size: var(--game-font-size-page-title);
+  line-height: 1.2;
   margin: 0; }
 .library-page header p:not(.game-eyebrow) { color: var(--game-muted); }
 .library-tabs { border-bottom: 1px solid var(--game-border);

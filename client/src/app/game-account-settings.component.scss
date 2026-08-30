@@ -17,6 +17,8 @@
 
 .game-settings-header { margin-bottom: 1.5rem; }
 .game-settings-header h1 { color: var(--game-text);
+  font-size: var(--game-font-size-page-title);
+  line-height: 1.2;
   margin: 0; }
 .game-settings-header p:last-child { color: var(--game-muted);
   margin: 0.5rem 0 0; }

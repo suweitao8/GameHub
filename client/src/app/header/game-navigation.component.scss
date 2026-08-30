@@ -57,6 +57,17 @@
   }
 }
 
+// The global GameHub form skin also targets search inputs. Keep this compound
+// control visually single-surface by letting the search shell own its focus ring.
+.game-navigation-search > input,
+.game-navigation-search > input:focus,
+.game-navigation-search > input:focus-visible {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+}
+
 .game-navigation-search button {
   align-items: center;
   background: transparent;

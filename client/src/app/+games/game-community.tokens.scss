@@ -23,6 +23,10 @@ body {
   --game-overlay: rgb(19 21 44 / 58%);
   --game-content-width: 1600px;
 
+  /* ---- 排版层级 ---- */
+  --game-font-size-page-title: clamp(1.625rem, 3vw, 2rem);
+  --game-font-size-hero-title: clamp(1.75rem, 3.5vw, 2.4rem);
+
   /* ---- 墨阶文本 ---- */
   --game-text: #171a33;
   --game-text-primary: #171a33;
@@ -127,28 +131,21 @@ body {
   overflow-x: clip;
 }
 
-.game-community-page button,
-.game-community-page input,
-.game-community-page textarea,
-.game-community-page select {
+.game-community-page :where(button, input, textarea, select) {
   font: inherit;
 }
 
-.game-community-page button {
+.game-community-page :where(button) {
   color: var(--game-text-button);
   cursor: pointer;
 }
 
-.game-community-page button:focus-visible,
-.game-community-page a:focus-visible,
-.game-community-page input:focus-visible,
-.game-community-page textarea:focus-visible,
-.game-community-page select:focus-visible {
+.game-community-page :where(button, a, input, textarea, select):focus-visible {
   outline: 2px solid var(--game-brand);
   outline-offset: 2px;
 }
 
-.game-community-page a {
+.game-community-page :where(a) {
   color: inherit;
 }
 
