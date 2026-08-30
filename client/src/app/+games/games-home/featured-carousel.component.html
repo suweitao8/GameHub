@@ -3,7 +3,7 @@
     <div class="featured-discovery-grid">
       @if (carouselGame(); as featuredGame) {
         <article
-          class="featured-carousel"
+          class="featured-carousel {{ coverToneClass(featuredGame) }}"
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >
@@ -12,20 +12,21 @@
               @if (featuredCoverPath(featuredGame); as coverPath) {
                 <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)" (load)="onFeaturedImageLoad($event, featuredGame.uuid)">
               } @else {
-                <div class="featured-cover-fallback" aria-hidden="true">
-                  <span class="featured-cover-letter">G</span>
-                  <div class="featured-cover-copy">
-                    <strong>{{ featuredGame.title }}</strong>
-                    <small>推荐游戏</small>
-                  </div>
-                </div>
+                <span class="game-cover-badge" aria-hidden="true">推荐</span>
+                <span class="cover-watermark" aria-hidden="true">{{ coverInitial(featuredGame) }}</span>
               }
               <!-- Cover bottom tenth: sampled average-color fade that joins the footer without a seam -->
-              <div class="featured-cover-fade" aria-hidden="true" [style.background]="featuredCoverFade(featuredGame)"></div>
+              @if (featuredCoverPath(featuredGame)) {
+                <div class="featured-cover-fade" aria-hidden="true" [style.background]="featuredCoverFade(featuredGame)"></div>
+              }
             </div>
           </a>
           <!-- Five-segment average-color footer: title above, controls below -->
-          <div class="featured-footer" [style.background]="featuredAvgColor(featuredGame)">
+          <div
+            class="featured-footer"
+            [class.tone-bg]="!featuredCoverPath(featuredGame)"
+            [style.background]="featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null"
+          >
             <a class="featured-caption" [routerLink]="['/games', featuredGame.uuid]">
               <h3>{{ featuredGame.title }}</h3>
             </a>

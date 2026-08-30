@@ -122,7 +122,9 @@ export class GameNotificationsComponent implements OnInit {
     this.gamesService.deleteNotification(notification.id).subscribe({
       next: () => {
         const wasUnread = !notification.read
-        this.state.data.update(value => value ? { ...value, notifications: removeGameNotification(value.notifications, notification.id) } : value)
+        this.state.data.update(value => value
+          ? { ...value, notifications: removeGameNotification(value.notifications, notification.id) }
+          : value)
         if (wasUnread) {
           this.unread.update(value => Math.max(0, value - 1))
           this.notificationBadge.decrement()

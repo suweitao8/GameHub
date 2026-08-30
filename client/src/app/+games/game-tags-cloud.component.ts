@@ -14,7 +14,7 @@ export type GameTagCloud = {
   selector: 'my-game-tags-cloud',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink],
+  imports: [ CommonModule, RouterLink ],
   template: `
     <div class="tags-cloud-container">
       <div class="tags-cloud-header">

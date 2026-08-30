@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { getGameActionErrorMessage } from './game-action-feedback'
 import { createAsyncState } from './shared'
@@ -10,7 +10,7 @@ import { GamesService, Game } from './games.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ RouterLink ]
 })
-export class GameManageComponent implements OnInit, OnDestroy {
+export class GameManageComponent implements OnInit {
   private readonly gamesService = inject(GamesService)
   private readonly state = createAsyncState<Game[]>([])
   /** 列表数据（兼容模板/games() 引用） */
@@ -49,10 +49,6 @@ export class GameManageComponent implements OnInit, OnDestroy {
         error: () => { this.state.error.set('只有管理员、审核员或游戏作者可以查看这里。'); this.state.loading.set(false) }
       })
     })
-  }
-
-  ngOnDestroy () {
-    // No active subscriptions to clean up in this component
   }
 
   moderate (game: Game, action: 'approve' | 'reject' | 'unlist' | 'block') {
