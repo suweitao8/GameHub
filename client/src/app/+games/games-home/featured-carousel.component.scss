@@ -214,7 +214,7 @@
   background: color-mix(in srgb, var(--game-text-primary) 46%, transparent);
   border-radius: var(--game-radius-xs);
   color: var(--game-text-inverse);
-  font-size: 0.72rem;
+  font-size: var(--game-font-size-xs);
   font-weight: 600;
   left: 0.75rem;
   letter-spacing: 0.02em;
