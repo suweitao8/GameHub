@@ -1400,6 +1400,13 @@ assert(
   'Escape must not immediately reopen the account popover when focus returns to the avatar trigger'
 )
 assert(
+  headerTs.includes("private setPopoverOpen (key: string, open: boolean, closeGraceMs = HeaderComponent.POPOVER_HIDE_GRACE_MS)") &&
+    headerTs.includes("this.setPopoverOpen('avatar', false, 0)") &&
+    headerTs.includes('if (closeGraceMs === 0) {') &&
+    headerTs.includes('startClosing()'),
+  'avatar menu close must start its fade at the same time as the trigger returns to its resting state'
+)
+assert(
     headerScss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));') &&
     headerScss.includes('max-width: calc(100vw - 1rem);') &&
     headerScss.includes('.game-avatar-action:focus-visible') &&

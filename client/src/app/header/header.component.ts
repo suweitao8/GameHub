@@ -410,7 +410,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.popoverClosing()[key] === true
   }
 
-  private setPopoverOpen (key: string, open: boolean) {
+  private setPopoverOpen (key: string, open: boolean, closeGraceMs = HeaderComponent.POPOVER_HIDE_GRACE_MS) {
     const hideTimerKey = 'hide:' + key
 
     if (open) {
@@ -432,18 +432,27 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.popoverOpen.update(o => ({ ...o, [key]: false }))
     this.cancelPopoverHide(key)
-    this.popoverHideTimers[hideTimerKey] = {
-      hide: setTimeout(() => {
-        // 宽限期内未返回:开始淡出,过渡结束后卸载
-        this.popoverClosing.update(c => ({ ...c, [key]: true }))
-        this.popoverHideTimers[hideTimerKey] = {
-          unmount: setTimeout(() => {
-            this.popoverMounted.update(m => ({ ...m, [key]: false }))
-            this.popoverClosing.update(c => ({ ...c, [key]: false }))
-            this.popoverHideTimers[hideTimerKey] = undefined
-          }, HeaderComponent.POPOVER_FADE_MS)
-        }
-      }, HeaderComponent.POPOVER_HIDE_GRACE_MS)
+
+    const startClosing = () => {
+      this.popoverClosing.update(c => ({ ...c, [key]: true }))
+      this.popoverHideTimers[hideTimerKey] = {
+        unmount: setTimeout(() => {
+          this.popoverMounted.update(m => ({ ...m, [key]: false }))
+          this.popoverClosing.update(c => ({ ...c, [key]: false }))
+          this.popoverHideTimers[hideTimerKey] = undefined
+        }, HeaderComponent.POPOVER_FADE_MS)
+      }
+    }
+
+    if (closeGraceMs === 0) {
+      startClosing()
+    } else {
+      this.popoverHideTimers[hideTimerKey] = {
+        hide: setTimeout(() => {
+          // 宽限期内未返回:开始淡出,过渡结束后卸载
+          startClosing()
+        }, closeGraceMs)
+      }
     }
   }
   private cancelPopoverHide (key: string) {
@@ -482,8 +491,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   cancelGameAvatarHover (close = true) {
     if (close) {
       this.gameAvatarHoverOpened = false
-      // 撤「开启」态触发淡出;DOM 驻留 1 秒,期间移回鼠标会重新打开
-      this.setPopoverOpen('avatar', false)
+      // 头像与资料卡同步进入淡出态,避免触发器缩回后资料卡仍停留在原位
+      this.setPopoverOpen('avatar', false, 0)
     }
   }
 
