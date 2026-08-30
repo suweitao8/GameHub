@@ -615,6 +615,16 @@ assert(
   'GameHub hover and carousel motion must respect prefers-reduced-motion'
 )
 assert(
+  gameNavigationScss.includes('.game-navigation-search > input,') &&
+    gameNavigationScss.includes('.game-navigation-search > input:focus,') &&
+    gameNavigationScss.includes('.game-navigation-search > input:focus-visible') &&
+    gameNavigationScss.includes('background: transparent !important;') &&
+    gameNavigationScss.includes('border: 0 !important;') &&
+    gameNavigationScss.includes('box-shadow: none !important;') &&
+    gameNavigationScss.includes('min-height: 0 !important;'),
+  'game search input must not render a second global form border or focus ring inside its search shell'
+)
+assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
     !gameSectionTs.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
   'shared home sections must keep five columns across supported desktop widths'
@@ -712,10 +722,43 @@ const gameRuntimeTs = read('server/core/controllers/api/games/runtime.ts')
 const libraryHtml = read('client/src/app/+games/game-library.component.html')
 const libraryTs = read('client/src/app/+games/game-library.component.ts')
 const libraryScss = read('client/src/app/+games/game-library.component.scss')
+const watchLaterScss = read('client/src/app/+games/game-watch-later.component.scss')
+const creatorScss = read('client/src/app/+games/game-creator.component.scss')
+const notificationsScss = read('client/src/app/+games/game-notifications.component.scss')
+const gameAboutScss = read('client/src/app/game-about.component.scss')
+const gameAccountHomeScss = read('client/src/app/game-account-home.component.scss')
+const gameAccountSettingsScss = read('client/src/app/game-account-settings.component.scss')
 const manageHtml = read('client/src/app/+games/game-manage.component.html')
 const manageTs = read('client/src/app/+games/game-manage.component.ts')
 const gamesServiceTs = read('client/src/app/+games/games.service.ts')
 const clientPackageJson = JSON.parse(read('client/package.json'))
+assert(
+  gameCommunityTokens.includes('--game-font-size-page-title: clamp(1.625rem, 3vw, 2rem);') &&
+    gameCommunityTokens.includes('--game-font-size-hero-title: clamp(1.75rem, 3.5vw, 2.4rem);') &&
+    gameCommunityTokens.includes('.game-community-page :where(button, input, textarea, select) {') &&
+    gameCommunityTokens.includes('.game-community-page :where(button) {') &&
+    gameCommunityTokens.includes('.game-community-page :where(button, a, input, textarea, select):focus-visible {') &&
+    gameCommunityTokens.includes('.game-community-page :where(a) {'),
+  'GameHub generic controls must stay low-specificity so component-level typography and semantic colors cannot be overridden'
+)
+assert(
+  /\.library-page h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(libraryScss) &&
+    /\.library-page h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(watchLaterScss) &&
+    /\.notifications-header h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(notificationsScss) &&
+    /\.creator-header h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(creatorScss) &&
+    /\.game-account-header h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(gameAccountHomeScss) &&
+    /\.game-settings-header h1\s*\{[\s\S]*font-size: var\(--game-font-size-page-title\);/.test(gameAccountSettingsScss) &&
+    /\.author-profile h1\s*\{[\s\S]*font-size: var\(--game-font-size-hero-title\);/.test(read('client/src/app/+games/game-author.component.scss')),
+  'GameHub inner-page and author-hero headings must use the shared readable type scale'
+)
+assert(
+  /\.daily-login-btn\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(creatorScss) &&
+    /\.submit-button\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(uploadScss) &&
+    /\.back-to-top\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gamePlayLayoutScss) &&
+    /\.game-settings-submit\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gameAccountSettingsScss) &&
+    /\.game-about-primary\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gameAboutScss),
+  'filled brand controls must declare inverse text instead of inheriting the generic dark button/link color'
+)
 const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
 const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
 const relatedSchemaStart = openapiTs.indexOf('GameRelatedGame:')

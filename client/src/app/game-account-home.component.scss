@@ -8,6 +8,8 @@
   gap: 1.5rem;
   margin-bottom: 1.5rem; }
 .game-account-header h1 { color: var(--game-text);
+  font-size: var(--game-font-size-page-title);
+  line-height: 1.2;
   margin: 0; }
 .game-account-header p:not(.game-eyebrow) { color: var(--game-muted);
   margin: 0.5rem 0 0; }

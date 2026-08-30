@@ -6,7 +6,8 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 2rem; }
-.creator-header h1 { font-size: 2.3rem;
+.creator-header h1 { font-size: var(--game-font-size-page-title);
+  line-height: 1.2;
   margin: 0; }
 .creator-header p:not(.game-eyebrow) { color: var(--game-muted);
   margin: 0.4rem 0 0; }

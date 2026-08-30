@@ -1,3 +1,7 @@
+// Keep the standalone watch-later page aligned with the shared inner-page title scale.
+.library-page h1 { font-size: var(--game-font-size-page-title);
+  line-height: 1.2; }
+
 .watch-later-list { max-width: 900px;
   margin: 0 auto;
   padding: 1rem; }
