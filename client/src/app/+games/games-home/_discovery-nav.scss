@@ -1,5 +1,5 @@
-/* 发现页导航：白色胶囊 chip 浮于画布之上；动态=Bilibili 蓝、热门=Bilibili 粉，
-   分类激活态统一为 brand-soft 底 + 深靛文字，保持单一激活语言 */
+/* 发现页导航：B 站频道栏质感——无边框浅灰 chip，动态=Bilibili 蓝、
+   热门=Bilibili 粉实底，分类激活态统一实底品牌蓝 + 白字 */
 
 .home-discovery-nav {
   align-items: center;
@@ -27,10 +27,9 @@
 
 .home-discovery-links a {
   align-items: center;
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
+  background: var(--game-surface-alt);
+  border: 1px solid transparent;
   border-radius: var(--game-radius-pill);
-  box-shadow: var(--game-shadow-xs);
   box-sizing: border-box;
   color: var(--game-text-secondary);
   cursor: pointer;
@@ -67,7 +66,7 @@
 
 .home-discovery-links a:hover,
 .home-discovery-links a:focus-visible {
-  background: var(--game-surface-alt);
+  background: color-mix(in srgb, var(--game-text-primary) 8%, var(--game-surface-alt));
   color: var(--game-text-primary);
   outline: none;
 }
@@ -99,11 +98,11 @@
   transform: translateY(-1px);
 }
 
-/* 单一激活语言：brand-soft 底 + 品牌描边 + 深靛文字 */
+/* 单一激活语言：实底品牌蓝 + 白字（与动态/热门一致） */
 .home-discovery-links a.active:not(.home-feed-tab-dynamic):not(.home-feed-tab-hot) {
-  background: var(--game-brand-soft);
-  border-color: var(--game-brand-border);
-  color: var(--game-brand-deep);
+  background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 130%);
+  box-shadow: var(--game-shadow-brand);
+  color: var(--game-brand-contrast);
   font-weight: 700;
 }
 

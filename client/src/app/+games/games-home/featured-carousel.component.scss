@@ -3,85 +3,91 @@
 // games-home.component.scss (which cannot reach into a child component's view).
 
 .featured-section {
-  // Outer layout glue lives here so the section-with-side-action + discovery
-  // grid compose correctly regardless of host spacing.
+  // Layout glue for the featured section heading + discovery grid.
 }
 
-.section-with-side-action {
-  min-width: 0;
-  padding-right: 2.9rem;
-  position: relative;
+/* 区块标题行：与下方 最新发布/热门游戏 同构，换一批在其右端 */
+.featured-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin: 0.9rem 0;
 }
 
-.section-side-action {
+.featured-heading h2 {
+  color: var(--game-text-primary);
+  font-size: var(--game-font-size-lg);
+  font-weight: 800;
+  margin: 0;
+}
+
+/* 换一批：标题行右端的轻量胶囊按钮（与各区块 shuffle-button 同语言） */
+.featured-shuffle {
   align-items: center;
   background: var(--game-surface-alt);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-xs);
-  color: var(--game-muted);
+  border: 0;
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-secondary);
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  display: inline-flex;
+  font-size: var(--game-font-size-sm);
+  font-weight: 600;
+  gap: 0.3rem;
   justify-content: center;
-  min-height: 5rem;
-  padding: 0.45rem 0.2rem;
-  position: absolute;
-  right: 0;
-  top: 0;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
-  width: 2.25rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.8rem;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease),
+    transform var(--game-dur-fast) var(--game-ease);
 }
 
-.section-side-action:hover,
-.section-side-action:focus-visible {
+.featured-shuffle:hover,
+.featured-shuffle:focus-visible {
   background: var(--game-brand-soft);
-  border-color: var(--game-brand-border);
-  box-shadow: var(--game-shadow-brand);
-  color: var(--game-brand);
+  color: var(--game-brand-deep);
   outline: none;
 }
 
-.section-side-action:hover .section-side-action-icon,
-.section-side-action:focus-visible .section-side-action-icon {
+.featured-shuffle:hover .featured-shuffle-icon,
+.featured-shuffle:focus-visible .featured-shuffle-icon {
   animation: shuffleSpin 500ms ease;
 }
 
-.section-side-action:active {
+.featured-shuffle:active {
   transform: scale(0.96);
 }
 
-.section-side-action:focus-visible {
-  outline: 2px solid var(--game-brand-glow);
-  outline-offset: 2px;
-}
-
-.section-side-action-icon {
+.featured-shuffle-icon {
   align-items: center;
   display: inline-flex;
   flex: 0 0 auto;
+  height: 0.9rem;
   justify-content: center;
-  height: 0.95rem;
-  order: -1;
-  width: 0.95rem;
+  width: 0.9rem;
 }
 
-.section-side-action-icon ::ng-deep svg {
+.featured-shuffle-icon ::ng-deep svg {
   display: block;
   height: 100% !important;
   stroke-width: 2.2;
   width: 100% !important;
 }
 
-.section-side-action-label {
-  font-size: var(--game-font-size-xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.4;
-  text-align: center;
-  // 竖排：约束宽度让中文逐字换行，不依赖 writing-mode（在 flex column 中不可靠）
-  width: 1.1em;
-  word-break: break-all;
+/* 幻灯片切换：淡入上移，替代旧的直接跳变 */
+.featured-carousel {
+  animation: featuredSlideIn 360ms var(--game-ease);
+}
+
+@keyframes featuredSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shuffleSpin {
@@ -379,11 +385,6 @@
 @media (max-width: 720px) {
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.4rem; }
-  .section-with-side-action { padding-right: 3.1rem; }
-  .section-side-action {
-    min-width: 2.75rem;
-    width: 2.75rem;
-  }
   .featured-discovery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -410,9 +411,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .section-side-action,
+  .featured-shuffle,
   .featured-dots button {
     transition: none;
+  }
+
+  .featured-carousel {
+    animation: none;
   }
 
   .featured-cover img {
@@ -424,8 +429,8 @@
     transform: none;
   }
 
-  .section-side-action:hover .section-side-action-icon,
-  .section-side-action:focus-visible .section-side-action-icon {
+  .featured-shuffle:hover .featured-shuffle-icon,
+  .featured-shuffle:focus-visible .featured-shuffle-icon {
     animation: none;
   }
 }

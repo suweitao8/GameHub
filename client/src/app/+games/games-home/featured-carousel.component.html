@@ -1,7 +1,17 @@
 <section class="featured-section" aria-label="推荐游戏">
-  <div class="section-with-side-action">
-    <div class="featured-discovery-grid">
-      @if (carouselGame(); as featuredGame) {
+  <div class="game-section-heading featured-heading">
+    <div>
+      <h2>推荐游戏</h2>
+    </div>
+    <div class="section-controls">
+      <button class="featured-shuffle" type="button" aria-label="换一批推荐游戏" (click)="shuffle.emit()">
+        <my-global-icon class="featured-shuffle-icon" iconName="refresh" /><span>换一批</span>
+      </button>
+    </div>
+  </div>
+  <div class="featured-discovery-grid">
+    @if (carouselGame(); as featuredGame) {
+      @for (slide of [carouselIndex()]; track $index) {
         <article
           class="featured-carousel {{ coverToneClass(featuredGame) }}"
           (touchstart)="onCarouselTouchStart($event)"
@@ -21,7 +31,7 @@
               }
             </div>
           </a>
-          <!-- Five-segment average-color footer: title above, controls below -->
+          <!-- Average-color footer: title row + switch controls stacked below the cover -->
           <div
             class="featured-footer"
             [class.tone-bg]="!featuredCoverPath(featuredGame)"
@@ -45,7 +55,6 @@
         </article>
       }
       <div class="featured-side-grid">@for (game of sideGames(); track game.uuid) { <my-game-card [game]="game" [searchTerm]="searchTerm()" /> }</div>
-    </div>
-    <button class="section-side-action" type="button" aria-label="换一批推荐游戏" (click)="shuffle.emit()"><my-global-icon class="section-side-action-icon" iconName="refresh" /><span class="section-side-action-label">换一批</span></button>
+    }
   </div>
 </section>

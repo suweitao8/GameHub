@@ -632,6 +632,24 @@ assert(
   'games discovery navigation must distribute all feed and category links across available width with a responsive horizontal overflow fallback'
 )
 assert(
+  gamesHomeDiscoveryNavScss.includes('background: var(--game-surface-alt);') &&
+    gamesHomeDiscoveryNavScss.includes('border: 1px solid transparent;') &&
+    !gamesHomeDiscoveryNavScss.includes('box-shadow: var(--game-shadow-xs);') &&
+    /a\.active:not\(\.home-feed-tab-dynamic\):not\(\.home-feed-tab-hot\) \{[\s\S]*?linear-gradient\(135deg, var\(--game-brand\)/.test(gamesHomeDiscoveryNavScss),
+  'discovery pills must use the bilibili channel-bar look: borderless gray chips with a solid brand-blue active state'
+)
+const featuredScss2 = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+assert(
+  featuredHtml.includes('class="game-section-heading featured-heading"') &&
+    featuredHtml.includes('class="featured-shuffle"') &&
+    featuredHtml.includes('@for (slide of [carouselIndex()]; track $index)') &&
+    featuredScss2.includes('animation: featuredSlideIn 360ms var(--game-ease);') &&
+    featuredScss2.includes('@keyframes featuredSlideIn') &&
+    !featuredHtml.includes('section-side-action') &&
+    !featuredScss2.includes('.section-side-action'),
+  'featured section must expose its shuffle as a heading-row pill and fade slides in instead of the old floating side rail'
+)
+assert(
   gamesHomeScss.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
     !gamesHomeScss.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
   'desktop game grids must keep five columns across supported desktop widths'
@@ -659,19 +677,17 @@ assert(
   'shared home sections must keep five columns across supported desktop widths'
 )
 assert(
-  gameSectionTs.includes('min-height: 5rem;') &&
-    gameSectionTs.includes('width: 2.25rem;') &&
-    gameSectionTs.includes('height: 0.95rem;') &&
-    gameSectionTs.includes('font-size: var(--game-font-size-xs);') &&
-    gameSectionTs.includes('letter-spacing: 0.02em;') &&
-    !gameSectionTs.includes('min-height: 7.25rem;') &&
-    featuredScss.includes('min-height: 5rem;') &&
-    featuredScss.includes('width: 2.25rem;') &&
-    featuredScss.includes('height: 0.95rem;') &&
-    featuredScss.includes('font-size: var(--game-font-size-xs);') &&
-    featuredScss.includes('letter-spacing: 0.02em;') &&
-    !featuredScss.includes('min-height: 7.25rem;'),
-  'shuffle actions must use the compact vertical button sizing in shared and featured home sections'
+  gameSectionTs.includes('class="game-section-heading game-section-heading-row"') &&
+    gameSectionTs.includes('class="section-shuffle"') &&
+    gameSectionTs.includes('border-radius: var(--game-radius-pill);') &&
+    gameSectionTs.includes('min-height: 2rem;') &&
+    !gameSectionTs.includes('section-side-action') &&
+    !gameSectionTs.includes('section-with-side-action') &&
+    featuredScss.includes('.featured-heading') &&
+    featuredScss.includes('@keyframes featuredSlideIn') &&
+    !featuredScss.includes('section-side-action') &&
+    !featuredScss.includes('section-with-side-action'),
+  'shuffle actions must be heading-row pill buttons in shared and featured home sections (no floating side rail), and the featured slide must fade in'
 )
 assert(
   !homeHtml.includes('[shuffleLabel]="recent().length > 1 ? \'换一批\' : undefined"') &&

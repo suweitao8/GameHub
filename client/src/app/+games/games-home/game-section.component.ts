@@ -8,7 +8,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
  * Generic "heading + game grid + optional 换一批" block used by the recent /
  * latest / popular / featured-editor sections of the games home page.
  *
- * Pass a `shuffleLabel` to render the side "换一批" action (emits `shuffle`);
+ * Pass a `shuffleLabel` to render the heading-row "换一批" pill (emits `shuffle`);
  * omit it to hide the action. `compact` toggles the compact heading style.
  * `sectionClass` adds extra classes to the inner <section> (e.g. for the
  * featured-editor ::before bar decoration defined in the parent's SCSS).
@@ -20,20 +20,18 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
   template: `
     @if (games().length) {
       <section class="game-section" [ngClass]="sectionClass()" [class.compact-game-section]="compact()">
-        <div class="game-section-heading" [class.compact-section-heading]="compact()">
+        <div class="game-section-heading game-section-heading-row" [class.compact-section-heading]="compact()">
           <h2>{{ heading() }}</h2>
-        </div>
-        <div class="section-with-side-action">
-          <div class="game-grid">
-            @for (game of games(); track game.uuid) {
-              <my-game-card [game]="game" [searchTerm]="searchTerm()" />
-            }
-          </div>
           @if (shuffleLabel() && games().length) {
-            <button class="section-side-action" type="button" [attr.aria-label]="'换一批' + heading()" (click)="shuffle.emit()">
-              <my-global-icon class="section-side-action-icon" iconName="refresh" />
-              <span class="section-side-action-label">{{ shuffleLabel() }}</span>
+            <button class="section-shuffle" type="button" [attr.aria-label]="'换一批' + heading()" (click)="shuffle.emit()">
+              <my-global-icon class="section-shuffle-icon" iconName="refresh" />
+              <span>{{ shuffleLabel() }}</span>
             </button>
+          }
+        </div>
+        <div class="game-grid">
+          @for (game of games(); track game.uuid) {
+            <my-game-card [game]="game" [searchTerm]="searchTerm()" />
           }
         </div>
       </section>
@@ -47,80 +45,68 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
-    .section-with-side-action {
-      min-width: 0;
-      padding-right: 2.9rem;
-      position: relative;
+    /* 标题行：标题居左，换一批胶囊居右（B 站分区栏布局） */
+    .game-section-heading-row {
+      align-items: center;
+      display: flex;
+      gap: 0.6rem;
+      justify-content: space-between;
     }
 
-    .section-side-action {
+    .section-shuffle {
       align-items: center;
       background: var(--game-surface-alt);
-      border: 1px solid var(--game-border);
-      border-radius: var(--game-radius-control);
+      border: 0;
+      border-radius: var(--game-radius-pill);
       color: var(--game-text-secondary);
       cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
+      display: inline-flex;
+      font-size: var(--game-font-size-sm);
+      font-weight: 600;
+      gap: 0.3rem;
       justify-content: center;
-      min-height: 5rem;
-      padding: 0.45rem 0.2rem;
-      position: absolute;
-      right: 0;
-      top: 0;
-      transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
-      width: 2.25rem;
+      min-height: 2rem;
+      padding: 0.3rem 0.8rem;
+      transition: background-color var(--game-dur-fast) var(--game-ease),
+        color var(--game-dur-fast) var(--game-ease),
+        transform var(--game-dur-fast) var(--game-ease);
     }
 
-    .section-side-action:hover,
-    .section-side-action:focus-visible {
+    .section-shuffle:hover,
+    .section-shuffle:focus-visible {
       background: var(--game-brand-soft);
-      border-color: var(--game-brand-border);
-      box-shadow: var(--game-shadow-brand);
-      color: var(--game-brand);
+      color: var(--game-brand-deep);
       outline: none;
     }
 
-    .section-side-action:hover .section-side-action-icon,
-    .section-side-action:focus-visible .section-side-action-icon {
+    .section-shuffle:hover .section-shuffle-icon,
+    .section-shuffle:focus-visible .section-shuffle-icon {
       animation: shuffleSpin 500ms ease;
     }
 
-    .section-side-action:active {
+    .section-shuffle:active {
       transform: scale(0.96);
     }
 
-    .section-side-action:focus-visible {
-      outline: 2px solid var(--game-brand);
+    .section-shuffle:focus-visible {
+      outline: 2px solid var(--game-brand-glow);
       outline-offset: 2px;
     }
 
-    .section-side-action-icon {
+    .section-shuffle-icon {
       align-items: center;
       display: inline-flex;
       flex: 0 0 auto;
+      height: 0.9rem;
       justify-content: center;
-      height: 0.95rem;
-      order: -1;
-      width: 0.95rem;
+      width: 0.9rem;
     }
 
-    .section-side-action-icon ::ng-deep svg {
+    .section-shuffle-icon ::ng-deep svg {
       display: block;
       height: 100% !important;
       stroke-width: 2.2;
       width: 100% !important;
-    }
-
-    .section-side-action-label {
-      font-size: var(--game-font-size-xs);
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      line-height: 1.4;
-      text-align: center;
-      width: 1.1em;
-      word-break: break-all;
     }
 
     /* Compact heading style (also defined in the host page SCSS for its own
@@ -150,8 +136,6 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     @media (max-width: 720px) {
-      .section-with-side-action { padding-right: 3.1rem; }
-      .section-side-action { min-width: 2.75rem; width: 2.75rem; }
       .game-grid { gap: 0.4rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
@@ -160,12 +144,12 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .section-side-action {
+      .section-shuffle {
         transition: none;
       }
 
-      .section-side-action:hover .section-side-action-icon,
-      .section-side-action:focus-visible .section-side-action-icon {
+      .section-shuffle:hover .section-shuffle-icon,
+      .section-shuffle:focus-visible .section-shuffle-icon {
         animation: none;
       }
     }
@@ -175,7 +159,7 @@ export class GameSectionComponent {
   readonly games = input<Game[]>([])
   readonly heading = input('')
   readonly searchTerm = input<string>('')
-  /** When set, renders the side "换一批" action with this vertical label. */
+  /** When set, renders the heading-row "换一批" pill with this label. */
   readonly shuffleLabel = input<string | undefined>(undefined)
   readonly compact = input(false)
   /** Extra class(es) applied to the inner <section> for parent SCSS hooks. */
