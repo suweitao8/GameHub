@@ -13,7 +13,7 @@
   margin: 0.4rem 0 0; }
 .upload-button { background: var(--game-brand);
   border-radius: var(--game-radius-sm);
-  color: var(--game-text-inverse) !important;
+  color: var(--game-brand-contrast) !important;
   font-weight: 700;
   padding: 0.75rem 1.1rem;
   text-decoration: none; }
@@ -183,7 +183,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 700;
@@ -205,6 +205,7 @@
 .daily-login-btn:hover {
   background: var(--game-brand-deep);
   border-color: var(--game-brand-deep);
+  color: var(--game-text-inverse);
 }
 
 .daily-login-btn:disabled {

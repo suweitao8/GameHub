@@ -1,4 +1,4 @@
-/* 发现页导航：白色胶囊 chip 浮于画布之上；动态=品牌靛蓝、热门=覆盆子红，
+/* 发现页导航：白色胶囊 chip 浮于画布之上；动态=Bilibili 蓝、热门=Bilibili 粉，
    分类激活态统一为 brand-soft 底 + 深靛文字，保持单一激活语言 */
 
 .home-discovery-nav {
@@ -76,7 +76,7 @@
 .home-discovery-links a.home-feed-tab-dynamic,
 .home-discovery-links a.home-feed-tab-hot {
   border-color: transparent;
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700;
 }
 
@@ -94,7 +94,7 @@
 .home-discovery-links a.home-feed-tab-dynamic:focus-visible,
 .home-discovery-links a.home-feed-tab-hot:hover,
 .home-discovery-links a.home-feed-tab-hot:focus-visible {
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   filter: brightness(1.05);
   transform: translateY(-1px);
 }
@@ -111,7 +111,7 @@
 .home-discovery-links a.home-feed-tab-hot.active {
   border-color: color-mix(in srgb, var(--game-text-inverse) 55%, transparent);
   box-shadow: var(--game-focus-ring);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
 }
 
 /* ---- 骨架屏 ---- */

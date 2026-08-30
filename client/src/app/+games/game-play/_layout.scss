@@ -60,7 +60,7 @@
 .game-play-state button { background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700;
   padding: 0.65rem 1rem; }
 .game-play-state a { color: var(--game-brand); }
@@ -149,7 +149,7 @@
   border-radius: 50%;
   bottom: 1.5rem;
   box-shadow: var(--game-shadow-brand);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   display: flex;
   height: 2.75rem;

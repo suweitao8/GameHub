@@ -63,7 +63,7 @@
 }
 
 .reservations-error button:hover { background: var(--game-brand);
-  color: var(--game-text-inverse); }
+  color: var(--game-brand-contrast); }
 
 .reservations-list { display: flex;
   flex-direction: column;
@@ -104,7 +104,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -204,7 +204,7 @@
   padding: 0.5rem 1rem;
   border-radius: var(--game-radius);
   background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;

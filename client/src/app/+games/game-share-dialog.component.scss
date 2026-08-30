@@ -71,7 +71,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: #fff;
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 600;

@@ -18,7 +18,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   display: inline-flex;
   flex: 0 0 auto;
@@ -29,7 +29,8 @@
 }
 
 .article-create-button:hover { background: var(--game-brand-deep);
-  border-color: var(--game-brand-deep); }
+  border-color: var(--game-brand-deep);
+  color: var(--game-text-inverse); }
 .article-create-button my-global-icon { height: 0.9rem;
   width: 0.9rem; }
 
@@ -73,7 +74,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--game-brand), var(--game-success-vivid));
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-size: 2.5rem;
   font-weight: 700;
 }
@@ -157,7 +158,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-weight: 600;
   padding: 0.55rem 1.2rem;

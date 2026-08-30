@@ -183,7 +183,7 @@
   align-items: center;
   background: var(--game-brand);
   border-radius: 50%;
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   display: inline-flex;
   font-size: 1.35rem;
   font-weight: 800;
@@ -449,7 +449,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-form-radius-sm);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700;
   min-height: 44px;
   padding: 0.7rem 1.8rem;

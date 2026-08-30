@@ -68,7 +68,7 @@
   color: var(--game-text); }
 .article-editor-form footer button { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: var(--game-text-inverse); }
+  color: var(--game-brand-contrast); }
 .article-editor-form footer button:disabled { cursor: not-allowed;
   opacity: 0.6; }
 .article-editor-feedback { color: var(--game-danger-deep);

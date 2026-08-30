@@ -45,7 +45,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
       background: var(--game-brand);
       border: 0;
       border-radius: var(--game-radius-control);
-      color: var(--game-text-inverse);
+      color: var(--game-brand-contrast);
       cursor: pointer;
       font-size: 0.85rem;
       padding: 0.5rem 1.5rem;
@@ -53,6 +53,7 @@ import { GlobalIconComponent, type GlobalIconName } from '../../shared/shared-ic
     }
     .game-error-retry-btn:hover {
       background: var(--game-brand-deep);
+      color: var(--game-text-inverse);
     }
   ` ]
 })

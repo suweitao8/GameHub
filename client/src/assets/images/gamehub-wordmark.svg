@@ -3,10 +3,10 @@
      role="img"
      aria-labelledby="title desc">
   <title id="title">GameHub</title>
-  <desc id="desc">GameHub wordmark in electric indigo.</desc>
+  <desc id="desc">GameHub wordmark in Bilibili blue.</desc>
 
   <text x="4" y="55"
-        fill="#5044e4"
+        fill="#00aeec"
         font-family="Arial Rounded MT Bold, Trebuchet MS, Segoe UI, sans-serif"
         font-size="52"
         font-weight="700"

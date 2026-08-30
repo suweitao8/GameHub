@@ -41,8 +41,8 @@
 }
 
 /* ==========================================================================
-   GameHub 顶栏 —— 靛蓝霓虹 · 轻画布
-   玻璃拟态白栏 + 靛蓝字标 + 胶囊导航；视觉值一律引用全局设计令牌
+   GameHub 顶栏 —— Bilibili 蓝 · 轻画布
+   玻璃拟态白栏 + Bilibili 蓝字标 + 胶囊导航；视觉值一律引用全局设计令牌
    ========================================================================== */
 
 :host-context(.game-experience) .root {
@@ -113,7 +113,7 @@
   @include disable-default-a-behaviour;
 }
 
-/* ---- 品牌字标：GameHub · 电光靛蓝 ---- */
+/* ---- 品牌字标：GameHub · Bilibili 蓝 ---- */
 
 .game-brand {
   display: inline-flex;
@@ -520,7 +520,7 @@
 .game-nav-cover-fallback {
   align-items: center;
   background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 120%);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   display: flex;
   font-size: 1rem;
   font-weight: 800;
@@ -650,7 +650,7 @@ my-game-navigation {
   background: var(--game-accent);
   border-radius: var(--game-radius-pill);
   box-shadow: var(--game-shadow-accent);
-  color: var(--game-text-inverse) !important;
+  color: var(--game-brand-contrast) !important;
   display: inline-flex;
   font-size: 0.88rem;
   font-weight: 700;
@@ -674,7 +674,7 @@ my-game-navigation {
 .game-submit-button.game-submit-button-active {
   background: var(--game-accent-hover);
   box-shadow: var(--game-shadow-accent);
-  color: var(--game-text-inverse) !important;
+  color: var(--game-brand-contrast) !important;
   opacity: 1;
   transform: translateY(-1px);
 }
@@ -781,7 +781,7 @@ my-actor-avatar {
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-pill);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 700;

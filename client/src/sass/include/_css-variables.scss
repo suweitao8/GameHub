@@ -17,7 +17,7 @@
   --bg: var(--mainBackgroundColor, #fff);
   --bg-secondary: var(--greyBackgroundColor, #E5E5E5);
 
-  --primary: var(--mainColor, hsl(24, 90%, 45%));
+  --primary: var(--mainColor, #00aeec);
   --on-primary: #{pvar(--fg)};
 
   --red: #{$red};
@@ -112,7 +112,7 @@
   &[data-pt-theme="default"] {
     --is-dark: 0;
 
-    --primary: #FF8F37;
+    --primary: #00aeec;
     --border-primary: #{pvar(--primary-650)};
 
     --fg: hsl(0 14% 2%);
@@ -144,7 +144,7 @@
   &[data-pt-theme="peertube-core-dark-brown"] {
     --is-dark: 1;
 
-    --primary: #FD9C50;
+    --primary: #00aeec;
     --on-primary: #111;
     --border-primary: #{pvar(--primary-350)};
 
@@ -159,7 +159,7 @@
     --bg-secondary: hsl(0 14% 22%);
 
     --alert-primary-fg: #{pvar(--on-primary)};
-    --alert-primary-bg: #cd9e7a;
+    --alert-primary-bg: #{pvar(--primary-300)};
     --alert-primary-border-color: #{pvar(--primary-600)};
 
     --active-icon-color: #{pvar(--fg-450)};

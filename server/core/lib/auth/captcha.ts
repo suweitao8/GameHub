@@ -6,8 +6,8 @@ const CAPTCHA_CHARS = '23456789abcdefghjkmnpqrstuvwxyz'
 const CAPTCHA_LENGTH = 4
 const CAPTCHA_TTL_MS = 5 * 60 * 1000
 
-// 靛蓝霓虹设计系统同源配色，避免突兀
-const CHAR_COLORS = [ '#5044e4', '#7c3aed', '#0f766e', '#b45309', '#be185d' ]
+// 使用品牌深色变体，保证浅色验证码底上的字符仍然清晰可辨
+const CHAR_COLORS = [ '#007aa3', '#005a78', '#de5c83', '#109a76', '#92400e' ]
 
 export interface AuthCaptchaChallenge {
   captchaId: string

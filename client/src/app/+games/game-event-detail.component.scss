@@ -90,8 +90,9 @@
 
 .event-action-btn.primary { background: var(--game-brand);
   border-color: var(--game-brand);
+  color: var(--game-brand-contrast); }
+.event-action-btn.primary:hover { background: var(--game-brand-deep);
   color: var(--game-text-inverse); }
-.event-action-btn.primary:hover { background: var(--game-brand-deep); }
 .event-action-btn.primary:disabled { opacity: 0.6;
   cursor: not-allowed; }
 

@@ -105,10 +105,15 @@ const gamehubWordmarkSvg = read('client/src/assets/images/gamehub-wordmark.svg')
 const serverConfigManagerTs = read('server/core/lib/server-config-manager.ts')
 const indexHtml = read('client/src/index.html')
 const menuHtml = read('client/src/app/menu/menu.component.html')
+const cssVariablesScss = read('client/src/sass/include/_css-variables.scss')
+const primengScss = read('client/src/sass/primeng.scss')
+const coverGeneratorTs = read('client/src/app/+games/services/cover-generator.service.ts')
+const captchaTs = read('server/core/lib/auth/captcha.ts')
+const emailerTs = read('server/core/lib/emailer.ts')
 
 // 1a) GameHub branding keeps the wordmark and favicon as two clear roles
 const sharedGPath = 'M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256'
-const gameBrandColor = '#5044e4'
+const gameBrandColor = '#00aeec'
 const logoAssets = [ gamehubLogoSvg, gamehubFaviconSvg, fallbackLogoSvg ]
 
 assert(
@@ -140,19 +145,19 @@ assert(
   'server desktop Header logo fallback must use the horizontal wordmark dimensions'
 )
 assert(
-  indexHtml.includes('/client/assets/images/gamehub-favicon.svg?v=gamehub-indigo-wordmark'),
-  'index.html must point the browser tab to the versioned indigo G favicon'
+  indexHtml.includes('/client/assets/images/gamehub-favicon.svg?v=gamehub-bilibili-blue-theme'),
+  'index.html must point the browser tab to the versioned Bilibili blue G favicon'
 )
 assert(
   logoAssets.every(asset => !asset.includes('gamehub-rainbow') && asset.includes(`d="${sharedGPath}"`) && asset.includes(`stroke="${gameBrandColor}"`)),
-  'gamehub-logo.svg, gamehub-favicon.svg, and logo.svg must contain the same flat indigo G path'
+  'gamehub-logo.svg, gamehub-favicon.svg, and logo.svg must contain the same flat Bilibili blue G path'
 )
 assert(
   gamehubWordmarkSvg.includes('<text') &&
     gamehubWordmarkSvg.includes('GameHub') &&
     gamehubWordmarkSvg.includes(`fill="${gameBrandColor}"`) &&
     !gamehubWordmarkSvg.includes('gradient'),
-  'gamehub-wordmark.svg must contain a flat indigo GameHub wordmark'
+  'gamehub-wordmark.svg must contain a flat Bilibili blue GameHub wordmark'
 )
 assert(
   !/:host-context\(\.game-experience\) \.game-brand-wordmark\s*\{\s*display:\s*none/.test(submitHeaderScss),
@@ -752,12 +757,12 @@ assert(
   'GameHub inner-page and author-hero headings must use the shared readable type scale'
 )
 assert(
-  /\.daily-login-btn\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(creatorScss) &&
-    /\.submit-button\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(uploadScss) &&
-    /\.back-to-top\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gamePlayLayoutScss) &&
-    /\.game-settings-submit\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gameAccountSettingsScss) &&
-    /\.game-about-primary\s*\{[\s\S]*color: var\(--game-text-inverse\);/.test(gameAboutScss),
-  'filled brand controls must declare inverse text instead of inheriting the generic dark button/link color'
+  /\.daily-login-btn\s*\{[\s\S]*color: var\(--game-brand-contrast\);/.test(creatorScss) &&
+    /\.submit-button\s*\{[\s\S]*color: var\(--game-brand-contrast\);/.test(uploadScss) &&
+    /\.back-to-top\s*\{[\s\S]*color: var\(--game-brand-contrast\);/.test(gamePlayLayoutScss) &&
+    /\.game-settings-submit\s*\{[\s\S]*color: var\(--game-brand-contrast\);/.test(gameAccountSettingsScss) &&
+    /\.game-about-primary\s*\{[\s\S]*color: var\(--game-brand-contrast\);/.test(gameAboutScss),
+  'filled Bilibili brand controls must declare the high-contrast brand text token'
 )
 const relatedMarkupStart = gamePlayHtml.indexOf('class="related-game-list"')
 const relatedMarkup = relatedMarkupStart >= 0 ? gamePlayHtml.slice(relatedMarkupStart, relatedMarkupStart + 1800) : ''
@@ -951,7 +956,60 @@ assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.in
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('.developer-follow-button {') && gamePlayScss.includes('border-radius: var(--game-radius-pill);'), 'developer follow button must use the unified pill brand style')
-assert(gameCommunityTokens.includes('--game-text: #171a33') && gameCommunityTokens.includes('--game-muted: #7c819e'), 'game colors must use the indigo-ink primary and slate hint text from the shared token source')
+assert(gameCommunityTokens.includes('--game-text: #171a33') && gameCommunityTokens.includes('--game-muted: #7c819e'), 'game colors must keep the shared ink and slate hint text from the token source')
+assert(
+  gameCommunityTokens.includes('--game-brand: #00aeec') &&
+    gameCommunityTokens.includes('--game-brand-hover: #009dd5') &&
+    gameCommunityTokens.includes('--game-brand-deep: #007aa3') &&
+    gameCommunityTokens.includes('--game-accent: #fb7299') &&
+    gameCommunityTokens.includes('--game-accent-hover: #e85d84'),
+  'GameHub tokens must use the Bilibili blue and pink brand palette'
+)
+assert(
+  cssVariablesScss.includes('--primary: var(--mainColor, #00aeec)') &&
+    cssVariablesScss.includes('--primary: #00aeec') &&
+    !cssVariablesScss.includes('--primary: #FF8F37') &&
+    !cssVariablesScss.includes('--primary: #FD9C50'),
+  'default light and dark global themes must use Bilibili blue instead of the legacy orange palette'
+)
+assert(
+  primengScss.includes('var(--game-success)') &&
+    primengScss.includes('var(--game-danger)') &&
+    primengScss.includes('var(--game-warning)') &&
+    primengScss.includes('var(--game-info)') &&
+    !primengScss.includes('#198754') &&
+    !primengScss.includes('#dc3545') &&
+    !primengScss.includes('#f1680d') &&
+    !primengScss.includes('#03a9f4'),
+  'PrimeNG toast accents must consume semantic GameHub tokens'
+)
+const automaticCoverStart = coverGeneratorTs.indexOf('async generateAutomaticCover')
+const automaticCoverEnd = coverGeneratorTs.indexOf('  /** Composite a runtime screenshot', automaticCoverStart)
+const automaticCoverSource = automaticCoverStart >= 0 && automaticCoverEnd > automaticCoverStart
+  ? coverGeneratorTs.slice(automaticCoverStart, automaticCoverEnd)
+  : ''
+assert(
+  automaticCoverSource.includes("gradient.addColorStop(0, '#00aeec')") &&
+    automaticCoverSource.includes("gradient.addColorStop(1, '#35c4f1')") &&
+    automaticCoverSource.includes("context.fillStyle = '#06222d'") &&
+    automaticCoverSource.includes("context.fillStyle = 'rgba(6, 34, 45, .72)'") &&
+    !automaticCoverSource.includes("context.fillStyle = '#fff'"),
+  'automatic covers must pair the Bilibili-blue gradient with high-contrast dark typography'
+)
+assert(
+  captchaTs.includes("const CHAR_COLORS = [ '#007aa3', '#005a78', '#de5c83', '#109a76', '#92400e' ]") &&
+    !captchaTs.includes("const CHAR_COLORS = [ '#00aeec'") &&
+    !captchaTs.includes("'#fb7299'") &&
+    !captchaTs.includes("'#dd8500'"),
+  'captcha characters must use the readable deep brand and semantic color variants'
+)
+assert(
+  emailerTs.includes("primary: '#00aeec'") &&
+    emailerTs.includes("onPrimary: '#06222d'") &&
+    emailerTs.includes("bg: '#071e28'") &&
+    !emailerTs.includes("bg: '#140f0f'"),
+  'email defaults must use the Bilibili-blue primary and a neutral blue-black dark background'
+)
 assert(gamePlayScss.includes('--game-text: var(--game-text-primary);') && gamePlayScss.includes('--game-muted: var(--game-text-secondary);'), 'detail page must alias the shared ink palette instead of redefining values')
 assert(clientPackageJson.dependencies?.['@tabler/icons-angular'] || clientPackageJson.devDependencies?.['@tabler/icons-angular'], 'GameHub icons must use the Tabler Angular icon library')
 assert(globalIconTs.includes('TablerIconComponent') && !globalIconTs.includes('assets/images/'), 'global icon wrapper must render the shared Tabler icon library instead of local SVG assets')
@@ -1789,7 +1847,7 @@ assert(
     gameCommunityTokens.includes('--game-muted: #7c819e') &&
     !appScss.includes('--game-text:') &&
     !headerScss.includes('--game-text-primary: #'),
-  'GameHub shared palette must keep the indigo-ink ink scale in the single token source without component-level duplicates'
+  'GameHub shared palette must keep the ink scale in the single token source without component-level duplicates'
 )
 assert(
   !/(#303133|#18191c|#4e5969|#61666d|#646970|#6b6f75|#6b7280|#9499a0|#666(?:\b|;)|#999(?:\b|;)|rgb\(78 89 105)/i.test(gamehubPaletteSources),

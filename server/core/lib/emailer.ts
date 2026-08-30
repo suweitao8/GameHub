@@ -558,15 +558,15 @@ export class Emailer {
     const defaultColorsLight = {
       fg: '#060404',
       bg: '#f4f4f5',
-      primary: '#FF8F37',
-      onPrimary: '#060404'
+      primary: '#00aeec',
+      onPrimary: '#06222d'
     }
 
     const defaultColorsDark = {
       fg: '#f6f4f4',
-      bg: '#140f0f',
-      primary: '#FD9C50',
-      onPrimary: '#111'
+      bg: '#071e28',
+      primary: '#00aeec',
+      onPrimary: '#06222d'
     }
 
     // Use default colors, because the admin may have used custom color on a non-peertube-core theme, which would make the email unreadable

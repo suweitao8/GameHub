@@ -3,11 +3,11 @@
      role="img"
      aria-labelledby="title desc">
   <title id="title">GameHub G logo</title>
-  <desc id="desc">A rounded letter G in electric indigo.</desc>
+  <desc id="desc">A rounded letter G in Bilibili blue.</desc>
 
   <path d="M 426 220 C 408 137 338 76 256 76 C 156 76 76 156 76 256 C 76 356 156 436 256 436 C 356 436 426 356 426 256 L 300 256"
         fill="none"
-        stroke="#5044e4"
+        stroke="#00aeec"
         stroke-width="66"
         stroke-linecap="round"
         stroke-linejoin="round"/>

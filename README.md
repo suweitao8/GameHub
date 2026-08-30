@@ -22,9 +22,11 @@ GameHub 是一个面向玩家的 HTML5 网页游戏平台：
 
 优化游戏态账户弹窗，新增个人中心与我的主页入口，并展示关注、粉丝和游戏数量等个人数据。
 
+统一 GameHub 全站品牌视觉：以 Bilibili 蓝 `#00aeec` 为主色、Bilibili 粉为行动强调色，统一游戏中心、社区、账户、登录、提示和生成式视觉资源的色彩语义，详见[完整更新记录](docs/releases/release-notes.md)。
+
 优化登录用户头像资料卡的单头像展开转场，恢复资料卡在动态入口旁的正确中心锚点，并修复重复头像、原位残留圆框和退出时弹窗残留问题，详见[完整更新记录](docs/releases/release-notes.md)。
 
-重设计 GameHub 品牌 Logo：页头和移动菜单使用电光靛蓝的 GameHub 横向字标，浏览器标签页与方形 Logo 使用统一的 G 图标，移除彩虹渐变，详见[完整更新记录](docs/releases/release-notes.md)。
+重设计 GameHub 品牌 Logo：页头和移动菜单使用 Bilibili 蓝的 GameHub 横向字标，浏览器标签页与方形 Logo 使用统一的 G 图标，移除彩虹渐变，详见[完整更新记录](docs/releases/release-notes.md)。
 
 全面中文化游戏中心、社区、账户流程、登录注册、错误提示和通用控件，认证过期等英文提示统一改为中文，并确保轻量构建直接输出中文界面，详见[完整更新记录](docs/releases/release-notes.md)。
 

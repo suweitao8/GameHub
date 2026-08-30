@@ -67,7 +67,7 @@
   border: 1px solid transparent;
   border-radius: var(--game-radius-pill);
   box-shadow: var(--game-shadow-brand);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   display: inline-flex;
   font-size: 0.78rem;
@@ -163,7 +163,7 @@
 }
 
 .game-play-page .developer-follow-button {
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-size: 0.78rem;
   grid-column: 3;
   grid-row: auto;

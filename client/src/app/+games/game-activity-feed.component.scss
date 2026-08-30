@@ -84,7 +84,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-size: 0.9rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -139,7 +139,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0.45rem 0.9rem;

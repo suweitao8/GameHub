@@ -38,7 +38,7 @@
 .empty-cta {
   background: var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   display: inline-block;
   font-size: 0.85rem;
   font-weight: 700;
@@ -47,7 +47,8 @@
   transition: background-color 160ms ease;
 }
 
-.empty-cta:hover { background: var(--game-brand-deep); }
+.empty-cta:hover { background: var(--game-brand-deep);
+  color: var(--game-text-inverse); }
 
 .game-empty-feed {
   align-items: center;
@@ -84,7 +85,7 @@
 .game-empty-feed a {
   background: var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   display: inline-block;
   font-size: 0.82rem;
   font-weight: 600;
@@ -94,14 +95,15 @@
   transition: background-color 160ms ease;
 }
 
-.game-empty-feed a:hover { background: var(--game-brand-deep); }
+.game-empty-feed a:hover { background: var(--game-brand-deep);
+  color: var(--game-text-inverse); }
 
 .game-state button,
 .game-state a {
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-sm);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700;
   padding: 0.65rem 1rem;
   text-decoration: none;

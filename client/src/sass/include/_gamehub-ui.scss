@@ -47,21 +47,21 @@
   --primary-600: var(--game-brand-deep);
   --primary-650: var(--game-brand-deep);
   --primary-700: var(--game-brand-deep);
-  --on-primary: var(--game-text-inverse);
-  --on-primary-50: var(--game-text-inverse);
-  --on-primary-100: var(--game-text-inverse);
-  --on-primary-150: var(--game-text-inverse);
-  --on-primary-200: var(--game-text-inverse);
-  --on-primary-250: var(--game-text-inverse);
-  --on-primary-300: var(--game-text-inverse);
-  --on-primary-350: var(--game-text-inverse);
-  --on-primary-400: var(--game-text-inverse);
-  --on-primary-450: var(--game-text-inverse);
-  --on-primary-500: var(--game-text-inverse);
-  --on-primary-550: var(--game-text-inverse);
-  --on-primary-600: var(--game-text-inverse);
-  --on-primary-650: var(--game-text-inverse);
-  --on-primary-700: var(--game-text-inverse);
+  --on-primary: var(--game-brand-contrast);
+  --on-primary-50: var(--game-brand-contrast);
+  --on-primary-100: var(--game-brand-contrast);
+  --on-primary-150: var(--game-brand-contrast);
+  --on-primary-200: var(--game-brand-contrast);
+  --on-primary-250: var(--game-brand-contrast);
+  --on-primary-300: var(--game-brand-contrast);
+  --on-primary-350: var(--game-brand-contrast);
+  --on-primary-400: var(--game-brand-contrast);
+  --on-primary-450: var(--game-brand-contrast);
+  --on-primary-500: var(--game-brand-contrast);
+  --on-primary-550: var(--game-brand-contrast);
+  --on-primary-600: var(--game-brand-contrast);
+  --on-primary-650: var(--game-brand-contrast);
+  --on-primary-700: var(--game-brand-contrast);
 
   --input-fg: var(--game-text-primary);
   --input-bg: var(--game-surface-alt);
@@ -135,7 +135,7 @@
   .btn-primary {
     background: var(--game-brand);
     border-color: var(--game-brand);
-    color: var(--game-text-inverse);
+    color: var(--game-brand-contrast);
     font-weight: 700;
   }
 
@@ -147,7 +147,7 @@
   .btn-primary:focus-visible {
     background: var(--game-brand-hover);
     border-color: var(--game-brand-hover);
-    color: var(--game-text-inverse);
+    color: var(--game-brand-contrast);
   }
 
   .secondary-button,
@@ -367,7 +367,7 @@ body:has(.peertube-container.game-experience) {
 
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700;
 }
 
@@ -375,7 +375,7 @@ body:has(.peertube-container.game-experience) {
 .game-ui-button-primary:active:not(:disabled) {
   background: var(--game-brand-hover);
   border-color: var(--game-brand-hover);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
 }
 
 .game-ui-button-secondary {

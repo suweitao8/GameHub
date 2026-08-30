@@ -6,8 +6,8 @@ export function buildGameAvatarDataUrl (label: string) {
   const text = (label || 'G').trim()
   const seed = Array.from(text).reduce((total, char) => total + char.charCodeAt(0), 0)
   const palettes = [
-    { bg: '#e9e8fc', hair: '#26364a', hairDark: '#1a2635', skin: '#f4c9a7', shirt: '#5044e4', shirtAccent: '#352bb0', cheek: '#ef8f8a' },
-    { bg: '#fdeaee', hair: '#5a3446', hairDark: '#3d2633', skin: '#f3c4a0', shirt: '#e11d48', shirtAccent: '#9f1239', cheek: '#e98984' },
+    { bg: '#e5f7fc', hair: '#26364a', hairDark: '#1a2635', skin: '#f4c9a7', shirt: '#007aa3', shirtAccent: '#005a78', cheek: '#ef8f8a' },
+    { bg: '#fff0f4', hair: '#5a3446', hairDark: '#3d2633', skin: '#f3c4a0', shirt: '#fb7299', shirtAccent: '#d94d75', cheek: '#e98984' },
     { bg: '#dff7ee', hair: '#24534b', hairDark: '#173b36', skin: '#f2c49f', shirt: '#00a878', shirtAccent: '#087255', cheek: '#e78c82' },
     { bg: '#fff0cf', hair: '#4b3a2c', hairDark: '#302319', skin: '#f1c19d', shirt: '#f0a52b', shirtAccent: '#bd6c13', cheek: '#e8887d' }
   ] as const

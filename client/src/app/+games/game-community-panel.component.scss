@@ -196,7 +196,7 @@
   white-space: nowrap; }
 .game-tag:hover { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: var(--game-text-inverse); }
+  color: var(--game-brand-contrast); }
 
 @media (max-width: 600px) {
   .interaction-row { gap: 1.25rem; }

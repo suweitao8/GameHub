@@ -133,31 +133,31 @@ p-toast {
 
   // Severity accent colors: left border + icon background + icon color
   .p-toast-message-success {
-    --toast-accent-soft: rgba(25, 135, 84, 0.12);
+    --toast-accent-soft: var(--game-success-soft);
 
-    border-left-color: #198754 !important;
-    my-global-icon { color: #198754 !important; }
+    border-left-color: var(--game-success) !important;
+    my-global-icon { color: var(--game-success) !important; }
   }
 
   .p-toast-message-error {
-    --toast-accent-soft: rgba(220, 53, 69, 0.12);
+    --toast-accent-soft: var(--game-danger-soft);
 
-    border-left-color: #dc3545 !important;
-    my-global-icon { color: #dc3545 !important; }
+    border-left-color: var(--game-danger) !important;
+    my-global-icon { color: var(--game-danger) !important; }
   }
 
   .p-toast-message-warn {
-    --toast-accent-soft: rgba(241, 104, 13, 0.12);
+    --toast-accent-soft: var(--game-warning-soft);
 
-    border-left-color: #f1680d !important;
-    my-global-icon { color: #f1680d !important; }
+    border-left-color: var(--game-warning) !important;
+    my-global-icon { color: var(--game-warning) !important; }
   }
 
   .p-toast-message-info {
-    --toast-accent-soft: rgba(3, 169, 244, 0.12);
+    --toast-accent-soft: var(--game-info-soft);
 
-    border-left-color: #03a9f4 !important;
-    my-global-icon { color: #03a9f4 !important; }
+    border-left-color: var(--game-info) !important;
+    my-global-icon { color: var(--game-info) !important; }
   }
 }
 

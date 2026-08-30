@@ -16,7 +16,7 @@
 .empty-comments button { background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-pill);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -268,7 +268,7 @@
   background: var(--game-brand);
   border: 0;
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-size: 0.85rem;
   font-weight: 600;
   min-width: 4.5rem;

@@ -16,7 +16,7 @@
   background: var(--game-brand);
   border: 1px solid var(--game-brand);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   cursor: pointer;
   display: inline-flex;
   font-size: 0.9rem;
@@ -67,7 +67,7 @@
   cursor: pointer; }
 .form-actions button.primary { background: var(--game-brand);
   border-color: var(--game-brand);
-  color: var(--game-text-inverse);
+  color: var(--game-brand-contrast);
   font-weight: 700; }
 
 .event-admin-table { overflow-x: auto; }

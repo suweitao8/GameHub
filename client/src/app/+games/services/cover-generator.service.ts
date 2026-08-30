@@ -20,16 +20,19 @@ export class CoverGeneratorService {
     if (!context) return null
 
     const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height)
-    gradient.addColorStop(0, '#5044e4')
-    gradient.addColorStop(1, '#7c3aed')
+    gradient.addColorStop(0, '#00aeec')
+    gradient.addColorStop(1, '#35c4f1')
     context.fillStyle = gradient
     context.fillRect(0, 0, canvas.width, canvas.height)
     context.fillStyle = 'rgba(255, 255, 255, .16)'
     for (let index = 0; index < 7; index++) context.fillRect(index * 220 - 100, 0, 80, canvas.height)
-    context.fillStyle = '#fff'
+    // The automatic cover stays on a bright brand gradient, so use the same
+    // high-contrast ink as the rest of the Bilibili-blue controls.
+    context.fillStyle = '#06222d'
     context.font = '800 72px Arial'
     context.fillText(title.trim() || 'GameHub 游戏', 72, 400)
     context.font = '600 28px Arial'
+    context.fillStyle = 'rgba(6, 34, 45, .72)'
     context.fillText('GameHub 网页小游戏', 76, 465)
 
     return new Promise(resolve => canvas.toBlob(blob => {

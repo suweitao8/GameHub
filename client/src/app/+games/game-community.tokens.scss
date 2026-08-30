@@ -1,9 +1,9 @@
 /* ==========================================================================
    GameHub 设计系统 —— 唯一令牌源
    --------------------------------------------------------------------------
-   视觉语言：靛蓝霓虹 · 轻画布
-   - 主品牌：电光靛蓝（游戏感、科技感）
-   - 行动强调：覆盆子红（投稿、热门等高能量 CTA）
+   视觉语言：Bilibili 蓝 · 轻画布
+   - 主品牌：Bilibili 蓝（轻快、亲和、适合内容流）
+   - 行动强调：Bilibili 粉（投稿、热门等高能量 CTA）
    - 文本：冷灰蓝墨阶；画布：淡雾灰蓝，卡片浮于其上
    所有颜色/圆角/阴影/动效一律引用这里的变量，禁止在组件里硬编码。
    通过 client/src/sass/application.scss 全局引入一次；
@@ -40,23 +40,24 @@ body {
   --game-border: #e4e6f0;
   --game-border-strong: #ccd1e0;
 
-  /* ---- 主品牌：电光靛蓝 ---- */
-  --game-brand: #5044e4;
-  --game-brand-vivid: #7c3aed;
-  --game-brand-light: #83d9f5;
-  --game-brand-hover: #4034cf;
-  --game-brand-deep: #352bb0;
-  --game-brand-soft: #edebfd;
-  --game-brand-border: #cfc9f8;
-  --game-brand-glow: rgb(80 68 228 / 18%);
+  /* ---- 主品牌：Bilibili 蓝 ---- */
+  --game-brand: #00aeec;
+  --game-brand-vivid: #35c4f1;
+  --game-brand-light: #8bdcf5;
+  --game-brand-hover: #009dd5;
+  --game-brand-deep: #007aa3;
+  --game-brand-soft: #e5f7fc;
+  --game-brand-border: #b3e4f1;
+  --game-brand-glow: rgb(0 174 236 / 20%);
+  --game-brand-contrast: #06222d;
 
-  /* ---- 行动强调：覆盆子红 ---- */
-  --game-accent: #e11d48;
-  --game-accent-vivid: #f0641e;
-  --game-accent-hover: #cf1037;
-  --game-accent-deep: #be123c;
-  --game-accent-soft: #ffe9ee;
-  --game-accent-glow: rgb(225 29 72 / 26%);
+  /* ---- 行动强调：Bilibili 粉 ---- */
+  --game-accent: #fb7299;
+  --game-accent-vivid: #ff8fab;
+  --game-accent-hover: #e85d84;
+  --game-accent-deep: #de5c83;
+  --game-accent-soft: #fff0f4;
+  --game-accent-glow: rgb(251 114 153 / 24%);
 
   /* ---- 语义色 ---- */
   --game-success: #109a76;
@@ -70,9 +71,9 @@ body {
   --game-danger-deep: #991b1b;
   --game-danger-soft: #feeceb;
 
-  /* ---- 封面兜底（靛夜渐变，取代旧棕色）---- */
-  --game-cover-fallback: #3b3775;
-  --game-cover-fallback-deep: #2b2856;
+  /* ---- 封面兜底（深海蓝渐变，取代旧棕色）---- */
+  --game-cover-fallback: #00627f;
+  --game-cover-fallback-deep: #00475c;
 
   /* ---- 圆角阶梯 ---- */
   --game-radius-xs: 6px;
@@ -100,18 +101,18 @@ body {
   --game-input-autofill-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
 
   /* ---- 信息状态 ---- */
-  --game-info: #2563eb;
-  --game-info-deep: #1e40af;
-  --game-info-soft: #eff6ff;
-  --game-info-border: #bfdbfe;
+  --game-info: var(--game-brand-deep);
+  --game-info-deep: #005a78;
+  --game-info-soft: var(--game-brand-soft);
+  --game-info-border: var(--game-brand-border);
 
-  /* ---- 阴影阶梯（靛墨基调）---- */
+  /* ---- 阴影阶梯（蓝墨基调）---- */
   --game-shadow-xs: 0 1px 2px rgb(23 26 51 / 5%), 0 1px 6px rgb(23 26 51 / 4%);
-  --game-shadow: 0 2px 6px rgb(23 26 51 / 6%), 0 8px 24px rgb(80 68 228 / 8%);
+  --game-shadow: 0 2px 6px rgb(23 26 51 / 6%), 0 8px 24px rgb(0 174 236 / 8%);
   --game-shadow-lg: 0 2px 8px rgb(23 26 51 / 7%), 0 16px 36px rgb(23 26 51 / 13%);
   --game-shadow-popover: 0 4px 12px rgb(23 26 51 / 7%), 0 20px 44px rgb(23 26 51 / 16%);
-  --game-shadow-brand: 0 6px 18px rgb(80 68 228 / 28%);
-  --game-shadow-accent: 0 6px 18px rgb(225 29 72 / 28%);
+  --game-shadow-brand: 0 6px 18px rgb(0 174 236 / 28%);
+  --game-shadow-accent: 0 6px 18px rgb(251 114 153 / 28%);
 
   /* ---- 动效 ---- */
   --game-ease: cubic-bezier(0.22, 0.72, 0.28, 1);
