@@ -98,8 +98,16 @@ const intentionallySpecialized = new Set([
 const tokens = read(tokenPath)
 const ui = read('client/src/sass/include/_gamehub-ui.scss')
 const application = read('client/src/sass/application.scss')
+const header = read('client/src/app/header/header.component.scss')
+const navigation = read('client/src/app/header/game-navigation.component.scss')
 
 // 1) Token and global-layer contracts.
+assert(tokens.includes('--game-page-bg: #f1fbfe'), 'GameHub canvas must use the ice-blue brand background')
+assert(tokens.includes('--game-surface-alt: #e7f6fb'), 'GameHub secondary surfaces must use the ice-blue surface token')
+assert(tokens.includes('--game-text-primary: #0c2d3a'), 'GameHub primary text must use the blue-black ink token')
+assert(tokens.includes('--game-border: #d0e6ed'), 'GameHub borders must use the blue-tinted border token')
+assert(tokens.includes('--game-brand: #00aeec'), 'GameHub brand must match the Logo blue')
+assert(tokens.includes('--game-brand-contrast: #06222d'), 'Logo-blue controls must define their dark contrast color')
 assert(tokens.includes('--game-control-height: 44px'), 'GameHub tokens must define the standard control height')
 assert(tokens.includes('--game-control-height-sm: 38px'), 'GameHub tokens must define the compact control height')
 assert(tokens.includes('--game-radius-control:'), 'GameHub tokens must define the control radius')
@@ -114,6 +122,31 @@ assert(ui.includes('.game-ui-button-primary'), 'GameHub UI layer must expose a p
 assert(ui.includes('.game-ui-button-secondary'), 'GameHub UI layer must expose a secondary button contract')
 assert(ui.includes('.game-ui-button-danger'), 'GameHub UI layer must expose a danger button contract')
 assert(ui.includes('.game-ui-status'), 'GameHub UI layer must expose a state contract')
+assert(
+  /\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-brand\);/.test(header) &&
+    !/\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-accent\);/.test(header),
+  'GameHub submit CTA must use Logo blue instead of the pink accent'
+)
+assert(
+  /\.game-submit-button\s*\{[\s\S]{0,500}height:\s*44px;[\s\S]{0,500}min-height:\s*44px;/.test(header),
+  'GameHub submit CTA must keep the shared 44px touch target'
+)
+assert(
+  /\.game-search-history button\s*\{[\s\S]{0,400}min-height:\s*var\(--game-control-height\);/.test(navigation) &&
+    /\.game-search-hot-list button\s*\{[\s\S]{0,500}min-height:\s*var\(--game-control-height\);/.test(navigation),
+  'GameHub search history and hot-search actions must keep the shared touch target height'
+)
+assert(
+  /\.game-search-panel-heading button\s*\{[\s\S]{0,500}color:\s*var\(--game-text-hint\);[\s\S]{0,500}min-height:\s*var\(--game-control-height\);/.test(navigation) &&
+    /&:hover,[\s\S]{0,160}&:focus-visible\s*\{[\s\S]{0,120}color:\s*var\(--game-brand-deep\);/.test(navigation),
+  'GameHub search panel utility actions must use readable brand text and a visible focus ring'
+)
+assert(
+  navigation.includes('.game-navigation-search:focus-within') &&
+    navigation.includes('border-color: var(--game-brand-border)') &&
+    navigation.includes('box-shadow: var(--game-focus-ring)'),
+  'GameHub search must keep a single shared brand focus ring'
+)
 assert(ui.includes('body:has(.peertube-container.game-experience)'), 'GameHub UI layer must scope body-mounted overlays to the active app shell')
 checkVisualValues('client/src/sass/include/_gamehub-ui.scss', ui)
 

@@ -1,10 +1,10 @@
 /* ==========================================================================
    GameHub 设计系统 —— 唯一令牌源
    --------------------------------------------------------------------------
-   视觉语言：Bilibili 蓝 · 轻画布
-   - 主品牌：Bilibili 蓝（轻快、亲和、适合内容流）
-   - 行动强调：Bilibili 粉（投稿、热门等高能量 CTA）
-   - 文本：冷灰蓝墨阶；画布：淡雾灰蓝，卡片浮于其上
+   视觉语言：Logo 蓝 · 清爽游戏平台
+   - 主品牌：Logo 蓝（导航、搜索、主要行动与选中态）
+   - 状态强调：Bilibili 粉（热门、提醒等少量高能量状态）
+   - 文本：深蓝墨阶；画布：冰蓝，白色内容层浮于其上
    所有颜色/圆角/阴影/动效一律引用这里的变量，禁止在组件里硬编码。
    通过 client/src/sass/application.scss 全局引入一次；
    组件内的 @use 只是为了局部编译安全，值以这里为准。
@@ -15,12 +15,13 @@
 .game-experience,
 body {
   /* ---- 画布与表面 ---- */
-  --game-page-bg: #f4f5fa;
+  --game-page-bg: #f1fbfe;
   --game-surface: #ffffff;
   --game-card-bg: #ffffff;
-  --game-surface-alt: #eff1f7;
-  --game-surface-active: #e8ebf4;
-  --game-overlay: rgb(19 21 44 / 58%);
+  --game-surface-alt: #e7f6fb;
+  --game-surface-active: #dff2f8;
+  --game-page-wash: rgb(0 174 236 / 6%);
+  --game-overlay: rgb(6 34 45 / 58%);
   --game-content-width: 1600px;
 
   /* ---- 排版层级 ---- */
@@ -33,19 +34,19 @@ body {
   --game-font-size-lg: 0.95rem;   /* 卡片标题/统计数字等强调文本 */
 
   /* ---- 墨阶文本 ---- */
-  --game-text: #171a33;
-  --game-text-primary: #171a33;
-  --game-text-secondary: #565d78;
-  --game-text-button: #565d78;
-  --game-text-hint: #7c819e;
-  --game-muted: #7c819e;
+  --game-text: #0c2d3a;
+  --game-text-primary: #0c2d3a;
+  --game-text-secondary: #496976;
+  --game-text-button: #496976;
+  --game-text-hint: #6e8792;
+  --game-muted: #6e8792;
   --game-text-inverse: #ffffff;
 
   /* ---- 边框与分隔 ---- */
-  --game-border: #e4e6f0;
-  --game-border-strong: #ccd1e0;
+  --game-border: #d0e6ed;
+  --game-border-strong: #adced8;
 
-  /* ---- 主品牌：Bilibili 蓝 ---- */
+  /* ---- 主品牌：Logo 蓝 ---- */
   --game-brand: #00aeec;
   --game-brand-vivid: #35c4f1;
   --game-brand-light: #8bdcf5;
@@ -56,7 +57,7 @@ body {
   --game-brand-glow: rgb(0 174 236 / 20%);
   --game-brand-contrast: #06222d;
 
-  /* ---- 行动强调：Bilibili 粉 ---- */
+  /* ---- 状态强调：Bilibili 粉，仅用于热门/提醒等少量状态 ---- */
   --game-accent: #fb7299;
   --game-accent-vivid: #ff8fab;
   --game-accent-hover: #e85d84;
@@ -112,10 +113,10 @@ body {
   --game-info-border: var(--game-brand-border);
 
   /* ---- 阴影阶梯（蓝墨基调）---- */
-  --game-shadow-xs: 0 1px 2px rgb(23 26 51 / 5%), 0 1px 6px rgb(23 26 51 / 4%);
-  --game-shadow: 0 2px 6px rgb(23 26 51 / 6%), 0 8px 24px rgb(0 174 236 / 8%);
-  --game-shadow-lg: 0 2px 8px rgb(23 26 51 / 7%), 0 16px 36px rgb(23 26 51 / 13%);
-  --game-shadow-popover: 0 4px 12px rgb(23 26 51 / 7%), 0 20px 44px rgb(23 26 51 / 16%);
+  --game-shadow-xs: 0 1px 2px rgb(12 45 58 / 5%), 0 1px 6px rgb(12 45 58 / 4%);
+  --game-shadow: 0 2px 6px rgb(12 45 58 / 6%), 0 8px 24px rgb(0 174 236 / 8%);
+  --game-shadow-lg: 0 2px 8px rgb(12 45 58 / 7%), 0 16px 36px rgb(12 45 58 / 13%);
+  --game-shadow-popover: 0 4px 12px rgb(12 45 58 / 7%), 0 20px 44px rgb(12 45 58 / 16%);
   --game-shadow-brand: 0 6px 18px rgb(0 174 236 / 28%);
   --game-shadow-accent: 0 6px 18px rgb(251 114 153 / 28%);
 
@@ -132,7 +133,7 @@ body {
 
 .game-community-page {
   color: var(--game-text);
-  background: var(--game-page-bg);
+  background: radial-gradient(circle at 12% -10%, var(--game-page-wash), transparent 28rem), var(--game-page-bg);
   min-height: calc(100vh - 76px);
   overflow-x: clip;
 }
@@ -217,11 +218,23 @@ body {
 }
 
 .game-section-heading h2 {
+  align-items: center;
+  display: inline-flex;
   font-size: 1.32rem;
   font-weight: 800;
+  gap: 0.55rem;
   letter-spacing: -0.01em;
   margin: 0;
   position: relative;
+}
+
+.game-section-heading h2::before {
+  background: var(--game-brand);
+  border-radius: var(--game-radius-pill);
+  content: '';
+  display: inline-block;
+  flex: 0 0 0.22rem;
+  height: 1.05rem;
 }
 
 .game-section-heading p {
@@ -244,7 +257,7 @@ body {
   }
 }
 
-/* ---- 封面多彩色板：B 站式封面墙的确定性取色（10 组双色调渐变）----
+/* ---- 封面多彩色板：游戏封面墙的确定性取色（10 组双色调渐变）----
    没有自定义封面的游戏由 cover-tone.ts 按 uuid/title 哈希取一组，
    色值只允许出现在本文件（视觉契约）。 */
 .cover-tone-0 {

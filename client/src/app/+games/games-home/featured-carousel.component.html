@@ -31,11 +31,10 @@
               }
             </div>
           </a>
-          <!-- Average-color footer: title row + switch controls stacked below the cover -->
+          <!-- Brand-blue footer: title row + switch controls stay within the page chrome -->
           <div
             class="featured-footer"
             [class.tone-bg]="!featuredCoverPath(featuredGame)"
-            [style.background]="featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null"
           >
             <a class="featured-caption" [routerLink]="['/games', featuredGame.uuid]">
               <h3>{{ featuredGame.title }}</h3>

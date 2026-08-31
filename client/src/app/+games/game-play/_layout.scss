@@ -80,7 +80,7 @@
   --game-muted: var(--game-text-secondary);
 
   box-sizing: border-box;
-  background: var(--game-detail-surface-muted);
+  background: radial-gradient(circle at 12% -8%, var(--game-page-wash), transparent 30rem), var(--game-detail-surface-muted);
   padding: 16px 0 56px;
 }
 
@@ -94,16 +94,16 @@
   width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
 }
 
-/* 标题栏为扁平排版：不做成圆角卡片，仅保留数据行 */
+/* 标题栏使用白色内容卡片，与游玩区和侧栏保持同一层级 */
 .game-play-page .game-title-bar {
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  background: var(--game-detail-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-detail-radius);
+  box-shadow: var(--game-detail-shadow);
   align-items: center;
   gap: var(--game-detail-gap);
   grid-template-columns: var(--game-detail-columns);
-  padding: 4px 4px 10px;
+  padding: 12px 16px;
 }
 
 .game-play-page .game-stage-row {

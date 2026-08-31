@@ -57,6 +57,7 @@
   color: var(--game-brand-contrast);
   font-weight: 700;
   justify-self: start;
+  min-height: var(--game-control-height);
   padding: 0.65rem 1.2rem; }
 .game-settings-submit:hover:not(:disabled) { background: var(--game-brand-hover); }
 .game-settings-submit:disabled { cursor: not-allowed;

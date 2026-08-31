@@ -53,6 +53,21 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       justify-content: space-between;
     }
 
+    .game-section-heading-row h2 {
+      align-items: center;
+      display: inline-flex;
+      gap: 0.55rem;
+    }
+
+    .game-section-heading-row h2::before {
+      background: var(--game-brand);
+      border-radius: var(--game-radius-pill);
+      content: '';
+      display: inline-block;
+      flex: 0 0 0.22rem;
+      height: 1.05rem;
+    }
+
     .section-shuffle {
       align-items: center;
       background: var(--game-surface-alt);

@@ -36,9 +36,9 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Five bottom-cover segment RGB strings for the footer and matching fade. */
+  /** Five bottom-cover segment RGB strings for the cover fade into the brand footer. */
   readonly featuredAvgColors = signal<Record<string, string[]>>({})
-  /** Cover URLs that failed to load -> show the same brown placeholder as no-cover games. */
+  /** Cover URLs that failed to load -> show the same blue placeholder as no-cover games. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private touchStartX = 0
@@ -98,17 +98,11 @@ export class FeaturedCarouselComponent implements OnDestroy {
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
   }
 
-  /** Footer uses a single solid color — the average of the five sampled segments. */
-  featuredAvgColor (game: Game) {
-    const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
-    return `rgb(${rgb})`
-  }
-
-  /** Fade the bottom of the cover into the footer color: opaque at the bottom,
-   *  fully transparent at the top — a clean linear disappear effect. */
+  /** Fade the cover into the shared Logo-blue footer while retaining a subtle
+   *  trace of the cover's sampled color near the image edge. */
   featuredCoverFade (game: Game) {
     const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
-    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb}) 100%)`
+    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 18%) 42%, var(--game-brand-deep) 100%)`
   }
 
   private featuredColors (game: Game) {
@@ -175,7 +169,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
       this.featuredAvgColors.update(map => ({ ...map, [uuid]: colors }))
     } catch {
-      // Cross-origin cover images may not be readable by canvas; keep the brown placeholder fallback.
+      // Cross-origin cover images may not be readable by canvas; keep the blue placeholder fallback.
     }
   }
 

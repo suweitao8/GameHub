@@ -647,20 +647,20 @@ my-game-navigation {
 .game-submit-button {
   align-items: center;
   align-self: center;
-  background: var(--game-accent);
+  background: var(--game-brand);
   border-radius: var(--game-radius-pill);
-  box-shadow: var(--game-shadow-accent);
+  box-shadow: var(--game-shadow-brand);
   color: var(--game-brand-contrast) !important;
   display: inline-flex;
   font-size: var(--game-font-size-md);
   font-weight: 700;
   letter-spacing: 0.04em;
-  height: 34px;
+  height: 44px;
   justify-content: center;
   line-height: 1;
   // Separate from 创作中心 more clearly than the default header action gap
   margin-left: 0.85rem;
-  min-height: 34px;
+  min-height: 44px;
   padding: 0 1.2rem;
   text-decoration: none;
   transition: background-color var(--game-dur-fast) var(--game-ease),
@@ -672,15 +672,15 @@ my-game-navigation {
 .game-submit-button:hover,
 .game-submit-button:focus-visible,
 .game-submit-button.game-submit-button-active {
-  background: var(--game-accent-hover);
-  box-shadow: var(--game-shadow-accent);
+  background: var(--game-brand-hover);
+  box-shadow: var(--game-shadow-brand);
   color: var(--game-brand-contrast) !important;
   opacity: 1;
   transform: translateY(-1px);
 }
 
 .game-submit-button.game-submit-button-active {
-  background: var(--game-accent-deep);
+  background: var(--game-brand-deep);
   transform: none;
 }
 
@@ -1209,7 +1209,7 @@ my-actor-avatar {
   }
 
   .game-submit-button {
-    min-height: 32px;
+    min-height: 44px;
     padding: 0 0.85rem;
   }
 

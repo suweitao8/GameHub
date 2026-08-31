@@ -546,7 +546,7 @@ assert(
     gameCardScss.includes('var(--cover-tone-a, var(--game-cover-fallback))') &&
     gameCardScss.includes('-webkit-line-clamp: 2;') &&
     gameCardScss.includes('.game-card:hover h3') &&
-    gameCardScss.includes('color: var(--game-brand-hover);') &&
+    gameCardScss.includes('color: var(--game-brand-deep);') &&
     !gameCardHtml.includes('cover-placeholder-copy') &&
     !gameCardScss.includes('.cover-letter'),
   'game cards must render the deterministic multicolor cover wall (tone classes from tokens, watermark initial, category badge) with two-line titles'
@@ -1014,7 +1014,7 @@ assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.in
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('.developer-follow-button {') && gamePlayScss.includes('border-radius: var(--game-radius-pill);'), 'developer follow button must use the unified pill brand style')
-assert(gameCommunityTokens.includes('--game-text: #171a33') && gameCommunityTokens.includes('--game-muted: #7c819e'), 'game colors must keep the shared ink and slate hint text from the token source')
+assert(gameCommunityTokens.includes('--game-text: #0c2d3a') && gameCommunityTokens.includes('--game-muted: #6e8792'), 'game colors must keep the shared blue-black ink and blue-slate hint text from the token source')
 assert(
   gameCommunityTokens.includes('--game-brand: #00aeec') &&
     gameCommunityTokens.includes('--game-brand-hover: #009dd5') &&
@@ -1022,6 +1022,19 @@ assert(
     gameCommunityTokens.includes('--game-accent: #fb7299') &&
     gameCommunityTokens.includes('--game-accent-hover: #e85d84'),
   'GameHub tokens must use the Bilibili blue and pink brand palette'
+)
+assert(
+  gameCommunityTokens.includes('--game-page-bg: #f1fbfe') &&
+    gameCommunityTokens.includes('--game-surface-alt: #e7f6fb') &&
+    gameCommunityTokens.includes('--game-text-primary: #0c2d3a') &&
+    gameCommunityTokens.includes('--game-border: #d0e6ed') &&
+    gameCommunityTokens.includes('--game-brand-contrast: #06222d'),
+  'GameHub shared tokens must expose the Logo-blue redesign canvas, ink, border and contrast values'
+)
+assert(
+  /\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-brand\);/.test(headerScss) &&
+    !/\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-accent\);/.test(headerScss),
+  'GameHub submit CTA must be a blue primary action'
 )
 assert(
   cssVariablesScss.includes('--primary: var(--mainColor, #00aeec)') &&
@@ -1780,13 +1793,14 @@ assert(
 )
 assert(
   featuredHtml.includes('[class.tone-bg]="!featuredCoverPath(featuredGame)"') &&
-    featuredHtml.includes("[style.background]=\"featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null\"") &&
-    featuredScss.includes('.featured-footer.tone-bg'),
-  'featured carousel footer must bind the calculated average color for real covers and the tone gradient for placeholders'
+    !featuredHtml.includes('[style.background]="featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null"') &&
+    featuredScss.includes('.featured-footer.tone-bg') &&
+    featuredScss.includes('background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));'),
+  'featured carousel footer must keep the page chrome on the shared Logo-blue gradient'
 )
 assert(
-  featuredScss.includes('background-color: var(--game-cover-fallback-deep);'),
-  'featured carousel footer must use the shared deep blue-gray placeholder fallback'
+  featuredScss.includes('background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));'),
+  'featured carousel footer must use the shared Logo-blue chrome gradient'
 )
 assert(
   !featuredScss.includes('background-color: #8f6a51'),
@@ -1902,10 +1916,10 @@ const gamehubPaletteSources = [
   gameErrorRetryTs
 ].join('\n')
 assert(
-  gameCommunityTokens.includes('--game-text: #171a33') &&
-    gameCommunityTokens.includes('--game-text-button: #565d78') &&
-    gameCommunityTokens.includes('--game-text-hint: #7c819e') &&
-    gameCommunityTokens.includes('--game-muted: #7c819e') &&
+  gameCommunityTokens.includes('--game-text: #0c2d3a') &&
+    gameCommunityTokens.includes('--game-text-button: #496976') &&
+    gameCommunityTokens.includes('--game-text-hint: #6e8792') &&
+    gameCommunityTokens.includes('--game-muted: #6e8792') &&
     !appScss.includes('--game-text:') &&
     !headerScss.includes('--game-text-primary: #'),
   'GameHub shared palette must keep the ink scale in the single token source without component-level duplicates'

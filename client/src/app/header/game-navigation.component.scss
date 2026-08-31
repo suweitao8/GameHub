@@ -142,7 +142,7 @@
 }
 
 .game-search-panel-heading {
-  align-items: baseline;
+  align-items: center;
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.6rem;
@@ -154,13 +154,16 @@
 }
 
 .game-search-panel-heading button {
+  align-items: center;
   background: transparent;
   border: 0;
   color: var(--game-text-hint);
   cursor: pointer;
+  display: inline-flex;
   font-size: var(--game-font-size-sm);
   height: auto;
-  padding: 0;
+  min-height: var(--game-control-height);
+  padding: 0 0.5rem;
   position: static;
   transform: none;
   width: auto;
@@ -168,7 +171,12 @@
 
   &:hover,
   &:focus-visible {
-    color: var(--game-accent);
+    color: var(--game-brand-deep);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--game-focus-ring);
+    outline-offset: 2px;
   }
 }
 
@@ -187,6 +195,7 @@
   cursor: pointer;
   font-size: var(--game-font-size-sm);
   height: auto;
+  min-height: var(--game-control-height);
   padding: 0.36rem 0.75rem;
   position: static;
   transform: none;
@@ -229,6 +238,7 @@
   gap: 0.5rem;
   height: auto;
   justify-content: flex-start;
+  min-height: var(--game-control-height);
   overflow: hidden;
   padding: 0.38rem 0.3rem;
   position: static;

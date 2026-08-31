@@ -15,10 +15,22 @@
 }
 
 .featured-heading h2 {
+  align-items: center;
   color: var(--game-text-primary);
+  display: inline-flex;
   font-size: var(--game-font-size-lg);
   font-weight: 800;
+  gap: 0.55rem;
   margin: 0;
+}
+
+.featured-heading h2::before {
+  background: var(--game-brand);
+  border-radius: var(--game-radius-pill);
+  content: '';
+  display: inline-block;
+  flex: 0 0 0.22rem;
+  height: 1.05rem;
 }
 
 /* 换一批：标题行右端的轻量胶囊按钮（与各区块 shuffle-button 同语言） */
@@ -203,7 +215,7 @@
   transform: scale(1.04);
 }
 
-/* Bottom of cover: average-color fade that reaches full opacity at the footer edge */
+/* Bottom of cover: sampled-color fade that reaches the Logo-blue footer edge */
 .featured-cover-fade {
   bottom: 0;
   height: 15%;
@@ -248,9 +260,9 @@
   z-index: 1;
 }
 
-/* Average-color footer: title row + switch controls stacked below the cover. */
+/* Logo-blue footer: title row + switch controls stacked below the cover. */
 .featured-footer {
-  background-color: var(--game-cover-fallback-deep);
+  background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));
   color: var(--game-text-inverse);
   display: flex;
   flex: 0 0 auto;
@@ -264,7 +276,7 @@
 
 /* 无封面占位时 footer 走同色调深色，与上方渐变连成一体 */
 .featured-footer.tone-bg {
-  background: linear-gradient(180deg, var(--cover-tone-b, var(--game-cover-fallback)) 0%, color-mix(in srgb, var(--cover-tone-b, var(--game-cover-fallback-deep)) 68%, var(--game-cover-fallback-deep)) 100%);
+  background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));
 }
 
 .featured-caption {

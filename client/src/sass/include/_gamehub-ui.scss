@@ -74,6 +74,8 @@
   --header-bg: var(--game-surface);
   --menu-fg: var(--game-text-secondary);
   --menu-bg: var(--game-surface-alt);
+
+  color: var(--game-text-primary);
 }
 
 /* --------------------------------------------------------------------------
@@ -376,6 +378,7 @@ body:has(.peertube-container.game-experience) {
   background: var(--game-brand-hover);
   border-color: var(--game-brand-hover);
   color: var(--game-brand-contrast);
+  box-shadow: var(--game-shadow-brand);
 }
 
 .game-ui-button-secondary {

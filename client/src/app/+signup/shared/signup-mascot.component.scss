@@ -7,7 +7,7 @@
 }
 
 div ::ng-deep svg {
-  color: pvar(--primary);
+  color: var(--game-brand);
   width: inherit;
   height: inherit;
 }
