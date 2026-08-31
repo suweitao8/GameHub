@@ -132,13 +132,13 @@
 }
 
 .game-card-body {
-  padding: 0.6rem 0.7rem 0;
+  padding: 0.7rem 0.8rem 0;
 }
 
 .game-card h3 {
   color: var(--game-text-primary);
   display: -webkit-box;
-  font-size: var(--game-font-size-md);
+  font-size: var(--game-font-size-lg);
   font-weight: 700;
   line-height: 1.35;
   margin: 0;
@@ -151,7 +151,7 @@
 }
 
 .game-card:hover h3 {
-  color: var(--game-brand-hover);
+  color: var(--game-brand-deep);
 }
 
 .game-card-author,
@@ -296,7 +296,7 @@
   }
 
   .game-card h3 {
-    font-size: var(--game-font-size-xs);
+    font-size: var(--game-font-size-sm);
   }
 
   .game-card-author {
@@ -343,7 +343,7 @@
 /* Extra small screens — single column feel */
 @media (max-width: 420px) {
   .game-card h3 {
-    font-size: var(--game-font-size-xs);
+    font-size: var(--game-font-size-sm);
   }
 
   .game-card-author {

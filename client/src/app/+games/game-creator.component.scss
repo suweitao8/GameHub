@@ -11,10 +11,13 @@
   margin: 0; }
 .creator-header p:not(.game-eyebrow) { color: var(--game-muted);
   margin: 0.4rem 0 0; }
-.upload-button { background: var(--game-brand);
+.upload-button { align-items: center;
+  background: var(--game-brand);
   border-radius: var(--game-radius-sm);
   color: var(--game-brand-contrast) !important;
+  display: inline-flex;
   font-weight: 700;
+  min-height: var(--game-control-height);
   padding: 0.75rem 1.1rem;
   text-decoration: none; }
 .metric-grid { display: grid;

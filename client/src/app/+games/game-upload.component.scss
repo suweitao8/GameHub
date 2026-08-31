@@ -246,7 +246,7 @@
 }
 
 .cover-remove:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--game-accent) 85%, transparent);
+  background: color-mix(in srgb, var(--game-danger) 85%, transparent);
 }
 
 .cover-remove:disabled {
@@ -425,7 +425,7 @@
 }
 
 .form-error {
-  background: var(--game-accent-soft);
+  background: var(--game-danger-soft);
   color: var(--game-danger);
 }
 
