@@ -14,16 +14,16 @@
             (error)="onCoverError()"
           >
         } @else {
-          <span class="game-cover-badge" aria-hidden="true">{{ categoryLabel() }}</span>
           <span class="cover-watermark" aria-hidden="true">{{ coverInitial() }}</span>
         }
-        <div class="game-card-meta" aria-label="游戏数据">
+      </div>
+      <div class="game-card-body">
+        <span class="game-card-category">{{ categoryLabel() }}</span>
+        <h3 [innerHTML]="game().title | highlight: searchTerm()"></h3>
+        <div class="game-card-meta-line" aria-label="游戏数据">
           <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game().playCount) }}</span></span>
           <span class="game-card-stat"><my-global-icon iconName="message-circle" /><span>{{ formatCount(game().comments) }}</span></span>
         </div>
-      </div>
-      <div class="game-card-body">
-        <h3 [innerHTML]="game().title | highlight: searchTerm()"></h3>
       </div>
     </a>
     <div class="game-card-author">

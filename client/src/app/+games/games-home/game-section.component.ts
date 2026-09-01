@@ -8,7 +8,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
  * Generic "heading + game grid + optional 换一批" block used by the recent /
  * latest / popular / featured-editor sections of the games home page.
  *
- * Pass a `shuffleLabel` to render the heading-row "换一批" pill (emits `shuffle`);
+ * Pass a `shuffleLabel` to render the heading-row "换一批" text action (emits `shuffle`);
  * omit it to hide the action. `compact` toggles the compact heading style.
  * `sectionClass` adds extra classes to the inner <section> (e.g. for the
  * featured-editor ::before bar decoration defined in the parent's SCSS).
@@ -40,12 +40,12 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
   styles: [ `
     .game-grid {
       display: grid;
-      column-gap: 1rem;
-      row-gap: 0.9rem;
+      column-gap: 1.15rem;
+      row-gap: 1.6rem;
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
-    /* 标题行：标题居左，换一批胶囊居右（B 站分区栏布局） */
+    /* 标题行：标题居左，换一批文字动作居右 */
     .game-section-heading-row {
       align-items: center;
       display: flex;
@@ -70,9 +70,10 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
 
     .section-shuffle {
       align-items: center;
-      background: var(--game-surface-alt);
+      background: transparent;
       border: 0;
-      border-radius: var(--game-radius-pill);
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
       color: var(--game-text-secondary);
       cursor: pointer;
       display: inline-flex;
@@ -80,16 +81,16 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
       font-weight: 600;
       gap: 0.3rem;
       justify-content: center;
-      min-height: 2rem;
-      padding: 0.3rem 0.8rem;
-      transition: background-color var(--game-dur-fast) var(--game-ease),
+      min-height: 44px;
+      padding: 0.3rem 0.2rem 0.25rem;
+      transition: border-color var(--game-dur-fast) var(--game-ease),
         color var(--game-dur-fast) var(--game-ease),
         transform var(--game-dur-fast) var(--game-ease);
     }
 
     .section-shuffle:hover,
     .section-shuffle:focus-visible {
-      background: var(--game-brand-soft);
+      border-bottom-color: var(--game-brand);
       color: var(--game-brand-deep);
       outline: none;
     }
@@ -104,7 +105,7 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
     }
 
     .section-shuffle:focus-visible {
-      outline: 2px solid var(--game-brand-glow);
+      outline: 2px solid var(--game-brand);
       outline-offset: 2px;
     }
 

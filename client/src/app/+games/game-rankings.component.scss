@@ -1,42 +1,65 @@
-.rankings-container { max-width: 900px;
-  margin: 0 auto;
-  padding: 1rem; }
+@use './game-community.tokens';
 
-.rankings-header { margin-bottom: 1rem; }
-.rankings-header h2 { font-size: 1.4rem;
-  margin-bottom: 0.75rem; }
+.rankings-container {
+  margin: 0 auto;
+  max-width: var(--game-content-width);
+  padding: 1.8rem 0 4rem;
+  width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
+}
+
+.rankings-header {
+  margin-bottom: 1.2rem;
+}
+
+.rankings-header h2 {
+  color: var(--game-text-primary);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 1rem;
+}
 
 .rankings-filters {
-  align-items: center;
+  align-items: flex-end;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   justify-content: space-between;
 }
 
 .rankings-tabs {
-  display: flex;
-  gap: 0.25rem;
   border-bottom: 1px solid var(--game-border);
-  overflow-x: auto;
+  display: flex;
   flex: 1;
+  gap: 1.15rem;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .rankings-tabs button {
-  padding: 0.5rem 0.85rem;
-  background: none;
+  background: transparent;
   border: 0;
   border-bottom: 2px solid transparent;
+  color: var(--game-muted);
   cursor: pointer;
   font-size: var(--game-font-size-md);
-  color: var(--game-muted);
-  transition: all 0.2s;
+  min-height: var(--game-control-height);
+  padding: 0.5rem 0.15rem 0.4rem;
+  transition: border-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease);
   white-space: nowrap;
 }
 
+.rankings-tabs button:hover,
+.rankings-tabs button:focus-visible,
 .rankings-tabs button.active {
-  color: var(--game-brand);
+  color: var(--game-brand-deep);
+  outline: none;
+}
+
+.rankings-tabs button.active {
   border-bottom-color: var(--game-brand);
+  font-weight: 700;
 }
 
 .rankings-category-filter select {
@@ -44,118 +67,129 @@
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-xs);
   color: var(--game-text);
-  font-size: var(--game-font-size-sm);
-  padding: 0.4rem 0.6rem;
   cursor: pointer;
+  font-size: var(--game-font-size-sm);
+  min-height: var(--game-control-height);
+  padding: 0.4rem 0.7rem;
 }
 
-.rankings-list { display: flex;
+.rankings-list {
+  border-top: 1px solid var(--game-border);
+  display: flex;
   flex-direction: column;
-  gap: 0.5rem; }
+}
 
 .ranking-item {
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: var(--game-radius);
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--game-border);
   color: inherit;
-  transition: all 0.2s;
+  display: flex;
+  gap: 1rem;
+  padding: 0.85rem 0.5rem;
+  text-decoration: none;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    border-color var(--game-dur-fast) var(--game-ease);
 }
 
-.ranking-item:hover {
-  border-color: var(--game-brand);
-  transform: translateX(2px);
+.ranking-item:hover,
+.ranking-item:focus-visible {
+  background: var(--game-surface);
+  border-bottom-color: var(--game-brand-border);
+  outline: none;
 }
 
 .rank-number {
-  width: 1.75rem;
-  height: 1.75rem;
-  display: flex;
   align-items: center;
-  justify-content: center;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
+  color: var(--game-muted);
+  display: flex;
+  flex: 0 0 1.75rem;
   font-size: var(--game-font-size-md);
   font-weight: 700;
-  color: var(--game-muted);
-  background: var(--game-border);
-  flex-shrink: 0;
+  height: 1.75rem;
+  justify-content: center;
+  width: 1.75rem;
 }
 
 .rank-number.top3 {
-  background: var(--game-warning);
+  background: var(--game-brand);
   color: var(--game-text-inverse);
 }
 
 .ranking-cover {
-  width: 4rem;
+  background: var(--game-cover-fallback);
+  border-radius: var(--game-radius-sm);
+  flex: 0 0 4rem;
   height: 4rem;
-  border-radius: var(--game-radius-xs);
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .ranking-cover img {
-  width: 100%;
+  display: block;
   height: 100%;
   object-fit: cover;
+  width: 100%;
 }
 
 .cover-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
   align-items: center;
-  justify-content: center;
   background: var(--game-cover-fallback);
-  color: var(--game-text-primary);
+  color: var(--game-brand-deep);
+  display: flex;
   font-size: 1.25rem;
   font-weight: 700;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
 }
 
-.ranking-info { flex: 1;
-  min-width: 0; }
+.ranking-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .ranking-title {
+  color: var(--game-text-primary);
   font-size: var(--game-font-size-lg);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 0.25rem;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ranking-stats {
-  display: flex;
-  gap: 0.5rem;
-  font-size: var(--game-font-size-sm);
   color: var(--game-muted);
+  display: flex;
+  font-size: var(--game-font-size-sm);
+  gap: 0.5rem;
 }
 
 .ranking-score {
-  text-align: right;
   flex-shrink: 0;
+  text-align: right;
 }
 
-.score-value { font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--game-brand);
-  display: block; }
-.score-label { font-size: var(--game-font-size-xs);
-  color: var(--game-muted); }
+.score-value {
+  color: var(--game-brand-deep);
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
 
-.rankings-empty {
-  text-align: center;
-  padding: 3rem 1rem;
+.score-label {
   color: var(--game-muted);
+  font-size: var(--game-font-size-xs);
 }
 
+.rankings-empty,
 .rankings-error {
-  text-align: center;
-  padding: 3rem 1rem;
   color: var(--game-muted);
+  padding: 3rem 1rem;
+  text-align: center;
 }
 
 .rankings-error span {
@@ -177,58 +211,58 @@
   cursor: pointer;
   font-size: var(--game-font-size-md);
   font-weight: 600;
+  min-height: var(--game-control-height);
   padding: 0.5rem 1.25rem;
 }
 
-.rankings-loading { display: flex;
+.rankings-loading {
+  display: flex;
   flex-direction: column;
-  gap: 0.5rem; }
+}
 
 .ranking-skeleton {
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: var(--game-radius);
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
+  border-bottom: 1px solid var(--game-border);
+  display: flex;
+  gap: 1rem;
+  padding: 0.85rem 0.5rem;
+}
+
+.skeleton-rank,
+.skeleton-cover,
+.skeleton-text-line {
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
 }
 
 .skeleton-rank {
-  width: 1.75rem;
-  height: 1.75rem;
   border-radius: var(--game-radius-xs);
-  background: var(--game-border);
+  flex: 0 0 1.75rem;
+  height: 1.75rem;
+  width: 1.75rem;
 }
 
 .skeleton-cover {
-  width: 4rem;
+  border-radius: var(--game-radius-sm);
+  flex: 0 0 4rem;
   height: 4rem;
-  border-radius: var(--game-radius-xs);
-  background: var(--game-border);
-  flex-shrink: 0;
 }
 
 .skeleton-text {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
   min-width: 0;
 }
 
 .skeleton-text-line {
-  background: var(--game-border);
   border-radius: var(--game-radius-xs);
   height: 0.85rem;
   margin-bottom: 0.35rem;
 }
 
 .skeleton-text-line.short { width: 40%; }
-
-.ranking-skeleton .skeleton-rank,
-.ranking-skeleton .skeleton-cover,
-.ranking-skeleton .skeleton-text-line {
-  animation: skeletonPulse 1.4s ease-in-out infinite;
-  background: var(--game-surface-alt);
-}
 
 @keyframes skeletonPulse {
   0%,
@@ -237,16 +271,33 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ranking-skeleton .skeleton-rank,
-  .ranking-skeleton .skeleton-cover,
-  .ranking-skeleton .skeleton-text-line {
+  .skeleton-rank,
+  .skeleton-cover,
+  .skeleton-text-line {
     animation: none;
   }
 }
 
 @media (max-width: 600px) {
-  .rankings-filters { flex-direction: column;
-    align-items: stretch; }
-  .rankings-category-filter { margin-top: 0.5rem; }
-  .rankings-category-filter select { width: 100%; }
+  .rankings-container {
+    padding-top: 1.2rem;
+  }
+
+  .rankings-filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rankings-category-filter select {
+    width: 100%;
+  }
+
+  .ranking-item {
+    gap: 0.65rem;
+    padding-inline: 0.15rem;
+  }
+
+  .ranking-score {
+    display: none;
+  }
 }

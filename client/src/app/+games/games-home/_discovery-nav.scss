@@ -1,23 +1,21 @@
-/* 发现页导航：中性浅色 chip，所有信息流入口使用同一套主操作语言 */
+/* 发现页导航：轻量文字标签，内容与 active underline 承担层级 */
 
 .home-discovery-nav {
   align-items: center;
-  background: transparent;
+  background: var(--game-surface);
+  border-bottom: 1px solid var(--game-border);
   display: flex;
-  margin: 0.9rem 0;
+  margin: 0;
 }
 
 .home-discovery-links {
-  align-items: center;
-  display: grid;
+  align-items: stretch;
+  display: flex;
   flex: 1 1 auto;
-  gap: 0.4rem;
-  grid-auto-columns: minmax(clamp(3.8rem, 5vw, 4.2rem), 1fr);
-  grid-auto-flow: column;
+  gap: clamp(0.9rem, 2.1vw, 1.55rem);
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
-  padding-bottom: 2px;
 }
 
 .home-discovery-links::-webkit-scrollbar {
@@ -26,98 +24,78 @@
 
 .home-discovery-links a {
   align-items: center;
-  background: var(--game-surface-alt);
-  border: 1px solid transparent;
-  border-radius: var(--game-radius-pill);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
   box-sizing: border-box;
   color: var(--game-text-secondary);
   cursor: pointer;
   display: inline-flex;
+  flex: 0 0 auto;
   font-size: var(--game-font-size-md);
   font-weight: 600;
   justify-content: center;
-  min-height: 2.3rem;
+  min-height: 44px;
   min-width: 0;
-  padding: 0.35rem 0.85rem;
+  padding: 0.65rem 0.1rem 0.55rem;
   text-align: center;
   text-decoration: none;
-  transition: background-color var(--game-dur-fast) var(--game-ease),
-    border-color var(--game-dur-fast) var(--game-ease),
-    color var(--game-dur-fast) var(--game-ease),
-    box-shadow var(--game-dur) var(--game-ease);
+  transition: border-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease);
   white-space: nowrap;
 }
 
 .home-discovery-links a.home-category-tab {
   font-size: var(--game-font-size-sm);
-  padding: 0.4rem 0.45rem;
 }
 
 .home-discovery-links a.category-length-2 {
-  letter-spacing: 0.5em;
-  padding-inline-start: 0.7rem;
+  letter-spacing: 0.2em;
+  padding-inline-start: 0.3rem;
 }
 
 .home-discovery-links a.category-length-3 {
-  letter-spacing: 0.2em;
-  padding-inline-start: 0.55rem;
+  letter-spacing: 0.08em;
+  padding-inline-start: 0.2rem;
 }
 
 .home-discovery-links a:hover,
 .home-discovery-links a:focus-visible {
-  background: color-mix(in srgb, var(--game-text-primary) 8%, var(--game-surface-alt));
+  background: transparent;
   color: var(--game-text-primary);
   outline: none;
 }
 
-/* 双信息流入口：统一使用低对比度主品牌底色，避免标签之间互相争夺注意力 */
 .home-discovery-links a.home-feed-tab-dynamic,
 .home-discovery-links a.home-feed-tab-hot {
-  background: var(--game-brand-soft);
-  border-color: var(--game-brand-border);
-  color: var(--game-brand-deep);
+  color: var(--game-text-primary);
   font-weight: 700;
 }
 
-.home-discovery-links a.home-feed-tab-dynamic:hover,
-.home-discovery-links a.home-feed-tab-dynamic:focus-visible,
-.home-discovery-links a.home-feed-tab-hot:hover,
-.home-discovery-links a.home-feed-tab-hot:focus-visible {
-  background: var(--game-brand);
-  border-color: var(--game-brand);
-  color: var(--game-brand-contrast);
-  transform: translateY(-1px);
-}
-
-/* 单一激活语言：实底主品牌 + 白字 */
-.home-discovery-links a.active:not(.home-feed-tab-dynamic):not(.home-feed-tab-hot) {
-  background: var(--game-brand);
-  border-color: var(--game-brand);
-  color: var(--game-brand-contrast);
-  font-weight: 700;
-}
-
+.home-discovery-links a.active,
 .home-discovery-links a.home-feed-tab-dynamic.active,
 .home-discovery-links a.home-feed-tab-hot.active {
-  background: var(--game-brand);
-  border-color: var(--game-brand);
-  color: var(--game-brand-contrast);
+  background: transparent;
+  border-bottom: 2px solid var(--game-brand);
+  color: var(--game-brand-deep);
+  font-weight: 700;
 }
 
 /* ---- 骨架屏 ---- */
 .game-skeleton-nav {
   align-items: center;
   display: flex;
-  gap: 0.55rem;
-  margin: 0.9rem 0;
+  gap: 1rem;
+  margin: 0;
+  overflow: hidden;
 }
 
 .game-skeleton-tab {
   animation: gameNavSkeletonPulse 1.4s ease infinite;
   background: var(--game-surface-alt);
-  border-radius: var(--game-radius-pill);
-  height: 2.3rem;
-  width: 4.1rem;
+  border-radius: var(--game-radius-xs);
+  flex: 0 0 4.1rem;
+  height: 44px;
 }
 
 .game-skeleton-heading {
@@ -147,6 +125,5 @@
   .game-skeleton-heading {
     transition: none;
     animation: none;
-    background: var(--game-surface-alt);
   }
 }

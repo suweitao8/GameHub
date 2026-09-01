@@ -5,25 +5,20 @@
   min-width: 0;
 }
 
-/* 游戏卡片：画布上的白卡；悬停整体抬升、封面微缩放，形成可点感 */
-
+/* 游戏卡片：让封面承担内容，文字承担解释，外层不再套白色卡框 */
 .game-card {
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
-  box-shadow: var(--game-shadow-xs);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   display: block;
-  overflow: hidden;
-  transition: box-shadow var(--game-dur) var(--game-ease),
-    transform var(--game-dur) var(--game-ease),
-    border-color var(--game-dur) var(--game-ease);
+  overflow: visible;
+  transition: transform var(--game-dur) var(--game-ease);
 }
 
 .game-card:hover,
 .game-card:focus-within {
-  border-color: var(--game-brand-border);
-  box-shadow: var(--game-shadow-lg);
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 
 .game-card-main {
@@ -36,17 +31,19 @@
 
 .game-card-main:focus-visible {
   outline: 2px solid var(--game-brand);
-  outline-offset: -2px;
+  outline-offset: 3px;
 }
 
 .game-cover {
   aspect-ratio: 16 / 9;
   background: var(--game-cover-fallback-deep);
+  border-radius: var(--game-radius-sm);
   overflow: hidden;
   position: relative;
 }
 
 .game-cover img {
+  display: block;
   height: 100%;
   object-fit: cover;
   transition: transform var(--game-dur-slow) var(--game-ease);
@@ -55,7 +52,7 @@
 
 .game-card:hover .game-cover img,
 .game-card-main:focus-visible .game-cover img {
-  transform: scale(1.05);
+  transform: scale(1.045);
 }
 
 .game-cover.placeholder {
@@ -65,42 +62,37 @@
   place-items: center;
 }
 
-/* 左上分类徽章：B 站式封面角标 */
-.game-cover-badge {
-  backdrop-filter: blur(2px);
-  background: color-mix(in srgb, var(--game-text-primary) 46%, transparent);
-  border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
-  font-size: var(--game-font-size-xs);
-  font-weight: 600;
-  left: 0.5rem;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  padding: 0.22rem 0.42rem;
-  position: absolute;
-  top: 0.5rem;
-  z-index: 2;
-}
-
-/* 中央大水印字：标题首字符，替代旧的「G + 标题」信息卡构图 */
 .cover-watermark {
-  color: var(--game-text-secondary);
+  color: var(--game-brand-deep);
   font-size: 3rem;
   font-weight: 800;
   left: 50%;
   letter-spacing: 0.02em;
   line-height: 1;
+  opacity: 0.25;
   pointer-events: none;
   position: absolute;
   top: 50%;
   transform: translate(-50%, -52%);
   user-select: none;
   z-index: 1;
-  opacity: 0.3;
 }
 
 .game-card-body {
-  padding: 0.7rem 0.8rem 0;
+  min-width: 0;
+  padding: 0.62rem 0 0;
+}
+
+.game-card-category {
+  color: var(--game-brand);
+  display: block;
+  font-size: var(--game-font-size-xs);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.28rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .game-card h3 {
@@ -122,19 +114,57 @@
   color: var(--game-brand-deep);
 }
 
-.game-card-author,
-.game-card-meta {
+.game-card-meta-line {
+  align-items: center;
+  color: var(--game-text-hint);
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.38rem;
+  min-height: 1rem;
+}
+
+.game-card-stat {
+  align-items: center;
+  display: inline-flex;
+  font-size: var(--game-font-size-xs);
+  gap: 0.25rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.game-card-stat my-global-icon {
+  align-items: center;
+  color: inherit;
+  display: inline-flex;
+  flex: 0 0 0.82rem;
+  height: 0.82rem;
+  justify-content: center;
+  line-height: 0;
+  width: 0.82rem;
+}
+
+.game-card-stat my-global-icon ::ng-deep svg {
+  display: block;
+  height: 100%;
+  stroke-width: 2.1;
+  width: 100%;
+}
+
+.game-card-stat span {
+  color: inherit;
+  display: inline-block;
+  font-size: var(--game-font-size-xs);
+  line-height: 1;
+}
+
+.game-card-author {
   align-items: center;
   color: var(--game-muted);
   display: flex;
   font-size: var(--game-font-size-sm);
-  gap: 0.45rem;
-}
-
-.game-card-author {
-  margin-top: 0.35rem;
+  gap: 0.42rem;
+  margin-top: 0.42rem;
   min-width: 0;
-  padding: 0 0.7rem 0.7rem;
 }
 
 .author-up-badge {
@@ -176,68 +206,15 @@
   white-space: nowrap;
 }
 
-/* 封面左下角数据条：用一层中性半透明底承托白字 */
-.game-card-meta {
-  align-items: center;
-  background: color-mix(in srgb, var(--game-text-primary) 74%, transparent);
-  bottom: 0;
-  color: var(--game-text-inverse);
-  display: flex;
-  gap: 0.8rem;
-  left: 0;
-  opacity: 0.85;
-  padding: 1.1rem 0.65rem 0.25rem;
-  position: absolute;
-  right: 0;
-  transition: opacity var(--game-dur) var(--game-ease);
-}
-
-.game-card:hover .game-card-meta {
-  opacity: 1;
-}
-
-.game-card-stat {
-  align-items: center;
-  display: inline-flex;
-  font-size: var(--game-font-size-sm);
-  gap: 0.28rem;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.game-card-stat my-global-icon {
-  align-items: center;
-  color: inherit;
-  display: inline-flex;
-  flex: 0 0 0.85rem;
-  height: 0.85rem;
-  justify-content: center;
-  line-height: 0;
-  width: 0.85rem;
-}
-
-.game-card-stat my-global-icon ::ng-deep svg {
-  display: block;
-  height: 100%;
-  stroke-width: 2.1;
-  width: 100%;
-}
-
-.game-card-stat span {
-  color: var(--game-text-inverse);
-  display: inline-block;
-  font-size: var(--game-font-size-xs);
-  line-height: 1;
-}
-
 /* 占位骨架（isVisible=false 时渲染） */
 .game-card-placeholder {
   animation: cardSkeletonPulse 1.4s ease infinite;
+  aspect-ratio: 16 / 9;
   background: var(--game-surface-alt);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
+  border: 0;
+  border-radius: var(--game-radius-sm);
   display: block;
-  min-height: 180px;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -253,6 +230,15 @@
   }
 }
 
+/* Search highlight：软底高亮，保持正文的阅读连续性 */
+:host ::ng-deep .search-highlight {
+  background: var(--game-brand-soft);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-brand-deep);
+  font-weight: 800;
+  padding: 0 2px;
+}
+
 @media (max-width: 720px) {
   .game-card:hover,
   .game-card:focus-within {
@@ -260,18 +246,22 @@
   }
 
   .game-card-body {
-    padding: 0.35rem 0.25rem 0;
+    padding-top: 0.48rem;
   }
 
   .game-card h3 {
-    font-size: var(--game-font-size-sm);
+    font-size: var(--game-font-size-md);
+  }
+
+  .game-card-meta-line {
+    gap: 0.45rem;
+    margin-top: 0.28rem;
   }
 
   .game-card-author {
     gap: 0.18rem;
     font-size: var(--game-font-size-xs);
-    min-width: 0;
-    padding: 0 0.25rem 0.55rem;
+    margin-top: 0.3rem;
   }
 
   .game-card-author > span:not(.game-card-time) {
@@ -291,13 +281,7 @@
     font-size: var(--game-font-size-xs);
   }
 
-  .game-card-meta {
-    gap: 0.25rem;
-    padding: 0.7rem 0.3rem 0.2rem;
-  }
-
   .game-card-stat {
-    font-size: var(--game-font-size-xs);
     gap: 0.1rem;
   }
 
@@ -308,52 +292,28 @@
   }
 }
 
-/* Extra small screens — single column feel */
 @media (max-width: 420px) {
+  .game-card-category {
+    margin-bottom: 0.2rem;
+  }
+
   .game-card h3 {
     font-size: var(--game-font-size-sm);
   }
 
   .game-card-author {
     gap: 0.15rem;
-    font-size: var(--game-font-size-xs);
-    padding: 0 0.25rem 0.55rem;
-  }
-
-  .game-card-meta {
-    gap: 0.2rem;
-    padding: 0.55rem 0.25rem 0.15rem;
-  }
-
-  .game-card-stat {
-    font-size: var(--game-font-size-xs);
   }
 
   .game-card-stat span {
     font-size: var(--game-font-size-xs);
   }
-
-  .game-card-stat my-global-icon {
-    flex-basis: 0.6rem;
-    height: 0.6rem;
-    width: 0.6rem;
-  }
-}
-
-/* Search highlight：软底高亮，取代旧的实底反白 */
-:host ::ng-deep .search-highlight {
-  background: var(--game-brand-soft);
-  border-radius: var(--game-radius-xs);
-  color: var(--game-brand-deep);
-  font-weight: 800;
-  padding: 0 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
 
   .game-card,
   .game-cover img,
-  .game-card-meta,
   .game-card h3,
   .author-name-link {
     transition: none;

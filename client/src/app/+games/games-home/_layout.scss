@@ -3,7 +3,8 @@
 }
 
 .games-home > .game-community-content {
-  padding-top: 0.85rem;
+  max-width: 1280px;
+  padding-top: 0.45rem;
 }
 
 .compact-section-heading {
@@ -23,8 +24,8 @@
 /* 网格：与 game-section 内联样式、featured-carousel 里的副本保持同值 */
 .game-grid {
   display: grid;
-  column-gap: 1rem;
-  row-gap: 0.9rem;
+  column-gap: 1.15rem;
+  row-gap: 1.6rem;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 

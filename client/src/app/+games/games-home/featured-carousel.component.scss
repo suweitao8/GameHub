@@ -1,5 +1,5 @@
-// Featured content uses the same quiet light surface as the regular game grid.
-// The game image remains the visual content; the shell does not recolor it.
+// Featured content is an image-led editorial block. The page chrome stays
+// quiet so the featured game, rather than a decorative color shell, leads.
 
 .featured-section {
   min-width: 0;
@@ -10,14 +10,14 @@
   display: flex;
   gap: 1rem;
   justify-content: space-between;
-  margin: 0.9rem 0;
+  margin: 1.7rem 0 0.9rem;
 }
 
 .featured-heading h2 {
   align-items: center;
   color: var(--game-text-primary);
   display: inline-flex;
-  font-size: var(--game-font-size-lg);
+  font-size: 1.3rem;
   font-weight: 800;
   gap: 0.55rem;
   margin: 0;
@@ -34,9 +34,9 @@
 
 .featured-shuffle {
   align-items: center;
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-pill);
+  background: transparent;
+  border: 0;
+  border-radius: var(--game-radius-xs);
   color: var(--game-text-secondary);
   cursor: pointer;
   display: inline-flex;
@@ -44,18 +44,14 @@
   font-weight: 600;
   gap: 0.3rem;
   justify-content: center;
-  min-height: var(--game-control-height-sm);
-  padding: 0.3rem 0.8rem;
-  transition: background-color var(--game-dur-fast) var(--game-ease),
-    border-color var(--game-dur-fast) var(--game-ease),
-    color var(--game-dur-fast) var(--game-ease),
+  min-height: var(--game-control-height);
+  padding: 0.3rem 0.35rem;
+  transition: color var(--game-dur-fast) var(--game-ease),
     transform var(--game-dur-fast) var(--game-ease);
 }
 
 .featured-shuffle:hover,
 .featured-shuffle:focus-visible {
-  background: var(--game-brand-soft);
-  border-color: var(--game-brand-border);
   color: var(--game-brand-deep);
   outline: none;
 }
@@ -88,27 +84,25 @@
 .featured-carousel {
   animation: featuredSlideIn 260ms var(--game-ease);
   align-self: start;
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
-  box-shadow: var(--game-shadow-xs);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
-  grid-column: span 2;
+  grid-column: span 6;
   grid-row: span 2;
   height: auto;
   min-height: 12rem;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  transition: border-color var(--game-dur) var(--game-ease),
-    box-shadow var(--game-dur) var(--game-ease);
+  transition: transform var(--game-dur) var(--game-ease);
 }
 
 .featured-carousel:hover,
 .featured-carousel:focus-within {
-  border-color: var(--game-brand-border);
-  box-shadow: var(--game-shadow);
+  transform: translateY(-2px);
 }
 
 @keyframes featuredSlideIn {
@@ -129,12 +123,12 @@
 }
 
 .featured-discovery-grid {
-  --featured-gap: 1rem;
+  --featured-gap: 1.15rem;
 
   display: grid;
   gap: var(--featured-gap);
   grid-auto-rows: minmax(0, auto);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   min-width: 0;
 }
 
@@ -155,7 +149,8 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: var(--game-cover-fallback);
+  background: var(--game-cover-fallback-deep);
+  border-radius: var(--game-radius-md);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -163,6 +158,7 @@
 }
 
 .featured-cover.is-placeholder {
+  background: var(--game-brand-deep);
   display: grid;
   place-items: center;
 }
@@ -187,44 +183,45 @@
 }
 
 .featured-cover .game-cover-badge {
-  background: color-mix(in srgb, var(--game-text-primary) 72%, transparent);
+  background: var(--game-brand-vivid);
   border-radius: var(--game-radius-xs);
-  color: var(--game-text-inverse);
+  color: var(--game-text-primary);
   font-size: var(--game-font-size-xs);
-  font-weight: 600;
-  left: 0.75rem;
+  font-weight: 800;
+  left: 0.8rem;
   letter-spacing: 0.02em;
   line-height: 1;
-  padding: 0.26rem 0.5rem;
+  padding: 0.28rem 0.5rem;
   position: absolute;
-  top: 0.75rem;
+  top: 0.8rem;
   z-index: 2;
 }
 
 .featured-cover .cover-watermark {
-  color: var(--game-text-secondary);
-  font-size: clamp(3rem, 8vw, 5rem);
+  color: var(--game-text-inverse);
+  font-size: clamp(4.5rem, 10vw, 8rem);
   font-weight: 800;
   left: 50%;
   line-height: 1;
+  opacity: 0.2;
   pointer-events: none;
   position: absolute;
   top: 50%;
   transform: translate(-50%, -52%);
   user-select: none;
-  opacity: 0.3;
 }
 
 .featured-footer {
-  background: var(--game-surface);
-  border-top: 1px solid var(--game-border);
+  align-items: flex-end;
+  background: transparent;
   color: var(--game-text-primary);
   display: flex;
   flex: 0 0 auto;
-  flex-direction: column;
-  justify-content: flex-end;
+  gap: 1rem;
+  justify-content: space-between;
   margin: 0;
-  min-height: 5.4rem;
+  min-height: 4.7rem;
+  padding: 0.75rem 0 0;
   width: 100%;
   z-index: 2;
 }
@@ -232,14 +229,14 @@
 .featured-caption {
   color: inherit;
   display: block;
-  margin: 0;
-  padding: 0.65rem 0.9rem 0.2rem;
+  min-width: 0;
+  padding: 0;
   text-decoration: none;
 }
 
 .featured-caption h3 {
-  font-size: 1.15rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   line-height: 1.35;
   margin: 0;
   overflow: hidden;
@@ -256,8 +253,9 @@
 .featured-controls {
   align-items: center;
   display: flex;
-  justify-content: space-between;
-  padding: 0.15rem 0.55rem 0.25rem 0.75rem;
+  flex: 0 0 auto;
+  gap: 0.35rem;
+  padding: 0;
   position: relative;
 }
 
@@ -277,7 +275,7 @@
   justify-content: center;
   padding: 0;
   position: relative;
-  width: 1.6rem;
+  width: 1.35rem;
 }
 
 .featured-dots button::before {
@@ -292,12 +290,12 @@
 }
 
 .featured-dots button:hover::before,
-.featured-dots button:focus-visible::before {
+.featured-dots button:focus-visible::before,
+.featured-dots button.active::before {
   background: var(--game-brand);
 }
 
 .featured-dots button.active::before {
-  background: var(--game-brand);
   width: 1rem;
 }
 
@@ -310,12 +308,11 @@
 .featured-controls > div:last-child {
   display: flex;
   gap: 0.2rem;
-  margin-left: auto;
 }
 
 .featured-controls > div:last-child button {
   align-items: center;
-  background: var(--game-surface-alt);
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-pill);
   color: var(--game-text-secondary);
@@ -328,7 +325,6 @@
 
 .featured-controls > div:last-child button:hover,
 .featured-controls > div:last-child button:focus-visible {
-  background: var(--game-brand-soft);
   border-color: var(--game-brand-border);
   color: var(--game-brand-deep);
 }
@@ -355,8 +351,8 @@
   align-content: start;
   align-self: start;
   display: grid;
-  gap: var(--featured-gap, 1rem);
-  grid-column: span 3;
+  gap: var(--featured-gap, 1.15rem);
+  grid-column: span 6;
   grid-row: span 2;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   min-width: 0;
@@ -364,12 +360,12 @@
 
 @media (max-width: 1250px) {
   .featured-discovery-grid,
-  .featured-side-grid { gap: 0.8rem; }
+  .featured-side-grid { gap: 0.9rem; }
 }
 
 @media (max-width: 1050px) {
   .featured-discovery-grid,
-  .featured-side-grid { gap: 0.65rem; }
+  .featured-side-grid { gap: 0.75rem; }
 
   .featured-caption h3 { font-size: var(--game-font-size-lg); }
 }
@@ -390,18 +386,26 @@
   .featured-side-grid {
     grid-column: span 2;
     grid-row: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .featured-caption {
-    padding: 0.45rem 0.65rem 0.15rem;
-  }
-
-  .featured-caption h3 { font-size: var(--game-font-size-md); }
+  .featured-caption h3 { font-size: var(--game-font-size-lg); }
 }
 
 @media (max-width: 450px) {
   .featured-discovery-grid,
-  .featured-side-grid { gap: 0.4rem; }
+  .featured-side-grid { gap: 0.45rem; }
+
+  .featured-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 5.4rem;
+  }
+
+  .featured-controls {
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

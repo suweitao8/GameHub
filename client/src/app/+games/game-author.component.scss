@@ -36,7 +36,7 @@
   text-shadow: none; }
 .author-profile-kicker { background: var(--game-brand-soft);
   border: 1px solid var(--game-brand-border);
-  border-radius: var(--game-radius-pill);
+  border-radius: var(--game-radius-xs);
   color: var(--game-brand-deep);
   display: inline-flex;
   font-size: var(--game-font-size-xs);
@@ -92,15 +92,15 @@
 .author-content { background: var(--game-page-bg);
   padding-top: 0.15rem; }
 .author-navigation-row { align-items: stretch;
-  background: var(--game-detail-surface, var(--game-surface));
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
-  box-shadow: var(--game-shadow-xs);
+  background: transparent;
+  border-bottom: 1px solid var(--game-border);
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
-  gap: 1rem;
-  margin-top: 16px;
+  gap: 1.4rem;
+  margin-top: 1rem;
   overflow-x: auto;
-  padding: 0 16px;
+  padding: 0;
   scrollbar-width: thin; }
 .author-home-tab { align-items: center;
   border-bottom: 2px solid var(--game-brand);
@@ -109,8 +109,8 @@
   flex: 0 0 auto;
   font-size: var(--game-font-size-md);
   font-weight: 700;
-  min-height: 56px;
-  padding: 1rem 0.25rem 0.85rem; }
+  min-height: var(--game-control-height);
+  padding: 0.65rem 0.15rem 0.5rem; }
 .author-main { padding-top: 1.35rem; }
 .author-filter-row { align-items: center;
   display: flex;
@@ -124,17 +124,18 @@
   font-size: var(--game-font-size-sm);
   margin-right: 0.2rem;
   white-space: nowrap; }
-.author-filter-row button { background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-xs);
+.author-filter-row button { background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--game-text-button);
   flex: 0 0 auto;
   font-size: var(--game-font-size-sm);
   min-height: var(--game-control-height);
-  padding: 0.38rem 0.65rem;
+  padding: 0.38rem 0.4rem;
   white-space: nowrap; }
-.author-filter-row button.active { background: var(--game-brand-soft);
-  border-color: var(--game-brand);
+.author-filter-row button.active { background: transparent;
+  border-bottom-color: var(--game-brand);
   color: var(--game-brand-deep);
   font-weight: 700; }
 .author-main .game-grid { display: grid;
