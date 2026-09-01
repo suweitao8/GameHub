@@ -112,21 +112,26 @@ const cardTypescript = read('client/src/app/+games/game-card.component.ts')
 const featuredTemplate = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredTypescript = read('client/src/app/+games/games-home/featured-carousel.component.ts')
 const featuredStyles = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+const homeLayout = read('client/src/app/+games/games-home/_layout.scss')
+const homeDiscovery = read('client/src/app/+games/games-home/_discovery-nav.scss')
+const gameSectionTypescript = read('client/src/app/+games/games-home/game-section.component.ts')
+const cardStyles = read('client/src/app/+games/game-card.component.scss')
 const followerGrowthTypescript = read('client/src/app/+games/analytics/follower-growth-chart.component.ts')
 
 // 1) Token and global-layer contracts.
-assert(tokens.includes('--game-page-bg: #f5f5f5'), 'GameHub canvas must use the mydrama light page background')
+assert(tokens.includes('--game-page-bg: #f6f7f8'), 'GameHub canvas must use the content-platform light page background')
 assert(tokens.includes('--game-surface: #ffffff'), 'GameHub cards and panels must use a white surface')
-assert(tokens.includes('--game-surface-alt: #f0f2f5'), 'GameHub secondary surfaces must use the mydrama light muted surface')
-assert(tokens.includes('--game-text-primary: #111b21'), 'GameHub primary text must use the mydrama light ink token')
-assert(tokens.includes('--game-text-secondary: #667781'), 'GameHub secondary text must use the mydrama light muted ink token')
-assert(tokens.includes('--game-border: #e0e0e0'), 'GameHub borders must use the mydrama light border token')
-assert(tokens.includes('--game-brand: #008198'), 'GameHub primary actions must use the mydrama light teal')
+assert(tokens.includes('--game-surface-alt: #f1f2f3'), 'GameHub secondary surfaces must use the content-platform muted surface')
+assert(tokens.includes('--game-text-primary: #18191c'), 'GameHub primary text must use the content-platform ink token')
+assert(tokens.includes('--game-text-secondary: #61666d'), 'GameHub secondary text must use the content-platform muted ink token')
+assert(tokens.includes('--game-border: #e3e5e7'), 'GameHub borders must use the content-platform border token')
+assert(tokens.includes('--game-brand: #007ea7'), 'GameHub primary actions must use the restrained brand blue')
 assert(tokens.includes('--game-brand-contrast: #ffffff'), 'GameHub primary controls must define a readable light foreground')
-assert(tokens.includes('--game-accent: #3b82f6'), 'GameHub accent must use the restrained light-theme blue')
+assert(tokens.includes('--game-brand-vivid: #00aeec'), 'GameHub vivid brand accent must be reserved for selected media states')
+assert(tokens.includes('--game-accent: #007ea7'), 'GameHub accent must use the restrained content-platform blue')
 assert(tokens.includes('--game-brand-glow: transparent'), 'GameHub light skin must not use a colored brand glow')
 assert(tokens.includes('--game-accent-glow: transparent'), 'GameHub light skin must not use a colored accent glow')
-assert(tokens.includes('--game-focus-ring: 0 0 0 3px rgb(0 129 152 / 28%)'), 'GameHub controls must define the shared teal focus ring')
+assert(tokens.includes('--game-focus-ring: 0 0 0 3px rgb(0 126 167 / 24%)'), 'GameHub controls must define the shared blue focus ring')
 assert(tokens.includes('--game-control-height: 44px'), 'GameHub tokens must define the standard control height')
 assert(tokens.includes('--game-control-height-sm: 38px'), 'GameHub tokens must define the compact control height')
 assert(tokens.includes('--game-radius-control:'), 'GameHub tokens must define the control radius')
@@ -181,6 +186,47 @@ assert(
     /\.game-navigation-search input:focus-visible\s*\{[\s\S]{0,300}border-color:\s*var\(--game-brand\)(?:\s*!important)?;[\s\S]{0,300}box-shadow:\s*var\(--game-focus-ring\)(?:\s*!important)?;/.test(navigation) &&
     !navigation.includes('.game-navigation-search:focus-within'),
   'GameHub search must keep one input border and one input-owned focus ring'
+)
+assert(
+  homeDiscovery.includes('background: transparent;') &&
+    homeDiscovery.includes('border-bottom: 2px solid transparent;') &&
+    homeDiscovery.includes('min-height: 44px;'),
+  'GameHub discovery navigation must use a text-tab rhythm with a 44px touch target'
+)
+assert(
+  homeDiscovery.includes('border-bottom: 2px solid var(--game-brand);') &&
+    !homeDiscovery.includes('background: var(--game-brand-soft);'),
+  'GameHub discovery navigation must express the active state with an underline instead of a row of pills'
+)
+assert(
+  cardTemplate.includes('game-card-category') &&
+    cardTemplate.includes('game-card-meta-line') &&
+    !cardTemplate.includes('class="game-card-meta"'),
+  'Game cards must place category and stats in the content body instead of a dark cover strip'
+)
+assert(
+  cardStyles.includes('background: transparent;') &&
+    cardStyles.includes('border: 0;') &&
+    cardStyles.includes('box-shadow: none;') &&
+    cardStyles.includes('border-radius: 0;'),
+  'Standard game cards must be image-led content units without the old white-box chrome'
+)
+assert(
+  featuredStyles.includes('grid-template-columns: repeat(12, minmax(0, 1fr));') &&
+    /\.featured-carousel\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles) &&
+    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles),
+  'Featured discovery must use a 12-column lead-and-side content composition'
+)
+assert(
+  homeLayout.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
+    homeLayout.includes('max-width: 1280px'),
+  'Game discovery grids must stay dense while using the shared 1280px content rail'
+)
+assert(
+  gameSectionTypescript.includes('background: transparent;') &&
+    gameSectionTypescript.includes('border: 0;') &&
+    gameSectionTypescript.includes('border-bottom: 2px solid transparent;'),
+  'Inline game sections must share the image-led card and text-tab vocabulary'
 )
 assert(ui.includes('body:has(.peertube-container.game-experience)'), 'GameHub UI layer must scope body-mounted overlays to the active app shell')
 checkVisualValues('client/src/sass/include/_gamehub-ui.scss', ui)
