@@ -41,8 +41,8 @@
 }
 
 /* ==========================================================================
-   GameHub 顶栏 —— Bilibili 蓝 · 轻画布
-   玻璃拟态白栏 + Bilibili 蓝字标 + 胶囊导航；视觉值一律引用全局设计令牌
+   GameHub 顶栏 —— mydrama 浅色皮肤 · 轻画布
+   纯白顶栏 + 青绿色字标 + 清晰导航；视觉值一律引用全局设计令牌
    ========================================================================== */
 
 :host-context(.game-experience) .root {
@@ -52,8 +52,7 @@
   --game-header-focus-ring: var(--game-brand);
 
   align-items: center;
-  backdrop-filter: blur(16px) saturate(1.5);
-  background-color: color-mix(in srgb, var(--game-text-inverse) 88%, transparent);
+  background-color: var(--game-surface);
   background-image: none;
   border-bottom: 1px solid var(--game-border);
   box-sizing: border-box;
@@ -77,9 +76,9 @@
 }
 
 :host-context(.game-experience.game-header-scrolled) .root {
-  background-color: color-mix(in srgb, var(--game-text-inverse) 96%, transparent);
-  border-bottom-color: transparent;
-  box-shadow: var(--game-shadow-lg);
+  background-color: var(--game-surface);
+  border-bottom-color: var(--game-border);
+  box-shadow: var(--game-shadow-xs);
   color: var(--game-text-primary);
 }
 
@@ -113,7 +112,7 @@
   @include disable-default-a-behaviour;
 }
 
-/* ---- 品牌字标：GameHub · Bilibili 蓝 ---- */
+/* ---- 品牌字标：GameHub · 青绿色 ---- */
 
 .game-brand {
   display: inline-flex;
@@ -519,8 +518,8 @@
 
 .game-nav-cover-fallback {
   align-items: center;
-  background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 120%);
-  color: var(--game-brand-contrast);
+  background: var(--game-cover-fallback);
+  color: var(--game-text-primary);
   display: flex;
   font-size: var(--game-font-size-lg);
   font-weight: 800;
@@ -1252,17 +1251,17 @@ my-actor-avatar {
 
 /* Game nav skeleton loading */
 .game-nav-skeleton {
-  animation: game-skeleton-shimmer 1.4s ease infinite;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 240% 100%;
+  animation: game-skeleton-pulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-sm);
   height: 2.8rem;
   margin-bottom: 0.4rem;
 }
 
-@keyframes game-skeleton-shimmer {
-  0% { background-position: 120% 0; }
-  100% { background-position: -120% 0; }
+@keyframes game-skeleton-pulse {
+  0%,
+  100% { opacity: 0.72; }
+  50% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

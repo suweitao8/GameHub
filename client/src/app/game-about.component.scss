@@ -2,7 +2,7 @@
 
 .game-about-page { padding-bottom: 4rem; }
 .game-about-hero { align-items: center;
-  background: linear-gradient(135deg, var(--game-brand-soft), var(--game-text-inverse) 54%, var(--game-surface-alt));
+  background: var(--game-surface);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-lg);
   display: grid;
@@ -36,23 +36,22 @@
   border: 1px solid var(--game-border);
   color: var(--game-text); }
 .game-about-orbit { aspect-ratio: 1;
-  background: radial-gradient(circle, color-mix(in srgb, var(--game-text-inverse) 90%, transparent) 0 22%, transparent 23%), conic-gradient(from 30deg, var(--game-brand), var(--game-brand-light), var(--game-brand-hover), var(--game-brand));
-  border: 14px solid color-mix(in srgb, var(--game-text-inverse) 65%, transparent);
+  background: var(--game-brand-soft);
+  border: 14px solid var(--game-brand-border);
   border-radius: 50%;
-  box-shadow: var(--game-shadow-lg);
+  box-shadow: var(--game-shadow);
   display: grid;
   margin: auto;
   padding: 1.1rem;
   place-content: center;
   position: relative;
-  transform: rotate(-12deg);
   width: min(100%, 220px); }
 .game-about-orbit::after { border: 1px dashed color-mix(in srgb, var(--game-text-inverse) 70%, transparent);
   border-radius: 50%;
   content: '';
   inset: 18%;
   position: absolute; }
-.game-about-orbit span { color: var(--game-text-inverse);
+.game-about-orbit span { color: var(--game-brand-deep);
   font-size: var(--game-font-size-xs);
   font-weight: 800;
   letter-spacing: 0.16em;

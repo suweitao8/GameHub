@@ -13,28 +13,23 @@
     @if (carouselGame(); as featuredGame) {
       @for (slide of [carouselIndex()]; track $index) {
         <article
-          class="featured-carousel {{ coverToneClass(featuredGame) }}"
+          class="featured-carousel"
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >
           <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
             <div class="featured-cover" [class.is-placeholder]="!featuredCoverPath(featuredGame)">
               @if (featuredCoverPath(featuredGame); as coverPath) {
-                <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)" (load)="onFeaturedImageLoad($event, featuredGame.uuid)">
+                <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)">
               } @else {
                 <span class="game-cover-badge" aria-hidden="true">推荐</span>
                 <span class="cover-watermark" aria-hidden="true">{{ coverInitial(featuredGame) }}</span>
-              }
-              <!-- Cover bottom tenth: sampled average-color fade that joins the footer without a seam -->
-              @if (featuredCoverPath(featuredGame)) {
-                <div class="featured-cover-fade" aria-hidden="true" [style.background]="featuredCoverFade(featuredGame)"></div>
               }
             </div>
           </a>
           <!-- Brand-blue footer: title row + switch controls stay within the page chrome -->
           <div
             class="featured-footer"
-            [class.tone-bg]="!featuredCoverPath(featuredGame)"
           >
             <a class="featured-caption" [routerLink]="['/games', featuredGame.uuid]">
               <h3>{{ featuredGame.title }}</h3>

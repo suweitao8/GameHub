@@ -1,5 +1,5 @@
 @if (isVisible()) {
-  <article class="game-card {{ coverToneClass() }}">
+  <article class="game-card">
     <a class="game-card-main" [routerLink]="['/games', game().uuid]" [attr.aria-label]="'打开游戏：' + game().title">
       <div class="game-cover" [class.placeholder]="!game().coverPath || coverUnavailable()">
         @if (game().coverPath && !coverUnavailable()) {

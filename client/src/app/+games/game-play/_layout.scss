@@ -80,7 +80,7 @@
   --game-muted: var(--game-text-secondary);
 
   box-sizing: border-box;
-  background: radial-gradient(circle at 12% -8%, var(--game-page-wash), transparent 30rem), var(--game-detail-surface-muted);
+  background: var(--game-detail-surface-muted);
   padding: 16px 0 56px;
 }
 
@@ -172,9 +172,10 @@
   width: 1.25rem; }
 
 /* Skeleton loading styles */
-@keyframes skeleton-shimmer {
-  0% { background-position: 120% 0; }
-  100% { background-position: -120% 0; }
+@keyframes skeletonPulse {
+  0%,
+  100% { opacity: 0.72; }
+  50% { opacity: 1; }
 }
 
 .game-skeleton-stage {
@@ -188,12 +189,11 @@
 }
 
 .game-skeleton-thumbnail {
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius);
   height: 200px;
   width: 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
 .game-skeleton-meta {
@@ -203,31 +203,28 @@
 }
 
 .game-skeleton-title {
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
   height: 1.5rem;
   width: 55%;
-  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
 .game-skeleton-stats {
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
   height: 0.85rem;
   width: 35%;
-  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
 .game-skeleton-game {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-md);
   max-width: 900px;
   width: 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
 .game-skeleton-controls {
@@ -238,12 +235,11 @@
 }
 
 .game-skeleton-control-bar {
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
   height: 2.5rem;
   width: 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
 }
 
 .game-skeleton-sidebars {
@@ -256,8 +252,7 @@
 
 .game-skeleton-sidebar {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-md);
-  animation: skeleton-shimmer 1.4s ease infinite;
 }

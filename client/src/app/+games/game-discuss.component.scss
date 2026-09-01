@@ -87,10 +87,10 @@
   white-space: pre-wrap;
 }
 .wechat-message.own .wechat-bubble {
-  background: var(--game-success-vivid);
-  border-color: var(--game-success-vivid);
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand-border);
   border-radius: var(--game-radius-bubble-outgoing);
-  color: var(--game-text-primary);
+  color: var(--game-brand-deep);
 }
 .wechat-time-separator {
   align-self: center;

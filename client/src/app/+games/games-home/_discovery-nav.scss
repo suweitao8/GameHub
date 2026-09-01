@@ -1,5 +1,4 @@
-/* 发现页导航：无边框浅色 chip，动态使用 Logo 蓝、
-   热门保留粉色状态强调，分类激活态统一实底品牌蓝 + 白字 */
+/* 发现页导航：中性浅色 chip，所有信息流入口使用同一套主操作语言 */
 
 .home-discovery-nav {
   align-items: center;
@@ -71,45 +70,37 @@
   outline: none;
 }
 
-/* 双信息流入口：实色渐变胶囊，一眼可辨 */
+/* 双信息流入口：统一使用低对比度主品牌底色，避免标签之间互相争夺注意力 */
 .home-discovery-links a.home-feed-tab-dynamic,
 .home-discovery-links a.home-feed-tab-hot {
-  border-color: transparent;
-  color: var(--game-brand-contrast);
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand-border);
+  color: var(--game-brand-deep);
   font-weight: 700;
-}
-
-.home-discovery-links a.home-feed-tab-dynamic {
-  background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 130%);
-  box-shadow: var(--game-shadow-brand);
-}
-
-.home-discovery-links a.home-feed-tab-hot {
-  background: linear-gradient(135deg, var(--game-accent) 0%, var(--game-accent-vivid) 140%);
-  box-shadow: var(--game-shadow-accent);
 }
 
 .home-discovery-links a.home-feed-tab-dynamic:hover,
 .home-discovery-links a.home-feed-tab-dynamic:focus-visible,
 .home-discovery-links a.home-feed-tab-hot:hover,
 .home-discovery-links a.home-feed-tab-hot:focus-visible {
+  background: var(--game-brand);
+  border-color: var(--game-brand);
   color: var(--game-brand-contrast);
-  filter: brightness(1.05);
   transform: translateY(-1px);
 }
 
-/* 单一激活语言：实底品牌蓝 + 白字（与动态/热门一致） */
+/* 单一激活语言：实底主品牌 + 白字 */
 .home-discovery-links a.active:not(.home-feed-tab-dynamic):not(.home-feed-tab-hot) {
-  background: linear-gradient(135deg, var(--game-brand) 0%, var(--game-brand-vivid) 130%);
-  box-shadow: var(--game-shadow-brand);
+  background: var(--game-brand);
+  border-color: var(--game-brand);
   color: var(--game-brand-contrast);
   font-weight: 700;
 }
 
 .home-discovery-links a.home-feed-tab-dynamic.active,
 .home-discovery-links a.home-feed-tab-hot.active {
-  border-color: color-mix(in srgb, var(--game-text-inverse) 55%, transparent);
-  box-shadow: var(--game-focus-ring);
+  background: var(--game-brand);
+  border-color: var(--game-brand);
   color: var(--game-brand-contrast);
 }
 
@@ -122,31 +113,30 @@
 }
 
 .game-skeleton-tab {
-  animation: gameNavSkeletonShimmer 1.4s ease infinite;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 240% 100%;
+  animation: gameNavSkeletonPulse 1.4s ease infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-pill);
   height: 2.3rem;
   width: 4.1rem;
 }
 
 .game-skeleton-heading {
-  animation: gameNavSkeletonShimmer 1.4s ease infinite;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 240% 100%;
+  animation: gameNavSkeletonPulse 1.4s ease infinite;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
   height: 1.25rem;
   width: 6rem;
 }
 
-@keyframes gameNavSkeletonShimmer {
+@keyframes gameNavSkeletonPulse {
 
-  0% {
-    background-position: 120% 0;
+  0%,
+  100% {
+    opacity: 0.72;
   }
 
-  100% {
-    background-position: -120% 0;
+  50% {
+    opacity: 1;
   }
 }
 

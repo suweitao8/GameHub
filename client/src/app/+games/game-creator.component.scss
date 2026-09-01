@@ -146,7 +146,7 @@
 }
 
 .trend-bar {
-  background: linear-gradient(180deg, var(--game-brand) 0%, var(--game-brand-glow) 100%);
+  background: var(--game-brand);
   border-radius: var(--game-radius-xs) var(--game-radius-xs) 0 0;
   display: block;
   height: 100%;

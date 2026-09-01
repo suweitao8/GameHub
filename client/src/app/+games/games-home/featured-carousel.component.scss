@@ -1,15 +1,14 @@
-// Styles owned by FeaturedCarouselComponent. Angular emulated encapsulation
-// scopes these to this component's template only, so they no longer live in
-// games-home.component.scss (which cannot reach into a child component's view).
+// Featured content uses the same quiet light surface as the regular game grid.
+// The game image remains the visual content; the shell does not recolor it.
 
 .featured-section {
-  // Layout glue for the featured section heading + discovery grid.
+  min-width: 0;
 }
 
-/* 区块标题行：与下方 最新发布/热门游戏 同构，换一批在其右端 */
 .featured-heading {
   align-items: center;
   display: flex;
+  gap: 1rem;
   justify-content: space-between;
   margin: 0.9rem 0;
 }
@@ -33,11 +32,10 @@
   height: 1.05rem;
 }
 
-/* 换一批：标题行右端的轻量胶囊按钮（与各区块 shuffle-button 同语言） */
 .featured-shuffle {
   align-items: center;
-  background: var(--game-surface-alt);
-  border: 0;
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
   border-radius: var(--game-radius-pill);
   color: var(--game-text-secondary);
   cursor: pointer;
@@ -46,9 +44,10 @@
   font-weight: 600;
   gap: 0.3rem;
   justify-content: center;
-  min-height: 2rem;
+  min-height: var(--game-control-height-sm);
   padding: 0.3rem 0.8rem;
   transition: background-color var(--game-dur-fast) var(--game-ease),
+    border-color var(--game-dur-fast) var(--game-ease),
     color var(--game-dur-fast) var(--game-ease),
     transform var(--game-dur-fast) var(--game-ease);
 }
@@ -56,6 +55,7 @@
 .featured-shuffle:hover,
 .featured-shuffle:focus-visible {
   background: var(--game-brand-soft);
+  border-color: var(--game-brand-border);
   color: var(--game-brand-deep);
   outline: none;
 }
@@ -85,15 +85,36 @@
   width: 100% !important;
 }
 
-/* 幻灯片切换：淡入上移，替代旧的直接跳变 */
 .featured-carousel {
-  animation: featuredSlideIn 360ms var(--game-ease);
+  animation: featuredSlideIn 260ms var(--game-ease);
+  align-self: start;
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
+  display: flex;
+  flex-direction: column;
+  grid-column: span 2;
+  grid-row: span 2;
+  height: auto;
+  min-height: 12rem;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  transition: border-color var(--game-dur) var(--game-ease),
+    box-shadow var(--game-dur) var(--game-ease);
+}
+
+.featured-carousel:hover,
+.featured-carousel:focus-within {
+  border-color: var(--game-brand-border);
+  box-shadow: var(--game-shadow);
 }
 
 @keyframes featuredSlideIn {
   0% {
     opacity: 0;
-    transform: translateY(0.5rem);
+    transform: translateY(0.25rem);
   }
 
   100% {
@@ -114,29 +135,7 @@
   gap: var(--featured-gap);
   grid-auto-rows: minmax(0, auto);
   grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
-.featured-carousel {
-  /* Stop at the second-row cover; the card metadata below it stays outside. */
-  align-self: start;
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
-  box-shadow: var(--game-shadow-xs);
-  display: flex;
-  flex-direction: column;
-  grid-column: span 2;
-  grid-row: span 2;
-  height: auto;
-  min-height: 12rem;
   min-width: 0;
-  overflow: hidden;
-  position: relative;
-  transition: box-shadow var(--game-dur) var(--game-ease);
-}
-
-.featured-carousel:hover {
-  box-shadow: var(--game-shadow-lg);
 }
 
 .featured-carousel-link,
@@ -156,47 +155,19 @@
 
 .featured-cover {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, var(--game-cover-fallback-deep) 0%, var(--game-cover-fallback) 52%, var(--game-cover-fallback) 100%);
+  background: var(--game-cover-fallback);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
   overflow: hidden;
-  position: relative;
 }
 
 .featured-cover.is-placeholder {
-  /* 确定性多彩渐变（--cover-tone-* 由 tokens 的 cover-tone-N 类提供） */
-  background: linear-gradient(140deg, var(--cover-tone-a, var(--game-cover-fallback)) 0%, var(--cover-tone-b, var(--game-cover-fallback-deep)) 100%);
-  isolation: isolate;
-}
-
-.featured-cover.is-placeholder::before,
-.featured-cover.is-placeholder::after {
-  border-radius: 50%;
-  content: '';
-  pointer-events: none;
-  position: absolute;
-}
-
-.featured-cover.is-placeholder::before {
-  background: color-mix(in srgb, var(--game-text-inverse) 16%, transparent);
-  height: 180%;
-  right: -18%;
-  top: -60%;
-  transform: rotate(18deg);
-  width: 46%;
-}
-
-.featured-cover.is-placeholder::after {
-  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 18%, transparent);
-  height: 130%;
-  left: -34%;
-  top: 30%;
-  width: 78%;
+  display: grid;
+  place-items: center;
 }
 
 .featured-cover img {
-  /* Fill by width; crop height if needed — do not force full image visible */
   display: block;
   height: 100%;
   left: 0;
@@ -212,24 +183,11 @@
 
 .featured-carousel-link:hover .featured-cover img,
 .featured-carousel-link:focus-visible .featured-cover img {
-  transform: scale(1.04);
+  transform: scale(1.02);
 }
 
-/* Bottom of cover: sampled-color fade that reaches the Logo-blue footer edge */
-.featured-cover-fade {
-  bottom: 0;
-  height: 15%;
-  left: 0;
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  z-index: 1;
-}
-
-/* 左上分类徽章：与 game-card 封面角标同构 */
 .featured-cover .game-cover-badge {
-  backdrop-filter: blur(2px);
-  background: color-mix(in srgb, var(--game-text-primary) 46%, transparent);
+  background: color-mix(in srgb, var(--game-text-primary) 72%, transparent);
   border-radius: var(--game-radius-xs);
   color: var(--game-text-inverse);
   font-size: var(--game-font-size-xs);
@@ -243,47 +201,39 @@
   z-index: 2;
 }
 
-/* 中央大水印字：标题首字符，替代旧的「G + 标题」信息卡构图 */
 .featured-cover .cover-watermark {
-  color: color-mix(in srgb, var(--game-text-inverse) 32%, transparent);
-  font-size: clamp(6rem, 14vw, 10rem);
+  color: var(--game-text-secondary);
+  font-size: clamp(3rem, 8vw, 5rem);
   font-weight: 800;
   left: 50%;
-  letter-spacing: 0.04em;
   line-height: 1;
   pointer-events: none;
   position: absolute;
-  text-shadow: 0 0.5rem 2rem color-mix(in srgb, var(--game-text-primary) 18%, transparent);
   top: 50%;
   transform: translate(-50%, -52%);
   user-select: none;
-  z-index: 1;
+  opacity: 0.3;
 }
 
-/* Logo-blue footer: title row + switch controls stacked below the cover. */
 .featured-footer {
-  background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));
-  color: var(--game-text-inverse);
+  background: var(--game-surface);
+  border-top: 1px solid var(--game-border);
+  color: var(--game-text-primary);
   display: flex;
   flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-end;
   margin: 0;
-  min-height: 4.55rem;
+  min-height: 5.4rem;
   width: 100%;
   z-index: 2;
-}
-
-/* 无封面占位时 footer 走同色调深色，与上方渐变连成一体 */
-.featured-footer.tone-bg {
-  background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));
 }
 
 .featured-caption {
   color: inherit;
   display: block;
   margin: 0;
-  padding: 0.5rem 0.9rem 0.2rem;
+  padding: 0.65rem 0.9rem 0.2rem;
   text-decoration: none;
 }
 
@@ -297,67 +247,98 @@
   white-space: nowrap;
 }
 
-/* Dots / prev-next under the solid title — same pure color block */
+.featured-caption:hover,
+.featured-caption:focus-visible {
+  color: var(--game-brand-deep);
+  outline: none;
+}
+
 .featured-controls {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  padding: 0.2rem 0.75rem 0.3rem;
+  padding: 0.15rem 0.55rem 0.25rem 0.75rem;
   position: relative;
-}
-
-.featured-controls > div:last-child {
-  margin-left: auto;
 }
 
 .featured-dots {
+  align-items: center;
   display: flex;
-  gap: 0.35rem;
+  gap: 0.05rem;
 }
 
 .featured-dots button {
-  background: color-mix(in srgb, var(--game-text-inverse) 55%, transparent);
+  align-items: center;
+  background: transparent;
   border: 0;
-  border-radius: 50%;
-  height: 0.45rem;
+  border-radius: var(--game-radius-pill);
+  display: inline-flex;
+  height: var(--game-control-height-sm);
+  justify-content: center;
   padding: 0;
   position: relative;
-  transition: background-color 200ms ease, width 300ms ease;
-  width: 0.45rem;
+  width: 1.6rem;
 }
 
-.featured-dots button:hover {
-  background: color-mix(in srgb, var(--game-text-inverse) 80%, transparent);
-}
-
-.featured-dots button.active {
-  background: var(--game-surface);
+.featured-dots button::before {
+  background: var(--game-border-strong);
   border-radius: var(--game-radius-pill);
+  content: '';
+  display: block;
+  height: 0.35rem;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    width var(--game-dur-fast) var(--game-ease);
+  width: 0.35rem;
+}
+
+.featured-dots button:hover::before,
+.featured-dots button:focus-visible::before {
+  background: var(--game-brand);
+}
+
+.featured-dots button.active::before {
+  background: var(--game-brand);
   width: 1rem;
+}
+
+.featured-dots button:focus-visible,
+.featured-controls > div:last-child button:focus-visible {
+  outline: 2px solid var(--game-brand);
+  outline-offset: 1px;
 }
 
 .featured-controls > div:last-child {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.2rem;
+  margin-left: auto;
 }
 
 .featured-controls > div:last-child button {
-  background: color-mix(in srgb, var(--game-text-primary) 45%, transparent);
-  border: 0;
-  border-radius: 50%;
-  color: var(--game-text-inverse);
-  font-size: 1.3rem;
-  height: 1.8rem;
+  align-items: center;
+  background: var(--game-surface-alt);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-pill);
+  color: var(--game-text-secondary);
+  display: inline-flex;
+  height: var(--game-control-height-sm);
+  justify-content: center;
   line-height: 1;
-  width: 1.8rem;
+  width: var(--game-control-height-sm);
+}
+
+.featured-controls > div:last-child button:hover,
+.featured-controls > div:last-child button:focus-visible {
+  background: var(--game-brand-soft);
+  border-color: var(--game-brand-border);
+  color: var(--game-brand-deep);
 }
 
 .featured-controls > div:last-child button my-global-icon {
   align-items: center;
-  display: inline-flex;
-  justify-content: center;
   color: inherit;
+  display: inline-flex;
   height: 1rem;
+  justify-content: center;
   width: 1rem;
 }
 
@@ -381,7 +362,6 @@
   min-width: 0;
 }
 
-
 @media (max-width: 1250px) {
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.8rem; }
@@ -390,46 +370,48 @@
 @media (max-width: 1050px) {
   .featured-discovery-grid,
   .featured-side-grid { gap: 0.65rem; }
-  .featured-cover { min-height: 0; }
+
   .featured-caption h3 { font-size: var(--game-font-size-lg); }
 }
 
 @media (max-width: 720px) {
   .featured-discovery-grid,
-  .featured-side-grid { gap: 0.4rem; }
+  .featured-side-grid { gap: 0.6rem; }
+
   .featured-discovery-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .featured-carousel {
     grid-column: span 2;
     grid-row: auto;
   }
+
   .featured-side-grid {
     grid-column: span 2;
     grid-row: auto;
   }
+
   .featured-caption {
     padding: 0.45rem 0.65rem 0.15rem;
   }
-  .featured-controls {
-    padding: 0.15rem 0.55rem 0.4rem;
-  }
+
   .featured-caption h3 { font-size: var(--game-font-size-md); }
 }
 
 @media (max-width: 450px) {
   .featured-discovery-grid,
-  .featured-side-grid { gap: 0.35rem; }
+  .featured-side-grid { gap: 0.4rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .featured-shuffle,
-  .featured-dots button {
-    transition: none;
-  }
-
+  .featured-dots button,
+  .featured-dots button::before,
+  .featured-controls > div:last-child button,
   .featured-carousel {
     animation: none;
+    transition: none;
   }
 
   .featured-cover img {

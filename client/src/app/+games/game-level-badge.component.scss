@@ -77,7 +77,7 @@
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--game-brand) 0%, var(--game-success-vivid) 100%);
+  background: var(--game-brand);
   border-radius: var(--game-radius-pill);
   transition: width 0.5s ease;
 }

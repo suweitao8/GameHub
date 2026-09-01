@@ -20,7 +20,3 @@ export const HOME_CATEGORIES: readonly {
   { id: 'horror', title: '恐怖', description: '戴上耳机，探索未知角落。', query: { category: 'horror' } },
   { id: 'board', title: '桌游', description: '熟悉的规则，适合短时游玩。', query: { category: 'board' } }
 ]
-
-/** Average of the three CSS placeholder gradient stops used when a game has no image.
- *  色调与 .featured-cover 兜底渐变（深蓝灰）一致，避免占位→真实图切换时的色跳。 */
-export const FEATURED_PLACEHOLDER_AVG_RGB = '38, 47, 56'

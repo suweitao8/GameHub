@@ -12,41 +12,38 @@
   display: flex;
   align-items: center;
   flex: 1 1 480px;
-  height: 38px;
+  height: var(--game-control-height);
   min-width: 0;
   width: 100%;
   max-width: 500px;
-  background: var(--game-surface-alt);
-  border: 1px solid transparent;
-  border-radius: var(--game-radius-pill);
-  padding: 0.15rem 0.3rem 0.15rem 1rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
   position: relative;
-  transition: background-color var(--game-dur-fast) var(--game-ease),
-    border-color var(--game-dur-fast) var(--game-ease),
-    box-shadow var(--game-dur) var(--game-ease);
 }
 
 .game-navigation-search:hover {
-  background: var(--game-surface-active);
-}
-
-.game-navigation-search:focus-within {
-  background: var(--game-surface);
-  border-color: var(--game-brand-border);
-  box-shadow: var(--game-focus-ring);
+  background: transparent;
 }
 
 .game-navigation-search input {
   box-sizing: border-box;
-  height: 100%;
+  height: var(--game-control-height);
+  min-height: var(--game-control-height);
   min-width: 0;
   flex: 1;
-  border: 0;
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-pill);
   outline: 0;
-  background: transparent;
+  background: var(--game-surface);
+  box-shadow: none;
   color: var(--game-text-primary);
   font-size: var(--game-font-size-md);
-  padding: 0.45rem 2.35rem 0.45rem 0.35rem;
+  padding: 0.45rem 2.35rem 0.45rem 0.9rem;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    border-color var(--game-dur-fast) var(--game-ease),
+    box-shadow var(--game-dur-fast) var(--game-ease);
 
   &::placeholder {
     color: var(--game-text-hint);
@@ -57,15 +54,22 @@
   }
 }
 
-// The global GameHub form skin also targets search inputs. Keep this compound
-// control visually single-surface by letting the search shell own its focus ring.
+// The global form skin also targets search inputs. Keep the form transparent
+// and let the input own the only visible border and focus ring.
 .game-navigation-search > input,
-.game-navigation-search > input:focus,
-.game-navigation-search > input:focus-visible {
-  background: transparent !important;
-  border: 0 !important;
+.game-navigation-search > input:focus {
+  background: var(--game-surface) !important;
+  border: 1px solid var(--game-border) !important;
+  border-radius: var(--game-radius-pill) !important;
   box-shadow: none !important;
-  min-height: 0 !important;
+  min-height: var(--game-control-height) !important;
+}
+
+.game-navigation-search input:focus-visible {
+  background: var(--game-surface) !important;
+  border-color: var(--game-brand) !important;
+  box-shadow: var(--game-focus-ring) !important;
+  outline: none !important;
 }
 
 .game-navigation-search button {
@@ -95,7 +99,8 @@
   outline: none;
 }
 
-.game-navigation-search:focus-within button {
+.game-navigation-search input:focus-visible + button,
+.game-navigation-search input:focus + button {
   color: var(--game-brand-deep);
 }
 
@@ -318,8 +323,7 @@
 
 .suggestion-shimmer span {
   animation: suggestionPulse 1.2s infinite;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 240% 100%;
+  background: var(--game-surface-alt);
   border-radius: var(--game-radius-xs);
   display: block;
   height: 0.7rem;

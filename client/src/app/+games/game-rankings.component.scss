@@ -86,7 +86,7 @@
 }
 
 .rank-number.top3 {
-  background: linear-gradient(135deg, var(--game-warning), var(--game-danger));
+  background: var(--game-warning);
   color: var(--game-text-inverse);
 }
 
@@ -110,8 +110,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--game-cover-fallback-deep), var(--game-cover-fallback));
-  color: var(--game-text-inverse);
+  background: var(--game-cover-fallback);
+  color: var(--game-text-primary);
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -226,14 +226,14 @@
 .ranking-skeleton .skeleton-rank,
 .ranking-skeleton .skeleton-cover,
 .ranking-skeleton .skeleton-text-line {
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-alt) 50%, var(--game-surface-alt) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite linear;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+  background: var(--game-surface-alt);
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes skeletonPulse {
+  0%,
+  100% { opacity: 0.72; }
+  50% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

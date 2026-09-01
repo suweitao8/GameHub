@@ -477,31 +477,20 @@ assert(!eventDetailTs.includes('返回活动列表') && !collectionDetailTs.incl
 
 const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
 assert(
-  featuredTs.includes(".replace(/,\\s*/g, ' ')") || featuredTs.includes('.replace(/,\\s*/g, " ")'),
-  'featured carousel must normalize comma RGB values before slash-alpha gradients'
-)
-assert(
-  featuredTs.includes('sampleHeight = Math.max(1, Math.round(canvas.height * 0.1))'),
-  'featured carousel must sample the bottom tenth of a cover instead of the whole image'
-)
-assert(
-  featuredTs.includes('const segmentCount = 5'),
-  'featured carousel must calculate five horizontal bottom-cover color segments'
-)
-assert(
-  featuredTs.includes('FEATURED_PLACEHOLDER_AVG_RGB'),
-  'featured carousel must use the visible brown placeholder average as its no-cover fallback'
+  !featuredTs.includes('FEATURED_PLACEHOLDER_AVG_RGB') &&
+    !featuredTs.includes('featuredAvgColors') &&
+    !featuredTs.includes('averageRgb') &&
+    !featuredTs.includes('onFeaturedImageLoad'),
+  'featured carousel must keep real covers without sampling or generating page colors'
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
-const featuredFadeStyleStart = featuredScss.indexOf('.featured-cover-fade')
-const featuredFadeStyleEnd = featuredFadeStyleStart >= 0
-  ? featuredScss.indexOf('}', featuredFadeStyleStart)
-  : -1
-const featuredFadeStyle = featuredScss.slice(featuredFadeStyleStart, featuredFadeStyleEnd)
 assert(
-  featuredFadeStyle.includes('height: 15%'),
-  'featured carousel cover fade must keep the current fifteen-percent soft transition'
+  !featuredHtml.includes('featuredCoverFade') &&
+    !featuredHtml.includes('onFeaturedImageLoad') &&
+    !featuredScss.includes('linear-gradient') &&
+    featuredScss.includes('background: var(--game-cover-fallback);'),
+  'featured carousel must use a fixed neutral shell instead of sampled-color fades'
 )
 assert(
   featuredHtml.includes("[attr.aria-current]=\"index === carouselIndex() ? 'true' : null\""),
@@ -518,7 +507,7 @@ assert(
   'game card search highlights must render sanitized mark HTML instead of exposing markup text'
 )
 assert(
-  gameCardHtml.includes('<article class="game-card {{ coverToneClass() }}">') &&
+  gameCardHtml.includes('<article class="game-card">') &&
     gameCardHtml.includes('<a class="game-card-main"') &&
     gameCardHtml.includes('<div class="game-card-author">') &&
     !/<a class="game-card"[\s\S]*<a class="author-name-link"/.test(gameCardHtml),
@@ -535,27 +524,27 @@ assert(!gameCardScss.includes('transform: scale(1.035)'), 'game card covers must
 const coverToneTs = read('client/src/app/+games/cover-tone.ts')
 const coverToneTokens = read('client/src/app/+games/game-community.tokens.scss')
 assert(
-  coverToneTokens.includes('.cover-tone-0') &&
-    coverToneTokens.includes('.cover-tone-9') &&
-    /\.cover-tone-0 \{[^}]*--cover-tone-a: #[0-9a-f]{6};[^}]*--cover-tone-b: #[0-9a-f]{6};[^}]*\}/.test(coverToneTokens) &&
-    coverToneTs.includes('export function coverToneClass') &&
+  !coverToneTokens.includes('.cover-tone-') &&
+    !coverToneTs.includes('export function coverToneClass') &&
     coverToneTs.includes('export function coverInitial') &&
-    gameCardHtml.includes('class="game-card {{ coverToneClass() }}"') &&
+    gameCardHtml.includes('class="game-card">') &&
     gameCardHtml.includes('class="game-cover-badge"') &&
     gameCardHtml.includes('class="cover-watermark"') &&
-    gameCardScss.includes('var(--cover-tone-a, var(--game-cover-fallback))') &&
+    gameCardScss.includes('background: var(--game-cover-fallback);') &&
+    !gameCardScss.includes('linear-gradient') &&
     gameCardScss.includes('-webkit-line-clamp: 2;') &&
     gameCardScss.includes('.game-card:hover h3') &&
     gameCardScss.includes('color: var(--game-brand-deep);') &&
     !gameCardHtml.includes('cover-placeholder-copy') &&
     !gameCardScss.includes('.cover-letter'),
-  'game cards must render the deterministic multicolor cover wall (tone classes from tokens, watermark initial, category badge) with two-line titles'
+  'game cards must render neutral placeholders with an initial, category badge and two-line titles'
 )
 assert(
-  featuredHtml.includes('coverToneClass(featuredGame)') &&
+  !featuredHtml.includes('coverToneClass(featuredGame)') &&
     featuredHtml.includes('coverInitial(featuredGame)') &&
-    featuredScss.includes('var(--cover-tone-a, var(--game-cover-fallback))'),
-  'featured carousel placeholders must share the card cover tone palette'
+    featuredScss.includes('background: var(--game-cover-fallback);') &&
+    !featuredScss.includes('linear-gradient'),
+  'featured carousel placeholders must share the neutral card surface'
 )
 assert(
   notificationHtml.includes('class="notification-item"') &&
@@ -634,16 +623,16 @@ assert(
 assert(
   gamesHomeDiscoveryNavScss.includes('background: var(--game-surface-alt);') &&
     gamesHomeDiscoveryNavScss.includes('border: 1px solid transparent;') &&
-    !gamesHomeDiscoveryNavScss.includes('box-shadow: var(--game-shadow-xs);') &&
-    /a\.active:not\(\.home-feed-tab-dynamic\):not\(\.home-feed-tab-hot\) \{[\s\S]*?linear-gradient\(135deg, var\(--game-brand\)/.test(gamesHomeDiscoveryNavScss),
-  'discovery pills must use the bilibili channel-bar look: borderless gray chips with a solid brand-blue active state'
+    !gamesHomeDiscoveryNavScss.includes('linear-gradient') &&
+    /a\.active:not\(\.home-feed-tab-dynamic\):not\(\.home-feed-tab-hot\) \{[\s\S]*?background: var\(--game-brand\);/.test(gamesHomeDiscoveryNavScss),
+  'discovery pills must use quiet muted chips with a solid primary active state'
 )
 const featuredScss2 = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 assert(
   featuredHtml.includes('class="game-section-heading featured-heading"') &&
     featuredHtml.includes('class="featured-shuffle"') &&
     featuredHtml.includes('@for (slide of [carouselIndex()]; track $index)') &&
-    featuredScss2.includes('animation: featuredSlideIn 360ms var(--game-ease);') &&
+    featuredScss2.includes('animation: featuredSlideIn 260ms var(--game-ease);') &&
     featuredScss2.includes('@keyframes featuredSlideIn') &&
     !featuredHtml.includes('section-side-action') &&
     !featuredScss2.includes('.section-side-action'),
@@ -662,14 +651,11 @@ assert(
   'GameHub hover and carousel motion must respect prefers-reduced-motion'
 )
 assert(
-  gameNavigationScss.includes('.game-navigation-search > input,') &&
-    gameNavigationScss.includes('.game-navigation-search > input:focus,') &&
-    gameNavigationScss.includes('.game-navigation-search > input:focus-visible') &&
-    gameNavigationScss.includes('background: transparent !important;') &&
-    gameNavigationScss.includes('border: 0 !important;') &&
-    gameNavigationScss.includes('box-shadow: none !important;') &&
-    gameNavigationScss.includes('min-height: 0 !important;'),
-  'game search input must not render a second global form border or focus ring inside its search shell'
+  /\.game-navigation-search\s*\{[\s\S]{0,500}background:\s*transparent;[\s\S]{0,500}border:\s*0;/.test(gameNavigationScss) &&
+    /\.game-navigation-search input\s*\{[\s\S]{0,500}border:\s*1px solid var\(--game-border\);[\s\S]{0,500}background:\s*var\(--game-surface\);/.test(gameNavigationScss) &&
+    /\.game-navigation-search input:focus-visible\s*\{[\s\S]{0,300}border-color:\s*var\(--game-brand\)(?:\s*!important)?;[\s\S]{0,300}box-shadow:\s*var\(--game-focus-ring\)(?:\s*!important)?;/.test(gameNavigationScss) &&
+    !gameNavigationScss.includes('.game-navigation-search:focus-within'),
+  'game search must keep one input border and one input-owned focus ring'
 )
 assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
@@ -886,8 +872,8 @@ assert(
   'discussion send button must be disabled and gray for empty text or an in-flight request'
 )
 assert(
-  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success-vivid\);[\s\S]*color: var\(--game-text-primary\);/.test(discussTs),
-  'own discussion messages must use the shared success surface with ink text'
+  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-brand-soft\);[\s\S]*color: var\(--game-brand-deep\);/.test(discussTs),
+  'own discussion messages must use the shared brand-soft surface with brand ink text'
 )
 assert(discussTs.includes('maxlength="2000"') && !discussTs.includes('maxlength="5000"'), 'discussion input length must match the server 2000-character contract')
 assert(
@@ -1014,34 +1000,34 @@ assert(communityPanelTs.includes('game-description-tabs') && communityPanelTs.in
 assert(communityPanelTs.includes('border-top: 0;') && communityPanelTs.includes('margin-top: 0;'), 'game description must not add a duplicate divider above the content')
 assert(discussTs.includes('min-height: 36px') && !discussTs.includes('实时交流'), 'discussion header must be compact and show only the discussion title')
 assert(gamePlayScss.includes('background: var(--game-brand);') && gamePlayScss.includes('.developer-follow-button {') && gamePlayScss.includes('border-radius: var(--game-radius-pill);'), 'developer follow button must use the unified pill brand style')
-assert(gameCommunityTokens.includes('--game-text: #0c2d3a') && gameCommunityTokens.includes('--game-muted: #6e8792'), 'game colors must keep the shared blue-black ink and blue-slate hint text from the token source')
+assert(gameCommunityTokens.includes('--game-text: #111b21') && gameCommunityTokens.includes('--game-muted: #667781'), 'game colors must keep the shared neutral ink and muted text from the light token source')
 assert(
-  gameCommunityTokens.includes('--game-brand: #00aeec') &&
-    gameCommunityTokens.includes('--game-brand-hover: #009dd5') &&
-    gameCommunityTokens.includes('--game-brand-deep: #007aa3') &&
-    gameCommunityTokens.includes('--game-accent: #fb7299') &&
-    gameCommunityTokens.includes('--game-accent-hover: #e85d84'),
-  'GameHub tokens must use the Bilibili blue and pink brand palette'
+  gameCommunityTokens.includes('--game-brand: #008198') &&
+    gameCommunityTokens.includes('--game-brand-hover: #006b7e') &&
+    gameCommunityTokens.includes('--game-brand-deep: #005c6e') &&
+    gameCommunityTokens.includes('--game-accent: #3b82f6') &&
+    gameCommunityTokens.includes('--game-accent-hover: #2563eb'),
+  'GameHub tokens must use the restrained teal and blue light palette'
 )
 assert(
-  gameCommunityTokens.includes('--game-page-bg: #f1fbfe') &&
-    gameCommunityTokens.includes('--game-surface-alt: #e7f6fb') &&
-    gameCommunityTokens.includes('--game-text-primary: #0c2d3a') &&
-    gameCommunityTokens.includes('--game-border: #d0e6ed') &&
-    gameCommunityTokens.includes('--game-brand-contrast: #06222d'),
-  'GameHub shared tokens must expose the Logo-blue redesign canvas, ink, border and contrast values'
+  gameCommunityTokens.includes('--game-page-bg: #f5f5f5') &&
+    gameCommunityTokens.includes('--game-surface-alt: #f0f2f5') &&
+    gameCommunityTokens.includes('--game-text-primary: #111b21') &&
+    gameCommunityTokens.includes('--game-border: #e0e0e0') &&
+    gameCommunityTokens.includes('--game-brand-contrast: #ffffff'),
+  'GameHub shared tokens must expose the mydrama light canvas, ink, border and contrast values'
 )
 assert(
   /\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-brand\);/.test(headerScss) &&
     !/\.game-submit-button\s*\{[\s\S]{0,500}background:\s*var\(--game-accent\);/.test(headerScss),
-  'GameHub submit CTA must be a blue primary action'
+  'GameHub submit CTA must be a teal primary action'
 )
 assert(
-  cssVariablesScss.includes('--primary: var(--mainColor, #00aeec)') &&
-    cssVariablesScss.includes('--primary: #00aeec') &&
+  cssVariablesScss.includes('--primary: var(--mainColor, #008198)') &&
+    cssVariablesScss.includes('--primary: #008198') &&
     !cssVariablesScss.includes('--primary: #FF8F37') &&
     !cssVariablesScss.includes('--primary: #FD9C50'),
-  'default light and dark global themes must use Bilibili blue instead of the legacy orange palette'
+  'default light and dark global themes must use the restrained teal instead of the legacy orange palette'
 )
 assert(
   primengScss.includes('var(--game-success)') &&
@@ -1060,12 +1046,12 @@ const automaticCoverSource = automaticCoverStart >= 0 && automaticCoverEnd > aut
   ? coverGeneratorTs.slice(automaticCoverStart, automaticCoverEnd)
   : ''
 assert(
-  automaticCoverSource.includes("gradient.addColorStop(0, '#00aeec')") &&
-    automaticCoverSource.includes("gradient.addColorStop(1, '#35c4f1')") &&
-    automaticCoverSource.includes("context.fillStyle = '#06222d'") &&
-    automaticCoverSource.includes("context.fillStyle = 'rgba(6, 34, 45, .72)'") &&
-    !automaticCoverSource.includes("context.fillStyle = '#fff'"),
-  'automatic covers must pair the Bilibili-blue gradient with high-contrast dark typography'
+  !automaticCoverSource.includes('createLinearGradient') &&
+    automaticCoverSource.includes("--game-cover-fallback") &&
+    automaticCoverSource.includes("--game-brand") &&
+    automaticCoverSource.includes("--game-text-primary") &&
+    automaticCoverSource.includes("--game-text-secondary"),
+  'automatic covers must use the flat light-skin surface and semantic text colors'
 )
 assert(
   captchaTs.includes("const CHAR_COLORS = [ '#007aa3', '#005a78', '#de5c83', '#109a76', '#92400e' ]") &&
@@ -1123,8 +1109,8 @@ assert(
   'other discussion messages must use the shared secondary surface with ink text'
 )
 assert(
-  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-success-vivid\);[\s\S]*color: var\(--game-text-primary\);/.test(discussTs),
-  'own discussion messages must use the shared success surface with ink text'
+  /\.wechat-message\.own \.wechat-bubble\s*\{[\s\S]*background: var\(--game-brand-soft\);[\s\S]*color: var\(--game-brand-deep\);/.test(discussTs),
+  'own discussion messages must use the shared brand-soft surface with brand ink text'
 )
 assert(
   gamePlayScss.includes('width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));') &&
@@ -1685,8 +1671,9 @@ assert(
   'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(
-  headerScss.includes('background-color: color-mix(in srgb, var(--game-text-inverse) 88%, transparent);') &&
+  headerScss.includes('background-color: var(--game-surface);') &&
     headerScss.includes('background-image: none;') &&
+    !headerScss.includes('backdrop-filter: blur(16px) saturate(1.5);') &&
     !headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
     !headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
     headerScss.includes('height: var(--header-height);') &&
@@ -1695,7 +1682,7 @@ assert(
     !appScss.includes('--header-height: 50px;') &&
     !/\.home-discovery-nav\s*\{[\s\S]*?position:\s*(?:sticky|fixed);/.test(gamesHomeDiscoveryNavScss) &&
     /\.home-discovery-links\s*\{[\s\S]*?overflow-x:\s*auto;/.test(gamesHomeDiscoveryNavScss),
-  'GameHub desktop header must keep the glassy white surface, no banner image, fixed 56px height, and a page-scrolling discovery nav'
+  'GameHub desktop header must keep the opaque white surface, no banner image, fixed 56px height, and a page-scrolling discovery nav'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
@@ -1787,20 +1774,21 @@ assert(
   'related game API must return the joined comment count instead of likes'
 )
 assert(
-  featuredHtml.includes('@if (featuredCoverPath(featuredGame))') &&
-    featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"'),
-  'featured carousel must bind the average-color fade to the cover only when a real cover exists'
+  !featuredHtml.includes('[style.background]="featuredCoverFade(featuredGame)"') &&
+    !featuredHtml.includes('onFeaturedImageLoad'),
+  'featured carousel must not bind an average-color fade to real covers'
 )
 assert(
-  featuredHtml.includes('[class.tone-bg]="!featuredCoverPath(featuredGame)"') &&
+  !featuredHtml.includes('[class.tone-bg]="!featuredCoverPath(featuredGame)"') &&
     !featuredHtml.includes('[style.background]="featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null"') &&
-    featuredScss.includes('.featured-footer.tone-bg') &&
-    featuredScss.includes('background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));'),
-  'featured carousel footer must keep the page chrome on the shared Logo-blue gradient'
+    !featuredScss.includes('.featured-footer.tone-bg') &&
+    featuredScss.includes('background: var(--game-surface);') &&
+    featuredScss.includes('border-top: 1px solid var(--game-border);'),
+  'featured carousel footer must use the shared white surface without a color gradient'
 )
 assert(
-  featuredScss.includes('background: linear-gradient(135deg, var(--game-brand-deep), var(--game-brand));'),
-  'featured carousel footer must use the shared Logo-blue chrome gradient'
+  !featuredScss.includes('linear-gradient'),
+  'featured carousel must not use a chrome gradient'
 )
 assert(
   !featuredScss.includes('background-color: #8f6a51'),
@@ -1895,10 +1883,6 @@ if (existsSync(join(root, 'client/dist/browser'))) {
   for (const [index, body] of builtBodies.entries()) {
     assertBundleContract(body, `built bundle ${builtJs[index]}`)
   }
-  assert(
-    builtBodies.some(body => body.includes('replace(/,\\s*/g')),
-    'built bundles must contain the RGB normalization used by the carousel fade'
-  )
 }
 
 const gamehubPaletteSources = [
@@ -1916,10 +1900,10 @@ const gamehubPaletteSources = [
   gameErrorRetryTs
 ].join('\n')
 assert(
-  gameCommunityTokens.includes('--game-text: #0c2d3a') &&
-    gameCommunityTokens.includes('--game-text-button: #496976') &&
-    gameCommunityTokens.includes('--game-text-hint: #6e8792') &&
-    gameCommunityTokens.includes('--game-muted: #6e8792') &&
+  gameCommunityTokens.includes('--game-text: #111b21') &&
+    gameCommunityTokens.includes('--game-text-button: #53636b') &&
+    gameCommunityTokens.includes('--game-text-hint: #7d8b92') &&
+    gameCommunityTokens.includes('--game-muted: #667781') &&
     !appScss.includes('--game-text:') &&
     !headerScss.includes('--game-text-primary: #'),
   'GameHub shared palette must keep the ink scale in the single token source without component-level duplicates'
@@ -1954,7 +1938,6 @@ if (verifyBase) {
 
     const pendingScripts = [ ...liveScripts ]
     const visitedScripts = new Set()
-    let liveBundleHasRgbNormalization = false
 
     while (pendingScripts.length) {
       const src = pendingScripts.shift()
@@ -1986,15 +1969,11 @@ if (verifyBase) {
         `SPA script ${absUrl} body must not be HTML fallback`
       )
       assertBundleContract(body, `live bundle ${absUrl}`)
-      if (body.includes('replace(/,\\s*/g')) liveBundleHasRgbNormalization = true
-
       for (const match of body.matchAll(/(?:from|import\()\s*["'](\.\/[^"']+\.js)["']/g)) {
         pendingScripts.push(new URL(match[1], absUrl).href)
       }
       console.log(`live script OK ${absUrl} CT=${ct}`)
     }
-
-    assert(liveBundleHasRgbNormalization, 'live bundles must include the RGB normalization used by the carousel fade')
 
     // Banner still required on live path
     const bannerUrl = `${base}/client/assets/images/gamehub-header-banner-10x1.png`

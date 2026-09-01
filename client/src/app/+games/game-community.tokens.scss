@@ -1,10 +1,10 @@
 /* ==========================================================================
    GameHub 设计系统 —— 唯一令牌源
    --------------------------------------------------------------------------
-   视觉语言：Logo 蓝 · 清爽游戏平台
-   - 主品牌：Logo 蓝（导航、搜索、主要行动与选中态）
-   - 状态强调：Bilibili 粉（热门、提醒等少量高能量状态）
-   - 文本：深蓝墨阶；画布：冰蓝，白色内容层浮于其上
+   视觉语言：mydrama 浅色皮肤 · 安静的游戏内容层
+   - 主品牌：低饱和青绿（导航、搜索、主要行动与选中态）
+   - 辅助强调：克制的蓝色，只用于链接、焦点和少量辅助状态
+   - 文本：深色墨阶；画布：中性浅灰，白色内容层浮于其上
    所有颜色/圆角/阴影/动效一律引用这里的变量，禁止在组件里硬编码。
    通过 client/src/sass/application.scss 全局引入一次；
    组件内的 @use 只是为了局部编译安全，值以这里为准。
@@ -15,13 +15,13 @@
 .game-experience,
 body {
   /* ---- 画布与表面 ---- */
-  --game-page-bg: #f1fbfe;
+  --game-page-bg: #f5f5f5;
   --game-surface: #ffffff;
   --game-card-bg: #ffffff;
-  --game-surface-alt: #e7f6fb;
-  --game-surface-active: #dff2f8;
-  --game-page-wash: rgb(0 174 236 / 6%);
-  --game-overlay: rgb(6 34 45 / 58%);
+  --game-surface-alt: #f0f2f5;
+  --game-surface-active: #e9edef;
+  --game-page-wash: transparent;
+  --game-overlay: rgb(17 27 33 / 58%);
   --game-content-width: 1600px;
 
   /* ---- 排版层级 ---- */
@@ -34,36 +34,36 @@ body {
   --game-font-size-lg: 0.95rem;   /* 卡片标题/统计数字等强调文本 */
 
   /* ---- 墨阶文本 ---- */
-  --game-text: #0c2d3a;
-  --game-text-primary: #0c2d3a;
-  --game-text-secondary: #496976;
-  --game-text-button: #496976;
-  --game-text-hint: #6e8792;
-  --game-muted: #6e8792;
+  --game-text: #111b21;
+  --game-text-primary: #111b21;
+  --game-text-secondary: #667781;
+  --game-text-button: #53636b;
+  --game-text-hint: #7d8b92;
+  --game-muted: #667781;
   --game-text-inverse: #ffffff;
 
   /* ---- 边框与分隔 ---- */
-  --game-border: #d0e6ed;
-  --game-border-strong: #adced8;
+  --game-border: #e0e0e0;
+  --game-border-strong: #c9d1d5;
 
-  /* ---- 主品牌：Logo 蓝 ---- */
-  --game-brand: #00aeec;
-  --game-brand-vivid: #35c4f1;
-  --game-brand-light: #8bdcf5;
-  --game-brand-hover: #009dd5;
-  --game-brand-deep: #007aa3;
-  --game-brand-soft: #e5f7fc;
-  --game-brand-border: #b3e4f1;
-  --game-brand-glow: rgb(0 174 236 / 20%);
-  --game-brand-contrast: #06222d;
+  /* ---- 主品牌：mydrama 浅色皮肤的青绿 ---- */
+  --game-brand: #008198;
+  --game-brand-vivid: #008198;
+  --game-brand-light: #d9f0f2;
+  --game-brand-hover: #006b7e;
+  --game-brand-deep: #005c6e;
+  --game-brand-soft: #edf8f8;
+  --game-brand-border: #b8dfe3;
+  --game-brand-glow: transparent;
+  --game-brand-contrast: #ffffff;
 
-  /* ---- 状态强调：Bilibili 粉，仅用于热门/提醒等少量状态 ---- */
-  --game-accent: #fb7299;
-  --game-accent-vivid: #ff8fab;
-  --game-accent-hover: #e85d84;
-  --game-accent-deep: #de5c83;
-  --game-accent-soft: #fff0f4;
-  --game-accent-glow: rgb(251 114 153 / 24%);
+  /* ---- 辅助强调：链接和焦点 ---- */
+  --game-accent: #3b82f6;
+  --game-accent-vivid: #3b82f6;
+  --game-accent-hover: #2563eb;
+  --game-accent-deep: #1d4ed8;
+  --game-accent-soft: #eff6ff;
+  --game-accent-glow: transparent;
 
   /* ---- 语义色 ---- */
   --game-success: #109a76;
@@ -77,15 +77,15 @@ body {
   --game-danger-deep: #991b1b;
   --game-danger-soft: #feeceb;
 
-  /* ---- 封面兜底（深海蓝渐变，取代旧棕色）---- */
-  --game-cover-fallback: #00627f;
-  --game-cover-fallback-deep: #00475c;
+  /* ---- 封面兜底（中性浅灰，不参与内容配色）---- */
+  --game-cover-fallback: #e9edef;
+  --game-cover-fallback-deep: #dce4e7;
 
   /* ---- 圆角阶梯 ---- */
-  --game-radius-xs: 6px;
-  --game-radius-sm: 10px;
+  --game-radius-xs: 4px;
+  --game-radius-sm: 12px;
   --game-radius-md: 14px;
-  --game-radius-lg: 20px;
+  --game-radius-lg: 16px;
   --game-radius-pill: 999px;
   --game-radius-bubble-incoming: 0.25rem 0.65rem 0.65rem;
   --game-radius-bubble-outgoing: 0.65rem 0.25rem 0.65rem 0.65rem;
@@ -98,50 +98,50 @@ body {
   --game-control-height-sm: 38px;
   --game-control-height-lg: 48px;
   --game-control-padding-x: 1rem;
-  --game-radius-control: 8px;
+  --game-radius-control: 12px;
   --game-space-page: clamp(1rem, 2.4vw, 2rem);
   --game-space-section: clamp(1.5rem, 3vw, 2.5rem);
   --game-space-grid: 1rem;
   --game-space-control: 0.75rem;
-  --game-focus-ring: 0 0 0 3px var(--game-brand-glow);
+  --game-focus-ring: 0 0 0 3px rgb(0 129 152 / 28%);
   --game-input-autofill-shadow: 0 0 0 1000px var(--game-surface-alt) inset;
 
   /* ---- 信息状态 ---- */
-  --game-info: var(--game-brand-deep);
-  --game-info-deep: #005a78;
+  --game-info: var(--game-brand);
+  --game-info-deep: var(--game-brand-deep);
   --game-info-soft: var(--game-brand-soft);
   --game-info-border: var(--game-brand-border);
 
-  /* ---- 阴影阶梯（蓝墨基调）---- */
-  --game-shadow-xs: 0 1px 2px rgb(12 45 58 / 5%), 0 1px 6px rgb(12 45 58 / 4%);
-  --game-shadow: 0 2px 6px rgb(12 45 58 / 6%), 0 8px 24px rgb(0 174 236 / 8%);
-  --game-shadow-lg: 0 2px 8px rgb(12 45 58 / 7%), 0 16px 36px rgb(12 45 58 / 13%);
-  --game-shadow-popover: 0 4px 12px rgb(12 45 58 / 7%), 0 20px 44px rgb(12 45 58 / 16%);
-  --game-shadow-brand: 0 6px 18px rgb(0 174 236 / 28%);
-  --game-shadow-accent: 0 6px 18px rgb(251 114 153 / 28%);
+  /* ---- 阴影阶梯（冷灰基调）---- */
+  --game-shadow-xs: 0 1px 2px rgb(17 27 33 / 5%);
+  --game-shadow: 0 2px 10px rgb(17 27 33 / 8%);
+  --game-shadow-lg: 0 8px 24px rgb(17 27 33 / 10%);
+  --game-shadow-popover: 0 12px 30px rgb(17 27 33 / 14%);
+  --game-shadow-brand: 0 2px 8px rgb(17 27 33 / 8%);
+  --game-shadow-accent: 0 2px 8px rgb(17 27 33 / 8%);
 
   /* ---- 动效 ---- */
   --game-ease: cubic-bezier(0.22, 0.72, 0.28, 1);
   --game-dur-fast: 140ms;
   --game-dur: 190ms;
   --game-dur-slow: 280ms;
-}
 
+  color-scheme: light;
+}
 /* --------------------------------------------------------------------------
    页面基底
    -------------------------------------------------------------------------- */
 
 .game-community-page {
   color: var(--game-text);
-  background: radial-gradient(circle at 12% -10%, var(--game-page-wash), transparent 28rem), var(--game-page-bg);
+  background: var(--game-page-bg);
   min-height: calc(100vh - 76px);
   overflow-x: clip;
 }
-
 .game-community-page :where(button, input, textarea, select) {
   font: inherit;
 }
-
+// EOF
 .game-community-page :where(button) {
   color: var(--game-text-button);
   cursor: pointer;
@@ -255,48 +255,4 @@ body {
   .game-community-content {
     width: calc(100% - (var(--game-space-page) * 2));
   }
-}
-
-/* ---- 封面多彩色板：游戏封面墙的确定性取色（10 组双色调渐变）----
-   没有自定义封面的游戏由 cover-tone.ts 按 uuid/title 哈希取一组，
-   色值只允许出现在本文件（视觉契约）。 */
-.cover-tone-0 {
-  --cover-tone-a: #22a7e0;
-  --cover-tone-b: #1168a8;
-}
-.cover-tone-1 {
-  --cover-tone-a: #12b3a2;
-  --cover-tone-b: #0b7d72;
-}
-.cover-tone-2 {
-  --cover-tone-a: #5cb944;
-  --cover-tone-b: #317d31;
-}
-.cover-tone-3 {
-  --cover-tone-a: #f2b914;
-  --cover-tone-b: #d88a12;
-}
-.cover-tone-4 {
-  --cover-tone-a: #f4863a;
-  --cover-tone-b: #d55418;
-}
-.cover-tone-5 {
-  --cover-tone-a: #ef5f6f;
-  --cover-tone-b: #c53040;
-}
-.cover-tone-6 {
-  --cover-tone-a: #f06aa7;
-  --cover-tone-b: #c04a80;
-}
-.cover-tone-7 {
-  --cover-tone-a: #9a6cf0;
-  --cover-tone-b: #6b46c8;
-}
-.cover-tone-8 {
-  --cover-tone-a: #6a7bf7;
-  --cover-tone-b: #4449d1;
-}
-.cover-tone-9 {
-  --cover-tone-a: #5f8fa8;
-  --cover-tone-b: #3a6178;
 }

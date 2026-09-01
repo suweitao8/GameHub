@@ -59,42 +59,10 @@
 }
 
 .game-cover.placeholder {
-  /* 确定性多彩渐变（--cover-tone-* 由 tokens 的 cover-tone-N 类提供），
-     未命中色板时回落深海蓝兜底 */
-  background: linear-gradient(140deg, var(--cover-tone-a, var(--game-cover-fallback)) 0%, var(--cover-tone-b, var(--game-cover-fallback-deep)) 100%);
-  display: block;
+  background: var(--game-cover-fallback);
+  display: grid;
   isolation: isolate;
-  overflow: hidden;
-  transition: filter var(--game-dur) var(--game-ease);
-}
-
-.game-card:hover .game-cover.placeholder {
-  filter: brightness(1.06) saturate(1.05);
-}
-
-.game-cover.placeholder::before,
-.game-cover.placeholder::after {
-  border-radius: 50%;
-  content: '';
-  pointer-events: none;
-  position: absolute;
-}
-
-.game-cover.placeholder::before {
-  background: color-mix(in srgb, var(--game-text-inverse) 12%, transparent);
-  height: 180%;
-  right: -22%;
-  top: -65%;
-  transform: rotate(22deg);
-  width: 48%;
-}
-
-.game-cover.placeholder::after {
-  border: 1px solid color-mix(in srgb, var(--game-text-inverse) 18%, transparent);
-  height: 130%;
-  left: -38%;
-  top: 35%;
-  width: 82%;
+  place-items: center;
 }
 
 /* 左上分类徽章：B 站式封面角标 */
@@ -116,19 +84,19 @@
 
 /* 中央大水印字：标题首字符，替代旧的「G + 标题」信息卡构图 */
 .cover-watermark {
-  color: color-mix(in srgb, var(--game-text-inverse) 30%, transparent);
-  font-size: 4.6rem;
+  color: var(--game-text-secondary);
+  font-size: 3rem;
   font-weight: 800;
   left: 50%;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   line-height: 1;
   pointer-events: none;
   position: absolute;
-  text-shadow: 0 0.35rem 1.4rem color-mix(in srgb, var(--game-text-primary) 18%, transparent);
   top: 50%;
   transform: translate(-50%, -52%);
   user-select: none;
   z-index: 1;
+  opacity: 0.3;
 }
 
 .game-card-body {
@@ -208,10 +176,10 @@
   white-space: nowrap;
 }
 
-/* 封面左下角数据条：靛墨渐变承托白字 */
+/* 封面左下角数据条：用一层中性半透明底承托白字 */
 .game-card-meta {
   align-items: center;
-  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--game-text-primary) 74%, transparent) 100%);
+  background: color-mix(in srgb, var(--game-text-primary) 74%, transparent);
   bottom: 0;
   color: var(--game-text-inverse);
   display: flex;
@@ -264,9 +232,8 @@
 
 /* 占位骨架（isVisible=false 时渲染） */
 .game-card-placeholder {
-  animation: cardSkeletonShimmer 1.4s ease infinite;
-  background: linear-gradient(90deg, var(--game-surface-alt) 25%, var(--game-surface-active) 45%, var(--game-surface-alt) 65%);
-  background-size: 240% 100%;
+  animation: cardSkeletonPulse 1.4s ease infinite;
+  background: var(--game-surface-alt);
   border: 1px solid var(--game-border);
   border-radius: var(--game-radius-md);
   display: block;
@@ -274,14 +241,15 @@
   overflow: hidden;
 }
 
-@keyframes cardSkeletonShimmer {
+@keyframes cardSkeletonPulse {
 
-  0% {
-    background-position: 120% 0;
+  0%,
+  100% {
+    opacity: 0.72;
   }
 
-  100% {
-    background-position: -120% 0;
+  50% {
+    opacity: 1;
   }
 }
 
@@ -385,7 +353,6 @@
 
   .game-card,
   .game-cover img,
-  .game-cover.placeholder,
   .game-card-meta,
   .game-card h3,
   .author-name-link {

@@ -12,12 +12,12 @@
   --menu-width: #{$menu-width};
   --menu-border-radius: #{$menu-border-radius};
 
-  --fg: var(--mainForegroundColor, #000);
+  --fg: var(--mainForegroundColor, #111b21);
 
   --bg: var(--mainBackgroundColor, #fff);
-  --bg-secondary: var(--greyBackgroundColor, #E5E5E5);
+  --bg-secondary: var(--greyBackgroundColor, #f0f2f5);
 
-  --primary: var(--mainColor, #00aeec);
+  --primary: var(--mainColor, #008198);
   --on-primary: #{pvar(--fg)};
 
   --red: #{$red};
@@ -112,25 +112,26 @@
   &[data-pt-theme="default"] {
     --is-dark: 0;
 
-    --primary: #00aeec;
+    --primary: #008198;
+    --on-primary: #ffffff;
     --border-primary: #{pvar(--primary-650)};
 
-    --fg: hsl(0 14% 2%);
-    --fg-200: hsl(0 14% 29%);
+    --fg: #111b21;
+    --fg-200: #53636b;
 
-    --bg: hsl(250 5% 96%);
-    --bg-secondary: hsl(0 12% 72%);
-    --bg-secondary-500: hsl(0 12% 72%);
-    --bg-secondary-450: hsl(0 13% 81%);
-    --bg-secondary-400: hsl(0 19% 89%);
-    --bg-secondary-350: hsl(0 13% 92%);
+    --bg: #f5f5f5;
+    --bg-secondary: #f0f2f5;
+    --bg-secondary-500: #e0e0e0;
+    --bg-secondary-450: #e0e0e0;
+    --bg-secondary-400: #e9edef;
+    --bg-secondary-350: #f8f9fa;
 
-    --menu-bg-600: hsl(0 12% 72%);
-    --menu-bg-550: hsl(0 13% 81%);
-    --menu-bg: hsl(0 19% 89%);
+    --menu-bg-600: #e0e0e0;
+    --menu-bg-550: #e9edef;
+    --menu-bg: #ffffff;
 
-    --secondary-icon-color: hsl(0, 9%, 51%);
-    --input-placeholder-color: hsl(0, 9%, 51%);
+    --secondary-icon-color: #667781;
+    --input-placeholder-color: #667781;
 
     --input-check-active-fg: #{pvar(--bg)};
     --input-check-active-bg: #{pvar(--fg-250)};
@@ -144,7 +145,7 @@
   &[data-pt-theme="peertube-core-dark-brown"] {
     --is-dark: 1;
 
-    --primary: #00aeec;
+    --primary: #008198;
     --on-primary: #111;
     --border-primary: #{pvar(--primary-350)};
 

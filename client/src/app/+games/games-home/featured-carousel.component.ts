@@ -11,14 +11,12 @@ import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
-import { FEATURED_PLACEHOLDER_AVG_RGB } from '../games-home.constants'
-import { coverInitial, coverToneClass } from '../cover-tone'
+import { coverInitial } from '../cover-tone'
 
 /**
  * Big featured carousel + side card grid on the games home page.
  *
- * Self-manages: carousel index, touch swipe, auto-rotation, and per-cover
- * average color canvas sampling with a visible placeholder fallback. Driven entirely
+ * Self-manages: carousel index, touch swipe and auto-rotation. Driven entirely
  * by the `games` input (the recommended list from the parent); the first 6
  * entries drive the carousel.
  */
@@ -36,9 +34,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Five bottom-cover segment RGB strings for the cover fade into the brand footer. */
-  readonly featuredAvgColors = signal<Record<string, string[]>>({})
-  /** Cover URLs that failed to load -> show the same blue placeholder as no-cover games. */
+  /** Cover URLs that failed to load -> show the same neutral placeholder as no-cover games. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private touchStartX = 0
@@ -83,12 +79,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return game.coverPath
   }
 
-  /** 与卡片一致的确定性封面色调（占位渐变 + footer 同色系） */
-  coverToneClass (game: Game) {
-    return coverToneClass(game.uuid || game.title)
-  }
-
-  /** 占位大图中央的水印字（标题首字符） */
+  /** 占位图使用标题首字符，帮助用户在没有封面时识别内容。 */
   coverInitial (game: Game) {
     return coverInitial(game.title)
   }
@@ -96,81 +87,6 @@ export class FeaturedCarouselComponent implements OnDestroy {
   onFeaturedCoverError (uuid: string) {
     if (this.brokenFeaturedCovers()[uuid]) return
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
-  }
-
-  /** Fade the cover into the shared Logo-blue footer while retaining a subtle
-   *  trace of the cover's sampled color near the image edge. */
-  featuredCoverFade (game: Game) {
-    const rgb = this.averageRgb(this.featuredColors(game)).replace(/,\s*/g, ' ')
-    return `linear-gradient(180deg, rgb(${rgb} / 0%) 0%, rgb(${rgb} / 18%) 42%, var(--game-brand-deep) 100%)`
-  }
-
-  private featuredColors (game: Game) {
-    return this.featuredAvgColors()[game.uuid] || Array.from({ length: 5 }, () => FEATURED_PLACEHOLDER_AVG_RGB)
-  }
-
-  private averageRgb (colors: string[]) {
-    const totals = colors.reduce((result, color) => {
-      const [ red, green, blue ] = color.split(',').map(value => Number(value.trim()))
-      result[0] += red
-      result[1] += green
-      result[2] += blue
-      return result
-    }, [ 0, 0, 0 ])
-
-    return totals.map(value => Math.round(value / colors.length)).join(', ')
-  }
-
-  onFeaturedImageLoad (event: Event, uuid: string) {
-    if (this.featuredAvgColors()[uuid]) return
-
-    const image = event.target as HTMLImageElement
-    if (!image.naturalWidth || !image.naturalHeight) return
-
-    try {
-      const canvas = document.createElement('canvas')
-      // Read only the bottom tenth of a small downsampled cover. The footer is
-      // split into five horizontal segments so its color follows the visible
-      // lower edge instead of an unrelated seeded color.
-      canvas.width = 32
-      canvas.height = 32
-      const context = canvas.getContext('2d', { willReadFrequently: true })
-      if (!context) return
-
-      context.drawImage(image, 0, 0, canvas.width, canvas.height)
-      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data
-      const sampleHeight = Math.max(1, Math.round(canvas.height * 0.1))
-      const segmentCount = 5
-      const segmentWidth = canvas.width / segmentCount
-      const colors: string[] = []
-
-      for (let segment = 0; segment < segmentCount; segment++) {
-        const startX = Math.floor(segment * segmentWidth)
-        const endX = Math.max(startX + 1, Math.floor((segment + 1) * segmentWidth))
-        let red = 0
-        let green = 0
-        let blue = 0
-        let count = 0
-
-        for (let y = canvas.height - sampleHeight; y < canvas.height; y++) {
-          for (let x = startX; x < endX; x++) {
-            const index = (y * canvas.width + x) * 4
-            if (pixels[index + 3] < 128) continue
-            red += pixels[index]
-            green += pixels[index + 1]
-            blue += pixels[index + 2]
-            count++
-          }
-        }
-
-        if (!count) return
-        colors.push(`${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)}`)
-      }
-
-      this.featuredAvgColors.update(map => ({ ...map, [uuid]: colors }))
-    } catch {
-      // Cross-origin cover images may not be readable by canvas; keep the blue placeholder fallback.
-    }
   }
 
   nextCarousel (step = 1) {

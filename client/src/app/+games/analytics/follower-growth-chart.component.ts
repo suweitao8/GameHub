@@ -15,13 +15,7 @@ interface FollowerTrendPoint {
       <div class="card-header"><h3>粉丝增长</h3></div>
       <div class="follower-chart-container">
         <svg viewBox="0 0 300 120" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="followerGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--game-brand)" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="var(--game-brand)" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          <polygon [attr.points]="areaPoints()" fill="url(#followerGradient)"/>
+          <polygon [attr.points]="areaPoints()" fill="var(--game-brand-soft)"/>
           <polyline [attr.points]="polylinePoints()"
                     fill="none" stroke="var(--game-brand)" stroke-width="2"/>
           @for (pt of points(); track pt.x) {

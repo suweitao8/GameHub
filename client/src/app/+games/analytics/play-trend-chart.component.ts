@@ -74,7 +74,7 @@ interface PlayTrendPoint {
 
     .trend-bar {
       width: 100%;
-      background: linear-gradient(180deg, var(--game-brand) 0%, color-mix(in srgb, var(--game-text-primary) 15%, transparent) 100%);
+      background: var(--game-brand);
       border-radius: var(--game-radius-xs) var(--game-radius-xs) 0 0;
       transition: height 0.5s ease;
       min-height: 2px;

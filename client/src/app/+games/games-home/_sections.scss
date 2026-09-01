@@ -40,7 +40,7 @@
 
 .community-hub-icon {
   align-items: center;
-  background: linear-gradient(135deg, var(--game-brand-soft), var(--game-surface));
+  background: var(--game-brand-soft);
   border: 1px solid var(--game-brand-border);
   border-radius: 50%;
   color: var(--game-brand-deep);
@@ -216,7 +216,7 @@
 
 .collection-pill-placeholder {
   align-items: center;
-  background: linear-gradient(135deg, var(--game-brand-soft), var(--game-surface));
+  background: var(--game-brand-soft);
   border: 1px solid var(--game-brand-border);
   border-radius: var(--game-radius-xs);
   color: var(--game-brand-deep);

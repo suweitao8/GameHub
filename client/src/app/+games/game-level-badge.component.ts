@@ -40,16 +40,6 @@ export class GameLevelBadgeComponent {
   })
 
   levelColor = computed(() => {
-    const level = this.levelInfo()?.levelInfo.level ?? 0
-    const colors = [
-      'var(--game-text-hint)', // LV0 gray
-      'var(--game-success)', // LV1 green
-      'var(--game-info)', // LV2 blue
-      'var(--game-brand-vivid)', // LV3 purple
-      'var(--game-warning)', // LV4 amber
-      'var(--game-danger)', // LV5 red
-      'var(--game-danger-deep)' // LV6 crimson
-    ]
-    return colors[Math.min(level, 6)]
+    return this.levelInfo() ? 'var(--game-brand)' : 'var(--game-text-hint)'
   })
 }

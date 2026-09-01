@@ -85,7 +85,7 @@ interface GameRankingItem {
       flex-shrink: 0;
     }
 
-    .ranking-number.top3 { background: linear-gradient(135deg, var(--game-warning), var(--game-danger)); color: var(--game-text-inverse); }
+    .ranking-number.top3 { background: var(--game-warning); color: var(--game-text-inverse); }
     .ranking-title {
       color: var(--game-text);
       flex-shrink: 0;
@@ -105,7 +105,7 @@ interface GameRankingItem {
     }
 
     .ranking-bar {
-      background: linear-gradient(90deg, var(--game-brand), var(--game-success-vivid));
+      background: var(--game-brand);
       border-radius: var(--game-radius-pill);
       height: 100%;
       transition: width 0.5s ease;
