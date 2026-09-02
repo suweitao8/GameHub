@@ -64,24 +64,24 @@
 }
 
 .game-cover.placeholder::before {
-  border: 1px solid var(--game-cover-border);
+  border: 1px solid var(--game-media-border);
   border-radius: var(--game-radius-sm);
   content: '';
-  inset: 0.55rem;
+  inset: 0.5rem;
   pointer-events: none;
   position: absolute;
 }
 
 .game-cover.placeholder::after {
-  background: var(--game-brand);
+  background: var(--game-brand-vivid);
   border-radius: var(--game-radius-pill);
-  bottom: 0.8rem;
+  bottom: 0.7rem;
   content: '';
-  height: 0.22rem;
-  left: 0.85rem;
+  height: 0.18rem;
+  left: 0.75rem;
   pointer-events: none;
   position: absolute;
-  width: 2.2rem;
+  width: 2.6rem;
   z-index: 2;
 }
 
@@ -93,12 +93,12 @@
 
 .cover-watermark {
   color: var(--game-cover-mark);
-  font-size: 3rem;
+  font-size: clamp(2.75rem, 4.2vw, 4rem);
   font-weight: 800;
   left: 50%;
   letter-spacing: 0.02em;
   line-height: 1;
-  opacity: 0.9;
+  opacity: 0.82;
   pointer-events: none;
   position: absolute;
   top: 50%;
@@ -107,9 +107,37 @@
   z-index: 1;
 }
 
+.cover-poster-kicker,
+.cover-poster-index {
+  color: var(--game-brand-deep);
+  font-size: var(--game-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.cover-poster-kicker {
+  left: 0.85rem;
+  top: 0.8rem;
+}
+
+.cover-poster-index {
+  bottom: 0.68rem;
+  right: 0.78rem;
+  letter-spacing: 0.04em;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .game-card-body {
   min-width: 0;
-  padding: 0.62rem 0 0;
+  padding: 0.55rem 0.05rem 0;
 }
 
 .game-card-category {
@@ -117,6 +145,7 @@
   display: block;
   font-size: var(--game-font-size-xs);
   font-weight: 700;
+  letter-spacing: 0.04em;
   line-height: 1.2;
   margin-bottom: 0.28rem;
   overflow: hidden;

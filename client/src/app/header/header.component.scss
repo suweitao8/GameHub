@@ -160,11 +160,12 @@
 }
 
 .game-header-left-nav a {
-  border-radius: var(--game-radius-pill);
+  border-bottom: 2px solid transparent;
   color: var(--game-header-nav-foreground, var(--game-text-secondary)) !important;
   font-size: var(--game-font-size-md);
   font-weight: 600;
-  padding: 0.42rem 0.85rem;
+  min-height: 44px;
+  padding: 0.5rem 0.65rem 0.38rem;
   text-decoration: none;
   transition: background-color var(--game-dur-fast) var(--game-ease),
     color var(--game-dur-fast) var(--game-ease),
@@ -184,7 +185,7 @@
 }
 
 .game-header-left-nav a.active {
-  background: var(--game-brand-soft);
+  border-bottom-color: var(--game-brand);
   color: var(--game-brand-deep) !important;
   font-weight: 700;
 }

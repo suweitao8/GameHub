@@ -14,7 +14,9 @@
             (error)="onCoverError()"
           >
         } @else {
+          <span class="cover-poster-kicker" aria-hidden="true">GAMEHUB / PLAY</span>
           <span class="cover-watermark" aria-hidden="true">{{ coverInitial() }}</span>
+          <span class="cover-poster-index" aria-hidden="true">{{ categoryLabel() }}</span>
         }
       </div>
       <div class="game-card-body">

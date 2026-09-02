@@ -54,8 +54,13 @@
 
 .feed-list,
 .feed-skeleton-list {
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .feed-refresh-bar {
@@ -87,14 +92,14 @@
   border-bottom: 1px solid var(--game-border);
   display: flex;
   gap: 0.85rem;
-  padding: 1rem 0.5rem;
+  padding: 1rem 1.05rem;
   transition: background-color var(--game-dur-fast) var(--game-ease),
     border-color var(--game-dur-fast) var(--game-ease);
 }
 
 .feed-item:hover,
 .feed-item:focus-within {
-  background: var(--game-surface);
+  background: var(--game-surface-alt);
   border-bottom-color: var(--game-brand-border);
 }
 
@@ -276,7 +281,7 @@
 
   .feed-item,
   .feed-skeleton-item {
-    padding-inline: 0.15rem;
+    padding-inline: 0.8rem;
   }
 }
 

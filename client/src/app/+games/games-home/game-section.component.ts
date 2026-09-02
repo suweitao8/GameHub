@@ -40,8 +40,8 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
   styles: [ `
     .game-grid {
       display: grid;
-      column-gap: 1.15rem;
-      row-gap: 1.6rem;
+      column-gap: 1rem;
+      row-gap: 1.35rem;
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 
@@ -130,12 +130,12 @@ import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.compo
        component's compact headings too). */
     .compact-section-heading {
       align-items: center;
-      margin-bottom: 0.75rem;
-      margin-top: 1.25rem;
+      margin-bottom: 0.82rem;
+      margin-top: 1.9rem;
     }
 
     .game-section-heading.compact-section-heading {
-      margin-top: 1.25rem;
+      margin-top: 1.9rem;
     }
 
     .compact-section-heading h2 {

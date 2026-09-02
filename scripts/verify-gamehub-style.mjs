@@ -222,7 +222,7 @@ assert(
   'Featured discovery must use a 12-column lead-and-side content composition'
 )
 assert(
-  featuredStyles.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'),
+  /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/.test(featuredStyles),
   'Featured side cards must stay readable in a two-column content rail'
 )
 assert(

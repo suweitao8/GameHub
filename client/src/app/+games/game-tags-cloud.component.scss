@@ -27,17 +27,22 @@
 
 .tags-cloud {
   align-content: flex-start;
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
   justify-content: flex-start;
+  padding: 1rem;
 }
 
 .tag-pill {
   align-items: center;
-  background: var(--game-surface);
+  background: var(--game-surface-alt);
   border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-sm);
+  border-radius: var(--game-radius-pill);
   color: var(--game-text-primary);
   cursor: pointer;
   display: inline-flex;
@@ -53,6 +58,7 @@
 
 .tag-pill:hover,
 .tag-pill:focus-visible {
+  background: var(--game-brand-soft);
   border-color: var(--game-brand);
   color: var(--game-brand-deep);
   outline: none;
@@ -60,7 +66,7 @@
 }
 
 .tag-count {
-  background: var(--game-surface-alt);
+  background: var(--game-surface);
   border-radius: var(--game-radius-pill);
   color: var(--game-muted);
   font-size: var(--game-font-size-xs);

@@ -15,7 +15,7 @@
   height: var(--game-control-height);
   min-width: 0;
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -40,7 +40,7 @@
   box-shadow: none;
   color: var(--game-text-primary);
   font-size: var(--game-font-size-md);
-  padding: 0.45rem 2.35rem 0.45rem 0.9rem;
+  padding: 0.45rem 2.55rem 0.45rem 1rem;
   transition: background-color var(--game-dur-fast) var(--game-ease),
     border-color var(--game-dur-fast) var(--game-ease),
     box-shadow var(--game-dur-fast) var(--game-ease);
@@ -54,6 +54,10 @@
   }
 }
 
+.game-navigation-search input:not(:focus) {
+  background: var(--game-search-surface);
+}
+
 // The global form skin also targets search inputs. Keep the form transparent
 // and let the input own the only visible border and focus ring.
 .game-navigation-search > input,
@@ -63,6 +67,10 @@
   border-radius: var(--game-radius-pill) !important;
   box-shadow: none !important;
   min-height: var(--game-control-height) !important;
+}
+
+.game-navigation-search > input:not(:focus) {
+  background: var(--game-search-surface) !important;
 }
 
 .game-navigation-search input:focus-visible {
@@ -77,10 +85,10 @@
   background: transparent;
   border: 0;
   border-radius: 50%;
-  color: var(--game-text-secondary);
+  color: var(--game-brand-deep);
   cursor: pointer;
   display: inline-flex;
-  height: 1.9rem;
+  height: 2.1rem;
   justify-content: center;
   padding: 0;
   position: absolute;
@@ -89,7 +97,7 @@
   transform: translateY(-50%);
   transition: background-color var(--game-dur-fast) var(--game-ease),
     color var(--game-dur-fast) var(--game-ease);
-  width: 1.9rem;
+  width: 2.1rem;
 }
 
 .game-navigation-search button:hover,

@@ -74,20 +74,24 @@
 }
 
 .rankings-list {
-  border-top: 1px solid var(--game-border);
+  background: var(--game-surface);
+  border: 1px solid var(--game-border);
+  border-radius: var(--game-radius-md);
+  box-shadow: var(--game-shadow-xs);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .ranking-item {
   align-items: center;
-  background: transparent;
+  background: var(--game-surface);
   border: 0;
   border-bottom: 1px solid var(--game-border);
   color: inherit;
   display: flex;
   gap: 1rem;
-  padding: 0.85rem 0.5rem;
+  padding: 0.9rem 1.05rem;
   text-decoration: none;
   transition: background-color var(--game-dur-fast) var(--game-ease),
     border-color var(--game-dur-fast) var(--game-ease);
@@ -95,7 +99,7 @@
 
 .ranking-item:hover,
 .ranking-item:focus-visible {
-  background: var(--game-surface);
+  background: var(--game-surface-alt);
   border-bottom-color: var(--game-brand-border);
   outline: none;
 }
@@ -121,9 +125,10 @@
 
 .ranking-cover {
   background: var(--game-cover-fallback);
+  border: 1px solid var(--game-cover-border);
   border-radius: var(--game-radius-sm);
-  flex: 0 0 4rem;
-  height: 4rem;
+  flex: 0 0 6.2rem;
+  height: 3.5rem;
   overflow: hidden;
 }
 
@@ -139,7 +144,7 @@
   background: var(--game-cover-fallback);
   color: var(--game-brand-deep);
   display: flex;
-  font-size: 1.25rem;
+  font-size: var(--game-font-size-lg);
   font-weight: 700;
   height: 100%;
   justify-content: center;
@@ -294,7 +299,7 @@
 
   .ranking-item {
     gap: 0.65rem;
-    padding-inline: 0.15rem;
+    padding-inline: 0.8rem;
   }
 
   .ranking-score {

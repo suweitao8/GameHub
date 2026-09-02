@@ -675,7 +675,8 @@ assert(
   'game card fallbacks must expose poster hierarchy labels'
 )
 assert(
-  featuredHtml.includes('featured-cover-copy') && featuredScss.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'),
+  featuredHtml.includes('featured-cover-copy') &&
+    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/.test(featuredScss),
   'featured discovery must expose a readable in-cover hierarchy and two-column side rail'
 )
 assert(
@@ -1690,7 +1691,7 @@ assert(
   /\.game-header-left-nav a:hover,[\s\S]*?background: var\(--game-surface-alt\);[\s\S]*?color: var\(--game-text-primary\) !important;/.test(headerScss) &&
     /\.game-header-actions a:hover,[\s\S]*?background: var\(--game-surface-alt\);[\s\S]*?color: var\(--game-text-primary\) !important;/.test(headerScss) &&
     /\.game-header-actions a\.game-header-action-active \{[\s\S]*color: var\(--game-brand-deep\) !important;/.test(headerScss) &&
-    /\.game-header-left-nav a\.active \{[\s\S]*background: var\(--game-brand-soft\);[\s\S]*color: var\(--game-brand-deep\) !important;/.test(headerScss),
+    /\.game-header-left-nav a\.active \{[\s\S]*border-bottom-color: var\(--game-brand\);[\s\S]*color: var\(--game-brand-deep\) !important;/.test(headerScss),
   'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(

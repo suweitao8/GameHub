@@ -10,7 +10,7 @@
   display: flex;
   gap: 1rem;
   justify-content: space-between;
-  margin: 1.7rem 0 0.9rem;
+  margin: 1.55rem 0 0.85rem;
 }
 
 .featured-heading h2 {
@@ -151,7 +151,7 @@
   aspect-ratio: 16 / 9;
   background: var(--game-cover-fallback-deep);
   border: 1px solid var(--game-cover-border);
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-radius-lg);
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -187,6 +187,51 @@
   text-align: right;
   top: 1.25rem;
   z-index: 1;
+}
+
+.featured-cover-copy {
+  background: var(--game-media-surface);
+  bottom: 0;
+  color: var(--game-text-inverse);
+  display: none;
+  flex-direction: column;
+  gap: 0.22rem;
+  left: 0;
+  padding: 0.75rem 1rem 0.8rem;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+}
+
+.featured-cover.is-placeholder .featured-cover-copy {
+  display: flex;
+}
+
+.featured-cover-copy span,
+.featured-cover-copy small {
+  color: var(--game-cover-featured-line);
+  font-size: var(--game-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+}
+
+.featured-cover-copy strong {
+  color: var(--game-text-inverse);
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.featured-cover-copy small {
+  font-weight: 500;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .featured-cover img {
@@ -246,10 +291,20 @@
   gap: 1rem;
   justify-content: space-between;
   margin: 0;
-  min-height: 4.7rem;
-  padding: 0.75rem 0 0;
+  min-height: 4.1rem;
+  padding: 0.62rem 0 0;
   width: 100%;
   z-index: 2;
+}
+
+.featured-placeholder .featured-footer {
+  justify-content: flex-end;
+  min-height: 2.9rem;
+  padding-top: 0.35rem;
+}
+
+.featured-placeholder .featured-caption {
+  display: none;
 }
 
 .featured-caption {
@@ -261,7 +316,7 @@
 }
 
 .featured-caption h3 {
-  font-size: 1.25rem;
+  font-size: 1.12rem;
   font-weight: 800;
   line-height: 1.35;
   margin: 0;
@@ -380,8 +435,51 @@
   gap: var(--featured-gap, 1.15rem);
   grid-column: span 6;
   grid-row: span 2;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   min-width: 0;
+}
+
+:host ::ng-deep .featured-side-grid .game-card-main {
+  column-gap: 0.6rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  row-gap: 0.35rem;
+}
+
+:host ::ng-deep .featured-side-grid .game-cover {
+  align-self: start;
+  aspect-ratio: 16 / 10;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+:host ::ng-deep .featured-side-grid .game-card-body {
+  align-self: start;
+  grid-column: 2;
+  grid-row: 1;
+  padding: 0;
+}
+
+:host ::ng-deep .featured-side-grid .game-card-author {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 0;
+}
+
+:host ::ng-deep .featured-side-grid .game-card h3 {
+  font-size: var(--game-font-size-md);
+  -webkit-line-clamp: 3;
+}
+
+:host ::ng-deep .featured-side-grid .game-card-meta-line {
+  gap: 0.4rem;
+  margin-top: 0.28rem;
+}
+
+:host ::ng-deep .featured-side-grid .game-card-category,
+:host ::ng-deep .featured-side-grid .game-card-stat,
+:host ::ng-deep .featured-side-grid .game-card-author {
+  font-size: var(--game-font-size-xs);
 }
 
 @media (max-width: 1250px) {
@@ -413,6 +511,18 @@
     grid-column: span 2;
     grid-row: auto;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :host ::ng-deep .featured-side-grid .game-card-main {
+    display: block;
+  }
+
+  :host ::ng-deep .featured-side-grid .game-card-body {
+    padding-top: 0.48rem;
+  }
+
+  :host ::ng-deep .featured-side-grid .game-card-author {
+    margin-top: 0.3rem;
   }
 
   .featured-caption h3 { font-size: var(--game-font-size-lg); }

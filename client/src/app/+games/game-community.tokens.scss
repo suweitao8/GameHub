@@ -19,7 +19,9 @@ body {
   --game-surface: #ffffff;
   --game-card-bg: #ffffff;
   --game-surface-alt: #f1f2f3;
+  --game-surface-raised: #ffffff;
   --game-surface-active: #e7f2f6;
+  --game-search-surface: #f1f2f3;
   --game-page-wash: transparent;
   --game-overlay: rgb(24 25 28 / 58%);
   --game-content-width: 1280px;
@@ -78,12 +80,16 @@ body {
   --game-danger-soft: #feeceb;
 
   /* ---- 封面兜底（浅蓝灰；推荐主卡另用 brand-deep 建立视觉锚点）---- */
-  --game-cover-fallback: #e4f0f4;
-  --game-cover-fallback-deep: #cfe4eb;
-  --game-cover-border: #c9e0e7;
-  --game-cover-mark: #9fc8d3;
-  --game-cover-fallback-hover: #dcecf1;
-  --game-cover-featured-line: #248da5;
+  --game-cover-fallback: #d7e8ef;
+  --game-cover-fallback-deep: #c3dce5;
+  --game-cover-border: #b7d4de;
+  --game-cover-mark: #5f91a3;
+  --game-cover-fallback-hover: #cce1e9;
+  --game-cover-featured-line: #63aec0;
+  --game-media-surface: #123847;
+  --game-media-surface-soft: #d7e8ef;
+  --game-media-border: #bdd7e1;
+  --game-media-mark: #6e9caf;
 
   /* ---- 圆角阶梯 ---- */
   --game-radius-xs: 4px;

@@ -14,6 +14,7 @@
       @for (slide of [carouselIndex()]; track $index) {
         <article
           class="featured-carousel"
+          [class.featured-placeholder]="!featuredCoverPath(featuredGame)"
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >
@@ -25,6 +26,11 @@
                 <span class="game-cover-badge" aria-hidden="true">推荐</span>
                 <span class="cover-watermark" aria-hidden="true">{{ coverInitial(featuredGame) }}</span>
               }
+              <div class="featured-cover-copy" aria-hidden="true">
+                <span>FEATURED / GAMEHUB</span>
+                <strong>{{ featuredGame.title }}</strong>
+                <small>{{ featuredGame.author?.displayName || '独立创作者' }}</small>
+              </div>
             </div>
           </a>
           <!-- Brand-blue footer: title row + switch controls stay within the page chrome -->

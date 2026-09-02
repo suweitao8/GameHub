@@ -1,20 +1,20 @@
 .games-home {
-  padding-bottom: 4rem;
+  padding-bottom: 5rem;
 }
 
 .games-home > .game-community-content {
   max-width: 1280px;
-  padding-top: 0.45rem;
+  padding-top: 0.2rem;
 }
 
 .compact-section-heading {
   align-items: center;
-  margin-bottom: 0.9rem;
-  margin-top: 1.35rem;
+  margin-bottom: 0.82rem;
+  margin-top: 1.9rem;
 }
 
 .game-section-heading.compact-section-heading {
-  margin-top: 1.35rem;
+  margin-top: 1.9rem;
 }
 
 .compact-section-heading h2 {
@@ -24,8 +24,8 @@
 /* 网格：与 game-section 内联样式、featured-carousel 里的副本保持同值 */
 .game-grid {
   display: grid;
-  column-gap: 1.15rem;
-  row-gap: 1.6rem;
+  column-gap: 1rem;
+  row-gap: 1.35rem;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
