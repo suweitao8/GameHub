@@ -199,6 +199,10 @@ assert(
   'GameHub discovery navigation must express the active state with an underline instead of a row of pills'
 )
 assert(
+  navigation.includes('background: var(--game-search-surface);'),
+  'GameHub search input must consume the shared content-platform field surface'
+)
+assert(
   cardTemplate.includes('game-card-category') &&
     cardTemplate.includes('game-card-meta-line') &&
     !cardTemplate.includes('class="game-card-meta"'),
@@ -216,6 +220,18 @@ assert(
     /\.featured-carousel\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles) &&
     /\.featured-side-grid\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles),
   'Featured discovery must use a 12-column lead-and-side content composition'
+)
+assert(
+  featuredStyles.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'),
+  'Featured side cards must stay readable in a two-column content rail'
+)
+assert(
+  cardTemplate.includes('cover-poster-kicker') && cardTemplate.includes('cover-poster-index'),
+  'Game cards must expose semantic poster fallback labels'
+)
+assert(
+  featuredTemplate.includes('featured-cover-copy'),
+  'Featured carousel must expose an in-cover title hierarchy'
 )
 assert(
   homeLayout.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&

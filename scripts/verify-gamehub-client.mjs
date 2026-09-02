@@ -667,6 +667,18 @@ assert(
   'game search must keep one input border and one input-owned focus ring'
 )
 assert(
+  gameNavigationScss.includes('background: var(--game-search-surface);'),
+  'game search must use the shared content-platform field surface'
+)
+assert(
+  gameCardHtml.includes('cover-poster-kicker') && gameCardHtml.includes('cover-poster-index'),
+  'game card fallbacks must expose poster hierarchy labels'
+)
+assert(
+  featuredHtml.includes('featured-cover-copy') && featuredScss.includes('grid-template-columns: repeat(2, minmax(0, 1fr));'),
+  'featured discovery must expose a readable in-cover hierarchy and two-column side rail'
+)
+assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
     !gameSectionTs.includes('grid-template-columns: repeat(4, minmax(0, 1fr));'),
   'shared home sections must keep five columns across supported desktop widths'
