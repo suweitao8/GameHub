@@ -28,17 +28,17 @@ body {
   --game-font-size-page-title: clamp(1.625rem, 3vw, 2rem);
   --game-font-size-hero-title: clamp(1.75rem, 3.5vw, 2.4rem);
   /* 正文字号四级阶梯:全站 1.1rem 以下的文本一律取自这里,禁止再写 0.x rem 字面量 */
-  --game-font-size-xs: 0.72rem;   /* 时间戳/提示/角标 */
-  --game-font-size-sm: 0.78rem;   /* 次要文本/标签/徽标 */
-  --game-font-size-md: 0.85rem;   /* 正文默认 */
-  --game-font-size-lg: 0.95rem;   /* 卡片标题/统计数字等强调文本 */
+  --game-font-size-xs: 0.75rem;   /* 时间戳/提示/角标 */
+  --game-font-size-sm: 0.8rem;    /* 次要文本/标签/徽标 */
+  --game-font-size-md: 0.88rem;   /* 正文默认 */
+  --game-font-size-lg: 1rem;      /* 卡片标题/统计数字等强调文本 */
 
   /* ---- 墨阶文本 ---- */
   --game-text: #18191c;
   --game-text-primary: #18191c;
   --game-text-secondary: #61666d;
   --game-text-button: #4e5358;
-  --game-text-hint: #9499a0;
+  --game-text-hint: #737a81;
   --game-muted: #61666d;
   --game-text-inverse: #ffffff;
 
@@ -78,8 +78,12 @@ body {
   --game-danger-soft: #feeceb;
 
   /* ---- 封面兜底（浅蓝灰；推荐主卡另用 brand-deep 建立视觉锚点）---- */
-  --game-cover-fallback: #eaf3f7;
-  --game-cover-fallback-deep: #d6e8ef;
+  --game-cover-fallback: #e4f0f4;
+  --game-cover-fallback-deep: #cfe4eb;
+  --game-cover-border: #c9e0e7;
+  --game-cover-mark: #9fc8d3;
+  --game-cover-fallback-hover: #dcecf1;
+  --game-cover-featured-line: #248da5;
 
   /* ---- 圆角阶梯 ---- */
   --game-radius-xs: 4px;

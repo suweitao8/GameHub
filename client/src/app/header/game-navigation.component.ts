@@ -84,6 +84,12 @@ export class GameNavigationComponent implements OnInit, OnDestroy {
   }
 
   onKeydown (event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      this.focused.set(false)
+      return
+    }
+
     if (event.key === 'Enter') {
       event.preventDefault()
       // If suggestions are visible, pick the first one; otherwise submit search

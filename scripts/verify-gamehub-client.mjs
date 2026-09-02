@@ -473,6 +473,10 @@ assert(
     (navigationTs.match(/if \(generation !== this\.suggestionGeneration\) return/g) || []).length >= 2,
   'search suggestions must ignore stale query responses and clear delayed work when the navigation is destroyed'
 )
+assert(
+  /if \(event\.key === 'Escape'\) \{[\s\S]{0,180}event\.preventDefault\(\)[\s\S]{0,180}this\.focused\.set\(false\)/.test(navigationTs),
+  'game search must close its open suggestion panel when Escape is pressed'
+)
 assert(!eventDetailTs.includes('返回活动列表') && !collectionDetailTs.includes('浏览全部专题') && !collectionDetailTs.includes('返回专题列表'), 'game detail states must not render legacy return buttons')
 
 const featuredTs = read('client/src/app/+games/games-home/featured-carousel.component.ts')
@@ -780,10 +784,10 @@ assert(
 )
 {
   const bodyTextScale = [
-    '--game-font-size-xs: 0.72rem;',
-    '--game-font-size-sm: 0.78rem;',
-    '--game-font-size-md: 0.85rem;',
-    '--game-font-size-lg: 0.95rem;'
+    '--game-font-size-xs: 0.75rem;',
+    '--game-font-size-sm: 0.8rem;',
+    '--game-font-size-md: 0.88rem;',
+    '--game-font-size-lg: 1rem;'
   ]
   const gameStylesDir = 'client/src/app/+games'
   const gameStyleSources = readdirSync(gameStylesDir, { recursive: true })
@@ -1909,7 +1913,7 @@ const gamehubPaletteSources = [
 assert(
   gameCommunityTokens.includes('--game-text: #18191c') &&
     gameCommunityTokens.includes('--game-text-button: #4e5358') &&
-    gameCommunityTokens.includes('--game-text-hint: #9499a0') &&
+    gameCommunityTokens.includes('--game-text-hint: #737a81') &&
     gameCommunityTokens.includes('--game-muted: #61666d') &&
     !appScss.includes('--game-text:') &&
     !headerScss.includes('--game-text-primary: #'),

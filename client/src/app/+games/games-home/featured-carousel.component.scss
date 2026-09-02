@@ -150,6 +150,7 @@
 .featured-cover {
   aspect-ratio: 16 / 9;
   background: var(--game-cover-fallback-deep);
+  border: 1px solid var(--game-cover-border);
   border-radius: var(--game-radius-md);
   flex: 0 0 auto;
   height: auto;
@@ -160,7 +161,32 @@
 .featured-cover.is-placeholder {
   background: var(--game-brand-deep);
   display: grid;
+  isolation: isolate;
   place-items: center;
+}
+
+.featured-cover.is-placeholder::before {
+  border: 1px solid var(--game-cover-featured-line);
+  border-radius: var(--game-radius-sm);
+  content: '';
+  inset: 1rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.featured-cover.is-placeholder::after {
+  color: var(--game-cover-featured-line);
+  content: 'GAMEHUB / PLAY';
+  font-size: var(--game-font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  right: 1.25rem;
+  text-align: right;
+  top: 1.25rem;
+  z-index: 1;
 }
 
 .featured-cover img {
@@ -203,7 +229,7 @@
   font-weight: 800;
   left: 50%;
   line-height: 1;
-  opacity: 0.2;
+  opacity: 0.24;
   pointer-events: none;
   position: absolute;
   top: 50%;
