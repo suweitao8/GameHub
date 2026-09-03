@@ -1,11 +1,11 @@
-<section class="featured-section" aria-label="推荐游戏">
+<section class="featured-section" aria-label="推荐游戏" i18n-aria-label>
   <div class="game-section-heading featured-heading">
     <div>
-      <h2>推荐游戏</h2>
+      <h2 i18n>推荐游戏</h2>
     </div>
     <div class="section-controls">
-      <button class="featured-shuffle" type="button" aria-label="换一批推荐游戏" (click)="shuffle.emit()">
-        <my-global-icon class="featured-shuffle-icon" iconName="refresh" /><span>换一批</span>
+      <button class="featured-shuffle" type="button" aria-label="换一批推荐游戏" i18n-aria-label (click)="shuffle.emit()">
+        <my-global-icon class="featured-shuffle-icon" iconName="refresh" /><span i18n>换一批</span>
       </button>
     </div>
   </div>
@@ -18,37 +18,35 @@
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >
-          <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]">
+          <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]" [attr.aria-label]="'打开推荐游戏：' + featuredGame.title" i18n-aria-label>
             <div class="featured-cover" [class.is-placeholder]="!featuredCoverPath(featuredGame)">
               @if (featuredCoverPath(featuredGame); as coverPath) {
                 <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)">
               } @else {
-                <span class="game-cover-badge" aria-hidden="true">推荐</span>
-                <span class="cover-watermark" aria-hidden="true">{{ coverInitial(featuredGame) }}</span>
+                <span class="game-featured-placeholder-art" aria-hidden="true"></span>
               }
-              <div class="featured-cover-copy" aria-hidden="true">
-                <span>FEATURED / GAMEHUB</span>
+              <span class="game-cover-badge" aria-hidden="true" i18n>推荐</span>
+              <div class="featured-cover-copy">
+                <span i18n>推荐游戏</span>
                 <strong>{{ featuredGame.title }}</strong>
-                <small>{{ featuredGame.author?.displayName || '独立创作者' }}</small>
+                <small>{{ featuredGame.author?.displayName || '独立创作者' }} · {{ formatDate(featuredGame.publishedAt || featuredGame.createdAt) }}</small>
+                <div class="featured-cover-stats" aria-label="游戏数据" i18n-aria-label>
+                  <span class="featured-cover-stat"><my-global-icon iconName="play" aria-hidden="true" /><span>{{ formatCount(featuredGame.playCount) }}</span></span>
+                  <span class="featured-cover-stat"><my-global-icon iconName="message-circle" aria-hidden="true" /><span>{{ formatCount(featuredGame.comments) }}</span></span>
+                </div>
               </div>
             </div>
           </a>
-          <!-- Brand-blue footer: title row + switch controls stay within the page chrome -->
-          <div
-            class="featured-footer"
-          >
-            <a class="featured-caption" [routerLink]="['/games', featuredGame.uuid]">
-              <h3>{{ featuredGame.title }}</h3>
-            </a>
+          <div class="featured-footer">
             <div class="featured-controls">
               <div class="featured-dots">
                 @for (game of carouselGames(); track game.uuid; let index = $index) {
-                  <button type="button" [class.active]="index === carouselIndex()" [attr.aria-current]="index === carouselIndex() ? 'true' : null" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" [title]="game.title" (click)="carouselIndex.set(index); $event.stopPropagation()"></button>
+                  <button type="button" [class.active]="index === carouselIndex()" [attr.aria-current]="index === carouselIndex() ? 'true' : null" [attr.aria-label]="'第 ' + (index + 1) + ' 个推荐'" i18n-aria-label [title]="game.title" (click)="carouselIndex.set(index); $event.stopPropagation()"></button>
                 }
               </div>
-              <div>
-                <button type="button" aria-label="上一个推荐" (click)="nextCarousel(-1); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button>
-                <button type="button" aria-label="下一个推荐" (click)="nextCarousel(1); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button>
+              <div class="featured-arrow-controls">
+                <button type="button" aria-label="上一个推荐" i18n-aria-label (click)="nextCarousel(-1); $event.stopPropagation()"><my-global-icon iconName="chevron-left" /></button>
+                <button type="button" aria-label="下一个推荐" i18n-aria-label (click)="nextCarousel(1); $event.stopPropagation()"><my-global-icon class="icon-flip-horizontal" iconName="chevron-left" /></button>
               </div>
             </div>
           </div>

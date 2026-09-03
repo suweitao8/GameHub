@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { Game } from './games.service'
 import { HighlightPipe } from './highlight.pipe'
-import { coverInitial } from './cover-tone'
 
 @Component({
   selector: 'my-game-card',
@@ -64,9 +63,9 @@ export class GameCardComponent implements OnInit, OnDestroy {
     return this.categoryLabels[this.game().category] || '小游戏'
   }
 
-  /** 占位封面使用标题首字符，避免依赖一组额外的视觉色板。 */
-  coverInitial () {
-    return coverInitial(this.game().title)
+  coverPosition () {
+    const seed = this.game().title.split('').reduce((total, character) => total + character.charCodeAt(0), 0)
+    return [ 'left', 'center', 'right' ][seed % 3] as 'left' | 'center' | 'right'
   }
 
   onCoverError () {

@@ -141,14 +141,22 @@
 
 .cover-placeholder {
   align-items: center;
-  background: var(--game-cover-fallback);
-  color: var(--game-brand-deep);
+  background-image: url('/client/assets/images/gamehub-header-banner.png');
+  background-position: center 62%;
+  background-repeat: no-repeat;
+  background-size: cover;
   display: flex;
-  font-size: var(--game-font-size-lg);
-  font-weight: 700;
   height: 100%;
   justify-content: center;
+  position: relative;
   width: 100%;
+}
+
+.cover-placeholder::after {
+  background: var(--game-banner-overlay);
+  content: '';
+  inset: 0;
+  position: absolute;
 }
 
 .ranking-info {

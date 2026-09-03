@@ -493,9 +493,11 @@ assert(
   !featuredHtml.includes('featuredCoverFade') &&
     !featuredHtml.includes('onFeaturedImageLoad') &&
     !featuredScss.includes('linear-gradient') &&
-    featuredScss.includes('background: var(--game-cover-fallback-deep);') &&
-    featuredScss.includes('background: var(--game-brand-deep);'),
-  'featured carousel must use fixed semantic cover surfaces instead of sampled-color fades'
+    featuredScss.includes('grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));') &&
+    featuredScss.includes('grid-column: 1;') &&
+    featuredScss.includes('grid-column: 2 / -1;') &&
+    featuredScss.includes('grid-template-columns: repeat(3, minmax(0, 1fr));'),
+  'featured carousel must use a fixed image-led lead and three-column media rail'
 )
 assert(
   featuredHtml.includes("[attr.aria-current]=\"index === carouselIndex() ? 'true' : null\""),
@@ -533,25 +535,27 @@ assert(
     !coverToneTs.includes('export function coverToneClass') &&
     coverToneTs.includes('export function coverInitial') &&
     gameCardHtml.includes('class="game-card">') &&
-    gameCardHtml.includes('class="cover-watermark"') &&
-    gameCardHtml.includes('class="game-card-category"') &&
+    gameCardHtml.includes('class="game-cover-placeholder-art"') &&
+    gameCardHtml.includes('class="game-cover-meta"') &&
+    gameCardHtml.includes('game-card-category') &&
     gameCardHtml.includes('class="game-card-meta-line"') &&
-    gameCardScss.includes('background: var(--game-cover-fallback);') &&
+    gameCardScss.includes('background: var(--game-cover-fallback-deep);') &&
+    gameCardScss.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
     !gameCardScss.includes('linear-gradient') &&
     gameCardScss.includes('-webkit-line-clamp: 2;') &&
     gameCardScss.includes('.game-card:hover h3') &&
     gameCardScss.includes('color: var(--game-brand-deep);') &&
     !gameCardHtml.includes('cover-placeholder-copy') &&
     !gameCardScss.includes('.cover-letter'),
-  'game cards must render semantic placeholders with an initial, body category, stats and two-line titles'
+  'game cards must render scenic placeholders with media stats, body category and two-line titles'
 )
 assert(
   !featuredHtml.includes('coverToneClass(featuredGame)') &&
-    featuredHtml.includes('coverInitial(featuredGame)') &&
+    featuredHtml.includes('game-featured-placeholder-art') &&
     featuredScss.includes('background: var(--game-cover-fallback-deep);') &&
-    featuredScss.includes('background: var(--game-brand-deep);') &&
+    featuredScss.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
     !featuredScss.includes('linear-gradient'),
-  'featured carousel placeholders must share the neutral card surface'
+  'featured carousel placeholders must share the scenic media surface'
 )
 assert(
   notificationHtml.includes('class="notification-item"') &&
@@ -612,29 +616,32 @@ const gamesHomeScss = [
 const gamesHomeDiscoveryNavScss = read('client/src/app/+games/games-home/_discovery-nav.scss')
 const gameFollowingTs = read('client/src/app/+games/game-following.component.ts')
 assert(
-  (homeHtml.match(/\[class\.category-length-2\]/g) || []).length >= 2 &&
-    (homeHtml.match(/\[class\.category-length-3\]/g) || []).length >= 2,
-  'home category links must bind length-aware spacing classes in both populated and empty states'
+  (homeHtml.match(/class="game-category-rail"/g) || []).length === 2 &&
+    (homeHtml.match(/class="game-category-rail-grid"/g) || []).length === 2,
+  'home category rails must render in both populated and empty states'
 )
 assert(
-  (homeHtml.match(/class="home-discovery-links"/g) || []).length === 2 &&
-    gamesHomeDiscoveryNavScss.includes('.home-discovery-links') &&
-    gamesHomeDiscoveryNavScss.includes('display: flex;') &&
-    gamesHomeDiscoveryNavScss.includes('gap: clamp(0.9rem, 2.1vw, 1.55rem);') &&
-    gamesHomeDiscoveryNavScss.includes('overflow-x: auto;') &&
-    !gamesHomeDiscoveryNavScss.includes('width: 4.8rem;') &&
-    !gamesHomeDiscoveryNavScss.includes('.home-feed-tabs') &&
-    !gamesHomeDiscoveryNavScss.includes('.home-category-links'),
-  'games discovery navigation must use a horizontal text-tab rail with an overflow fallback'
+  homeHtml.includes('class="game-home-banner"') &&
+    homeHtml.includes('class="game-category-rail"') &&
+    homeHtml.includes('class="game-category-rail-grid"') &&
+    homeHtml.includes('class="game-category-quick-links"') &&
+    gamesHomeDiscoveryNavScss.includes('.game-category-rail') &&
+    gamesHomeDiscoveryNavScss.includes('.game-category-rail-grid') &&
+    gamesHomeDiscoveryNavScss.includes('overflow-x: auto;'),
+  'games discovery navigation must use a grouped category rail with an overflow fallback'
 )
 assert(
-  gamesHomeDiscoveryNavScss.includes('background: transparent;') &&
-    gamesHomeDiscoveryNavScss.includes('border-bottom: 2px solid transparent;') &&
+  gamesHomeDiscoveryNavScss.includes('background: var(--game-surface-alt);') &&
     gamesHomeDiscoveryNavScss.includes('min-height: 44px;') &&
-    gamesHomeDiscoveryNavScss.includes('border-bottom: 2px solid var(--game-brand);') &&
     !gamesHomeDiscoveryNavScss.includes('linear-gradient') &&
-    !gamesHomeDiscoveryNavScss.includes('background: var(--game-brand-soft);'),
-  'discovery navigation must use quiet text tabs with a single underline active state'
+    gamesHomeDiscoveryNavScss.includes('color: var(--game-brand-deep);'),
+  'discovery navigation must use quiet neutral chips with a clear active state'
+)
+assert(
+  gameCommunityTokens.includes('--game-hot: #fb7299') &&
+    gameCommunityTokens.includes('--game-media-overlay: rgb(24 25 28 / 72%)') &&
+    gameCommunityTokens.includes('--game-banner-height:'),
+  'GameHub tokens must define the restrained hot accent, media overlay, and home banner height'
 )
 const featuredScss2 = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 assert(
@@ -671,13 +678,14 @@ assert(
   'game search must use the shared content-platform field surface'
 )
 assert(
-  gameCardHtml.includes('cover-poster-kicker') && gameCardHtml.includes('cover-poster-index'),
-  'game card fallbacks must expose poster hierarchy labels'
+  gameCardHtml.includes('class="game-cover-placeholder-art"') && gameCardHtml.includes('class="game-cover-meta"'),
+  'game card fallbacks must expose scenic media art and overlaid metadata'
 )
 assert(
   featuredHtml.includes('featured-cover-copy') &&
-    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/.test(featuredScss),
-  'featured discovery must expose a readable in-cover hierarchy and two-column side rail'
+    featuredHtml.includes('game-featured-placeholder-art') &&
+    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/.test(featuredScss),
+  'featured discovery must expose a readable in-cover hierarchy and three-column side rail'
 )
 assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
@@ -1695,18 +1703,16 @@ assert(
   'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(
-  headerScss.includes('background-color: var(--game-surface);') &&
-    headerScss.includes('background-image: none;') &&
+  headerScss.includes('background: transparent;') &&
+    headerScss.includes('border-bottom: 0;') &&
+    /:host-context\(.game-experience\.game-header-scrolled\) \.root\s*\{[\s\S]*?background-color: var\(--game-surface\);/.test(headerScss) &&
     !headerScss.includes('backdrop-filter: blur(16px) saturate(1.5);') &&
-    !headerScss.includes("url('../../assets/images/gamehub-header-banner-10x1.png')") &&
-    !headerScss.includes('background-size: auto var(--game-header-expanded-height);') &&
     headerScss.includes('height: var(--header-height);') &&
     appScss.includes('--header-height: 56px;') &&
     !appScss.includes('--header-height: 200px;') &&
     !appScss.includes('--header-height: 50px;') &&
-    !/\.home-discovery-nav\s*\{[\s\S]*?position:\s*(?:sticky|fixed);/.test(gamesHomeDiscoveryNavScss) &&
-    /\.home-discovery-links\s*\{[\s\S]*?overflow-x:\s*auto;/.test(gamesHomeDiscoveryNavScss),
-  'GameHub desktop header must keep the opaque white surface, no banner image, fixed 56px height, and a page-scrolling discovery nav'
+    /\.game-category-rail\s*\{[\s\S]*?background:\s*var\(--game-surface\);/.test(gamesHomeDiscoveryNavScss),
+  'GameHub desktop header must float over the home banner and become an opaque white bar after scrolling'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&

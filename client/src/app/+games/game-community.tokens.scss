@@ -24,7 +24,8 @@ body {
   --game-search-surface: #f1f2f3;
   --game-page-wash: transparent;
   --game-overlay: rgb(24 25 28 / 58%);
-  --game-content-width: 1280px;
+  --game-content-width: 1800px;
+  --game-banner-height: clamp(10.5rem, 15vw, 12.5rem);
 
   /* ---- 排版层级 ---- */
   --game-font-size-page-title: clamp(1.625rem, 3vw, 2rem);
@@ -58,6 +59,8 @@ body {
   --game-brand-border: #b9dce8;
   --game-brand-glow: transparent;
   --game-brand-contrast: #ffffff;
+  --game-hot: #fb7299;
+  --game-hot-soft: #fff0f4;
 
   /* ---- 辅助强调：链接和焦点 ---- */
   --game-accent: #007ea7;
@@ -90,12 +93,15 @@ body {
   --game-media-surface-soft: #d7e8ef;
   --game-media-border: #bdd7e1;
   --game-media-mark: #6e9caf;
+  --game-media-overlay: rgb(24 25 28 / 72%);
+  --game-media-overlay-soft: rgb(24 25 28 / 58%);
+  --game-banner-overlay: rgb(24 25 28 / 18%);
 
   /* ---- 圆角阶梯 ---- */
   --game-radius-xs: 4px;
-  --game-radius-sm: 12px;
-  --game-radius-md: 14px;
-  --game-radius-lg: 16px;
+  --game-radius-sm: 8px;
+  --game-radius-md: 10px;
+  --game-radius-lg: 12px;
   --game-radius-pill: 999px;
   --game-radius-bubble-incoming: 0.25rem 0.65rem 0.65rem;
   --game-radius-bubble-outgoing: 0.65rem 0.25rem 0.65rem 0.65rem;
@@ -111,7 +117,7 @@ body {
   --game-radius-control: 12px;
   --game-space-page: clamp(1rem, 2.4vw, 2rem);
   --game-space-section: clamp(1.5rem, 3vw, 2.5rem);
-  --game-space-grid: 1rem;
+  --game-space-grid: clamp(0.7rem, 1.1vw, 1rem);
   --game-space-control: 0.75rem;
   --game-focus-ring: 0 0 0 3px rgb(0 126 167 / 24%);
   --game-input-autofill-shadow: 0 0 0 1000px var(--game-surface-alt) inset;

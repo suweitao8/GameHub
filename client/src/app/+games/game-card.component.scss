@@ -5,13 +5,14 @@
   min-width: 0;
 }
 
-/* 游戏卡片：让封面承担内容，文字承担解释，外层不再套白色卡框 */
+/* 内容卡只保留媒体、标题和作者三层信息，不再给每张卡套厚重白框。 */
 .game-card {
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
   display: block;
+  min-width: 0;
   overflow: visible;
   transition: transform var(--game-dur) var(--game-ease);
 }
@@ -56,101 +57,107 @@
   transform: scale(1.045);
 }
 
-.game-cover.placeholder {
-  background: var(--game-cover-fallback);
-  display: grid;
-  isolation: isolate;
-  place-items: center;
+.game-cover-placeholder-art {
+  background-image: url('/client/assets/images/gamehub-header-banner.png');
+  background-position: center 62%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  inset: 0;
+  position: absolute;
+  transform: scale(1.02);
+  transition: transform var(--game-dur-slow) var(--game-ease);
+}
+
+.game-cover-placeholder-art.position-left {
+  background-position: 22% 62%;
+}
+
+.game-cover-placeholder-art.position-right {
+  background-position: 78% 62%;
 }
 
 .game-cover.placeholder::before {
-  border: 1px solid var(--game-media-border);
-  border-radius: var(--game-radius-sm);
+  background: var(--game-banner-overlay);
   content: '';
-  inset: 0.5rem;
+  inset: 0;
   pointer-events: none;
   position: absolute;
-}
-
-.game-cover.placeholder::after {
-  background: var(--game-brand-vivid);
-  border-radius: var(--game-radius-pill);
-  bottom: 0.7rem;
-  content: '';
-  height: 0.18rem;
-  left: 0.75rem;
-  pointer-events: none;
-  position: absolute;
-  width: 2.6rem;
-  z-index: 2;
-}
-
-.game-card:hover .game-cover.placeholder,
-.game-card-main:focus-visible .game-cover.placeholder {
-  background: var(--game-cover-fallback-hover);
-  border-color: var(--game-brand-border);
-}
-
-.cover-watermark {
-  color: var(--game-cover-mark);
-  font-size: clamp(2.75rem, 4.2vw, 4rem);
-  font-weight: 800;
-  left: 50%;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  opacity: 0.82;
-  pointer-events: none;
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -52%);
-  user-select: none;
   z-index: 1;
 }
 
-.cover-poster-kicker,
-.cover-poster-index {
-  color: var(--game-brand-deep);
+.game-card:hover .game-cover-placeholder-art,
+.game-card-main:focus-visible .game-cover-placeholder-art {
+  transform: scale(1.065);
+}
+
+.game-cover-badge {
+  background: var(--game-media-overlay);
+  border-radius: var(--game-radius-xs);
+  color: var(--game-text-inverse);
   font-size: var(--game-font-size-xs);
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  pointer-events: none;
-  position: absolute;
-  text-transform: uppercase;
-  z-index: 2;
-}
-
-.cover-poster-kicker {
-  left: 0.85rem;
-  top: 0.8rem;
-}
-
-.cover-poster-index {
-  bottom: 0.68rem;
-  right: 0.78rem;
-  letter-spacing: 0.04em;
-  max-width: 45%;
+  font-weight: 700;
+  left: 0.55rem;
+  line-height: 1.2;
+  max-width: calc(100% - 1.1rem);
   overflow: hidden;
+  padding: 0.25rem 0.4rem;
+  position: absolute;
   text-overflow: ellipsis;
+  top: 0.55rem;
   white-space: nowrap;
+  z-index: 3;
+}
+
+.game-cover-meta {
+  align-items: center;
+  background: var(--game-media-overlay);
+  bottom: 0;
+  color: var(--game-text-inverse);
+  display: flex;
+  gap: 0.7rem;
+  left: 0;
+  min-height: 1.8rem;
+  padding: 0.25rem 0.55rem;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+}
+
+.game-cover-stat {
+  align-items: center;
+  display: inline-flex;
+  font-size: var(--game-font-size-xs);
+  gap: 0.24rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.game-cover-stat my-global-icon {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 0.82rem;
+  height: 0.82rem;
+  justify-content: center;
+  width: 0.82rem;
+}
+
+.game-cover-stat my-global-icon ::ng-deep svg {
+  display: block;
+  height: 100%;
+  stroke-width: 2.1;
+  width: 100%;
+}
+
+.game-cover-stat > span {
+  color: inherit;
+  display: inline-block;
+  font-size: var(--game-font-size-xs);
+  line-height: 1;
 }
 
 .game-card-body {
   min-width: 0;
   padding: 0.55rem 0.05rem 0;
-}
-
-.game-card-category {
-  color: var(--game-brand);
-  display: block;
-  font-size: var(--game-font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
-  margin-bottom: 0.28rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .game-card h3 {
@@ -173,12 +180,7 @@
 }
 
 .game-card-meta-line {
-  align-items: center;
-  color: var(--game-text-secondary);
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 0.38rem;
-  min-height: 1rem;
+  display: none;
 }
 
 .game-card-stat {
@@ -191,28 +193,9 @@
 }
 
 .game-card-stat my-global-icon {
-  align-items: center;
-  color: inherit;
   display: inline-flex;
-  flex: 0 0 0.82rem;
   height: 0.82rem;
-  justify-content: center;
-  line-height: 0;
   width: 0.82rem;
-}
-
-.game-card-stat my-global-icon ::ng-deep svg {
-  display: block;
-  height: 100%;
-  stroke-width: 2.1;
-  width: 100%;
-}
-
-.game-card-stat span {
-  color: inherit;
-  display: inline-block;
-  font-size: var(--game-font-size-xs);
-  line-height: 1;
 }
 
 .game-card-author {
@@ -220,8 +203,8 @@
   color: var(--game-text-secondary);
   display: flex;
   font-size: var(--game-font-size-sm);
-  gap: 0.42rem;
-  margin-top: 0.42rem;
+  gap: 0.38rem;
+  margin-top: 0.4rem;
   min-width: 0;
 }
 
@@ -277,15 +260,10 @@
 }
 
 @keyframes cardSkeletonPulse {
-
   0%,
-  100% {
-    opacity: 0.72;
-  }
+  100% { opacity: 0.72; }
 
-  50% {
-    opacity: 1;
-  }
+  50% { opacity: 1; }
 }
 
 /* Search highlight：软底高亮，保持正文的阅读连续性 */
@@ -311,11 +289,6 @@
     font-size: var(--game-font-size-md);
   }
 
-  .game-card-meta-line {
-    gap: 0.45rem;
-    margin-top: 0.28rem;
-  }
-
   .game-card-author {
     gap: 0.18rem;
     font-size: var(--game-font-size-xs);
@@ -338,23 +311,9 @@
   .game-card-time {
     font-size: var(--game-font-size-xs);
   }
-
-  .game-card-stat {
-    gap: 0.1rem;
-  }
-
-  .game-card-stat my-global-icon {
-    flex-basis: 0.68rem;
-    height: 0.68rem;
-    width: 0.68rem;
-  }
 }
 
 @media (max-width: 420px) {
-  .game-card-category {
-    margin-bottom: 0.2rem;
-  }
-
   .game-card h3 {
     font-size: var(--game-font-size-sm);
   }
@@ -362,16 +321,12 @@
   .game-card-author {
     gap: 0.15rem;
   }
-
-  .game-card-stat span {
-    font-size: var(--game-font-size-xs);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .game-card,
   .game-cover img,
+  .game-cover-placeholder-art,
   .game-card h3,
   .author-name-link {
     transition: none;
@@ -383,7 +338,9 @@
   }
 
   .game-card:hover .game-cover img,
-  .game-card-main:focus-visible .game-cover img {
+  .game-card-main:focus-visible .game-cover img,
+  .game-card:hover .game-cover-placeholder-art,
+  .game-card-main:focus-visible .game-cover-placeholder-art {
     transform: none;
   }
 

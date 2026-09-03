@@ -114,6 +114,7 @@ const featuredTypescript = read('client/src/app/+games/games-home/featured-carou
 const featuredStyles = read('client/src/app/+games/games-home/featured-carousel.component.scss')
 const homeLayout = read('client/src/app/+games/games-home/_layout.scss')
 const homeDiscovery = read('client/src/app/+games/games-home/_discovery-nav.scss')
+const homeTemplate = read('client/src/app/+games/games-home.component.html')
 const gameSectionTypescript = read('client/src/app/+games/games-home/game-section.component.ts')
 const cardStyles = read('client/src/app/+games/game-card.component.scss')
 const followerGrowthTypescript = read('client/src/app/+games/analytics/follower-growth-chart.component.ts')
@@ -188,15 +189,19 @@ assert(
   'GameHub search must keep one input border and one input-owned focus ring'
 )
 assert(
-  homeDiscovery.includes('background: transparent;') &&
-    homeDiscovery.includes('border-bottom: 2px solid transparent;') &&
-    homeDiscovery.includes('min-height: 44px;'),
-  'GameHub discovery navigation must use a text-tab rhythm with a 44px touch target'
+  homeTemplate.includes('class="game-home-banner"') &&
+    homeTemplate.includes('class="game-category-rail"') &&
+    homeTemplate.includes('class="game-category-rail-grid"') &&
+    homeTemplate.includes('class="game-category-quick-links"'),
+  'GameHub home must expose a banner, grouped category rail, and secondary discovery links'
 )
 assert(
-  homeDiscovery.includes('border-bottom: 2px solid var(--game-brand);') &&
-    !homeDiscovery.includes('background: var(--game-brand-soft);'),
-  'GameHub discovery navigation must express the active state with an underline instead of a row of pills'
+  homeDiscovery.includes('.game-category-rail') &&
+    homeDiscovery.includes('.game-category-rail-grid') &&
+    homeDiscovery.includes('min-height: 44px;') &&
+    homeDiscovery.includes('background: var(--game-surface-alt);') &&
+    !homeDiscovery.includes('linear-gradient'),
+  'GameHub discovery navigation must use a grouped two-row rail with accessible chip targets'
 )
 assert(
   navigation.includes('background: var(--game-search-surface);'),
@@ -205,8 +210,10 @@ assert(
 assert(
   cardTemplate.includes('game-card-category') &&
     cardTemplate.includes('game-card-meta-line') &&
-    !cardTemplate.includes('class="game-card-meta"'),
-  'Game cards must place category and stats in the content body instead of a dark cover strip'
+    cardTemplate.includes('class="game-cover-meta"') &&
+    cardTemplate.includes('class="game-cover-placeholder-art"') &&
+    !cardTemplate.includes('class="cover-watermark"'),
+  'Game cards must expose media metadata and a scenic placeholder instead of a giant initial'
 )
 assert(
   cardStyles.includes('background: transparent;') &&
@@ -216,18 +223,21 @@ assert(
   'Standard game cards must be image-led content units without the old white-box chrome'
 )
 assert(
-  featuredStyles.includes('grid-template-columns: repeat(12, minmax(0, 1fr));') &&
-    /\.featured-carousel\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles) &&
-    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-column:\s*span 6;/.test(featuredStyles),
-  'Featured discovery must use a 12-column lead-and-side content composition'
+  featuredStyles.includes('grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));') &&
+    /\.featured-carousel\s*\{[\s\S]{0,900}grid-column:\s*1;/.test(featuredStyles) &&
+    /\.featured-side-grid\s*\{[\s\S]{0,900}grid-column:\s*2\s*\/\s*-1;/.test(featuredStyles),
+  'Featured discovery must use a wide lead with a three-column side media rail'
 )
 assert(
-  /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/.test(featuredStyles),
-  'Featured side cards must stay readable in a two-column content rail'
+  /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/.test(featuredStyles) &&
+    !featuredStyles.includes('.featured-side-grid .game-card-main {\n  column-gap'),
+  'Featured side cards must stay vertical in a three-column content rail'
 )
 assert(
-  cardTemplate.includes('cover-poster-kicker') && cardTemplate.includes('cover-poster-index'),
-  'Game cards must expose semantic poster fallback labels'
+  cardStyles.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
+    cardStyles.includes('.game-cover-meta') &&
+    cardStyles.includes('background: var(--game-media-overlay);'),
+  'Game card media must use the shared scenic fallback and solid metadata overlay'
 )
 assert(
   featuredTemplate.includes('featured-cover-copy'),
@@ -235,8 +245,8 @@ assert(
 )
 assert(
   homeLayout.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
-    homeLayout.includes('max-width: 1280px'),
-  'Game discovery grids must stay dense while using the shared 1280px content rail'
+    homeLayout.includes('max-width: var(--game-content-width)'),
+  'Game discovery grids must stay dense while using the wide shared content rail'
 )
 assert(
   gameSectionTypescript.includes('background: transparent;') &&

@@ -1,6 +1,6 @@
 @if (isVisible()) {
   <article class="game-card">
-    <a class="game-card-main" [routerLink]="['/games', game().uuid]" [attr.aria-label]="'打开游戏：' + game().title">
+    <a class="game-card-main" [routerLink]="['/games', game().uuid]" [attr.aria-label]="'打开游戏：' + game().title" i18n-aria-label>
       <div class="game-cover" [class.placeholder]="!game().coverPath || coverUnavailable()">
         @if (game().coverPath && !coverUnavailable()) {
           <img
@@ -14,15 +14,23 @@
             (error)="onCoverError()"
           >
         } @else {
-          <span class="cover-poster-kicker" aria-hidden="true">GAMEHUB / PLAY</span>
-          <span class="cover-watermark" aria-hidden="true">{{ coverInitial() }}</span>
-          <span class="cover-poster-index" aria-hidden="true">{{ categoryLabel() }}</span>
+          <span
+            class="game-cover-placeholder-art"
+            [class.position-left]="coverPosition() === 'left'"
+            [class.position-center]="coverPosition() === 'center'"
+            [class.position-right]="coverPosition() === 'right'"
+            aria-hidden="true"
+          ></span>
         }
+        <span class="game-cover-badge game-card-category" aria-hidden="true">{{ categoryLabel() }}</span>
+        <div class="game-cover-meta" aria-label="游戏数据" i18n-aria-label>
+          <span class="game-cover-stat"><my-global-icon iconName="play" aria-hidden="true" /><span>{{ formatCount(game().playCount) }}</span></span>
+          <span class="game-cover-stat"><my-global-icon iconName="message-circle" aria-hidden="true" /><span>{{ formatCount(game().comments) }}</span></span>
+        </div>
       </div>
       <div class="game-card-body">
-        <span class="game-card-category">{{ categoryLabel() }}</span>
         <h3 [innerHTML]="game().title | highlight: searchTerm()"></h3>
-        <div class="game-card-meta-line" aria-label="游戏数据">
+        <div class="game-card-meta-line" aria-hidden="true" hidden>
           <span class="game-card-stat"><my-global-icon iconName="play" /><span>{{ formatCount(game().playCount) }}</span></span>
           <span class="game-card-stat"><my-global-icon iconName="message-circle" /><span>{{ formatCount(game().comments) }}</span></span>
         </div>

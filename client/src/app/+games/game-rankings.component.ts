@@ -40,7 +40,7 @@ import { map } from 'rxjs/operators'
               @if (game.coverPath) {
                 <img [src]="game.coverPath" [alt]="game.title" loading="lazy">
               } @else {
-                <div class="cover-placeholder">G</div>
+                <div class="cover-placeholder" aria-hidden="true"></div>
               }
             </div>
             <div class="ranking-info">

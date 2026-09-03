@@ -11,7 +11,6 @@ import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
-import { coverInitial } from '../cover-tone'
 
 /**
  * Big featured carousel + side card grid on the games home page.
@@ -79,9 +78,18 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return game.coverPath
   }
 
-  /** 占位图使用标题首字符，帮助用户在没有封面时识别内容。 */
-  coverInitial (game: Game) {
-    return coverInitial(game.title)
+  formatCount (value: number | undefined) {
+    if (!value) return '0'
+    if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
+    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`
+    return `${value}`
+  }
+
+  formatDate (value: string | null | undefined) {
+    if (!value) return '--'
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return '--'
+    return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit' }).format(date).replaceAll('/', '-')
   }
 
   onFeaturedCoverError (uuid: string) {

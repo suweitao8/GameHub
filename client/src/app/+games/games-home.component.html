@@ -37,11 +37,20 @@
     <div class="game-community-content"><my-game-error-retry [message]="error()" (retry)="loadGames()" /></div>
   } @else if (latest().length === 0 && popular().length === 0 && recommended().length === 0) {
     <div class="game-community-content game-empty-layout">
-      <nav class="home-discovery-nav" aria-label="游戏内容导航">
-        <div class="home-discovery-links">
-          <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
-          <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-          @for (item of categories; track item.id) { <a class="home-category-tab" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
+      <nav class="game-category-rail" aria-label="游戏频道">
+        <div class="game-category-rail-inner">
+          <div class="game-category-featured-links">
+            <a class="game-rail-feature-link game-rail-feature-link-dynamic" routerLink="/games/activity" routerLinkActive="active"><span i18n>动态</span><small i18n>玩家动态</small></a>
+            <a class="game-rail-feature-link game-rail-feature-link-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span i18n>热门</span><small i18n>热门游戏</small></a>
+          </div>
+          <div class="game-category-rail-grid">
+            @for (item of categories; track item.id) { <a class="game-category-chip" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id">{{ item.title }}</a> }
+          </div>
+          <div class="game-category-quick-links">
+            <a routerLink="/games/rankings"><span i18n>排行榜</span><small i18n>热度榜</small></a>
+            <a routerLink="/games/articles"><span i18n>攻略</span><small i18n>玩家专栏</small></a>
+            <a routerLink="/games/events"><span i18n>活动</span><small i18n>正在进行</small></a>
+          </div>
         </div>
       </nav>
       <div class="category-empty" aria-label="暂无游戏">
@@ -60,15 +69,34 @@
       </div>
     </div>
   } @else {
-    <div class="game-community-content">
-      <nav class="home-discovery-nav" aria-label="游戏内容导航">
-        <div class="home-discovery-links">
-          <a class="home-feed-tab home-feed-tab-dynamic" routerLink="/games/activity" routerLinkActive="active"><span>动态</span></a>
-          <a class="home-feed-tab home-feed-tab-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span>热门</span></a>
-          @for (item of categories; track item.id) { <a class="home-category-tab" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id" [class.category-length-2]="item.title.length === 2" [class.category-length-3]="item.title.length === 3">{{ item.title }}</a> }
+    <div class="game-home-content">
+      @if (sort() === 'recommended' && !searchMode() && !search() && !category() && !publishedAfter() && view() !== 'following') {
+        <section class="game-home-banner" aria-labelledby="game-home-banner-title">
+          <div class="game-home-banner-art" aria-hidden="true"></div>
+          <div class="game-home-banner-content game-community-content">
+            <span class="game-home-banner-kicker" i18n>GAMEHUB / DISCOVER</span>
+            <h1 id="game-home-banner-title" i18n>今天玩点什么？</h1>
+            <p i18n>从轻松小游戏到硬核挑战，找到下一款想玩的作品。</p>
+          </div>
+        </section>
+      }
+
+      <nav class="game-category-rail" aria-label="游戏频道">
+        <div class="game-category-rail-inner">
+          <div class="game-category-featured-links">
+            <a class="game-rail-feature-link game-rail-feature-link-dynamic" routerLink="/games/activity" routerLinkActive="active"><span i18n>动态</span><small i18n>玩家动态</small></a>
+            <a class="game-rail-feature-link game-rail-feature-link-hot" routerLink="/games" [queryParams]="{ sort: 'popular' }" [class.active]="sort() === 'popular'"><span i18n>热门</span><small i18n>热门游戏</small></a>
+          </div>
+          <div class="game-category-rail-grid">
+            @for (item of categories; track item.id) { <a class="game-category-chip" routerLink="/games" [queryParams]="item.query" [class.active]="category() === item.id">{{ item.title }}</a> }
+          </div>
+          <div class="game-category-quick-links">
+            <a routerLink="/games/rankings"><span i18n>排行榜</span><small i18n>热度榜</small></a>
+            <a routerLink="/games/articles"><span i18n>攻略</span><small i18n>玩家专栏</small></a>
+            <a routerLink="/games/events"><span i18n>活动</span><small i18n>正在进行</small></a>
+          </div>
         </div>
       </nav>
-
 
       @if (category() && recommended().length) {
         <section class="game-section category-results-section"><div class="game-section-heading"><div><h2>{{ categoryTitle() }}热门游戏</h2></div></div><div class="game-grid">@for (game of recommended(); track game.uuid) { <my-game-card [game]="game" [searchTerm]="search()" /> }</div></section>

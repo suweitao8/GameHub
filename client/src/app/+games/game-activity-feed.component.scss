@@ -54,10 +54,10 @@
 
 .feed-list,
 .feed-skeleton-list {
-  background: var(--game-surface);
-  border: 1px solid var(--game-border);
-  border-radius: var(--game-radius-md);
-  box-shadow: var(--game-shadow-xs);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;

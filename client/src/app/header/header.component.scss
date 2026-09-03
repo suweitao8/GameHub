@@ -52,8 +52,7 @@
   --game-header-focus-ring: var(--game-brand);
 
   align-items: center;
-  background-color: var(--game-surface);
-  background-image: none;
+  background: var(--game-surface);
   border-bottom: 1px solid var(--game-border);
   box-sizing: border-box;
   box-shadow: var(--game-shadow-xs);
@@ -75,7 +74,19 @@
   z-index: 10;
 }
 
+/* 只有首页首屏确实拥有 banner 时才让 header 浮到插画上。 */
+:host-context(.game-experience:has(.game-home-banner)) .root {
+  --game-header-nav-foreground: var(--game-text-inverse);
+
+  background: transparent;
+  border-bottom: 0;
+  box-shadow: none;
+  color: var(--game-text-inverse);
+}
+
 :host-context(.game-experience.game-header-scrolled) .root {
+  --game-header-nav-foreground: var(--game-text-secondary);
+
   background-color: var(--game-surface);
   border-bottom-color: var(--game-border);
   box-shadow: var(--game-shadow-xs);
@@ -1172,6 +1183,15 @@ my-actor-avatar {
 }
 
 @media screen and (max-width: $mobile-view) {
+  :host-context(.game-experience:has(.game-home-banner)) .root {
+    --game-header-nav-foreground: var(--game-text-secondary);
+
+    background: var(--game-surface);
+    border-bottom: 1px solid var(--game-border);
+    box-shadow: var(--game-shadow-xs);
+    color: var(--game-text-primary);
+  }
+
   .root {
     --co-logo-size: 48px;
 

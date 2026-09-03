@@ -40,6 +40,19 @@
 
   background: var(--game-page-bg);
 
+  > .root-header {
+    background: var(--game-surface);
+  }
+
+  &:has(.game-home-banner) > .root-header {
+    background: transparent;
+  }
+
+  &.game-header-scrolled > .root-header,
+  &.game-header-scrolled:has(.game-home-banner) > .root-header {
+    background: var(--game-surface);
+  }
+
   @media (min-width: 761px) {
     > .root-header {
       position: fixed;
@@ -71,6 +84,11 @@
 
   @media (max-width: 760px) {
     --header-height: 58px;
+
+    &:has(.game-home-banner) > .root-header {
+      background: var(--game-surface);
+    }
+
     .buttons-container .settings-button,
     .buttons-container .create-account-button,
     .buttons-container .login-label,

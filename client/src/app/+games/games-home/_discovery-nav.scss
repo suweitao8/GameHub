@@ -1,99 +1,186 @@
-/* 发现页导航：轻量文字标签，内容与 active underline 承担层级 */
+/* 首页频道层：用分组和两行密度建立内容平台的入口层级。 */
 
-.home-discovery-nav {
-  align-items: center;
+.game-category-rail {
   background: var(--game-surface);
   border-bottom: 1px solid var(--game-border);
-  display: flex;
-  margin: 0;
+  border-top: 1px solid var(--game-border);
+  margin-inline: auto;
+  max-width: var(--game-content-width);
 }
 
-.home-discovery-links {
+.game-category-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.game-category-rail-inner {
   align-items: stretch;
+  display: grid;
+  gap: var(--game-space-grid);
+  grid-template-columns: 7.25rem minmax(0, 1fr) auto;
+  margin: 0 auto;
+  max-width: var(--game-content-width);
+  padding: 0.6rem 0;
+  width: min(calc(100% - (var(--game-space-page) * 2)), var(--game-content-width));
+}
+
+.game-category-featured-links {
+  border-right: 1px solid var(--game-border);
+  display: grid;
+  gap: 0.2rem;
+  grid-template-columns: 1fr;
+  padding-right: 0.7rem;
+}
+
+.game-rail-feature-link {
+  align-items: center;
+  border-radius: var(--game-radius-sm);
+  color: var(--game-text-secondary);
   display: flex;
-  flex: 1 1 auto;
-  gap: clamp(0.9rem, 2.1vw, 1.55rem);
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.2rem 0.35rem;
+  text-decoration: none;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease);
+}
+
+.game-rail-feature-link > span {
+  color: var(--game-text-primary);
+  font-size: var(--game-font-size-md);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.game-rail-feature-link > small {
+  color: var(--game-text-hint);
+  font-size: var(--game-font-size-xs);
+  line-height: 1.15;
+  margin-top: 0.2rem;
+}
+
+.game-rail-feature-link:hover,
+.game-rail-feature-link:focus-visible {
+  background: var(--game-surface-alt);
+  color: var(--game-text-primary);
+  outline: none;
+}
+
+.game-rail-feature-link-hot.active {
+  background: var(--game-hot-soft);
+}
+
+.game-rail-feature-link-hot.active > span {
+  color: var(--game-hot);
+}
+
+.game-category-rail-grid {
+  display: grid;
+  gap: 0.35rem 0.45rem;
+  grid-auto-columns: minmax(4rem, 1fr);
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, minmax(2.35rem, auto));
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.home-discovery-links::-webkit-scrollbar {
+.game-category-rail-grid::-webkit-scrollbar {
   display: none;
 }
 
-.home-discovery-links a {
+.game-category-chip {
   align-items: center;
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  box-sizing: border-box;
+  background: var(--game-surface-alt);
+  border: 1px solid transparent;
+  border-radius: var(--game-radius-sm);
   color: var(--game-text-secondary);
-  cursor: pointer;
   display: inline-flex;
-  flex: 0 0 auto;
-  font-size: var(--game-font-size-md);
+  font-size: var(--game-font-size-sm);
   font-weight: 600;
   justify-content: center;
   min-height: 44px;
   min-width: 0;
-  padding: 0.65rem 0.1rem 0.55rem;
-  text-align: center;
+  padding: 0.35rem 0.55rem;
   text-decoration: none;
-  transition: border-color var(--game-dur-fast) var(--game-ease),
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    border-color var(--game-dur-fast) var(--game-ease),
     color var(--game-dur-fast) var(--game-ease);
   white-space: nowrap;
 }
 
-.home-discovery-links a.home-category-tab {
-  font-size: var(--game-font-size-sm);
-}
-
-.home-discovery-links a.category-length-2 {
-  letter-spacing: 0.2em;
-  padding-inline-start: 0.3rem;
-}
-
-.home-discovery-links a.category-length-3 {
-  letter-spacing: 0.08em;
-  padding-inline-start: 0.2rem;
-}
-
-.home-discovery-links a:hover,
-.home-discovery-links a:focus-visible {
-  background: transparent;
-  color: var(--game-text-primary);
+.game-category-chip:hover,
+.game-category-chip:focus-visible {
+  border-color: var(--game-brand-border);
+  color: var(--game-brand-deep);
   outline: none;
 }
 
-.home-discovery-links a.home-feed-tab-dynamic,
-.home-discovery-links a.home-feed-tab-hot {
+.game-category-chip.active {
+  background: var(--game-brand-vivid);
+  border-color: var(--game-brand-vivid);
   color: var(--game-text-primary);
-  font-weight: 700;
+  font-weight: 800;
 }
 
-.home-discovery-links a.active,
-.home-discovery-links a.home-feed-tab-dynamic.active,
-.home-discovery-links a.home-feed-tab-hot.active {
-  background: transparent;
-  border-bottom: 2px solid var(--game-brand);
-  color: var(--game-brand-deep);
+.game-category-quick-links {
+  align-items: stretch;
+  border-left: 1px solid var(--game-border);
+  display: grid;
+  gap: 0.3rem;
+  grid-template-columns: repeat(3, minmax(4rem, auto));
+  padding-left: 0.8rem;
+}
+
+.game-category-quick-links a {
+  align-items: center;
+  border-radius: var(--game-radius-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.2rem 0.45rem;
+  text-decoration: none;
+  transition: background-color var(--game-dur-fast) var(--game-ease),
+    color var(--game-dur-fast) var(--game-ease);
+}
+
+.game-category-quick-links a > span {
+  color: var(--game-text-primary);
+  font-size: var(--game-font-size-sm);
   font-weight: 700;
+  line-height: 1.15;
+}
+
+.game-category-quick-links a > small {
+  color: var(--game-text-hint);
+  font-size: var(--game-font-size-xs);
+  line-height: 1.15;
+  margin-top: 0.2rem;
+}
+
+.game-category-quick-links a:hover,
+.game-category-quick-links a:focus-visible {
+  background: var(--game-surface-alt);
+  color: var(--game-brand-deep);
+  outline: none;
 }
 
 /* ---- 骨架屏 ---- */
+
 .game-skeleton-nav {
   align-items: center;
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   margin: 0;
   overflow: hidden;
+  padding: 0.6rem 0;
 }
 
 .game-skeleton-tab {
   animation: gameNavSkeletonPulse 1.4s ease infinite;
   background: var(--game-surface-alt);
-  border-radius: var(--game-radius-xs);
+  border-radius: var(--game-radius-sm);
   flex: 0 0 4.1rem;
   height: 44px;
 }
@@ -107,23 +194,105 @@
 }
 
 @keyframes gameNavSkeletonPulse {
-
   0%,
-  100% {
-    opacity: 0.72;
+  100% { opacity: 0.72; }
+
+  50% { opacity: 1; }
+}
+
+@media (max-width: 1120px) {
+  .game-category-rail-inner {
+    grid-template-columns: 6.4rem minmax(0, 1fr);
   }
 
-  50% {
-    opacity: 1;
+  .game-category-quick-links {
+    border-left: 0;
+    border-top: 1px solid var(--game-border);
+    grid-column: 1 / -1;
+    justify-content: start;
+    padding-left: 0;
+    padding-top: 0.5rem;
+  }
+
+  .game-category-quick-links a {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 0.35rem;
+    justify-content: flex-start;
+  }
+
+  .game-category-quick-links a > small {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .game-category-rail {
+    overflow-x: auto;
+  }
+
+  .game-category-rail-inner {
+    display: flex;
+    gap: 0.55rem;
+    min-width: max-content;
+    overflow-x: auto;
+    padding-block: 0.5rem;
+    width: calc(100% - (var(--game-space-page) * 2));
+  }
+
+  .game-category-featured-links {
+    border-right: 1px solid var(--game-border);
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.2rem;
+    padding-right: 0.55rem;
+  }
+
+  .game-rail-feature-link {
+    min-width: 4.3rem;
+  }
+
+  .game-category-rail-grid {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.35rem;
+    overflow: visible;
+  }
+
+  .game-category-chip {
+    flex: 0 0 4.15rem;
+  }
+
+  .game-category-quick-links {
+    border-left: 1px solid var(--game-border);
+    border-top: 0;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.25rem;
+    padding-left: 0.55rem;
+    padding-top: 0;
+  }
+
+  .game-category-quick-links a {
+    align-items: center;
+    flex-direction: column;
+    gap: 0;
+    justify-content: center;
+    min-width: 4.5rem;
+  }
+
+  .game-category-quick-links a > small {
+    margin-top: 0.2rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-  .home-discovery-links a,
+  .game-rail-feature-link,
+  .game-category-chip,
+  .game-category-quick-links a,
   .game-skeleton-tab,
   .game-skeleton-heading {
-    transition: none;
     animation: none;
+    transition: none;
   }
 }

@@ -2,14 +2,20 @@
 
 .author-page { background: var(--game-page-bg);
   padding-bottom: 4rem; }
-.author-hero { background: var(--game-surface);
+.author-hero { background: var(--game-media-surface);
   border-bottom: 1px solid var(--game-border);
   min-height: 245px;
   overflow: hidden;
   position: relative; }
-.author-hero-banner { background: var(--game-brand-soft);
-  border-left: 1px solid var(--game-brand-border);
-  inset: 0 0 0 58%;
+.author-hero-banner { background-image: url('/client/assets/images/gamehub-header-banner.png');
+  background-position: center 68%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  inset: 0;
+  position: absolute; }
+.author-hero-banner::after { background: var(--game-banner-overlay);
+  content: '';
+  inset: 0;
   position: absolute; }
 .author-hero-inner { align-items: flex-end;
   display: flex;
@@ -31,13 +37,14 @@
   image-rendering: auto;
   object-fit: cover;
   width: 7rem; }
-.author-profile { color: var(--game-text-primary);
+.author-profile { color: var(--game-text-inverse);
   min-width: 0;
-  text-shadow: none; }
-.author-profile-kicker { background: var(--game-brand-soft);
-  border: 1px solid var(--game-brand-border);
+  text-shadow: var(--game-shadow);
+  z-index: 1; }
+.author-profile-kicker { background: var(--game-media-overlay);
+  border: 1px solid var(--game-media-border);
   border-radius: var(--game-radius-xs);
-  color: var(--game-brand-deep);
+  color: var(--game-text-inverse);
   display: inline-flex;
   font-size: var(--game-font-size-xs);
   letter-spacing: 0.04em;
@@ -45,14 +52,14 @@
   padding: 0.22rem 0.6rem; }
 .author-profile h1 { font-size: var(--game-font-size-hero-title);
   margin: 0; }
-.author-profile > p { color: var(--game-text-secondary);
+.author-profile > p { color: var(--game-text-inverse);
   margin: 0.4rem 0 0;
   max-width: 52rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap; }
 .author-profile-meta { align-items: center;
-  color: var(--game-text-secondary);
+  color: var(--game-text-inverse);
   display: flex;
   flex-wrap: wrap;
   font-size: var(--game-font-size-sm);
@@ -186,11 +193,7 @@
   .author-navigation-row { margin-top: 0.6rem; }
   .author-main { padding-top: 1rem; }
   .author-main .game-grid { gap: 0.65rem; }
-  .author-hero-banner {
-    border-bottom: 1px solid var(--game-brand-border);
-    border-left: 0;
-    inset: 0 0 55%;
-  }
+  .author-hero-banner { inset: 0; }
 }
 
 /* Skeleton loading */
