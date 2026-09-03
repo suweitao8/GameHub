@@ -15,6 +15,7 @@ import { shareReplay, Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
@@ -570,6 +571,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return buildGameAvatarDataUrl(game.author?.displayName || game.author?.name || 'GameHub 玩家')
   }
 
+  getGameNavCoverUrl (game: { uuid: string; title: string; coverPath: string | null; category?: string } | null | undefined) {
+    if (!game) return buildGameCoverDataUrl('动态')
+    if (game.coverPath && !this.gameNavCoverFallbacks()[game.uuid]) return game.coverPath
+    return buildGameCoverDataUrl(game.title, game.category)
+  }
+
   /** 将 ISO 时间字符串格式化为"3小时前"风格的相对时间 */
   formatRelativeTime (isoTime: string | null | undefined): string {
     if (!isoTime) return ''
@@ -585,6 +592,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onGameNavCoverError (uuid: string) {
+    if (!uuid) return
     this.gameNavCoverFallbacks.update(state => ({ ...state, [uuid]: true }))
   }
 

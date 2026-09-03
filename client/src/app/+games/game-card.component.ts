@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, signal, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 import { Game } from './games.service'
 import { HighlightPipe } from './highlight.pipe'
 
@@ -63,9 +64,14 @@ export class GameCardComponent implements OnInit, OnDestroy {
     return this.categoryLabels[this.game().category] || '小游戏'
   }
 
-  coverPosition () {
-    const seed = this.game().title.split('').reduce((total, character) => total + character.charCodeAt(0), 0)
-    return [ 'left', 'center', 'right' ][seed % 3] as 'left' | 'center' | 'right'
+  generatedCoverUrl () {
+    const game = this.game()
+    return buildGameCoverDataUrl(game.title, game.category)
+  }
+
+  coverUrl () {
+    const game = this.game()
+    return game.coverPath && !this.coverUnavailable() ? game.coverPath : this.generatedCoverUrl()
   }
 
   onCoverError () {

@@ -9,6 +9,7 @@ import {
 } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
+import { buildGameCoverDataUrl } from '../../shared/game-cover'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
 
@@ -33,7 +34,7 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Cover URLs that failed to load -> show the same neutral placeholder as no-cover games. */
+  /** Uploaded cover URLs that failed to load -> use the deterministic title cover. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private touchStartX = 0
@@ -74,8 +75,8 @@ export class FeaturedCarouselComponent implements OnDestroy {
   }
 
   featuredCoverPath (game: Game) {
-    if (!game.coverPath || this.brokenFeaturedCovers()[game.uuid]) return null
-    return game.coverPath
+    if (game.coverPath && !this.brokenFeaturedCovers()[game.uuid]) return game.coverPath
+    return buildGameCoverDataUrl(game.title, game.category)
   }
 
   formatCount (value: number | undefined) {

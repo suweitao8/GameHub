@@ -528,16 +528,6 @@
   width: 4.6rem;
 }
 
-.game-nav-cover-fallback {
-  align-items: center;
-  background: var(--game-cover-fallback);
-  color: var(--game-text-primary);
-  display: flex;
-  font-size: var(--game-font-size-lg);
-  font-weight: 800;
-  justify-content: center;
-}
-
 .game-popover-empty {
   color: var(--game-text-hint);
   font-size: var(--game-font-size-sm);

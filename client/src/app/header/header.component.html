@@ -215,11 +215,7 @@
                     <span class="game-nav-game">{{ notification.game?.title || notification.message }}</span>
                     <small class="game-nav-time">{{ formatRelativeTime(notification.createdAt) }}</small>
                   </span>
-                  @if (notification.game?.coverPath && !gameNavCoverFallbacks()[notification.game.uuid]) {
-                    <img class="game-nav-cover" [src]="notification.game!.coverPath!" [alt]="notification.game!.title" loading="lazy" (error)="onGameNavCoverError(notification.game!.uuid)">
-                  } @else {
-                    <div class="game-nav-cover game-nav-cover-fallback"><span>{{ (notification.game?.title || 'G').charAt(0) }}</span></div>
-                  }
+                  <img class="game-nav-cover" [src]="getGameNavCoverUrl(notification.game)" [alt]="notification.game?.title || ''" loading="lazy" (error)="onGameNavCoverError(notification.game?.uuid || '')">
                 </a>
               } @empty { @if (!isGameNavLoading('notifications')) { <p class="game-popover-empty">暂时没有新的动态</p> } }
               <footer><a routerLink="/games/notifications">查看全部动态</a></footer>
@@ -245,11 +241,7 @@
                     <span class="game-nav-game">{{ game.title }}</span>
                     <small class="game-nav-time">{{ formatRelativeTime(game.publishedAt || game.createdAt) }}</small>
                   </span>
-                  @if (game.coverPath && !gameNavCoverFallbacks()[game.uuid]) {
-                    <img class="game-nav-cover" [src]="game.coverPath" [alt]="game.title" loading="lazy" (error)="onGameNavCoverError(game.uuid)">
-                  } @else {
-                    <div class="game-nav-cover game-nav-cover-fallback"><span>{{ game.title.charAt(0) || 'G' }}</span></div>
-                  }
+                  <img class="game-nav-cover" [src]="getGameNavCoverUrl(game)" [alt]="game.title" loading="lazy" (error)="onGameNavCoverError(game.uuid)">
                 </a>
               } @empty { @if (!isGameNavLoading('favorites')) { <p class="game-popover-empty">还没有收藏游戏</p> } }
               <footer><a routerLink="/games/library" [queryParams]="{ tab: 'favorites' }">查看全部收藏</a></footer>
@@ -275,11 +267,7 @@
                     <span class="game-nav-game">{{ game.title }}</span>
                     <small class="game-nav-time">{{ formatRelativeTime(game.publishedAt || game.createdAt) }}</small>
                   </span>
-                  @if (game.coverPath && !gameNavCoverFallbacks()[game.uuid]) {
-                    <img class="game-nav-cover" [src]="game.coverPath" [alt]="game.title" loading="lazy" (error)="onGameNavCoverError(game.uuid)">
-                  } @else {
-                    <div class="game-nav-cover game-nav-cover-fallback"><span>{{ game.title.charAt(0) || 'G' }}</span></div>
-                  }
+                  <img class="game-nav-cover" [src]="getGameNavCoverUrl(game)" [alt]="game.title" loading="lazy" (error)="onGameNavCoverError(game.uuid)">
                 </a>
               } @empty { @if (!isGameNavLoading('history')) { <p class="game-popover-empty">还没有游玩记录</p> } }
               <footer><a routerLink="/games/library" [queryParams]="{ tab: 'recent' }">查看全部历史</a></footer>

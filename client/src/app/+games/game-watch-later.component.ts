@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { RouterLink } from '@angular/router'
 import { WatchLaterService, WatchLaterItem } from './watch-later.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 
 @Component({
   selector: 'my-game-watch-later',
@@ -30,11 +31,9 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
               @for (item of items(); track item.uuid) {
                 <div class="watch-later-item">
                   <a class="watch-later-card" [routerLink]="['/games', item.uuid]">
-                    @if (item.coverPath) {
-                      <div class="watch-later-cover"><img [src]="item.coverPath" [alt]="item.title" loading="lazy" /></div>
-                    } @else {
-                      <div class="watch-later-placeholder">{{ item.title?.[0] || '?' }}</div>
-                    }
+                    <div class="watch-later-cover">
+                      <img [src]="coverUrl(item)" [alt]="item.title + ' 封面'" loading="lazy" (error)="onCoverError(item)" />
+                    </div>
                     <div class="watch-later-info">
                       <strong>{{ item.title }}</strong>
                       @if (item.authorName) { <span>{{ item.authorName }}</span> }
@@ -59,6 +58,7 @@ export class GameWatchLaterComponent implements OnInit {
   private readonly watchLaterService = inject(WatchLaterService)
 
   readonly items = signal<WatchLaterItem[]>([])
+  readonly coverFallbacks = signal<Record<string, true>>({})
 
   ngOnInit () {
     this.loadItems()
@@ -71,6 +71,16 @@ export class GameWatchLaterComponent implements OnInit {
   remove (uuid: string) {
     this.watchLaterService.remove(uuid)
     this.items.update(items => items.filter(item => item.uuid !== uuid))
+  }
+
+  coverUrl (item: WatchLaterItem) {
+    if (item.coverPath && !this.coverFallbacks()[item.uuid]) return item.coverPath
+    return buildGameCoverDataUrl(item.title)
+  }
+
+  onCoverError (item: WatchLaterItem) {
+    if (!item.coverPath || this.coverFallbacks()[item.uuid]) return
+    this.coverFallbacks.update(state => ({ ...state, [item.uuid]: true }))
   }
 
   formatDate (dateString: string): string {

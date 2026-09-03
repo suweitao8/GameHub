@@ -142,7 +142,7 @@ export class GameUploadComponent implements OnDestroy {
     let cover: File | null = this.cover
     if (!cover) {
       try {
-        cover = await this.coverGenerator.generateAutomaticCover(title)
+        cover = await this.coverGenerator.generateAutomaticCover(title, this.category())
       } catch {
         // 自动封面是可选项,失败时仍允许提交
       }

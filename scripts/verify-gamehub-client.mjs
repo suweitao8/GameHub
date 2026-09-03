@@ -108,6 +108,9 @@ const menuHtml = read('client/src/app/menu/menu.component.html')
 const cssVariablesScss = read('client/src/sass/include/_css-variables.scss')
 const primengScss = read('client/src/sass/primeng.scss')
 const coverGeneratorTs = read('client/src/app/+games/services/cover-generator.service.ts')
+const gameCoverTs = read('client/src/app/shared/game-cover.ts')
+const watchLaterTs = read('client/src/app/+games/game-watch-later.component.ts')
+const gameUploadTs = read('client/src/app/+games/game-upload.component.ts')
 const captchaTs = read('server/core/lib/auth/captcha.ts')
 const emailerTs = read('server/core/lib/emailer.ts')
 
@@ -535,27 +538,54 @@ assert(
     !coverToneTs.includes('export function coverToneClass') &&
     coverToneTs.includes('export function coverInitial') &&
     gameCardHtml.includes('class="game-card">') &&
-    gameCardHtml.includes('class="game-cover-placeholder-art"') &&
+    gameCardHtml.includes('coverUrl()') &&
+    gameCardHtml.includes('<img') &&
+    !gameCardHtml.includes('game-cover-placeholder-art') &&
     gameCardHtml.includes('class="game-cover-meta"') &&
     gameCardHtml.includes('game-card-category') &&
     gameCardHtml.includes('class="game-card-meta-line"') &&
     gameCardScss.includes('background: var(--game-cover-fallback-deep);') &&
-    gameCardScss.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
+    gameCoverTs.includes('buildGameCoverDataUrl') &&
+    gameCoverTs.includes('encodeURIComponent') &&
+    gameCardTs.includes('buildGameCoverDataUrl') &&
+    !gameCardScss.includes('gamehub-header-banner.png') &&
     !gameCardScss.includes('linear-gradient') &&
     gameCardScss.includes('-webkit-line-clamp: 2;') &&
     gameCardScss.includes('.game-card:hover h3') &&
     gameCardScss.includes('color: var(--game-brand-deep);') &&
     !gameCardHtml.includes('cover-placeholder-copy') &&
     !gameCardScss.includes('.cover-letter'),
-  'game cards must render scenic placeholders with media stats, body category and two-line titles'
+  'game cards must render generated covers with media stats, body category and two-line titles'
 )
 assert(
   !featuredHtml.includes('coverToneClass(featuredGame)') &&
-    featuredHtml.includes('game-featured-placeholder-art') &&
-    featuredScss.includes('background: var(--game-cover-fallback-deep);') &&
-    featuredScss.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
+    featuredHtml.includes('<img') &&
+    featuredHtml.includes('featuredCoverPath(featuredGame)') &&
+    featuredTs.includes('buildGameCoverDataUrl') &&
+    featuredScss.includes('align-self: stretch;') &&
+    featuredScss.includes('flex: 1;') &&
+    !featuredHtml.includes('game-featured-placeholder-art') &&
     !featuredScss.includes('linear-gradient'),
-  'featured carousel placeholders must share the scenic media surface'
+  'featured carousel must share the generated cover fallback'
+)
+assert(
+  gameRankingsTs.includes('buildGameCoverDataUrl') &&
+    gameRankingsTs.includes('coverUrl(game)') &&
+    !gameRankingsTs.includes('class="cover-placeholder"'),
+  'game rankings must use the generated cover fallback'
+)
+assert(
+  submitHeaderTs.includes('buildGameCoverDataUrl') &&
+    submitHeaderTs.includes('getGameNavCoverUrl') &&
+    submitHeaderHtml.includes('getGameNavCoverUrl(') &&
+    gameUploadTs.includes('let cover: File | null = this.cover') &&
+    gameUploadTs.includes('if (!cover)') &&
+    gameUploadTs.includes('generateAutomaticCover(title, this.category())') &&
+    watchLaterTs.includes('buildGameCoverDataUrl') &&
+    watchLaterTs.includes('coverUrl(item)') &&
+    reservationsTs.includes('buildGameCoverDataUrl') &&
+    reservationsTs.includes('coverUrl(item.game)'),
+  'header, watch-later, and reservation game surfaces must use the generated cover fallback'
 )
 assert(
   notificationHtml.includes('class="notification-item"') &&
@@ -678,14 +708,21 @@ assert(
   'game search must use the shared content-platform field surface'
 )
 assert(
-  gameCardHtml.includes('class="game-cover-placeholder-art"') && gameCardHtml.includes('class="game-cover-meta"'),
-  'game card fallbacks must expose scenic media art and overlaid metadata'
+  gameCardHtml.includes('coverUrl()') &&
+    gameCardHtml.includes('<img') &&
+    gameCardHtml.includes('class="game-cover-meta"') &&
+    gameCardTs.includes('buildGameCoverDataUrl'),
+  'game card fallbacks must expose generated media art and overlaid metadata'
 )
 assert(
   featuredHtml.includes('featured-cover-copy') &&
-    featuredHtml.includes('game-featured-placeholder-art') &&
+    featuredHtml.includes('featuredCoverPath(featuredGame)') &&
+    featuredHtml.includes('<img') &&
+    featuredTs.includes('buildGameCoverDataUrl') &&
+    featuredScss.includes('align-self: stretch;') &&
+    featuredScss.includes('flex: 1;') &&
     /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/.test(featuredScss),
-  'featured discovery must expose a readable in-cover hierarchy and three-column side rail'
+  'featured discovery must expose generated covers, a readable hierarchy, and a three-column side rail'
 )
 assert(
   gameSectionTs.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&
@@ -1079,11 +1116,9 @@ const automaticCoverSource = automaticCoverStart >= 0 && automaticCoverEnd > aut
   : ''
 assert(
   !automaticCoverSource.includes('createLinearGradient') &&
-    automaticCoverSource.includes("--game-cover-fallback") &&
-    automaticCoverSource.includes("--game-brand") &&
-    automaticCoverSource.includes("--game-text-primary") &&
-    automaticCoverSource.includes("--game-text-secondary"),
-  'automatic covers must use the flat light-skin surface and semantic text colors'
+    automaticCoverSource.includes('buildGameCoverDataUrl') &&
+    coverGeneratorTs.includes('buildGameCoverDataUrl'),
+  'automatic covers must use the shared deterministic title-cover generator'
 )
 assert(
   captchaTs.includes("const CHAR_COLORS = [ '#007aa3', '#005a78', '#de5c83', '#109a76', '#92400e' ]") &&
@@ -1484,7 +1519,8 @@ assert(
 assert(
   headerTs.includes('readonly gameNavCoverFallbacks = signal<Record<string, boolean>>') &&
     headerTs.includes('onGameNavCoverError (uuid: string)') &&
-    headerHtml.includes('gameNavCoverFallbacks()[notification.game.uuid]') &&
+    headerHtml.includes('getGameNavCoverUrl(notification.game)') &&
+    !headerHtml.includes('game-nav-cover-fallback') &&
     (headerHtml.match(/onGameNavCoverError\(/g) || []).length >= 3 &&
     headerScss.includes('.game-nav-cover') &&
     /\.game-nav-cover[\s\S]*height: 2\.6rem;[\s\S]*width: 4\.6rem;/.test(headerScss),
@@ -1711,8 +1747,8 @@ assert(
     appScss.includes('--header-height: 56px;') &&
     !appScss.includes('--header-height: 200px;') &&
     !appScss.includes('--header-height: 50px;') &&
-    /\.game-category-rail\s*\{[\s\S]*?background:\s*var\(--game-surface\);/.test(gamesHomeDiscoveryNavScss),
-  'GameHub desktop header must float over the home banner and become an opaque white bar after scrolling'
+    /\.game-category-rail\s*\{[\s\S]*?background:\s*transparent;/.test(gamesHomeDiscoveryNavScss),
+  'GameHub desktop header must float over the home banner and the category rail must remain transparent'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&

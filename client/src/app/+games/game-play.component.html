@@ -116,11 +116,7 @@
               @for (item of developerGames(); track item.uuid) {
                 <a class="related-game-row" [routerLink]="['/games', item.uuid]">
                   <div class="related-game-thumb">
-                    @if ((item.coverPath || item.coverFallback) && !relatedCoverBroken()[item.uuid]) {
-                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy" (error)="onRelatedCoverError(item.uuid)">
-                    } @else {
-                      <span>G</span>
-                    }
+                    <img [src]="relatedCoverUrl(item)" [alt]="item.title + ' 封面'" loading="lazy" (error)="onRelatedCoverError(item)">
                   </div>
                   <div class="related-game-copy">
                     <strong>{{ item.title }}</strong>
@@ -144,11 +140,7 @@
               @for (item of related(); track item.uuid) {
                 <a class="related-game-row" [routerLink]="['/games', item.uuid]">
                   <div class="related-game-thumb">
-                    @if ((item.coverPath || item.coverFallback) && !relatedCoverBroken()[item.uuid]) {
-                      <img [src]="item.coverPath || item.coverFallback!" [alt]="item.title" loading="lazy" (error)="onRelatedCoverError(item.uuid)">
-                    } @else {
-                      <span>G</span>
-                    }
+                    <img [src]="relatedCoverUrl(item)" [alt]="item.title + ' 封面'" loading="lazy" (error)="onRelatedCoverError(item)">
                   </div>
                   <div class="related-game-copy">
                     <strong>{{ item.title }}</strong>

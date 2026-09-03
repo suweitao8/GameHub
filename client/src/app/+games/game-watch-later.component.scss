@@ -41,20 +41,6 @@
   object-fit: cover;
 }
 
-.watch-later-placeholder {
-  width: 5rem;
-  height: 5rem;
-  border-radius: var(--game-radius-xs);
-  background: var(--game-brand);
-  color: var(--game-brand-contrast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
 .watch-later-info {
   flex: 1;
   min-width: 0;

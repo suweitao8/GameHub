@@ -109,9 +109,11 @@ const header = read('client/src/app/header/header.component.scss')
 const navigation = read('client/src/app/header/game-navigation.component.scss')
 const cardTemplate = read('client/src/app/+games/game-card.component.html')
 const cardTypescript = read('client/src/app/+games/game-card.component.ts')
+const gameCover = read('client/src/app/shared/game-cover.ts')
 const featuredTemplate = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredTypescript = read('client/src/app/+games/games-home/featured-carousel.component.ts')
 const featuredStyles = read('client/src/app/+games/games-home/featured-carousel.component.scss')
+const rankingsTypescript = read('client/src/app/+games/game-rankings.component.ts')
 const homeLayout = read('client/src/app/+games/games-home/_layout.scss')
 const homeDiscovery = read('client/src/app/+games/games-home/_discovery-nav.scss')
 const homeTemplate = read('client/src/app/+games/games-home.component.html')
@@ -200,8 +202,9 @@ assert(
     homeDiscovery.includes('.game-category-rail-grid') &&
     homeDiscovery.includes('min-height: 44px;') &&
     homeDiscovery.includes('background: var(--game-surface-alt);') &&
+    homeDiscovery.includes('background: transparent;') &&
     !homeDiscovery.includes('linear-gradient'),
-  'GameHub discovery navigation must use a grouped two-row rail with accessible chip targets'
+  'GameHub discovery navigation must use a transparent grouped rail with accessible chip targets'
 )
 assert(
   navigation.includes('background: var(--game-search-surface);'),
@@ -211,9 +214,11 @@ assert(
   cardTemplate.includes('game-card-category') &&
     cardTemplate.includes('game-card-meta-line') &&
     cardTemplate.includes('class="game-cover-meta"') &&
-    cardTemplate.includes('class="game-cover-placeholder-art"') &&
+    cardTemplate.includes('coverUrl()') &&
+    cardTemplate.includes('<img') &&
+    !cardTemplate.includes('game-cover-placeholder-art') &&
     !cardTemplate.includes('class="cover-watermark"'),
-  'Game cards must expose media metadata and a scenic placeholder instead of a giant initial'
+  'Game cards must render a generated cover image when an uploaded cover is absent'
 )
 assert(
   cardStyles.includes('background: transparent;') &&
@@ -234,14 +239,36 @@ assert(
   'Featured side cards must stay vertical in a three-column content rail'
 )
 assert(
-  cardStyles.includes('background-image: url(\'/client/assets/images/gamehub-header-banner.png\');') &&
+  gameCover.includes('buildGameCoverDataUrl') &&
+    gameCover.includes('encodeURIComponent') &&
+    cardTypescript.includes('buildGameCoverDataUrl') &&
+    cardStyles.includes('.game-cover img') &&
     cardStyles.includes('.game-cover-meta') &&
-    cardStyles.includes('background: var(--game-media-overlay);'),
-  'Game card media must use the shared scenic fallback and solid metadata overlay'
+    cardStyles.includes('background: var(--game-media-overlay);') &&
+    !cardStyles.includes('gamehub-header-banner.png'),
+  'Game card media must use the shared generated cover and solid metadata overlay'
 )
 assert(
   featuredTemplate.includes('featured-cover-copy'),
   'Featured carousel must expose an in-cover title hierarchy'
+)
+assert(
+  featuredTemplate.includes('<img') &&
+    featuredTemplate.includes('featuredCoverPath(featuredGame)') &&
+    !featuredTemplate.includes('game-featured-placeholder-art') &&
+    featuredTypescript.includes('buildGameCoverDataUrl'),
+  'Featured carousel must render the same generated cover fallback as game cards'
+)
+assert(
+  /\.featured-carousel\s*\{[\s\S]{0,260}align-self:\s*stretch;/.test(featuredStyles) &&
+    /\.featured-footer\s*\{[\s\S]{0,420}background:\s*var\(--game-cover-fallback-deep\);[\s\S]{0,420}flex:\s*1;/.test(featuredStyles),
+  'Featured carousel must stretch to the two-row rail and fill the remaining height with a solid cover tone'
+)
+assert(
+  rankingsTypescript.includes('buildGameCoverDataUrl') &&
+    rankingsTypescript.includes('coverUrl(game)') &&
+    !rankingsTypescript.includes('class="cover-placeholder"'),
+  'Game rankings must render a generated cover fallback instead of a scenic placeholder'
 )
 assert(
   homeLayout.includes('grid-template-columns: repeat(5, minmax(0, 1fr));') &&

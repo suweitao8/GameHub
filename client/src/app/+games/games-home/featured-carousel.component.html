@@ -14,17 +14,12 @@
       @for (slide of [carouselIndex()]; track $index) {
         <article
           class="featured-carousel"
-          [class.featured-placeholder]="!featuredCoverPath(featuredGame)"
           (touchstart)="onCarouselTouchStart($event)"
           (touchend)="onCarouselTouchEnd($event)"
         >
           <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]" [attr.aria-label]="'打开推荐游戏：' + featuredGame.title" i18n-aria-label>
-            <div class="featured-cover" [class.is-placeholder]="!featuredCoverPath(featuredGame)">
-              @if (featuredCoverPath(featuredGame); as coverPath) {
-                <img [src]="coverPath" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)">
-              } @else {
-                <span class="game-featured-placeholder-art" aria-hidden="true"></span>
-              }
+            <div class="featured-cover">
+              <img [src]="featuredCoverPath(featuredGame)" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (error)="onFeaturedCoverError(featuredGame.uuid)">
               <span class="game-cover-badge" aria-hidden="true" i18n>推荐</span>
               <div class="featured-cover-copy">
                 <span i18n>推荐游戏</span>

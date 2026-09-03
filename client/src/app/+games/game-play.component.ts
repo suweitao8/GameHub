@@ -9,6 +9,7 @@ import { LoginModalService } from '@app/+login/login-modal.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameCommunity, GameRelatedGame } from './games.service'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { WatchLaterService } from './watch-later.service'
 import { GameRecommendService } from './game-recommend.service'
@@ -203,8 +204,14 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   getDeveloperAvatar (label: string) { return buildGameAvatarDataUrl(label) }
 
-  onRelatedCoverError (uuid: string) {
-    this.relatedCoverBroken.update(state => ({ ...state, [uuid]: true }))
+  relatedCoverUrl (item: GameRelatedGame) {
+    if (item.coverPath && !this.relatedCoverBroken()[item.uuid]) return item.coverPath
+    return buildGameCoverDataUrl(item.title, item.category)
+  }
+
+  onRelatedCoverError (item: GameRelatedGame) {
+    if (!item.coverPath || this.relatedCoverBroken()[item.uuid]) return
+    this.relatedCoverBroken.update(state => ({ ...state, [item.uuid]: true }))
   }
 
   @HostListener('document:keydown', [ '$event' ])

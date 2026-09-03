@@ -57,39 +57,6 @@
   transform: scale(1.045);
 }
 
-.game-cover-placeholder-art {
-  background-image: url('/client/assets/images/gamehub-header-banner.png');
-  background-position: center 62%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  inset: 0;
-  position: absolute;
-  transform: scale(1.02);
-  transition: transform var(--game-dur-slow) var(--game-ease);
-}
-
-.game-cover-placeholder-art.position-left {
-  background-position: 22% 62%;
-}
-
-.game-cover-placeholder-art.position-right {
-  background-position: 78% 62%;
-}
-
-.game-cover.placeholder::before {
-  background: var(--game-banner-overlay);
-  content: '';
-  inset: 0;
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-}
-
-.game-card:hover .game-cover-placeholder-art,
-.game-card-main:focus-visible .game-cover-placeholder-art {
-  transform: scale(1.065);
-}
-
 .game-cover-badge {
   background: var(--game-media-overlay);
   border-radius: var(--game-radius-xs);
@@ -326,7 +293,6 @@
 @media (prefers-reduced-motion: reduce) {
   .game-card,
   .game-cover img,
-  .game-cover-placeholder-art,
   .game-card h3,
   .author-name-link {
     transition: none;
@@ -338,9 +304,7 @@
   }
 
   .game-card:hover .game-cover img,
-  .game-card-main:focus-visible .game-cover img,
-  .game-card:hover .game-cover-placeholder-art,
-  .game-card-main:focus-visible .game-cover-placeholder-art {
+  .game-card-main:focus-visible .game-cover img {
     transform: none;
   }
 

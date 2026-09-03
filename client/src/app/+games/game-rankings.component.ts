@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import type { GameRanking } from './games.service'
 import { GamesService } from './games.service'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 import { createAsyncState } from './shared'
 import { map } from 'rxjs/operators'
 
@@ -37,11 +38,7 @@ import { map } from 'rxjs/operators'
           <a class="ranking-item" [routerLink]="['/games', game.uuid]">
             <span class="rank-number" [class.top3]="i < 3">{{ i + 1 }}</span>
             <div class="ranking-cover">
-              @if (game.coverPath) {
-                <img [src]="game.coverPath" [alt]="game.title" loading="lazy">
-              } @else {
-                <div class="cover-placeholder" aria-hidden="true"></div>
-              }
+              <img [src]="coverUrl(game)" [alt]="game.title + ' 封面'" loading="lazy" (error)="onCoverError(game)">
             </div>
             <div class="ranking-info">
               <h3 class="ranking-title">{{ game.title }}</h3>
@@ -97,6 +94,7 @@ export class GameRankingsComponent implements OnInit {
   hasError = this.rankingsState.hasError
   currentTab = signal<'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
+  readonly rankingCoverFallbacks = signal<Record<string, true>>({})
 
   tabs: { id: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
     { id: 'hot', label: '最热' },
@@ -148,6 +146,16 @@ export class GameRankingsComponent implements OnInit {
       this.gamesService.getRankings(this.currentTab(), 50, this.selectedCategory() || undefined)
         .pipe(map(res => res.data))
     )
+  }
+
+  coverUrl (game: GameRanking) {
+    if (game.coverPath && !this.rankingCoverFallbacks()[game.uuid]) return game.coverPath
+    return buildGameCoverDataUrl(game.title, game.category)
+  }
+
+  onCoverError (game: GameRanking) {
+    if (!game.coverPath || this.rankingCoverFallbacks()[game.uuid]) return
+    this.rankingCoverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
   }
 
   getScoreDisplay (game: GameRanking): string {

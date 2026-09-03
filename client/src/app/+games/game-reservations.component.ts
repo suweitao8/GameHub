@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router'
 import { GamesService } from './games.service'
 import type { Game } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
+import { buildGameCoverDataUrl } from '../shared/game-cover'
 
 @Component({
   selector: 'my-game-reservations',
@@ -33,11 +34,7 @@ import { GlobalIconComponent } from '../shared/shared-icons/global-icon.componen
           @for (item of reservations(); track item.id) {
             <div class="reservation-card">
               <a class="reservation-cover" [routerLink]="['/games', item.game.uuid]">
-                @if (item.game.coverPath) {
-                  <img [src]="item.game.coverPath" [alt]="item.game.title" loading="lazy">
-                } @else {
-                  <div class="placeholder-cover">{{ item.game.title.charAt(0).toUpperCase() }}</div>
-                }
+                <img [src]="coverUrl(item.game)" [alt]="item.game.title + ' 封面'" loading="lazy" (error)="onCoverError(item.game)">
               </a>
               <div class="reservation-info">
                 <a class="reservation-title" [routerLink]="['/games', item.game.uuid]">{{ item.game.title }}</a>
@@ -76,6 +73,7 @@ export class GameReservationsComponent implements OnInit {
   reservations = signal<(ReservationItem & { loading?: boolean })[]>([])
   loading = signal(false)
   error = signal('')
+  readonly coverFallbacks = signal<Record<string, true>>({})
 
   ngOnInit () {
     this.loadReservations()
@@ -94,6 +92,16 @@ export class GameReservationsComponent implements OnInit {
         this.error.set('预约列表加载失败，请稍后重试')
       }
     })
+  }
+
+  coverUrl (game: Game) {
+    if (game.coverPath && !this.coverFallbacks()[game.uuid]) return game.coverPath
+    return buildGameCoverDataUrl(game.title, game.category)
+  }
+
+  onCoverError (game: Game) {
+    if (!game.coverPath || this.coverFallbacks()[game.uuid]) return
+    this.coverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
   }
 
   cancelReservation (id: number, index: number) {

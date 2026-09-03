@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core'
+import { buildGameCoverDataUrl } from '../../shared/game-cover'
 
 /**
- * Generates GameHub game covers from a title (flat light-skin surface + label) or from a
+ * Generates GameHub game covers from a title (deterministic flat SVG + label) or from a
  * runtime screenshot captured by GamePreviewProbeService. Keeps the produced
  * File plus a dataURL preview and the cover source origin ('runtime' |
  * 'generated' | 'manual') as signals the upload form subscribes to.
@@ -11,42 +12,25 @@ export class CoverGeneratorService {
   readonly coverPreview = signal('')
   readonly coverSource = signal<'runtime' | 'generated' | 'manual'>('generated')
 
-  /** Build an automatic light-skin title cover File (1280x720 png). */
-  async generateAutomaticCover (title: string): Promise<File | null> {
-    const canvas = document.createElement('canvas')
-    canvas.width = 1280
-    canvas.height = 720
-    const context = canvas.getContext('2d')
-    if (!context) return null
-
-    const coverFallback = this.getThemeColor('--game-cover-fallback', '#e9edef')
-    const brand = this.getThemeColor('--game-brand', '#008198')
-    const textPrimary = this.getThemeColor('--game-text-primary', '#111b21')
-    const textSecondary = this.getThemeColor('--game-text-secondary', '#667781')
-
-    context.fillStyle = coverFallback
-    context.fillRect(0, 0, canvas.width, canvas.height)
-    context.fillStyle = brand
-    context.fillRect(0, 0, canvas.width, 12)
-    context.fillStyle = 'rgba(17, 27, 33, .06)'
-    context.fillRect(72, 156, canvas.width - 144, 2)
-    context.fillRect(72, 500, canvas.width - 144, 2)
-    context.fillStyle = textPrimary
-    context.font = '800 72px Arial'
-    context.fillText(title.trim() || 'GameHub 游戏', 72, 400)
-    context.font = '600 28px Arial'
-    context.fillStyle = textSecondary
-    context.fillText('GameHub 网页小游戏', 76, 465)
-
-    return new Promise(resolve => canvas.toBlob(blob => {
-      resolve(blob ? new File([ blob ], 'gamehub-auto-cover.png', { type: 'image/png' }) : null)
-    }, 'image/png'))
-  }
-
-  private getThemeColor (variable: string, fallback: string) {
-    if (typeof document === 'undefined' || !document.body) return fallback
-
-    return getComputedStyle(document.body).getPropertyValue(variable).trim() || fallback
+  /** Build an automatic title cover File (1280x720 PNG) from the shared SVG fallback. */
+  async generateAutomaticCover (title: string, category = 'other'): Promise<File | null> {
+    const dataUrl = buildGameCoverDataUrl(title, category)
+    return new Promise(resolve => {
+      const image = new Image()
+      image.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 1280
+        canvas.height = 720
+        const context = canvas.getContext('2d')
+        if (!context) return resolve(null)
+        context.drawImage(image, 0, 0, canvas.width, canvas.height)
+        canvas.toBlob(blob => {
+          resolve(blob ? new File([ blob ], 'gamehub-auto-cover.png', { type: 'image/png' }) : null)
+        }, 'image/png')
+      }
+      image.onerror = () => resolve(null)
+      image.src = dataUrl
+    })
   }
 
   /** Composite a runtime screenshot with a dark title overlay (1280x720 png). */
@@ -105,10 +89,10 @@ export class CoverGeneratorService {
    * Regenerate the cover: prefer the supplied runtime screenshot, otherwise an
    * automatic light-skin cover. Sets the source signal and preview accordingly.
    */
-  async regenerateCover (title: string, runtimeScreenshot: string): Promise<File | null> {
+  async regenerateCover (title: string, runtimeScreenshot: string, category = 'other'): Promise<File | null> {
     const file = runtimeScreenshot
       ? await this.coverFromScreenshot(runtimeScreenshot, title)
-      : await this.generateAutomaticCover(title)
+      : await this.generateAutomaticCover(title, category)
     this.coverSource.set(runtimeScreenshot ? 'runtime' : 'generated')
     this.setCoverPreview(file)
     return file

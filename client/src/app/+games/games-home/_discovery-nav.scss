@@ -1,9 +1,8 @@
 /* 首页频道层：用分组和两行密度建立内容平台的入口层级。 */
 
 .game-category-rail {
-  background: var(--game-surface);
-  border-bottom: 1px solid var(--game-border);
-  border-top: 1px solid var(--game-border);
+  background: transparent;
+  border: 0;
   margin-inline: auto;
   max-width: var(--game-content-width);
 }
