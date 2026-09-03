@@ -154,7 +154,10 @@ assert(!cardTemplate.includes('coverToneClass'), 'Game cards must not attach a m
 assert(!cardTypescript.includes('coverToneClass'), 'Game cards must not import the multicolor cover-tone helper')
 assert(!featuredTemplate.includes('coverToneClass'), 'Featured carousel must not attach a multicolor cover-tone class')
 assert(!featuredTypescript.includes('FEATURED_PLACEHOLDER_AVG_RGB'), 'Featured carousel must not depend on sampled placeholder colors')
-assert(!featuredTypescript.includes('averageRgb'), 'Featured carousel must not calculate image-average footer colors')
+assert(
+  featuredTypescript.includes('averageColorFromPixels') && featuredTypescript.includes('onFeaturedCoverLoad'),
+  'Featured carousel must derive its footer color from the current cover image'
+)
 assert(!featuredStyles.includes('linear-gradient'), 'Featured carousel must not use decorative color gradients')
 assert(!featuredStyles.includes('cover-tone'), 'Featured carousel must not use multicolor cover-tone variables')
 assert(!featuredStyles.includes('sampled-color fade'), 'Featured carousel must not use sampled-color footer fades')
@@ -170,8 +173,9 @@ assert(
   'GameHub submit CTA must use the primary teal instead of the accent color'
 )
 assert(
-  /\.game-submit-button\s*\{[\s\S]{0,500}height:\s*44px;[\s\S]{0,500}min-height:\s*44px;/.test(header),
-  'GameHub submit CTA must keep the shared 44px touch target'
+  /\.game-submit-button\s*\{[\s\S]{0,500}height:\s*44px;[\s\S]{0,500}min-height:\s*44px;/.test(header) &&
+    /\.game-login-pill\s*\{[\s\S]{0,500}height:\s*44px;[\s\S]{0,500}min-height:\s*44px;/.test(header),
+  'GameHub login and submit CTAs must share the 44px touch target'
 )
 assert(
   /\.game-search-history button\s*\{[\s\S]{0,400}min-height:\s*var\(--game-control-height\);/.test(navigation) &&
@@ -249,8 +253,11 @@ assert(
   'Game card media must use the shared generated cover and solid metadata overlay'
 )
 assert(
-  featuredTemplate.includes('featured-cover-copy'),
-  'Featured carousel must expose an in-cover title hierarchy'
+  featuredTemplate.includes('featured-footer-copy') &&
+    !featuredTemplate.includes('featured-cover-copy') &&
+    featuredTemplate.includes('onFeaturedCoverLoad') &&
+    featuredTemplate.includes('[style.--featured-color]'),
+  'Featured carousel must expose a below-image title hierarchy with color extraction'
 )
 assert(
   featuredTemplate.includes('<img') &&
@@ -260,9 +267,11 @@ assert(
   'Featured carousel must render the same generated cover fallback as game cards'
 )
 assert(
-  /\.featured-carousel\s*\{[\s\S]{0,260}align-self:\s*stretch;/.test(featuredStyles) &&
-    /\.featured-footer\s*\{[\s\S]{0,420}background:\s*var\(--game-cover-fallback-deep\);[\s\S]{0,420}flex:\s*1;/.test(featuredStyles),
-  'Featured carousel must stretch to the two-row rail and fill the remaining height with a solid cover tone'
+  /\.featured-carousel\s*\{[\s\S]{0,260}align-self:\s*start;/.test(featuredStyles) &&
+    featuredStyles.includes('height: calc(100% - var(--featured-side-info-height));') &&
+    featuredStyles.includes('background: var(--featured-color);') &&
+    featuredStyles.includes('flex: 0 0'),
+  'Featured carousel must align to the second-row media edge and use a solid extracted cover tone'
 )
 assert(
   rankingsTypescript.includes('buildGameCoverDataUrl') &&

@@ -45,7 +45,7 @@
   }
 
   &:has(.game-home-banner) > .root-header {
-    background: transparent;
+    background: var(--game-surface);
   }
 
   &.game-header-scrolled > .root-header,

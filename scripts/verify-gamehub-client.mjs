@@ -486,9 +486,9 @@ const featuredTs = read('client/src/app/+games/games-home/featured-carousel.comp
 assert(
   !featuredTs.includes('FEATURED_PLACEHOLDER_AVG_RGB') &&
     !featuredTs.includes('featuredAvgColors') &&
-    !featuredTs.includes('averageRgb') &&
-    !featuredTs.includes('onFeaturedImageLoad'),
-  'featured carousel must keep real covers without sampling or generating page colors'
+    featuredTs.includes('averageColorFromPixels') &&
+    featuredTs.includes('onFeaturedCoverLoad'),
+  'featured carousel must derive its information bar color from the current cover'
 )
 const featuredHtml = read('client/src/app/+games/games-home/featured-carousel.component.html')
 const featuredScss = read('client/src/app/+games/games-home/featured-carousel.component.scss')
@@ -561,12 +561,15 @@ assert(
   !featuredHtml.includes('coverToneClass(featuredGame)') &&
     featuredHtml.includes('<img') &&
     featuredHtml.includes('featuredCoverPath(featuredGame)') &&
+    featuredHtml.includes('featured-footer-copy') &&
+    !featuredHtml.includes('featured-cover-copy') &&
+    featuredHtml.includes('onFeaturedCoverLoad') &&
     featuredTs.includes('buildGameCoverDataUrl') &&
-    featuredScss.includes('align-self: stretch;') &&
-    featuredScss.includes('flex: 1;') &&
+    featuredScss.includes('align-self: start;') &&
+    featuredScss.includes('background: var(--featured-color);') &&
     !featuredHtml.includes('game-featured-placeholder-art') &&
     !featuredScss.includes('linear-gradient'),
-  'featured carousel must share the generated cover fallback'
+  'featured carousel must share the generated cover fallback and place content below the image'
 )
 assert(
   gameRankingsTs.includes('buildGameCoverDataUrl') &&
@@ -715,12 +718,14 @@ assert(
   'game card fallbacks must expose generated media art and overlaid metadata'
 )
 assert(
-  featuredHtml.includes('featured-cover-copy') &&
+  featuredHtml.includes('featured-footer-copy') &&
+    !featuredHtml.includes('featured-cover-copy') &&
     featuredHtml.includes('featuredCoverPath(featuredGame)') &&
     featuredHtml.includes('<img') &&
+    featuredHtml.includes('onFeaturedCoverLoad') &&
     featuredTs.includes('buildGameCoverDataUrl') &&
-    featuredScss.includes('align-self: stretch;') &&
-    featuredScss.includes('flex: 1;') &&
+    featuredScss.includes('align-self: start;') &&
+    featuredScss.includes('background: var(--featured-color);') &&
     /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/.test(featuredScss),
   'featured discovery must expose generated covers, a readable hierarchy, and a three-column side rail'
 )
@@ -1739,8 +1744,8 @@ assert(
   'GameHub navigation must use the shared hover surface and brand active states'
 )
 assert(
-  headerScss.includes('background: transparent;') &&
-    headerScss.includes('border-bottom: 0;') &&
+  /:host-context\(\.game-experience\) \.root\s*\{[\s\S]*?background:\s*var\(--game-surface\);/.test(headerScss) &&
+    /:host-context\(\.game-experience\) \.root\s*\{[\s\S]*?border-bottom:\s*1px solid var\(--game-border\);/.test(headerScss) &&
     /:host-context\(.game-experience\.game-header-scrolled\) \.root\s*\{[\s\S]*?background-color: var\(--game-surface\);/.test(headerScss) &&
     !headerScss.includes('backdrop-filter: blur(16px) saturate(1.5);') &&
     headerScss.includes('height: var(--header-height);') &&
@@ -1748,7 +1753,7 @@ assert(
     !appScss.includes('--header-height: 200px;') &&
     !appScss.includes('--header-height: 50px;') &&
     /\.game-category-rail\s*\{[\s\S]*?background:\s*transparent;/.test(gamesHomeDiscoveryNavScss),
-  'GameHub desktop header must float over the home banner and the category rail must remain transparent'
+  'GameHub desktop header must keep a readable surface over the home banner and the category rail must remain transparent'
 )
 assert(
   gamesIndexTs.indexOf("gamesRouter.use('/', discoveryRouter)") >= 0 &&
@@ -1848,9 +1853,11 @@ assert(
   !featuredHtml.includes('[class.tone-bg]="!featuredCoverPath(featuredGame)"') &&
     !featuredHtml.includes('[style.background]="featuredCoverPath(featuredGame) ? featuredAvgColor(featuredGame) : null"') &&
     !featuredScss.includes('.featured-footer.tone-bg') &&
-    featuredScss.includes('background: transparent;') &&
+    featuredScss.includes('.featured-footer {') &&
+    featuredScss.includes('background: var(--featured-color);') &&
+    featuredScss.includes('color: var(--featured-foreground);') &&
     !featuredScss.includes('border-top: 1px solid var(--game-border);'),
-  'featured carousel footer must stay in the shared transparent page layer without a color gradient'
+  'featured carousel footer must use the current cover color without a color gradient'
 )
 assert(
   !featuredScss.includes('linear-gradient'),

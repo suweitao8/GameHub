@@ -9,7 +9,7 @@ import {
 } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
-import { buildGameCoverDataUrl } from '../../shared/game-cover'
+import { averageColorFromPixels, buildGameCoverDataUrl, getReadableTextColor } from '../../shared/game-cover'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
 
@@ -36,6 +36,8 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly carouselIndex = signal(0)
   /** Uploaded cover URLs that failed to load -> use the deterministic title cover. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
+  /** Average image colors used by the below-image featured information bar. */
+  readonly featuredColors = signal<Record<string, string>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
   private touchStartX = 0
   private touchStartY = 0
@@ -79,6 +81,15 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return buildGameCoverDataUrl(game.title, game.category)
   }
 
+  featuredColor (game: Game) {
+    return this.featuredColors()[game.uuid] || 'var(--game-cover-fallback-deep)'
+  }
+
+  featuredTextColor (game: Game) {
+    const color = this.featuredColors()[game.uuid]
+    return color ? getReadableTextColor(color) : 'var(--game-text-primary)'
+  }
+
   formatCount (value: number | undefined) {
     if (!value) return '0'
     if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
@@ -96,6 +107,27 @@ export class FeaturedCarouselComponent implements OnDestroy {
   onFeaturedCoverError (uuid: string) {
     if (this.brokenFeaturedCovers()[uuid]) return
     this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
+  }
+
+  onFeaturedCoverLoad (event: Event, uuid: string) {
+    const image = event.target as HTMLImageElement | null
+    if (!image?.naturalWidth || !image.naturalHeight) return
+
+    const canvas = document.createElement('canvas')
+    canvas.width = 24
+    canvas.height = 14
+    const context = canvas.getContext('2d', { willReadFrequently: true })
+
+    if (!context) return
+
+    try {
+      context.drawImage(image, 0, 0, canvas.width, canvas.height)
+      const color = averageColorFromPixels(context.getImageData(0, 0, canvas.width, canvas.height).data)
+      this.featuredColors.update(map => map[uuid] === color ? map : ({ ...map, [uuid]: color }))
+    } catch {
+      // Cross-origin covers can be displayed but not sampled by canvas. Keep the
+      // token-based fallback so a failed color extraction never breaks the card.
+    }
   }
 
   nextCarousel (step = 1) {

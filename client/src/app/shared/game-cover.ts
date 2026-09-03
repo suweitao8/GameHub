@@ -64,6 +64,45 @@ function buildMotif (variant: number, palette: typeof PALETTES[number]) {
 }
 
 /**
+ * Compute a compact average color from RGBA pixels returned by a canvas.
+ * Transparent pixels are ignored so image padding does not tint the result.
+ */
+export function averageColorFromPixels (pixels: ArrayLike<number>) {
+  let red = 0
+  let green = 0
+  let blue = 0
+  let alphaTotal = 0
+
+  for (let index = 0; index + 3 < pixels.length; index += 4) {
+    const alpha = pixels[index + 3] / 255
+    if (alpha <= 0) continue
+
+    red += pixels[index] * alpha
+    green += pixels[index + 1] * alpha
+    blue += pixels[index + 2] * alpha
+    alphaTotal += alpha
+  }
+
+  if (!alphaTotal) return '#c3dce5'
+
+  return `#${[ red, green, blue ]
+    .map(value => Math.round(value / alphaTotal).toString(16).padStart(2, '0'))
+    .join('')}`
+}
+
+/** Pick the higher-contrast foreground for a solid-color information bar. */
+export function getReadableTextColor (hexColor: string) {
+  const match = /^#([\da-f]{6})$/i.exec(hexColor)
+  if (!match) return '#18191c'
+
+  const [ red, green, blue ] = [ 0, 2, 4 ].map(offset => Number.parseInt(match[1].slice(offset, offset + 2), 16) / 255)
+  const toLinear = (channel: number) => channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+  const luminance = 0.2126 * toLinear(red) + 0.7152 * toLinear(green) + 0.0722 * toLinear(blue)
+
+  return luminance > 0.179 ? '#18191c' : '#ffffff'
+}
+
+/**
  * Generate a deterministic SVG data URL from a game title and category.
  * Keeping this pure makes it safe to use in Angular templates, tests, and
  * upload previews without a network request or an AI service.

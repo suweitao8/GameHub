@@ -17,7 +17,7 @@
   box-sizing: border-box;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-top: calc(-1 * var(--header-height));
+  margin-top: 0;
   min-height: var(--game-banner-height);
   overflow: hidden;
   position: relative;
@@ -46,7 +46,7 @@
   display: grid;
   min-height: var(--game-banner-height);
   padding-bottom: 1.15rem;
-  padding-top: var(--header-height);
+  padding-top: 0;
   position: relative;
   z-index: 1;
 }
