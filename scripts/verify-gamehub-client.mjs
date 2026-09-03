@@ -567,6 +567,7 @@ assert(
     featuredTs.includes('buildGameCoverDataUrl') &&
     featuredScss.includes('align-self: start;') &&
     featuredScss.includes('background: var(--featured-color);') &&
+    featuredScss.includes('min-height: 2.7em;') &&
     !featuredHtml.includes('game-featured-placeholder-art') &&
     !featuredScss.includes('linear-gradient'),
   'featured carousel must share the generated cover fallback and place content below the image'
@@ -726,6 +727,7 @@ assert(
     featuredTs.includes('buildGameCoverDataUrl') &&
     featuredScss.includes('align-self: start;') &&
     featuredScss.includes('background: var(--featured-color);') &&
+    featuredScss.includes('min-height: 2.7em;') &&
     /\.featured-side-grid\s*\{[\s\S]{0,900}grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/.test(featuredScss),
   'featured discovery must expose generated covers, a readable hierarchy, and a three-column side rail'
 )

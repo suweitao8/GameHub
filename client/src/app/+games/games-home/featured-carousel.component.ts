@@ -90,13 +90,6 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return color ? getReadableTextColor(color) : 'var(--game-text-primary)'
   }
 
-  formatCount (value: number | undefined) {
-    if (!value) return '0'
-    if (value >= 10000) return `${(value / 10000).toFixed(1)}万`
-    if (value >= 1000) return `${(value / 1000).toFixed(1)}k`
-    return `${value}`
-  }
-
   formatDate (value: string | null | undefined) {
     if (!value) return '--'
     const date = new Date(value)

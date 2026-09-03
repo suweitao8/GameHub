@@ -85,7 +85,8 @@
 
 .featured-discovery-grid {
   --featured-gap: var(--game-space-grid);
-  --featured-side-info-height: 3.1rem;
+  /* 侧卡标题固定两行，扣除 body、作者间距和作者行后主卡稳定对齐。 */
+  --featured-side-info-height: 4.35rem;
 
   display: grid;
   gap: var(--featured-gap);
@@ -218,7 +219,6 @@
   font-weight: 800;
   letter-spacing: 0.03em;
   line-height: 1.2;
-  opacity: 0.72;
   white-space: nowrap;
 }
 
@@ -239,7 +239,6 @@
   font-size: var(--game-font-size-xs);
   line-height: 1.2;
   min-width: 0;
-  opacity: 0.72;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -317,7 +316,6 @@
   height: var(--game-control-height-sm);
   justify-content: center;
   line-height: 1;
-  opacity: 0.78;
   width: var(--game-control-height-sm);
 }
 
@@ -356,6 +354,8 @@
 
 :host ::ng-deep .featured-side-grid .game-card h3 {
   font-size: var(--game-font-size-md);
+  height: 2.7em;
+  min-height: 2.7em;
 }
 
 :host ::ng-deep .featured-side-grid .game-card-author {

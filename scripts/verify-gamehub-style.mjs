@@ -269,9 +269,16 @@ assert(
 assert(
   /\.featured-carousel\s*\{[\s\S]{0,260}align-self:\s*start;/.test(featuredStyles) &&
     featuredStyles.includes('height: calc(100% - var(--featured-side-info-height));') &&
+    featuredStyles.includes('--featured-side-info-height: 4.35rem;') &&
     featuredStyles.includes('background: var(--featured-color);') &&
-    featuredStyles.includes('flex: 0 0'),
+    featuredStyles.includes('flex: 0 0') &&
+    featuredStyles.includes('min-height: 2.7em;'),
   'Featured carousel must align to the second-row media edge and use a solid extracted cover tone'
+)
+assert(
+  !/\.featured-footer-copy small\s*\{[\s\S]{0,240}opacity:/.test(featuredStyles) &&
+    !/\.featured-arrow-controls button\s*\{[\s\S]{0,260}opacity:/.test(featuredStyles),
+  'Featured carousel footer metadata and controls must keep solid readable foreground colors'
 )
 assert(
   rankingsTypescript.includes('buildGameCoverDataUrl') &&
