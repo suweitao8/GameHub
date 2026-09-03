@@ -15,7 +15,7 @@ import { shareReplay, Subscription } from 'rxjs'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { ButtonComponent } from '../shared/shared-main/buttons/button.component'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 import { HeaderService } from './header.service'
 import { GameNavigationComponent } from './game-navigation.component'
 import { GameNotificationBadgeService } from './game-notification-badge.service'
@@ -77,6 +77,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     creator: false
   })
   readonly gameNavCoverFallbacks = signal<Record<string, boolean>>({})
+  readonly gameNavPresetFallbacks = signal<Record<string, boolean>>({})
 
   user: AuthUser
   loggedIn: boolean
@@ -572,9 +573,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getGameNavCoverUrl (game: { uuid: string; title: string; coverPath: string | null; category?: string } | null | undefined) {
-    if (!game) return buildGameCoverDataUrl('动态')
+    if (!game) return getGameCoverPresetUrl()
     if (game.coverPath && !this.gameNavCoverFallbacks()[game.uuid]) return game.coverPath
-    return buildGameCoverDataUrl(game.title, game.category)
+    if (this.gameNavPresetFallbacks()[game.uuid]) return buildGameCoverDataUrl(game.title, game.category)
+    return getGameCoverPresetUrl(game.category)
   }
 
   /** 将 ISO 时间字符串格式化为"3小时前"风格的相对时间 */
@@ -593,7 +595,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   onGameNavCoverError (uuid: string) {
     if (!uuid) return
-    this.gameNavCoverFallbacks.update(state => ({ ...state, [uuid]: true }))
+    if (!this.gameNavCoverFallbacks()[uuid]) {
+      this.gameNavCoverFallbacks.update(state => ({ ...state, [uuid]: true }))
+      return
+    }
+    if (this.gameNavPresetFallbacks()[uuid]) return
+    this.gameNavPresetFallbacks.update(state => ({ ...state, [uuid]: true }))
   }
 
   private loadGameNavData (popup: GameHeaderPopup) {
@@ -784,6 +791,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.gameNavNotifications.set([])
     this.gameNavLoading.set({ notifications: false, favorites: false, history: false, creator: false })
     this.gameNavCoverFallbacks.set({})
+    this.gameNavPresetFallbacks.set({})
     this.gameCoinBalance.set(null)
     this.gameCount.set(null)
     this.gameCoinBalanceRequested = false

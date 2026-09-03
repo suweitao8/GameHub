@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   averageColorFromPixels,
   buildGameCoverDataUrl,
+  getGameCoverPresetUrl,
   getReadableTextColor
 } from '../client/src/app/shared/game-cover.ts'
 
@@ -18,6 +19,16 @@ assert.match(decoded, /viewBox="0 0 640 360"/, '封面必须使用 16:9 画布')
 assert.match(decoded, /A&amp;B &lt;测试&gt;/, '封面标题必须进行 XML 转义')
 assert.doesNotMatch(decoded, /A&B <测试>/, '封面 SVG 不能直接拼接未转义的标题')
 assert.match(decoded, /GAMEHUB/, '封面必须保留 GameHub 品牌标识')
+assert.equal(
+  getGameCoverPresetUrl('PUZZLE'),
+  '/client/assets/images/game-cover-presets/puzzle.jpg',
+  '分类预设 URL 必须归一化为小写'
+)
+assert.equal(
+  getGameCoverPresetUrl('not-a-category'),
+  '/client/assets/images/game-cover-presets/other.jpg',
+  '未知分类必须使用 other 预设'
+)
 
 assert.equal(
   averageColorFromPixels(new Uint8ClampedArray([ 255, 255, 255, 255, 0, 0, 0, 255 ])),

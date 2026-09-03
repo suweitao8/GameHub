@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@ang
 import { RouterLink } from '@angular/router'
 import { WatchLaterService, WatchLaterItem } from './watch-later.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 
 @Component({
   selector: 'my-game-watch-later',
@@ -59,6 +59,7 @@ export class GameWatchLaterComponent implements OnInit {
 
   readonly items = signal<WatchLaterItem[]>([])
   readonly coverFallbacks = signal<Record<string, true>>({})
+  readonly presetCoverFallbacks = signal<Record<string, true>>({})
 
   ngOnInit () {
     this.loadItems()
@@ -75,12 +76,17 @@ export class GameWatchLaterComponent implements OnInit {
 
   coverUrl (item: WatchLaterItem) {
     if (item.coverPath && !this.coverFallbacks()[item.uuid]) return item.coverPath
-    return buildGameCoverDataUrl(item.title)
+    if (this.presetCoverFallbacks()[item.uuid]) return buildGameCoverDataUrl(item.title, item.category)
+    return getGameCoverPresetUrl(item.category)
   }
 
   onCoverError (item: WatchLaterItem) {
-    if (!item.coverPath || this.coverFallbacks()[item.uuid]) return
-    this.coverFallbacks.update(state => ({ ...state, [item.uuid]: true }))
+    if (item.coverPath && !this.coverFallbacks()[item.uuid]) {
+      this.coverFallbacks.update(state => ({ ...state, [item.uuid]: true }))
+      return
+    }
+    if (this.presetCoverFallbacks()[item.uuid]) return
+    this.presetCoverFallbacks.update(state => ({ ...state, [item.uuid]: true }))
   }
 
   formatDate (dateString: string): string {

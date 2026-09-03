@@ -9,7 +9,7 @@ import {
 } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { Game } from '../games.service'
-import { averageColorFromPixels, buildGameCoverDataUrl, getReadableTextColor } from '../../shared/game-cover'
+import { averageColorFromPixels, buildGameCoverDataUrl, getGameCoverPresetUrl, getReadableTextColor } from '../../shared/game-cover'
 import { GlobalIconComponent } from '../../shared/shared-icons/global-icon.component'
 import { GameCardComponent } from '../game-card.component'
 
@@ -34,8 +34,10 @@ export class FeaturedCarouselComponent implements OnDestroy {
   readonly searchTerm = input<string>('')
 
   readonly carouselIndex = signal(0)
-  /** Uploaded cover URLs that failed to load -> use the deterministic title cover. */
+  /** Uploaded cover URLs that failed to load -> use the category preset. */
   readonly brokenFeaturedCovers = signal<Record<string, true>>({})
+  /** Preset URLs that failed to load -> use the deterministic inline SVG. */
+  readonly brokenFeaturedPresets = signal<Record<string, true>>({})
   /** Average image colors used by the below-image featured information bar. */
   readonly featuredColors = signal<Record<string, string>>({})
   private carouselTimer: ReturnType<typeof setInterval> | undefined
@@ -78,7 +80,8 @@ export class FeaturedCarouselComponent implements OnDestroy {
 
   featuredCoverPath (game: Game) {
     if (game.coverPath && !this.brokenFeaturedCovers()[game.uuid]) return game.coverPath
-    return buildGameCoverDataUrl(game.title, game.category)
+    if (this.brokenFeaturedPresets()[game.uuid]) return buildGameCoverDataUrl(game.title, game.category)
+    return getGameCoverPresetUrl(game.category)
   }
 
   featuredColor (game: Game) {
@@ -97,9 +100,14 @@ export class FeaturedCarouselComponent implements OnDestroy {
     return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit' }).format(date).replaceAll('/', '-')
   }
 
-  onFeaturedCoverError (uuid: string) {
-    if (this.brokenFeaturedCovers()[uuid]) return
-    this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
+  onFeaturedCoverError (game: Game) {
+    const uuid = game.uuid
+    if (game.coverPath && !this.brokenFeaturedCovers()[uuid]) {
+      this.brokenFeaturedCovers.update(map => ({ ...map, [uuid]: true }))
+      return
+    }
+    if (this.brokenFeaturedPresets()[uuid]) return
+    this.brokenFeaturedPresets.update(map => ({ ...map, [uuid]: true }))
   }
 
   onFeaturedCoverLoad (event: Event, uuid: string) {

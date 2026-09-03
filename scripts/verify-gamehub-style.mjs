@@ -245,6 +245,7 @@ assert(
 assert(
   gameCover.includes('buildGameCoverDataUrl') &&
     gameCover.includes('encodeURIComponent') &&
+    cardTypescript.includes('getGameCoverPresetUrl') &&
     cardTypescript.includes('buildGameCoverDataUrl') &&
     cardStyles.includes('.game-cover img') &&
     cardStyles.includes('.game-cover-meta') &&
@@ -263,6 +264,7 @@ assert(
   featuredTemplate.includes('<img') &&
     featuredTemplate.includes('featuredCoverPath(featuredGame)') &&
     !featuredTemplate.includes('game-featured-placeholder-art') &&
+    featuredTypescript.includes('getGameCoverPresetUrl') &&
     featuredTypescript.includes('buildGameCoverDataUrl'),
   'Featured carousel must render the same generated cover fallback as game cards'
 )
@@ -281,7 +283,8 @@ assert(
   'Featured carousel footer metadata and controls must keep solid readable foreground colors'
 )
 assert(
-  rankingsTypescript.includes('buildGameCoverDataUrl') &&
+  rankingsTypescript.includes('getGameCoverPresetUrl') &&
+    rankingsTypescript.includes('buildGameCoverDataUrl') &&
     rankingsTypescript.includes('coverUrl(game)') &&
     !rankingsTypescript.includes('class="cover-placeholder"'),
   'Game rankings must render a generated cover fallback instead of a scenic placeholder'

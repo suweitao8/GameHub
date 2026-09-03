@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router'
 import { GamesService } from './games.service'
 import type { Game } from './games.service'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 
 @Component({
   selector: 'my-game-reservations',
@@ -74,6 +74,7 @@ export class GameReservationsComponent implements OnInit {
   loading = signal(false)
   error = signal('')
   readonly coverFallbacks = signal<Record<string, true>>({})
+  readonly presetCoverFallbacks = signal<Record<string, true>>({})
 
   ngOnInit () {
     this.loadReservations()
@@ -96,12 +97,17 @@ export class GameReservationsComponent implements OnInit {
 
   coverUrl (game: Game) {
     if (game.coverPath && !this.coverFallbacks()[game.uuid]) return game.coverPath
-    return buildGameCoverDataUrl(game.title, game.category)
+    if (this.presetCoverFallbacks()[game.uuid]) return buildGameCoverDataUrl(game.title, game.category)
+    return getGameCoverPresetUrl(game.category)
   }
 
   onCoverError (game: Game) {
-    if (!game.coverPath || this.coverFallbacks()[game.uuid]) return
-    this.coverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
+    if (game.coverPath && !this.coverFallbacks()[game.uuid]) {
+      this.coverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
+      return
+    }
+    if (this.presetCoverFallbacks()[game.uuid]) return
+    this.presetCoverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
   }
 
   cancelReservation (id: number, index: number) {

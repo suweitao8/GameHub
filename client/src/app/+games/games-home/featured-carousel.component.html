@@ -21,7 +21,7 @@
         >
           <a class="featured-carousel-link" [routerLink]="['/games', featuredGame.uuid]" [attr.aria-label]="'打开推荐游戏：' + featuredGame.title" i18n-aria-label>
             <div class="featured-cover">
-              <img [src]="featuredCoverPath(featuredGame)" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedCoverLoad($event, featuredGame.uuid)" (error)="onFeaturedCoverError(featuredGame.uuid)">
+              <img [src]="featuredCoverPath(featuredGame)" [alt]="featuredGame.title + ' 封面'" loading="eager" decoding="async" (load)="onFeaturedCoverLoad($event, featuredGame.uuid)" (error)="onFeaturedCoverError(featuredGame)">
               <span class="game-cover-badge" aria-hidden="true" i18n>推荐</span>
             </div>
           </a>

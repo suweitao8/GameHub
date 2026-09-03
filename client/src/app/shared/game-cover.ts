@@ -1,9 +1,29 @@
 /**
  * Build a stable, lightweight cover for games that do not have an uploaded image.
  * The SVG is intentionally flat and restrained so it reads as a content thumbnail,
- * not as a second visual theme. The same output is used for display fallbacks and
- * converted to PNG before a new game is uploaded.
+ * not as a second visual theme. It remains the synchronous last-resort fallback
+ * when the category preset image cannot be loaded.
  */
+
+export const GAME_COVER_PRESET_CATEGORIES = [
+  'arcade', 'adventure', 'shooter', 'puzzle', 'casual', 'rpg', 'strategy', 'simulation',
+  'sandbox', 'racing', 'sports', 'card', 'music', 'horror', 'board', 'other'
+] as const
+
+export type GameCoverPresetCategory = typeof GAME_COVER_PRESET_CATEGORIES[number]
+
+/**
+ * Resolve a category to a bundled 16:9 background. Keeping this mapping pure
+ * means every display surface and the upload generator share the same asset.
+ */
+export function getGameCoverPresetUrl (category = 'other') {
+  const normalized = category.trim().toLowerCase()
+  const preset = GAME_COVER_PRESET_CATEGORIES.includes(normalized as GameCoverPresetCategory)
+    ? normalized
+    : 'other'
+
+  return '/client/assets/images/game-cover-presets/' + preset + '.jpg'
+}
 
 const CATEGORY_LABELS: Record<string, string> = {
   arcade: '动作', adventure: '冒险', shooter: '射击', puzzle: '解谜', casual: '休闲', rpg: '角色扮演', strategy: '策略',

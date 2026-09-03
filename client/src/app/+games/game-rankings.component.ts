@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import type { GameRanking } from './games.service'
 import { GamesService } from './games.service'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 import { createAsyncState } from './shared'
 import { map } from 'rxjs/operators'
 
@@ -95,6 +95,7 @@ export class GameRankingsComponent implements OnInit {
   currentTab = signal<'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'>('hot')
   selectedCategory = signal<string>('')
   readonly rankingCoverFallbacks = signal<Record<string, true>>({})
+  readonly rankingPresetFallbacks = signal<Record<string, true>>({})
 
   tabs: { id: 'hot' | 'newest' | 'updated' | 'favorites' | 'coins' | 'comments' | 'likes'; label: string }[] = [
     { id: 'hot', label: '最热' },
@@ -150,12 +151,17 @@ export class GameRankingsComponent implements OnInit {
 
   coverUrl (game: GameRanking) {
     if (game.coverPath && !this.rankingCoverFallbacks()[game.uuid]) return game.coverPath
-    return buildGameCoverDataUrl(game.title, game.category)
+    if (this.rankingPresetFallbacks()[game.uuid]) return buildGameCoverDataUrl(game.title, game.category)
+    return getGameCoverPresetUrl(game.category)
   }
 
   onCoverError (game: GameRanking) {
-    if (!game.coverPath || this.rankingCoverFallbacks()[game.uuid]) return
-    this.rankingCoverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
+    if (game.coverPath && !this.rankingCoverFallbacks()[game.uuid]) {
+      this.rankingCoverFallbacks.update(state => ({ ...state, [game.uuid]: true }))
+      return
+    }
+    if (this.rankingPresetFallbacks()[game.uuid]) return
+    this.rankingPresetFallbacks.update(state => ({ ...state, [game.uuid]: true }))
   }
 
   getScoreDisplay (game: GameRanking): string {

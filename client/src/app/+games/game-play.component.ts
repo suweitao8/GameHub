@@ -9,7 +9,7 @@ import { LoginModalService } from '@app/+login/login-modal.service'
 import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { GamesService, Game, GameCommunity, GameRelatedGame } from './games.service'
 import { buildGameAvatarDataUrl } from '../shared/game-avatar'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
 import { WatchLaterService } from './watch-later.service'
 import { GameRecommendService } from './game-recommend.service'
@@ -70,6 +70,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   readonly developerGames = signal<GameRelatedGame[]>([])
   readonly related = signal<GameRelatedGame[]>([])
   readonly relatedCoverBroken = signal<Record<string, boolean>>({})
+  readonly relatedPresetBroken = signal<Record<string, boolean>>({})
   readonly soundEnabled = signal(true)
   readonly gameVolume = signal(1)
   readonly frameError = signal(false)
@@ -127,6 +128,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.developerGames.set([])
     this.related.set([])
     this.relatedCoverBroken.set({})
+    this.relatedPresetBroken.set({})
     this.playRecordedFor = ''
     this.inWatchLater.set(this.watchLaterService.has(uuid))
     this.gamesService.get(uuid).subscribe({
@@ -206,12 +208,17 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
   relatedCoverUrl (item: GameRelatedGame) {
     if (item.coverPath && !this.relatedCoverBroken()[item.uuid]) return item.coverPath
-    return buildGameCoverDataUrl(item.title, item.category)
+    if (this.relatedPresetBroken()[item.uuid]) return buildGameCoverDataUrl(item.title, item.category)
+    return getGameCoverPresetUrl(item.category)
   }
 
   onRelatedCoverError (item: GameRelatedGame) {
-    if (!item.coverPath || this.relatedCoverBroken()[item.uuid]) return
-    this.relatedCoverBroken.update(state => ({ ...state, [item.uuid]: true }))
+    if (item.coverPath && !this.relatedCoverBroken()[item.uuid]) {
+      this.relatedCoverBroken.update(state => ({ ...state, [item.uuid]: true }))
+      return
+    }
+    if (this.relatedPresetBroken()[item.uuid]) return
+    this.relatedPresetBroken.update(state => ({ ...state, [item.uuid]: true }))
   }
 
   @HostListener('document:keydown', [ '$event' ])

@@ -5,6 +5,7 @@ export type WatchLaterItem = {
   uuid: string
   title: string
   coverPath: string | null
+  category?: string
   authorName: string | null
   addedAt: string
 }
@@ -19,6 +20,7 @@ function isValidWatchLaterItem (item: unknown): item is WatchLaterItem {
     typeof candidate.uuid === 'string' &&
     typeof candidate.title === 'string' &&
     (candidate.coverPath === null || typeof candidate.coverPath === 'string') &&
+    (candidate.category === undefined || typeof candidate.category === 'string') &&
     (candidate.authorName === null || typeof candidate.authorName === 'string') &&
     typeof candidate.addedAt === 'string'
   )
@@ -50,7 +52,7 @@ export class WatchLaterService {
     return getStored()
   }
 
-  add (game: Pick<Game, 'uuid' | 'title' | 'coverPath'> & { author?: { displayName?: string; name?: string } | null }) {
+  add (game: Pick<Game, 'uuid' | 'title' | 'coverPath' | 'category'> & { author?: { displayName?: string; name?: string } | null }) {
     const items = getStored()
     const existing = items.findIndex(item => item.uuid === game.uuid)
     if (existing !== -1) {
@@ -62,6 +64,7 @@ export class WatchLaterService {
       uuid: game.uuid,
       title: game.title,
       coverPath: game.coverPath || null,
+      category: game.category,
       authorName,
       addedAt: new Date().toISOString()
     })

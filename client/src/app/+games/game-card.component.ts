@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, signal, inject, input } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
-import { buildGameCoverDataUrl } from '../shared/game-cover'
+import { buildGameCoverDataUrl, getGameCoverPresetUrl } from '../shared/game-cover'
 import { Game } from './games.service'
 import { HighlightPipe } from './highlight.pipe'
 
@@ -16,6 +16,7 @@ export class GameCardComponent implements OnInit, OnDestroy {
   readonly game = input.required<Game>()
   readonly searchTerm = input<string | undefined>(undefined)
   readonly coverUnavailable = signal(false)
+  readonly presetCoverUnavailable = signal(false)
   readonly isVisible = signal(false)
 
   private readonly elementRef = inject(ElementRef<HTMLElement>)
@@ -66,7 +67,9 @@ export class GameCardComponent implements OnInit, OnDestroy {
 
   generatedCoverUrl () {
     const game = this.game()
-    return buildGameCoverDataUrl(game.title, game.category)
+    return this.presetCoverUnavailable()
+      ? buildGameCoverDataUrl(game.title, game.category)
+      : getGameCoverPresetUrl(game.category)
   }
 
   coverUrl () {
@@ -75,6 +78,11 @@ export class GameCardComponent implements OnInit, OnDestroy {
   }
 
   onCoverError () {
-    this.coverUnavailable.set(true)
+    const game = this.game()
+    if (game.coverPath && !this.coverUnavailable()) {
+      this.coverUnavailable.set(true)
+      return
+    }
+    this.presetCoverUnavailable.set(true)
   }
 }

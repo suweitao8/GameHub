@@ -545,8 +545,10 @@ assert(
     gameCardHtml.includes('game-card-category') &&
     gameCardHtml.includes('class="game-card-meta-line"') &&
     gameCardScss.includes('background: var(--game-cover-fallback-deep);') &&
+    gameCoverTs.includes('getGameCoverPresetUrl') &&
     gameCoverTs.includes('buildGameCoverDataUrl') &&
     gameCoverTs.includes('encodeURIComponent') &&
+    gameCardTs.includes('getGameCoverPresetUrl') &&
     gameCardTs.includes('buildGameCoverDataUrl') &&
     !gameCardScss.includes('gamehub-header-banner.png') &&
     !gameCardScss.includes('linear-gradient') &&
@@ -564,6 +566,7 @@ assert(
     featuredHtml.includes('featured-footer-copy') &&
     !featuredHtml.includes('featured-cover-copy') &&
     featuredHtml.includes('onFeaturedCoverLoad') &&
+    featuredTs.includes('getGameCoverPresetUrl') &&
     featuredTs.includes('buildGameCoverDataUrl') &&
     featuredScss.includes('align-self: start;') &&
     featuredScss.includes('background: var(--featured-color);') &&
@@ -573,20 +576,24 @@ assert(
   'featured carousel must share the generated cover fallback and place content below the image'
 )
 assert(
-  gameRankingsTs.includes('buildGameCoverDataUrl') &&
+  gameRankingsTs.includes('getGameCoverPresetUrl') &&
+    gameRankingsTs.includes('buildGameCoverDataUrl') &&
     gameRankingsTs.includes('coverUrl(game)') &&
     !gameRankingsTs.includes('class="cover-placeholder"'),
   'game rankings must use the generated cover fallback'
 )
 assert(
-  submitHeaderTs.includes('buildGameCoverDataUrl') &&
+  submitHeaderTs.includes('getGameCoverPresetUrl') &&
+    submitHeaderTs.includes('buildGameCoverDataUrl') &&
     submitHeaderTs.includes('getGameNavCoverUrl') &&
     submitHeaderHtml.includes('getGameNavCoverUrl(') &&
     gameUploadTs.includes('let cover: File | null = this.cover') &&
     gameUploadTs.includes('if (!cover)') &&
     gameUploadTs.includes('generateAutomaticCover(title, this.category())') &&
+    watchLaterTs.includes('getGameCoverPresetUrl') &&
     watchLaterTs.includes('buildGameCoverDataUrl') &&
     watchLaterTs.includes('coverUrl(item)') &&
+    reservationsTs.includes('getGameCoverPresetUrl') &&
     reservationsTs.includes('buildGameCoverDataUrl') &&
     reservationsTs.includes('coverUrl(item.game)'),
   'header, watch-later, and reservation game surfaces must use the generated cover fallback'
@@ -715,6 +722,7 @@ assert(
   gameCardHtml.includes('coverUrl()') &&
     gameCardHtml.includes('<img') &&
     gameCardHtml.includes('class="game-cover-meta"') &&
+    gameCardTs.includes('getGameCoverPresetUrl') &&
     gameCardTs.includes('buildGameCoverDataUrl'),
   'game card fallbacks must expose generated media art and overlaid metadata'
 )
@@ -724,6 +732,7 @@ assert(
     featuredHtml.includes('featuredCoverPath(featuredGame)') &&
     featuredHtml.includes('<img') &&
     featuredHtml.includes('onFeaturedCoverLoad') &&
+    featuredTs.includes('getGameCoverPresetUrl') &&
     featuredTs.includes('buildGameCoverDataUrl') &&
     featuredScss.includes('align-self: start;') &&
     featuredScss.includes('background: var(--featured-color);') &&
@@ -1123,9 +1132,18 @@ const automaticCoverSource = automaticCoverStart >= 0 && automaticCoverEnd > aut
   : ''
 assert(
   !automaticCoverSource.includes('createLinearGradient') &&
+    automaticCoverSource.includes('getGameCoverPresetUrl') &&
     automaticCoverSource.includes('buildGameCoverDataUrl') &&
-    coverGeneratorTs.includes('buildGameCoverDataUrl'),
-  'automatic covers must use the shared deterministic title-cover generator'
+    automaticCoverSource.includes('gamehub-auto-cover.jpg'),
+  'automatic covers must use category presets and the compressed JPEG contract'
+)
+assert(
+  coverGeneratorTs.includes('canvas.width = COVER_WIDTH') &&
+    coverGeneratorTs.includes('canvas.height = COVER_HEIGHT') &&
+    coverGeneratorTs.includes('COVER_JPEG_QUALITY = 0.78') &&
+    coverGeneratorTs.includes('gamehub-runtime-screenshot.jpg') &&
+    coverGeneratorTs.includes('image/jpeg'),
+  'runtime screenshot covers must use the same 512x288 JPEG contract'
 )
 assert(
   captchaTs.includes("const CHAR_COLORS = [ '#007aa3', '#005a78', '#de5c83', '#109a76', '#92400e' ]") &&
